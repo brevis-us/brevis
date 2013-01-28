@@ -16,9 +16,11 @@ Developed for use with the Clojure Eclipse plugin, CounterClockwise.
 
 0. Obtain brevis from http://github.com/kephale/brevis
 
-1. Import brevis as a project
+1. Create a default project in Eclipse. 
 
-2. Convert to a Leiningen project
+Uncheck the default location and point it to the location to which brevis was obtained.
+
+2. Convert brevis to a Leiningen project
 
 3. Open brevis.example.swarm
 
@@ -27,6 +29,7 @@ Developed for use with the Clojure Eclipse plugin, CounterClockwise.
 Keyboard keys:
 
 esc - kill the simulation
+
 ...
 
 6. Enjoy. There is more to come...
