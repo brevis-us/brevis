@@ -2,6 +2,8 @@
 
 brevis, a Second Generation artificial life simulator.
 
+brevis is a revitalization of the spirit of the breve simulator in the functional
+language, Clojure.
 	
 	http://cs.brandeis.edu/~kyleh/brevis
 
@@ -21,6 +23,11 @@ Developed for use with the Clojure Eclipse plugin, CounterClockwise.
 3. Open brevis.example.swarm
 
 4. Menu: Clojure -> Load file in REPL
+
+Keyboard keys:
+
+esc - kill the simulation
+...
 
 6. Enjoy. There is more to come...
 
