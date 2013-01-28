@@ -17,6 +17,7 @@
 (def num-initial-birds 25)
 (def minimum-num-birds num-initial-birds)
 (def num-initial-foods 20)
+(def minimum-num-foods num-initial-foods)
 
 ;; Energies
 (def child-bird-energy-cost 0.15)
@@ -88,7 +89,7 @@
 
 (defn make-bird
   "Make a new bird with the specified program. At the specified location."
-  [friendliness position]
+  [genome position]
   (-> {}
       (make-real)
       (make-box)      
@@ -96,14 +97,30 @@
              :color [1 0 0]
              :energy child-bird-energy-cost
              :position position
-             :friendliness friendliness)
+             :genome genome)
       (make-collision-shape)))
 
+(defn random-bird-genome
+  "Returns a random bird genome. Genome is [ friend_weight food_weight ]"
+  []  
+  [ (- (* 2 (lrand)) 1) (lrand) ])
+
+(defn mutate-bird-genome
+  "Returns a mutant bird genome. "
+  [genome]
+  (let [g1 (+ (first genome) (* 0.02 (lrand)) -0.01)
+        g2 (+ (second genome) (* 0.02 (lrand)) -0.01)]
+	  [(cond (> g1 1) 1
+	         (< g1 -1) -1
+	         :else g1)
+	   (cond (> g2 1) 1
+	         (< g2 0) 0
+	         :else g2)]))
+  
 (defn random-bird
   "Make a new random bird."
   []
-  (let [friendliness (lrand)]
-    (make-bird friendliness (random-bird-position))))
+  (make-bird (random-bird-genome) (random-bird-position)))
 
 (defn bound-acceleration
   "Keeps the acceleration within a reasonable range."
@@ -115,10 +132,14 @@
 (defn eval-bird
   "Evaluate a bird to decide what to do."
   [bird nbrs]
-  (let [dir-to-nbr (sub (:position (first nbrs)) (:position bird))]
+  (let [nbr-bird (some #(when (bird? %) %) nbrs)
+        nbr-food (some #(when (food? %) %) nbrs)
+        dir-to-bird (sub (:position nbr-bird) (:position bird))
+        dir-to-food (sub (:position nbr-food) (:position bird))]
     (assoc bird
            :acceleration (add (:acceleration bird) 
-                              (mul dir-to-nbr (:friendliness bird))))))
+                              (mul dir-to-bird (first (:genome bird)))
+                              (mul dir-to-food (second (:genome bird)))))))
 
 (defn fly
   "Change the acceleration of a bird."
@@ -144,7 +165,7 @@
                :energy (- (:energy bird) bird-cost-of-living))]
     (when (pos? (:energy bird))
       (if (> (:energy bird) child-bird-energy-cost)
-        (list (make-bird (:friendliness bird) (offset-position (:position bird) 2))
+        (list (make-bird (mutate-bird-genome (:genome bird)) (offset-position (:position bird) 2))
               (assoc bird
                 :energy (- (:energy bird) child-bird-energy-cost child-birth-energy-loss)))
         bird))))
@@ -209,7 +230,6 @@ so we only modify bird1."
         (assoc state
                :last-report-time (:simulation-time state)))
     state))
-     
 
 (defn update
   "Update the world."
@@ -217,12 +237,16 @@ so we only modify bird1."
   (let [state (report state)
         objects (handle-collisions (:objects state) collision-handlers)
         updated-objects (doall (filter inside-boundary? (update-objects objects (:iteration-step-size state))))
+        num-foods-to-add (- minimum-num-foods
+                            (count (filter food? updated-objects)))
         num-birds-to-add (- minimum-num-birds
                             (count (filter bird? updated-objects)))]
     (assoc state
       :simulation-time (+ (:simulation-time state) (:iteration-step-size state))
       :objects (concat updated-objects
                        (when (pos? num-birds-to-add)
-                         (repeatedly num-birds-to-add random-bird))))))
+                         (repeatedly num-birds-to-add random-bird))
+                       (when (pos? num-foods-to-add)
+                         (repeatedly num-foods-to-add random-food))))))
 
 (start-gui 0.01 update)
