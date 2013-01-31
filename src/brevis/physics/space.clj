@@ -7,6 +7,14 @@
 (def collision-handlers
   (atom {}))
 
+(defn add-collision-handler
+  "Store the collision handler for typea colliding with typeb.                                                                                                           
+Collision functions take [collider collidee] and return [collider collidee]                                                                                              
+Both can be modified; however, two independent collisions are actually computed [a b] and [b a]."
+  [typea typeb handler-fn]
+  (swap! collision-handlers assoc
+         [typea typeb] handler-fn))
+
 (def simulation-boundary
   (box3 (vec3 100 100 100)
         (vec3 -100 -100 -100)))

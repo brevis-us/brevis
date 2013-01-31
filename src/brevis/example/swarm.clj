@@ -2,67 +2,25 @@
   (:require [clojure.zip :as zip])
   (:use [brevis.graphics.basic-3D]
         [brevis.physics.space]
-        [brevis.shape.box]
+        [brevis.shape box sphere]
         [brevis.core]
         [cantor]))  
 
+; Swarm simulations are models of flocking behavior in collections of organisms. 
+;
+; These algorithms were first explored computationally in:
+;   Reynolds, Craig W. "Flocks, herds and schools: A distributed behavioral model." ACM SIGGRAPH Computer Graphics. Vol. 21. No. 4. ACM, 1987.
+
+;; Todo:
+; - spheres
+; - nice UI behavior
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Globals
 
-(def max-vec3 (vec3 1000 1000 1000))
-(def min-vec3 (mul max-vec3 -1))
-
-;; Populations
-(def num-initial-birds 25)
-(def minimum-num-birds num-initial-birds)
-(def num-initial-foods 20)
-(def minimum-num-foods num-initial-foods)
-
-;; Energies
-(def child-bird-energy-cost 0.15)
-(def child-birth-energy-loss 0.05)
-
-(def bump-energy-cost 0.0001)
-(def energy-from-eating-food 0.01)
-
-(def bird-cost-of-living 0.0001)
-(def food-growth-rate 0.0001)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Food
-
-(def lrand rand)
-
-(defn food?
-  "Is a thing a food?"
-  [thing]
-  (= (:type thing) :food))
-
-(defn random-food-position
-  []
-  (vec3 (- (lrand 30) 15) 0 (- (lrand 30) 15)))
-
-(defn random-food
-  []
-  (-> {}
-      (make-real)
-      (make-box)      
-      (assoc :type :food
-             :color [0 1 0]
-             :energy 1
-             :position (random-food-position))
-      (make-collision-shape)))
-
-(defn update-food 
-  "Update a food object."
-  [food dt objects]
-  (let [food (update-object-kinematics food dt)
-        food (assoc food
-; Mobile food                    
-;               :acceleration (mul (vec3 (- (rand 2) 1) 0 (- (rand 2) 1)) 0.01)
-               :energy (+ (:energy food) food-growth-rate))]
-    food))
+(def num-birds 25)
+(def avoidance (atom 0.1))
+(def clustering (atom 0.1))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Birds
@@ -71,56 +29,33 @@
   "Is a thing a bird?"
   [thing]
   (= (:type thing) :bird))
-  
-(defn keep-vec3-reasonable
-  "Bounds each coordinate by a maximum value."
-  [v]
-  (map* max (map* min v max-vec3) min-vec3))        
 
 (defn random-bird-position
   "Returns a random valid bird position."
   []
-  (vec3 (- (lrand 20) 10) -3 (- (lrand 20) 10)))
+  (vec3 (- (rand 20) 10) 10 (- (rand 20) 10)))
 
 (defn random-bird-velocity
   "Returns a random reasonable velocity."
   []
-  (vec3 (- (lrand 2) 1) (- (lrand 2) 1) (- (lrand 2) 1)))
+  (vec3 (- (rand 2) 1) (- (rand 2) 1) (- (rand 2) 1)))
 
 (defn make-bird
   "Make a new bird with the specified program. At the specified location."
-  [genome position]
+  [position]
   (-> {}
       (make-real)
-      (make-box)      
+      (make-box)
+;      (make-sphere)
       (assoc :type :bird
              :color [1 0 0]
-             :energy child-bird-energy-cost
-             :position position
-             :genome genome)
+             :position position)
       (make-collision-shape)))
-
-(defn random-bird-genome
-  "Returns a random bird genome. Genome is [ friend_weight food_weight ]"
-  []  
-  [ (- (* 2 (lrand)) 1) (lrand) ])
-
-(defn mutate-bird-genome
-  "Returns a mutant bird genome. "
-  [genome]
-  (let [g1 (+ (first genome) (* 0.02 (lrand)) -0.01)
-        g2 (+ (second genome) (* 0.02 (lrand)) -0.01)]
-	  [(cond (> g1 1) 1
-	         (< g1 -1) -1
-	         :else g1)
-	   (cond (> g2 1) 1
-	         (< g2 0) 0
-	         :else g2)]))
   
 (defn random-bird
   "Make a new random bird."
   []
-  (make-bird (random-bird-genome) (random-bird-position)))
+  (make-bird (random-bird-position)))
 
 (defn bound-acceleration
   "Keeps the acceleration within a reasonable range."
@@ -129,67 +64,45 @@
     (div v 10)
     v))
 
-(defn eval-bird
-  "Evaluate a bird to decide what to do."
-  [bird nbrs]
-  (let [nbr-bird (some #(when (bird? %) %) nbrs)
-        nbr-food (some #(when (food? %) %) nbrs)
-        dir-to-bird (sub (:position nbr-bird) (:position bird))
-        dir-to-food (sub (:position nbr-food) (:position bird))]
-    (assoc bird
-           :acceleration (add (:acceleration bird) 
-                              (mul dir-to-bird (first (:genome bird)))
-                              (mul dir-to-food (second (:genome bird)))))))
-
 (defn fly
   "Change the acceleration of a bird."
-  [bird dt proximity-list]
-  (let [desires (eval-bird bird proximity-list)
-        bird (assoc bird
-               :acceleration (bound-acceleration (:acceleration desires))
-               :friendliness (:friendliness desires))]
-    bird))
-
-(defn offset-position
-  "Return a position offset from the specified position by a specified radius."
-  [position radius]
-  (add position
-       (mul (normalize (vec3 (- (lrand 2) 1) (- (lrand 2) 1) (- (lrand 2) 1)))
-            radius)))
+  [bird dt nbrs]
+  (let [closest-bird (first nbrs)
+        centroid (div (reduce add (map :position nbrs)) 
+                      (count nbrs))
+        d-closest-bird (sub (:position closest-bird) (:position bird))
+        d-centroid (sub centroid (:position bird))]
+    (assoc bird
+           :acceleration (bound-acceleration
+                           (add (:acceleration bird) 
+                                (mul d-closest-bird @avoidance)
+                                (mul d-centroid @clustering))))))  
 
 (defn update-bird
+  "Update a bird based upon its flocking behavior and the physical kinematics."
   [bird dt objects]  
-  (let [proximity-list (sort-by-proximity (:position bird) objects)         
-        bird (fly (update-object-kinematics bird dt) dt proximity-list)
-        bird (assoc bird
-               :energy (- (:energy bird) bird-cost-of-living))]
-    (when (pos? (:energy bird))
-      (if (> (:energy bird) child-bird-energy-cost)
-        (list (make-bird (mutate-bird-genome (:genome bird)) (offset-position (:position bird) 2))
-              (assoc bird
-                :energy (- (:energy bird) child-bird-energy-cost child-birth-energy-loss)))
-        bird))))
+  (let [objects (filter bird? objects)
+        nbrs (sort-by-proximity (:position bird) objects)
+        floor (some #(when (= (:type %) :floor) %) objects)]
+    (doseq [el (:vertices (:shape bird))]
+      (println el))
+    (update-object-kinematics 
+      (fly bird dt nbrs) dt)))
+
+(add-update-handler :bird update-bird); This tells the simulator how to update these objects
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Collision handling
 ;;
 ;; Collision functions take [collider collidee] and return [collider collidee]
-;;   Both can be modified; however, two collisions are actually computed [a b] and [b a].
+;;   Both can be modified; however, two independent collisions are actually computed [a b] and [b a].
 
 (defn bump
   "Collision between two birds. This is called on [bird1 bird2] and [bird2 bird1] independently
 so we only modify bird1."
   [bird1 bird2]
-  [(assoc bird1 :energy (- (:energy bird1) bump-energy-cost))     
+  [(assoc bird1 :color [(rand) (rand) (rand)])
    bird2])
-
-(defn eat
-  "Collision between a bird and food. Nom nom nom."
-  [bird food]
-  (let [energy-from-food (min energy-from-eating-food (:energy food))]
-    [(assoc bird :energy (+ (:energy bird) energy-from-food))       
-     (assoc food :energy (- (:energy food) energy-from-food))]))
-       
 
 (defn land
   "Collision between a bird and the floor."
@@ -200,53 +113,17 @@ so we only modify bird1."
      :velocity (vec3 0 0 0))
    floor])
 
-(reset! collision-handlers
-  {[:bird :bird] bump
-   [:bird :food] eat
-   [:bird :floor] land
-   })
+(add-collision-handler :bird :bird bump)
+(add-collision-handler :bird :floor land)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; World updates
 
-(defn identity-update
-  "Return the object to be updated unchanged."
-  [obj dt objects]
-  obj)
+(defn initialize-simulation
+  "This is the function where you add everything to the world."
+  []
+  (let [birds (repeatedly 25 random-bird)
+        floor (make-floor)]
+    {:objects (conj birds floor)}))
 
-(reset! update-handlers
-  {:bird update-bird
-   :food update-food
-   :floor identity-update})
-
-(defn report
-  "Report on the state of the simulation."
-  [state]
-  (if (< (+ (:last-report-time state) 1) (:simulation-time state))
-    (do (println)		  
-			  (println "time:" (:simulation-time state))
-			  (println "num-birds:" (count (filter bird? (:objects state))))
-			  (println "energy in system:" (reduce + (map :energy (:objects state))))
-        (assoc state
-               :last-report-time (:simulation-time state)))
-    state))
-
-(defn update
-  "Update the world."
-  [[dt time] state]  
-  (let [state (report state)
-        objects (handle-collisions (:objects state) collision-handlers)
-        updated-objects (doall (filter inside-boundary? (update-objects objects (:iteration-step-size state))))
-        num-foods-to-add (- minimum-num-foods
-                            (count (filter food? updated-objects)))
-        num-birds-to-add (- minimum-num-birds
-                            (count (filter bird? updated-objects)))]
-    (assoc state
-      :simulation-time (+ (:simulation-time state) (:iteration-step-size state))
-      :objects (concat updated-objects
-                       (when (pos? num-birds-to-add)
-                         (repeatedly num-birds-to-add random-bird))
-                       (when (pos? num-foods-to-add)
-                         (repeatedly num-foods-to-add random-food))))))
-
-(start-gui 0.01 update)
+(start-gui initialize-simulation update-world 0.1)
