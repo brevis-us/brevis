@@ -19,8 +19,8 @@
 ;; Globals
 
 (def num-birds 25)
-(def avoidance (atom 0.1))
-(def clustering (atom 0.1))
+(def avoidance (atom 0.01))
+(def clustering (atom 0.01))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Birds
@@ -60,8 +60,8 @@
 (defn bound-acceleration
   "Keeps the acceleration within a reasonable range."
   [v]
-  (if (> (length v) 10)
-    (div v 10)
+  (if (> (length v) 1)
+    (div v (length v))
     v))
 
 (defn fly

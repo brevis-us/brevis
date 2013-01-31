@@ -73,9 +73,9 @@ are removed from the simulation."
 (defn reshape
   "Reshape after the window is resized."
   [[x y w h] state]
-  (frustum-view 45 (/ w h) 0.1 100)
+  (frustum-view 45 (/ w h) 0.1 1000)
   (load-identity)
-  (translate 0 0 -30)
+  (translate 0 0 -40)
   (light 0 :position [1 1 1 0])
   (assoc state
     :window-width w
