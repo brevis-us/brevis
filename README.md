@@ -12,7 +12,7 @@ by Kyle Harrington (kyleh@cs.brandeis.edu), 2011-2013.
 
 ## Usage
 
-Developed for use with the Clojure Eclipse plugin, CounterClockwise.
+Developed for use with the Clojure Eclipse plugin, CounterClockwise (this must be installed).
 
 0. Obtain brevis from http://github.com/kephale/brevis
 
@@ -20,7 +20,7 @@ Developed for use with the Clojure Eclipse plugin, CounterClockwise.
 
 Uncheck the default location and point it to the location to which brevis was obtained.
 
-2. Convert brevis to a Leiningen project
+2. Right click on the new project Leiningen->Reset Project Configuration
 
 3. Open brevis.example.swarm
 
