@@ -32,6 +32,8 @@ esc - kill the simulation
 
 ...
 
+5. Try doing things in your repl like: (reset! avoidance 0.2)
+
 6. Enjoy. There is more to come...
 
 ## License
