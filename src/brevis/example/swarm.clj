@@ -18,8 +18,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Globals
 
-(def num-birds 25)
-(def avoidance (atom 0.01))
+(def num-birds 100)
+(def avoidance (atom 0.5))
 (def clustering (atom 0.01))
 (def centering (atom 0.001))
 
@@ -125,7 +125,7 @@ so we only modify bird1."
 (defn initialize-simulation
   "This is the function where you add everything to the world."
   []
-  (let [birds (repeatedly 25 random-bird)
+  (let [birds (repeatedly num-birds random-bird)
         floor (make-floor)]
     {:objects (conj birds floor)}))
 

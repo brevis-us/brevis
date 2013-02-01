@@ -7,6 +7,12 @@
 (def collision-handlers
   (atom {}))
 
+(def simulation-boundary
+  (box3 (vec3 100 100 100)
+        (vec3 -100 -100 -100)))
+
+(def max-collision-neighbors (atom 5))
+
 (defn add-collision-handler
   "Store the collision handler for typea colliding with typeb.                                                                                                           
 Collision functions take [collider collidee] and return [collider collidee]                                                                                              
@@ -14,10 +20,6 @@ Both can be modified; however, two independent collisions are actually computed 
   [typea typeb handler-fn]
   (swap! collision-handlers assoc
          [typea typeb] handler-fn))
-
-(def simulation-boundary
-  (box3 (vec3 100 100 100)
-        (vec3 -100 -100 -100)))
             
 (defn make-real
   "Add Real attributes to an object map."
@@ -40,7 +42,8 @@ Both can be modified; however, two independent collisions are actually computed 
   [obj1 obj2]
   (cantor.range/overlap? (:collision-shape obj1) (:collision-shape obj2)))
 
-(defn handle-collisions
+;; Fully-connected pairwise collision
+#_(defn handle-collisions
   "Handle the collisions of a collection of real objects.
 Things is updated and returned as a vector."
   [things collision-handlers]
@@ -49,6 +52,70 @@ Things is updated and returned as a vector."
     (if (empty? pairs)
       things
       (recur (let [pair (first pairs)
+                   thing1 (nth things (first pair))
+                   thing2 (nth things (second pair))
+                   collision-handler (get collision-handlers [(:type thing1) (:type thing2)])]
+               (if (collided? thing1 thing2)
+                 (cond (apply = pair) things;; Don't collide with self
+                       ;; Collision handling
+                       (not (nil? collision-handler))
+                       (let [[thing1 thing2] (collision-handler thing1 thing2)]
+                         (assoc things
+                           (first pair) thing1
+                           (second pair) thing2))
+                       :else things);; If there is no collision handler
+                 things))
+             (rest pairs)))))
+
+; Only loop over individuals and let them compute their neighbors
+(defn potential-collision-pairs
+  "Given a set of objects with positions return a list of potential collisions."
+  [things]
+  (apply concat
+         (for [obj-idx (range (count things))]
+           (let [obj (nth things obj-idx)
+                 pos (:position obj)]
+             (map #(vector obj-idx %)
+                  (take @max-collision-neighbors
+                        (sort-by #(length (sub pos (:position (nth things %))))
+                                 (range (count things)))))))))
+
+(defn handle-collisions
+  "Handle the collisions of a collection of real objects.
+Things is updated and returned as a vector."
+  [things collision-handlers]
+  (loop [things (vec things)
+         pairs (potential-collision-pairs things)]
+    (if (empty? pairs)
+      things
+      (recur (let [pair (first pairs)
+                   thing1 (nth things (first pair))
+                   thing2 (nth things (second pair))
+                   collision-handler (get collision-handlers [(:type thing1) (:type thing2)])]
+               (if (collided? thing1 thing2)
+                 (cond (apply = pair) things;; Don't collide with self
+                       ;; Collision handling
+                       (not (nil? collision-handler))
+                       (let [[thing1 thing2] (collision-handler thing1 thing2)]
+                         (assoc things
+                           (first pair) thing1
+                           (second pair) thing2))
+                       :else things);; If there is no collision handler
+                 things))
+             (rest pairs)))))  
+  
+#_(defn handle-collisions
+  "Handle the collisions of a collection of real objects.
+Things is updated and returned as a vector."
+  [things collision-handlers]
+  (loop [things (vec things)
+         idx (shuffle (range (count things)))]
+    (if (empty? idx)
+      things
+      (recur (let [ind-pos (:position (nth things (first idx)))
+                   nbrs (take @max-collision-neighbors
+                              (sort-by-proximity ind-pos things))
+                   pair (first pairs)
                    thing1 (nth things (first pair))
                    thing2 (nth things (second pair))
                    collision-handler (get collision-handlers [(:type thing1) (:type thing2)])]
