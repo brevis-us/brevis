@@ -21,6 +21,7 @@
 (def num-birds 25)
 (def avoidance (atom 0.01))
 (def clustering (atom 0.01))
+(def centering (atom 0.001))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Birds
@@ -71,10 +72,12 @@
         centroid (div (reduce add (map :position nbrs)) 
                       (count nbrs))
         d-closest-bird (sub (:position closest-bird) (:position bird))
-        d-centroid (sub centroid (:position bird))]
+        d-centroid (sub centroid (:position bird))
+        d-center (sub (vec3 0 10 0) (:position bird))]
     (assoc bird
            :acceleration (bound-acceleration
-                           (add (:acceleration bird) 
+                           (add (:acceleration bird)
+                                (mul d-center @centering)
                                 (mul d-closest-bird @avoidance)
                                 (mul d-centroid @clustering))))))  
 

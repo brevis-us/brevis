@@ -51,11 +51,12 @@ are removed from the simulation."
 (defn update-world
   "Update the world."
   [[dt time] state]
-  (when state
+  (when (and  state
+              (not (:terminated? state)))
           (assoc state
             :simulation-time (+ (:simulation-time state) (:dt state))
             :objects (handle-collisions (update-objects (:objects state) (:dt state))
-                                                        collision-handlers))))
+                                                        @collision-handlers))))
 
 (defn init [state]
   (app/title! "brevis")
@@ -120,7 +121,13 @@ are removed from the simulation."
   (cond
 ;   (= "s" key) (screenshot state)
 ;   (= "r" key) (reset-simulation state)
-   (= :escape key) (app/pause!)))
+   (= "p" key) (do (app/pause!)
+                 state)
+   (= :escape key)
+   (do (app/stop!)
+     (assoc state 
+          :terminated? true)
+          )))
 
 (defn start-gui [initialize update dt]
   "Start the simulation with a GUI."
