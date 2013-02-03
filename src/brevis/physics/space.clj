@@ -68,6 +68,7 @@ Things is updated and returned as a vector."
              (rest pairs)))))
 
 ; Only loop over individuals and let them compute their neighbors
+; However, this needs to account for the bounding volume of each object
 (defn potential-collision-pairs
   "Given a set of objects with positions return a list of potential collisions."
   [things]

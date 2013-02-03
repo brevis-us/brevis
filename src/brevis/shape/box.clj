@@ -1,6 +1,7 @@
 (ns brevis.shape.box
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
+        [brevis.shape.core]
         [cantor]))        
 
 (defn create-box
@@ -35,3 +36,12 @@
       (vertex 0.5 0.5 -0.5) (vertex 0.5 0.5 0.5) (vertex -0.5 0.5 0.5) (vertex -0.5 0.5 -0.5)
       (vertex -0.5 0.5 -0.5) (vertex 0.5 0.5 -0.5) (vertex 0.5 -0.5 -0.5) (vertex -0.5 -0.5 -0.5)
       (vertex -0.5 0.5 0.5) (vertex 0.5 0.5 0.5) (vertex 0.5 -0.5 0.5) (vertex -0.5 -0.5 0.5)))))
+
+(defn draw-textured-cube []
+  (dotimes [_ 4]
+    (rotate 90 0 1 0)
+    (textured-quad))
+  (rotate 90 1 0 0)
+  (textured-quad)
+  (rotate 180 1 0 0)
+  (textured-quad))

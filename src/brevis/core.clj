@@ -65,8 +65,8 @@ are removed from the simulation."
   (enable :blend)
   (enable :depth-test)
   (init-box-graphic)
-;  (enable :lighting)
-;  (enable :light0)
+  (enable :lighting)
+  (enable :light0)
 ;  (gl-enable :auto-normal)
   (blend-func :src-alpha :one-minus-src-alpha)
   #_(reset-simulation state))
@@ -76,8 +76,8 @@ are removed from the simulation."
   [[x y w h] state]
   (frustum-view 45 (/ w h) 0.1 1000)
   (load-identity)
-  (translate 0 0 -40)
-  (light 0 :position [1 1 1 0])
+  #_(translate 0 0 -40)
+  (light 0 :position [1 100 1 0])
   (assoc state
     :window-width w
     :window-height h))
@@ -90,6 +90,7 @@ are removed from the simulation."
   (text/write-to-screen (str (count (filter #(= (:type %) :bird) (:objects state))) " birds") 0 60)
   (rotate (:rot-x state) 1 0 0)
   (rotate (:rot-y state) 0 1 0)
+  (translate 0 0 (:shift-z state))
   (with-disabled :texture-2d
     (doseq [obj (:objects state)]
       (draw-shape obj)))
@@ -98,9 +99,19 @@ are removed from the simulation."
 (defn mouse-drag
   "Rotate the world."
   [[dx dy] _ button state]
-  (assoc state
-    :rot-x (+ (:rot-x state) dy)
-    :rot-y (+ (:rot-y state) dx)))
+  (cond 
+    ; Rotate
+    (= :left button)
+    (assoc state
+           :rot-x (+ (:rot-x state) dy)
+           :rot-y (+ (:rot-y state) dx))
+    ; Zoom
+    (= :right button)
+    (assoc state
+           :shift-y (+ (:shift-z state)
+                       dy)
+           :shift-z (+ (:shift-z state)
+                      dx))))
 
 ;; Screenshot code
 

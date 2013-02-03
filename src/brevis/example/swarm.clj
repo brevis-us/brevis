@@ -18,10 +18,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Globals
 
-(def num-birds 100)
-(def avoidance (atom 0.5))
+(def num-birds 50)
+(def avoidance (atom 0.02))
 (def clustering (atom 0.01))
-(def centering (atom 0.001))
+(def centering (atom 0.01))
+
+(def max-acceleration 2)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Birds
@@ -34,7 +36,9 @@
 (defn random-bird-position
   "Returns a random valid bird position."
   []
-  (vec3 (- (rand 20) 10) 10 (- (rand 20) 10)))
+  (vec3 (- (rand 20) 10) 
+        (+ 10 -0.5 (rand))
+        (- (rand 20) 10)))
 
 (defn random-bird-velocity
   "Returns a random reasonable velocity."
@@ -61,8 +65,8 @@
 (defn bound-acceleration
   "Keeps the acceleration within a reasonable range."
   [v]
-  (if (> (length v) 1)
-    (div v (length v))
+  (if (> (length v) max-acceleration)
+    (mul (div v (length v)) max-acceleration)
     v))
 
 (defn fly
