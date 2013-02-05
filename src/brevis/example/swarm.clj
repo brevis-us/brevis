@@ -18,9 +18,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Globals
 
-(def num-birds 50)
-(def avoidance (atom 0.02))
-(def clustering (atom 0.01))
+(def num-birds 30)
+(def avoidance (atom 0.2))
+(def clustering (atom 0.1))
 (def centering (atom 0.01))
 
 (def max-acceleration 2)

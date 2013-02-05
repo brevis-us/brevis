@@ -77,7 +77,9 @@ are removed from the simulation."
   (frustum-view 45 (/ w h) 0.1 1000)
   (load-identity)
   #_(translate 0 0 -40)
-  (light 0 :position [1 100 1 0])
+  (light 0 
+         :position [1 -100 1 0]
+         :diffuse [1 0.9 0.8 1])
   (assoc state
     :window-width w
     :window-height h))

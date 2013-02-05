@@ -37,6 +37,12 @@ Both can be modified; however, two independent collisions are actually computed 
     :collision-shape (cond (= (:type (:shape obj)) :box)
                            (create-collision-box (:position obj) (:shape obj)))))
 
+(defn closest-bounding-vertex
+  "Return the distance to the closest bounding vertex of an object and a point."
+  [position vertices]
+  (reduce min (map #(length (sub position %))
+                   vertices)))
+
 (defn collided?
   "Have two objects collided?"
   [obj1 obj2]
@@ -69,7 +75,7 @@ Things is updated and returned as a vector."
 
 ; Only loop over individuals and let them compute their neighbors
 ; However, this needs to account for the bounding volume of each object
-(defn potential-collision-pairs
+#_(defn potential-collision-pairs
   "Given a set of objects with positions return a list of potential collisions."
   [things]
   (apply concat
@@ -81,7 +87,20 @@ Things is updated and returned as a vector."
                         (sort-by #(length (sub pos (:position (nth things %))))
                                  (range (count things)))))))))
 
-(defn handle-collisions
+#_(defn potential-collision-pairs
+  "Given a set of objects with positions return a list of potential collisions."
+  [things]
+  (apply concat
+         (for [obj-idx (range (count things))]
+           (let [obj (nth things obj-idx)
+                 vertices (:bounding-vertices obj)]
+             (map #(vector obj-idx %)
+                  (take @max-collision-neighbors
+                        (sort-by #(min (length (sub pos (:upper (nth things %))))
+                                       (length (sub pos (:lower (nth things %)))))
+                                 (range (count things)))))))))
+
+#_(defn handle-collisions
   "Handle the collisions of a collection of real objects.
 Things is updated and returned as a vector."
   [things collision-handlers]
@@ -105,6 +124,31 @@ Things is updated and returned as a vector."
                  things))
              (rest pairs)))))  
   
+(defn handle-collisions
+  "Handle the collisions of a collection of real objects.
+Things is updated and returned as a vector."
+  [things collision-handlers]
+  (loop [things (vec things)
+         pairs (for [a (range (count things)) b (range (count things))] [a b])]
+    (if (empty? pairs)
+      things
+      (recur (let [pair (first pairs)
+                   thing1 (nth things (first pair))
+                   thing2 (nth things (second pair))
+                   collision-handler (get collision-handlers [(:type thing1) (:type thing2)])]
+               (if (collided? thing1 thing2)
+                 (cond (apply = pair) things;; Don't collide with self
+                       ;; Collision handling
+                       (not (nil? collision-handler))
+                       (let [[thing1 thing2] (collision-handler thing1 thing2)]
+                         (assoc things
+                           (first pair) thing1
+                           (second pair) thing2))
+                       :else things);; If there is no collision handler
+                 things))
+             (rest pairs)))))  
+
+
 #_(defn handle-collisions
   "Handle the collisions of a collection of real objects.
 Things is updated and returned as a vector."
@@ -152,8 +196,12 @@ Things is updated and returned as a vector."
 (defn update-object-kinematics
   "Update the kinematics of an object by applying acceleration and velocity for an infinitesimal amount of time."
   [obj dt]
-  (let [obj (assoc obj :velocity (add (:velocity obj) (mul (:acceleration obj) dt)))]
-    (-> (assoc obj :position (add (:position obj) (mul (:velocity obj) dt)))
+  (let [obj (assoc obj 
+                   :velocity (add (:velocity obj) 
+                                  (mul (:acceleration obj) dt)))]
+    (-> (assoc obj 
+               :position (add (:position obj) 
+                              (mul (:velocity obj) dt)))
         (make-collision-shape))))
 
 (defn make-floor
