@@ -10,6 +10,19 @@ language, Clojure.
 by Kyle Harrington (kyleh@cs.brandeis.edu), 2011-2013.
    http://kyleharrington.com
 
+## Prerequisites:
+
+The prerequisites are an IDE, the Clojure libraries and development environment, the git version control system, and the brevis source code.
+
+Software you will need (all work for Linux, OS X, and Windows):
+
+Eclipse - http://www.eclipse.org/ (I generally download Eclipse Classic)
+
+Counterclockwise Eclipse plugin - http://code.google.com/p/counterclockwise/wiki/Documentation#Install_Counterclockwise_plugin
+[In Eclipse: Help menu->Install new software->Update site : http://ccw.cgrand.net/updatesite/]
+
+Git version control can be performed within Eclipse (http://eclipse.github.com/); however, I use stand-alone git programs (see the "Applications" section at the bottom of https://github.com/).
+
 ## Usage
 
 Developed for use with the Clojure Eclipse plugin, CounterClockwise (this must be installed).
