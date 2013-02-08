@@ -6,10 +6,17 @@
         [brevis.physics.space]
         [brevis.shape core box])       
   (:require [penumbra.app :as app]
+            [clojure.math.numeric-tower :as math]
             [penumbra.text :as text]
             [penumbra.data :as data]
             [cantor.range]
-            [penumbra.opengl.frame-buffer :as fb]))
+            [penumbra.opengl.frame-buffer :as fb])
+  (:import (java.awt AWTException Robot Rectangle Toolkit)
+	   (java.awt.image BufferedImage)
+	   (java.io File IOException)
+	   (javax.imageio ImageIO))
+  (:import (org.lwjgl BufferUtils))  
+  )
 
 (def update-handlers
   (atom {}))
@@ -89,44 +96,69 @@ are removed from the simulation."
   [[dt time] state]
   (text/write-to-screen (str (int (/ 1 dt)) " fps") 0 0)
   (text/write-to-screen (str (:simulation-time state) " time") 0 30)
-  (text/write-to-screen (str (count (filter #(= (:type %) :bird) (:objects state))) " birds") 0 60)
+  (text/write-to-screen (str "Rotation [active " (:rotate-mode state) "]: (" 
+                             (:rot-x state) "," (:rot-y state) "," (:rot-z state) ")") 0 60)
+  (text/write-to-screen (str "Translation [active " (:translate-mode state) "]: (" 
+                             (:shift-x state) "," (:shift-y state) "," (:shift-z state) ")") 0 90)
+;  (text/write-to-screen (str (count (filter #(= (:type %) :bird) (:objects state))) " birds") 0 60)
   (rotate (:rot-x state) 1 0 0)
   (rotate (:rot-y state) 0 1 0)
-  (translate 0 0 (:shift-z state))
+  (rotate (:rot-z state) 0 0 1)
+  (translate (:shift-x state) (:shift-y state) (:shift-z state))
   (with-disabled :texture-2d
     (doseq [obj (:objects state)]
       (draw-shape obj)))
   (app/repaint!))
 
-(defn mouse-drag
+#_(defn mouse-drag
   "Rotate the world."
   [[dx dy] _ button state]
   (cond 
     ; Rotate
     (= :left button)
     (assoc state
-           :rot-x (+ (:rot-x state) dy)
+;           :rot-x (+ (:rot-x state) dy)
+           :rot-z (+ (:rot-z state) dy)           
            :rot-y (+ (:rot-y state) dx))
     ; Zoom
     (= :right button)
     (assoc state
            :shift-y (+ (:shift-z state)
                        dy)
-           :shift-z (+ (:shift-z state)
+           :shift-x (+ (:shift-x state)
                       dx))))
+
+(defn mouse-drag
+  "Rotate the world."
+  [[dx dy] _ button state]
+  (let [displacement dx];(math/sqrt (+ (* dx dx) (* dy dy)))]
+	  (cond 
+	    ; Rotate
+	    (= :left button)
+      (merge state
+             (cond 
+               (= (:rotate-mode state) :x) {:rot-x (+ (:rot-x state) displacement)}               
+               (= (:rotate-mode state) :y) {:rot-y (+ (:rot-y state) displacement)}               
+               (= (:rotate-mode state) :z) {:rot-z (+ (:rot-z state) displacement)}))
+	    ; Zoom
+	    (= :right button)
+	    (merge state
+             (cond 
+               (= (:translate-mode state) :x) {:shift-x (+ (:shift-x state) displacement)}               
+               (= (:translate-mode state) :y) {:shift-y (+ (:shift-y state) displacement)}               
+               (= (:translate-mode state) :z) {:shift-z (+ (:shift-z state) displacement)})))))
 
 ;; Screenshot code
 
-;; (import java.io.File)
-;; (import java.awt.Color)
-;; (import java.awt.image.BufferedImage)
-;; (import javax.imageio.ImageIO)
-
-;; (defn screenshot
-;;   "Take a screenshot."
-;;   [state]
-;;   (let [bi (BufferedImage. (:window-width state) (:window-height state) BufferedImage/TYPE_INT_ARGB)]
-;;     (def pixels (fb/gl-read-pixels ))))
+(defn screenshot
+  "Take a screenshot."
+  [filename]
+  (let [img-type (second (re-find (re-matcher #"\.(\w+)$" filename)))
+	capture (.createScreenCapture (Robot.)
+				      (Rectangle. (.getScreenSize (Toolkit/getDefaultToolkit))))           
+;				      (Rectangle. (.getScreenSize (Toolkit/getDefaultToolkit))))
+	file (File. filename)]
+    (ImageIO/write capture img-type file)))
 
 ;; end screenshot code
    
@@ -134,26 +166,64 @@ are removed from the simulation."
   (cond
 ;   (= "s" key) (screenshot state)
 ;   (= "r" key) (reset-simulation state)
+   (= "q" key) (assoc state
+                      :rotate-mode :x)
+   (= "w" key) (assoc state
+                      :rotate-mode :y)
+   (= "e" key) (assoc state
+                      :rotate-mode :z)
+   (= "r" key) (assoc state
+                      :rotate-mode :none)
+   (= "a" key) (assoc state
+                      :translate-mode :x)
+   (= "s" key) (assoc state
+                      :translate-mode :y)
+   (= "d" key) (assoc state
+                      :translate-mode :z)
+   (= "f" key) (assoc state
+                      :translate-mode :none)
    (= "p" key) (do (app/pause!)
                  state)
+   (= "o" key) (do (screenshot (str "brevis_screenshot_" (System/currentTimeMillis) ".png"))
+                 state)
+   (app/key-pressed? :up) 
+   (merge state (cond 
+               (= (:rotate-mode state) :x) {:rot-x (+ (:rot-x state) 5)}               
+               (= (:rotate-mode state) :y) {:rot-y (+ (:rot-y state) 5)}               
+               (= (:rotate-mode state) :z) {:rot-z (+ (:rot-z state) 5)}))
+   (app/key-pressed? :down) 
+   (merge state (cond 
+               (= (:rotate-mode state) :x) {:rot-x (- (:rot-x state) 5)}               
+               (= (:rotate-mode state) :y) {:rot-y (- (:rot-y state) 5)}               
+               (= (:rotate-mode state) :z) {:rot-z (- (:rot-z state) 5)}))
+   (app/key-pressed? :left) 
+   (merge state
+             (cond 
+               (= (:translate-mode state) :x) {:shift-x (+ (:shift-x state) 5)}               
+               (= (:translate-mode state) :y) {:shift-y (+ (:shift-y state) 5)}               
+               (= (:translate-mode state) :z) {:shift-z (+ (:shift-z state) 5)}))
+   (app/key-pressed? :right) 
+   (merge state
+             (cond 
+               (= (:translate-mode state) :x) {:shift-x (- (:shift-x state) 5)}               
+               (= (:translate-mode state) :y) {:shift-y (- (:shift-y state) 5)}               
+               (= (:translate-mode state) :z) {:shift-z (- (:shift-z state) 5)}))   
    (= :escape key)
    (do (app/stop!)
      (assoc state 
           :terminated? true)
           )))
 
-(defn start-gui [initialize update dt]
+(defn start-gui [initialize update]
   "Start the simulation with a GUI."
   (app/start
    {:reshape reshape, :init init, :mouse-drag mouse-drag, :key-press key-press, :update update, :display display}
-   (assoc (initialize)
-;       :mouse-mode [:rot-x :rot-y]                                                                                                                                      
-       :rot-x 0 :rot-y 0 :rot-z 0
-       :shift-x 0 :shift-y 20 :shift-z -30
-       :init-simulation initialize
-	                 :dt dt
-                         :last-report-time 0
-                         :simulation-time 0)))
+   (merge {:rotate-mode :x :translate-mode :x     
+           :rot-x 0 :rot-y 0 :rot-z 90
+           :shift-x 0 :shift-y 20 :shift-z 0;-30
+           :init-simulation initialize
+           :dt 1 :last-report-time 0 :simulation-time 0}                      
+          (initialize))))
 
 #_(defn start-nogui [iteration-step-size]
   (let [dt iteration-step-size

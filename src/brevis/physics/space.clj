@@ -196,22 +196,21 @@ Things is updated and returned as a vector."
 (defn update-object-kinematics
   "Update the kinematics of an object by applying acceleration and velocity for an infinitesimal amount of time."
   [obj dt]
-  (let [obj (assoc obj 
-                   :velocity (add (:velocity obj) 
+  (let [obj (assoc obj
+                   :velocity (add (:velocity obj)
                                   (mul (:acceleration obj) dt)))]
-    (-> (assoc obj 
-               :position (add (:position obj) 
-                              (mul (:velocity obj) dt)))
-        (make-collision-shape))))
+    (move obj (add (:position obj)
+                   (mul (:velocity obj) dt)))))
 
 (defn make-floor
   "Make a floor object."
-  []
+  [w h]
   (-> {}
       (make-real)
       (make-box)
-      (resize-shape (vec3 100 0.1 100))
+      (resize-shape (vec3 w 0.1 h))
       (move (vec3 0 -3 0))
       (assoc :color [0 0 1]
              :type :floor)
       (make-collision-shape)))
+
