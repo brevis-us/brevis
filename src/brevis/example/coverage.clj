@@ -10,9 +10,9 @@
 ;; Globals
 
 (def num-robots 7)
-(def avoidance (atom 0.2))
-(def clustering (atom 0.1))
-(def centering (atom 0.0))
+(def avoidance (atom 0.02))
+(def clustering (atom 0.01))
+(def centering (atom 0.01))
 (def dirt-counter (atom 0))
 
 (def max-velocity 10)
@@ -70,7 +70,7 @@
   (make-real {:type :robot
               :color [1 0 0]
               :position position
-              :shape (resize-shape (create-box) (vec3 5 1 5))}))
+              :shape (create-box 5 1 5)}))
   
 (defn random-robot
   "Make a new random robot."
@@ -91,9 +91,10 @@
     (mul (div v (length v)) max-velocity)
     v))
 
-(defn fly
+(defn swarm
   "Change the acceleration of a robot."
   [robot dt nbrs]
+  #_(println (:uid robot) (get-position robot) (get-velocity robot))
   (let [closest-robot (first nbrs)
         centroid (div (reduce add (map :position nbrs)) 
                       (count nbrs))
@@ -114,10 +115,10 @@
   (let [objects (filter robot? objects)
         nbrs (sort-by-proximity (:position robot) objects)
         floor (some #(when (= (:type %) :floor) %) objects)]
-    (doseq [el (:vertices (:shape robot))]
+    #_(doseq [el (:vertices (:shape robot))]
       (println el))
     (update-object-kinematics 
-      (fly robot dt nbrs) dt)))
+      (swarm robot dt nbrs) dt)))
 
 (add-update-handler :robot update-robot); This tells the simulator how to update these objects
 
@@ -177,10 +178,10 @@ so we only modify robot1."
   ([x y]
     (make-obstruction x y 1 1))
   ([x y w h]
-    (move (make-real {:color [0.5 0.5 0.5]                                      
-                      :type :obstruction
-                      :shape (resize-shape (create-box) (vec3 w 1 h))})
-          (vec3 x 0 y))))
+    (make-real {:color [0.5 0.5 0.5]   
+                :position (vec3 x 1 y)
+                :type :obstruction
+                :shape (create-box w 1 h)})))
 
 (defn make-square-walls
   "Make square walls around the floor."
@@ -190,6 +191,7 @@ so we only modify robot1."
         high-x (/ width -2)
         high-y (/ height -2)
         ]
+    #_(println [low-x low-y high-x high-y width height])
   (concat (list (make-obstruction low-x (- high-y) width 1)
                 (make-obstruction (- high-x) low-y 1 height)
                 (make-obstruction low-x high-y width 1)
@@ -208,10 +210,11 @@ so we only modify robot1."
   "Construct map according to the map-type argument"
   [map-type]
   (init-world)
-  (let [w 100
-        h 100
-        floor (make-floor w h)]
-    (conj (cond (= :square map-type) (make-square-walls w h))
+  (let [w 1000
+        h 1000]
+;        floor (make-floor w h)]
+    (cond (= :square map-type) (make-square-walls w h))
+    #_(conj (cond (= :square map-type) (make-square-walls w h))
           floor)))
 
 (defn initialize-simulation

@@ -1,5 +1,6 @@
 ;; This is for simulations that require space (such as physical or pseudo-physical worlds)
 (ns brevis.physics.space
+  (:gen-class)
   (:import (org.ode4j.ode OdeHelper DSapSpace OdeConstants DContactBuffer DGeom DFixedJoint DContactJoint))  (:import (org.ode4j.math DVector3))  (:import java.lang.Math)  
   (:use [cantor]
         [brevis.shape core box])
@@ -50,13 +51,14 @@ Both can be modified; however, two independent collisions are actually computed 
   [obj]
   (let [dim (:dim (:shape obj))
         pos (:position obj)]
-    (OdeHelper/createBox (:space *physics*) (.x dim) (.y dim) (.z dim))))
+    (OdeHelper/createBox (:space @*physics*) (.x dim) (.y dim) (.z dim))))
 
 (defn make-real
   "Add Real attributes to an object map."
   [obj]
-  (let [obj (assoc obj        
-			         :uid (gensym)
+  (let [uid (gensym)
+        obj (assoc obj        
+			         :uid uid
 			         :real true
 			         :position (or (:position obj) (vec3 0 0 0))
 			         :velocity (or (:velocity obj) (vec3 0 0 0))
@@ -65,10 +67,16 @@ Both can be modified; however, two independent collisions are actually computed 
 			         :shape (or (:shape obj) (create-box)))
         pos (:position obj)
         mass (obj-to-mass obj)
-        body (doto (OdeHelper/createBody (get-world))               (.setPosition (.x pos) (.y pos) (.z pos))               (.setMass mass))        geom (doto (obj-to-geom obj)
+        body (doto (OdeHelper/createBody (get-world))
+               (.setMass mass)
+               (.setData {:uid uid})                (.setPosition (.x pos) (.y pos) (.z pos)))                       geom (doto (obj-to-geom obj)
                (.setBody body)
-               (.setOffsetWorldPosition (.x pos) (.y pos) (.z pos)))]    
-    obj))
+               (.setOffsetWorldPosition (.x pos) (.y pos) (.z pos))
+               #_(.enable))]    
+    (assoc obj
+           :mass mass
+           :body body
+           :geom geom)))
 
 (defn collided?
   "Have two objects collided?"
@@ -88,18 +96,33 @@ Both can be modified; however, two independent collisions are actually computed 
   
 (defn move
   "Move an object to the specified position."
-  [obj new-position]
-  (assoc obj
-    :position new-position))
+  [obj v]
+  (.setPosition (:body obj)
+    (.x v) (.y v) (.z v)))
+
+(defn odevec-to-vec3
+  [ov]
+  (vec3 (.get0 ov) (.get1 ov) (.get2 ov)))
+
+(defn get-position
+  "Return the position of an object"
+  [obj]
+  (odevec-to-vec3 (.getPosition (:body obj))))
+
+(defn get-velocity
+  "Return the velocity of an object"
+  [obj]
+  (odevec-to-vec3 (.getLinearVel (:body obj))))
 
 (defn update-object-kinematics
   "Update the kinematics of an object by applying acceleration and velocity for an infinitesimal amount of time."
   [obj dt]
-  (let [obj (assoc obj
-                   :velocity (add (:velocity obj)
-                                  (mul (:acceleration obj) dt)))]
-    (move obj (add (:position obj)
-                   (mul (:velocity obj) dt)))))
+  (let [newvel (add (get-velocity obj)
+                    (mul (:acceleration obj) dt))
+        obj (assoc obj
+                   :velocity newvel)]
+    (.setLinearVel (:body obj) (.x newvel) (.y newvel) (.z newvel))
+    obj))
 
 (defn make-floor
   "Make a floor object."
@@ -110,7 +133,10 @@ Both can be modified; however, two independent collisions are actually computed 
                     :shape (create-box w 0.1 h)})
         (vec3 0 -3 0)))
 
-(def contact-joint-array (into-array java.lang.Class [org.ode4j.ode.DContactJoint]))(def nearCallback  (proxy [org.ode4j.ode.DGeom$DNearCallback] []    (call [#^java.lang.Object data #^DGeom o1 #^DGeom o2]      (let [b1 (.getBody o1)            b2 (.getBody o2)]        (if (and b1 b2 (OdeHelper/areConnectedExcluding b1 b2 contact-joint-array))          (do #_(println "Position b1:" (.getPosition b1) "Position b2:" (.getPosition b2))               nil)                        (let [N 8                contacts (new DContactBuffer N)                n (OdeHelper/collide o1 o2 N (.getGeomBuffer contacts))]            (when (> n 0)              (dotimes [i n]                (let [contact (.get contacts i)]                  (set! (.. contact surface mode)                        (bit-or (. OdeConstants dContactSlip1) (. OdeConstants dContactSlip2) #_(. OdeConstants dContactSoftERP)                                #_(. OdeConstants dContactSoftCFM) #_(. OdeConstants dContactApprox1)))                  (set! (.. contact surface mu) 100)                  (set! (.. contact surface slip1) 0.0)                  (set! (.. contact surface slip2) 0.0)                  #_(set! (.. contact surface soft_erp) 0.8)                  #_(set! (.. contact surface soft_cfm) 0.01)                  (doto (OdeHelper/createContactJoint (.getWorld b1) (:contact-group *physics*) contact)                    (.attach (.getBody o1) (.getBody o2))))))))))))
+(def contact-joint-array (into-array java.lang.Class [org.ode4j.ode.DContactJoint]))(def nearCallback  (proxy [org.ode4j.ode.DGeom$DNearCallback] []    (call [#^java.lang.Object data #^DGeom o1 #^DGeom o2]      (let [b1 (.getBody o1)            b2 (.getBody o2)]
+(println "Position b1:" (.getPosition b1) "Position b2:" (.getPosition b2) (.getLengths o1) (.getLengths o2) (.getClassID o1) (.getClassID o1))        (if (and b1 b2 (OdeHelper/areConnectedExcluding b1 b2 contact-joint-array))          (do (println "Position b1:" (.getPosition b1) "Position b2:" (.getPosition b2))               nil)                        (let [N 16; This sometimes needs to change
+                contacts (new DContactBuffer N)                n (OdeHelper/collide o1 o2 N (.getGeomBuffer contacts))]
+(println "Position b1:" (.getPosition b1) "Position b2:" (.getPosition b2))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     (when (> n 0)              (dotimes [i n]                (let [contact (.get contacts i)]                  (set! (.. contact surface mode)                        (bit-or (. OdeConstants dContactSlip1) (. OdeConstants dContactSlip2) #_(. OdeConstants dContactSoftERP)                                #_(. OdeConstants dContactSoftCFM) #_(. OdeConstants dContactApprox1)))                  (set! (.. contact surface mu) 100)                  (set! (.. contact surface slip1) 0.0)                  (set! (.. contact surface slip2) 0.0)                  #_(set! (.. contact surface soft_erp) 0.8)                  #_(set! (.. contact surface soft_cfm) 0.01)                  (doto (OdeHelper/createContactJoint (.getWorld b1) (:contact-group @*physics*) contact)                    (.attach (.getBody o1) (.getBody o2))))))))))))
 
 (defn handle-collisions
   "Handle the collisions of a collection of real objects.
@@ -121,8 +147,9 @@ Things is updated and returned as a vector."  [things collision-handlers]  (lo
                  things))
               (rest pairs)))))
 
-(defn init-world  "Return a map of ODE physics for 1 world."  []  (let [world (doto (OdeHelper/createWorld)        
-                      (.setGravity 0 -9.81 0))        space (OdeHelper/createHashSpace)        contact-group (OdeHelper/createJointGroup)]
+(defn init-world  "Return a map of ODE physics for 1 world."  []  (let [world (doto (OdeHelper/createWorld)     
+                      (.setGravity 0 0 0)                                                                                   
+                      #_(.setGravity 0 -9.81 0))        space (OdeHelper/createHashSpace)        contact-group (OdeHelper/createJointGroup)]
     (reset! *physics* {:world world                             :space space                       :contact-group contact-group
                        :time 0});      (let [[floor floor-joint] (make-floor 1000 1000)
       (let [floor (make-floor 1000 1000)
@@ -130,9 +157,9 @@ Things is updated and returned as a vector."  [things collision-handlers]  (lo
                          :joints nil}]
         (reset! *physics* (assoc @*physics*
                                  :environment environment)))))
-(defn reset-world  "Reset the *physics* global."  []  (loop []    (when (pos? (.getNumGeoms (:space *physics*)))      (.remove (:space *physics*) (.getGeom (:space *physics*) 0))      (recur)))  (let [[floor floor-joint] (make-floor)
+(defn reset-world  "Reset the *physics* global."  []  (loop []    (when (pos? (.getNumGeoms (:space @*physics*)))      (.remove (:space *physics*) (.getGeom (:space @*physics*) 0))      (recur)))  (let [[floor floor-joint] (make-floor)
         environment {:objects [floor]
-                     :joints [floor-joint]}]    (reset! *physics* (assoc *physics*
+                     :joints [floor-joint]}]    (reset! *physics* (assoc @*physics*
                              :environment environment
                              :time 0)))) 
 
@@ -163,12 +190,14 @@ are removed from the simulation."
   [[dt time] state]
   (when (and  state
               (not (:terminated? state)))
-    (when (:contact-group @*physics*))
-    (.empty (:contact-group @*physics*))
+    (when (:contact-group @*physics*)
+      (.empty (:contact-group @*physics*)))
+    (println "Number of obj in space:" (.getNumGeoms (:space @*physics*)))
     (OdeHelper/spaceCollide (:space @*physics*) nil nearCallback)
     (.quickStep (:world @*physics*) (:dt state))
     #_(.empty (:contact-group *physics*))    
     (increment-physics-time (:dt state))
+    (reset! *collisions* #{})
     (assoc state
            :simulation-time (+ (:simulation-time state) (:dt state))
            :objects (handle-collisions (update-objects (:objects state) (:dt state))
