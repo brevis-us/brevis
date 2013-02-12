@@ -29,14 +29,11 @@
 (defn make-dirt
   "Make dirt at a specific location"
   [x y]
-  (-> {}
-    (make-real)
-    (make-box)
-    (assoc :type :dirt
-           :color [0.7 0.3 0.2]
-           :energy 0
-           :position (vec3 x 0 y))
-    (make-collision-shape)))
+  (make-real {:type :dirt
+              :color [0.7 0.3 0.2]
+              :energy 0
+              :position (vec3 x 0 y)
+              :shape (create-box)}))    
 
 (defn update-dirt
   "Update a dirt object"
@@ -70,15 +67,10 @@
 (defn make-robot
   "Make a new robot with the specified program. At the specified location."
   [position]
-  (-> {}
-      (make-real)
-      (make-box)
-;      (make-sphere)
-      (resize-shape (vec3 5 1 5))
-      (assoc :type :robot
-             :color [1 0 0]
-             :position position)
-      (make-collision-shape)))
+  (make-real {:type :robot
+              :color [1 0 0]
+              :position position
+              :shape (resize-shape (create-box) (vec3 5 1 5))}))
   
 (defn random-robot
   "Make a new random robot."
@@ -185,14 +177,10 @@ so we only modify robot1."
   ([x y]
     (make-obstruction x y 1 1))
   ([x y w h]
-  (-> {}
-      (make-real)
-      (make-box)
-      (resize-shape (vec3 w 1 h))
-      (move (vec3 x 0 y))
-      (assoc :color [0.5 0.5 0.5]
-             :type :obstruction)
-      (make-collision-shape))))
+    (move (make-real {:color [0.5 0.5 0.5]                                      
+                      :type :obstruction
+                      :shape (resize-shape (create-box) (vec3 w 1 h))})
+          (vec3 x 0 y))))
 
 (defn make-square-walls
   "Make square walls around the floor."
@@ -219,6 +207,7 @@ so we only modify robot1."
 (defn make-map
   "Construct map according to the map-type argument"
   [map-type]
+  (init-world)
   (let [w 100
         h 100
         floor (make-floor w h)]

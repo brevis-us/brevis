@@ -18,33 +18,6 @@
   (:import (org.lwjgl BufferUtils))  
   )
 
-(def update-handlers
-  (atom {}))
-
-(defn add-update-handler
-  "Associate an update function with a type. An update function should take 3                                                                                            
-arguments: [object dt neighbors] and return an updated version of object                                                                                                 
-given that dt amount of time has passed."
-  [type handler-fn]
-  (swap! update-handlers assoc type handler-fn))
-
-;; This should probably technically go somewhere else, but I demand that core functionality be provided with (:use [brevis.core])
-(defn update-objects
-  "Update all objects in the simulation. Objects whose update returns nil                                                                                                
-are removed from the simulation."
-  [objects dt]
-  (let [updated-objects (doall (for [obj objects]
-;                                 ((get @update-handlers (:type obj)) obj dt (remove #{obj} objects))))                                                                  
-                                   (let [f (get @update-handlers (:type obj))]
-                                     ;(println (get @update-handlers (:type obj)) obj dt (remove #{obj} objects))                                                        
-                                     (if f
-                                       (f obj dt (remove #{obj} objects))
-                                       obj))))
-	singles (filter #(not (seq? %)) updated-objects);; These objects didn't produce children                                                                         
-        multiples (apply concat (filter seq? updated-objects))];; These are parents and children                                                                         
-    (keep identity (concat singles multiples))))
-
-
 #_(defn update-objects
   "Update all objects in the simulation. Objects whose update returns nil
 are removed from the simulation."
@@ -54,16 +27,6 @@ are removed from the simulation."
         singles (filter #(not (seq? %)) updated-objects);; These objects didn't produce children
         multiples (apply concat (filter seq? updated-objects))];; These are parents and children
     (keep identity (concat singles multiples))))
-
-(defn update-world
-  "Update the world."
-  [[dt time] state]
-  (when (and  state
-              (not (:terminated? state)))
-          (assoc state
-            :simulation-time (+ (:simulation-time state) (:dt state))
-            :objects (handle-collisions (update-objects (:objects state) (:dt state))
-                                                        @collision-handlers))))
 
 (defn init [state]
   (app/title! "brevis")
