@@ -131,6 +131,8 @@
 (defn wall-bump
   "Collision between a robot and a wall. This is called on [robot wall]."
   [robot wall]
+  #_(println "wall-bump")  
+  (set-velocity robot (mul (get-velocity robot) -1))
   [(assoc robot
           :color [(rand) (rand) (rand)]
           :acceleration (mul (:acceleration robot) -1)
@@ -141,24 +143,18 @@
   "Collision between two robots. This is called on [robot1 robot2] and [robot2 robot1] independently
 so we only modify robot1."
   [robot1 robot2]
+  #_(println "bump")
+  (set-velocity robot1 (mul (get-velocity robot1) -1))
   [(assoc robot1 
           :color [(rand) (rand) (rand)]
           :acceleration (mul (:acceleration robot1) -1)
           :velocity (mul (:velocity robot1) -1))
    robot2])
 
-(defn land
-  "Collision between a robot and the floor."
-  [robot floor]
-  [(assoc robot
-     :position (vec3 (.x (:position robot)) 0 (.z (:position robot)))
-     :acceleration (vec3 0 0 0)
-     :velocity (vec3 0 0 0))
-   floor])
-
 (defn vacuum
   "SUCK THAT UP!"
   [robot dirt]
+  #_(println "vacuum")
   (reset! dirt-counter (+ @dirt-counter (:energy dirt)))
   [(assoc robot
      :position (vec3 (.x (:position robot)) 0 (.z (:position robot))))
@@ -167,7 +163,6 @@ so we only modify robot1."
 
 (add-collision-handler :robot :obstruction wall-bump)
 (add-collision-handler :robot :robot bump)
-(add-collision-handler :robot :floor land)
 (add-collision-handler :robot :dirt vacuum)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -210,8 +205,8 @@ so we only modify robot1."
   "Construct map according to the map-type argument"
   [map-type]
   (init-world)
-  (let [w 1000
-        h 1000]
+  (let [w 100
+        h 100]
 ;        floor (make-floor w h)]
     (cond (= :square map-type) (make-square-walls w h))
     #_(conj (cond (= :square map-type) (make-square-walls w h))
