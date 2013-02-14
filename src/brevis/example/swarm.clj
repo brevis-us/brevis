@@ -21,7 +21,7 @@
 (def num-birds 30)
 (def avoidance (atom 0.2))
 (def clustering (atom 0.1))
-(def centering (atom 0.01))
+(def centering (atom 0.03))
 
 (def max-acceleration 2)
 
@@ -47,15 +47,11 @@
 
 (defn make-bird
   "Make a new bird with the specified program. At the specified location."
-  [position]
-  (-> {}
-      (make-real)
-      (make-box)
-;      (make-sphere)
-      (assoc :type :bird
-             :color [1 0 0]
-             :position position)
-      (make-collision-shape)))
+  [position]  
+  (make-real {:type :bird
+              :color [1 0 0]
+              :position position
+              :shape (create-box)}))
   
 (defn random-bird
   "Make a new random bird."
@@ -129,8 +125,12 @@ so we only modify bird1."
 (defn initialize-simulation
   "This is the function where you add everything to the world."
   []
-  (let [birds (repeatedly num-birds random-bird)
-        floor (make-floor)]
-    {:objects (conj birds floor)}))
+  (init-world)
+  (let [birds (repeatedly num-birds random-bird)]
+    {:objects birds
+     :rotate-mode :none :translate-mode :none
+     :dt 0.1
+     :rot-x 0 :rot-y 0 :rot-z 0
+     :shift-x 0 :shift-y -20 :shift-z -50}))
 
-(start-gui initialize-simulation update-world 0.1)
+(start-gui initialize-simulation update-world)
