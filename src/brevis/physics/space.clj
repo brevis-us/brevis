@@ -6,10 +6,10 @@
         [brevis.shape core box])
   (:require [cantor.range]))
 
-(def *collision-handlers*
+(def #^:dynamic *collision-handlers*
   (atom {}))
 
-(def *update-handlers*
+(def #^:dynamic *update-handlers*
   (atom {}))
 
 (defn add-update-handler
@@ -39,69 +39,6 @@ Both can be modified; however, two independent collisions are actually computed 
   (swap! *collision-handlers* assoc
          [typea typeb] handler-fn))
             
-(defn obj-to-mass
-  "Create an ODE mass for an object"
-  [obj]
-  (let [dim (:dim (:shape obj))]
-    (doto (OdeHelper/createMass)
-      (.setBox (:density obj) (.x dim) (.y dim) (.z dim)))))
-
-(defn obj-to-geom
-  "Create an ODE geometry for a obj"
-  [obj]
-  
-  (let [dim (:dim (:shape obj))
-        pos (:position obj)]
-    (OdeHelper/createBox (:space @*physics*) (.x dim) (.y dim) (.z dim))))
-
-(defn make-real
-  "Add Real attributes to an object map."
-  [obj]
-  (let [uid (gensym)
-        obj (assoc obj        
-			         :uid uid
-			         :real true
-			         :position (or (:position obj) (vec3 0 0 0))
-			         :velocity (or (:velocity obj) (vec3 0 0 0))
-			         :acceleration (or (:acceleration obj) (vec3 0 0 0))
-               :density (or (:density obj) 1)
-			         :shape (or (:shape obj) (create-box)))
-        pos (:position obj)
-        mass (obj-to-mass obj)
-        body (doto (OdeHelper/createBody (get-world))
-               (.setMass mass)
-               (.setData {:uid uid :type (:type obj)})                (.setPosition (.x pos) (.y pos) (.z pos)))                       geom (doto (obj-to-geom obj)
-               (.setBody body)
-               (.setOffsetWorldPosition (.x pos) (.y pos) (.z pos))
-               #_(.enable))]    
-    (assoc obj
-           :mass mass
-           :body body
-           :geom geom)))
-
-(defn collided?
-  "Have two objects collided?"
-  [obj1 obj2]
-  (contains? @*collisions* [(:uid obj1) (:uid obj2)]))
-
-(defn inside-boundary?
-  "Returns true if an object is out of the boundary of the simulation."
-  [obj]
-  (cantor.range/inside? simulation-boundary (:position obj)))
-
-(defn sort-by-proximity
-  "Return a list of objects sorted by proximity."
-  [position objects]
-  (sort-by #(length (sub position (:position %)))
-           objects))
-  
-(defn move
-  "Move an object to the specified position."
-  [obj v]
-  (.setPosition (:body obj)
-    (.x v) (.y v) (.z v))
-  obj)
-
 (defn odevec-to-vec3
   [ov]
   (vec3 (.get0 ov) (.get1 ov) (.get2 ov)))
@@ -125,14 +62,75 @@ Both can be modified; however, two independent collisions are actually computed 
   [obj]
   (odevec-to-vec3 (.getLinearVel (:body obj))))
 
+(defn obj-to-mass
+  "Create an ODE mass for an object"
+  [obj]
+  (let [dim (:dim (:shape obj))]
+    (doto (OdeHelper/createMass)
+      (.setBox (:density obj) (.x dim) (.y dim) (.z dim)))))
+
+(defn obj-to-geom
+  "Create an ODE geometry for a obj"
+  [obj]
+  (let [dim (:dim (:shape obj))]
+    (OdeHelper/createBox (:space @*physics*) (.x dim) (.y dim) (.z dim))))
+
+(defn make-real
+  "Add Real attributes to an object map."
+  [obj]
+  (let [uid (gensym)
+        obj (assoc obj        
+			         :uid uid
+			         :real true
+			         :acceleration (or (:acceleration obj) (vec3 0 0 0))
+               :density (or (:density obj) 1)
+			         :shape (or (:shape obj) (create-box)))
+        pos (vec3 0 0 0) #_(get-position obj)
+        mass (obj-to-mass obj)
+        body (doto (OdeHelper/createBody (get-world))
+               (.setMass mass)
+               (.setData {:uid uid :type (:type obj)})                (.setPosition (.x pos) (.y pos) (.z pos)))                       geom (doto (obj-to-geom obj)
+               (.setBody body)
+               (.setOffsetWorldPosition (.x pos) (.y pos) (.z pos))
+               #_(.enable))]    
+    (assoc obj
+           :mass mass
+           :body body
+           :geom geom)))
+
+(defn collided?
+  "Have two objects collided?"
+  [obj1 obj2]
+  (contains? @*collisions* [(:uid obj1) (:uid obj2)]))
+
+(defn inside-boundary?
+  "Returns true if an object is out of the boundary of the simulation."
+  [obj]
+  (cantor.range/inside? simulation-boundary (get-position obj)))
+
+(defn sort-by-proximity
+  "Return a list of objects sorted by proximity."
+  [position objects]
+  (sort-by #(length (sub position (get-position %)))
+           objects))
+  
+(defn move
+  "Move an object to the specified position."
+  [obj v]
+  (.setPosition (:body obj)
+    (.x v) (.y v) (.z v))
+  obj)
+
 (defn update-object-kinematics
   "Update the kinematics of an object by applying acceleration and velocity for an infinitesimal amount of time."
   [obj dt]
   (let [newvel (add (get-velocity obj)
                     (mul (:acceleration obj) dt))
-        obj (assoc obj
-                   :velocity newvel)]
-    (.setLinearVel (:body obj) (.x newvel) (.y newvel) (.z newvel))
+        m 0.05
+        f (mul (:acceleration obj)
+               m)]; f = ma    
+    (.addForce (:body obj) (.x f) (.y f) (.z f))
+    #_(.setLinearVel (:body obj) (.x newvel) (.y newvel) (.z newvel)); avoids conversion that set-velocity would do
     obj))
 
 (defn make-floor

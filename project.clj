@@ -1,6 +1,6 @@
-(defproject brevis "0.2.0"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+(defproject brevis "0.2.1"
+  :description "A Second-Generation Artificial Life Simulator"
+  :url "https://github.com/kephale/brevis"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.4.0"]

@@ -18,10 +18,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Globals
 
-(def num-birds 30)
+(def num-birds 5)
+
+(def memory (atom 0.5))
 (def avoidance (atom 0.2))
 (def clustering (atom 0.1))
-(def centering (atom 0.03))
+(def centering (atom 0.1))
 
 (def max-acceleration 2)
 
@@ -40,18 +42,13 @@
         (+ 10 -0.5 (rand))
         (- (rand 20) 10)))
 
-(defn random-bird-velocity
-  "Returns a random reasonable velocity."
-  []
-  (vec3 (- (rand 2) 1) (- (rand 2) 1) (- (rand 2) 1)))
-
 (defn make-bird
   "Make a new bird with the specified program. At the specified location."
   [position]  
-  (make-real {:type :bird
+  (move (make-real {:type :bird
               :color [1 0 0]
-              :position position
-              :shape (create-box)}))
+              :shape (create-box)})
+        position))
   
 (defn random-bird
   "Make a new random bird."
@@ -61,7 +58,8 @@
 (defn bound-acceleration
   "Keeps the acceleration within a reasonable range."
   [v]
-  (if (> (length v) max-acceleration)
+  v
+  #_(if (> (length v) max-acceleration)
     (mul (div v (length v)) max-acceleration)
     v))
 
@@ -69,23 +67,25 @@
   "Change the acceleration of a bird."
   [bird dt nbrs]
   (let [closest-bird (first nbrs)
-        centroid (div (reduce add (map :position nbrs)) 
+        centroid (div (reduce add (map get-position nbrs)) 
                       (count nbrs))
-        d-closest-bird (sub (:position closest-bird) (:position bird))
-        d-centroid (sub centroid (:position bird))
-        d-center (sub (vec3 0 10 0) (:position bird))]
-    (assoc bird
-           :acceleration (bound-acceleration
-                           (add (:acceleration bird)
+        d-closest-bird (sub (get-position closest-bird) (get-position bird))
+        d-centroid (sub centroid (get-position bird))
+        d-center (sub (vec3 0 10 0) (get-position bird))
+        new-acceleration (bound-acceleration
+                           (add (mul (:acceleration bird) @memory)
                                 (mul d-center @centering)
                                 (mul d-closest-bird @avoidance)
-                                (mul d-centroid @clustering))))))  
+                                (mul d-centroid @clustering)))]
+    #_(println (:uid bird) new-acceleration)
+    (assoc bird
+           :acceleration new-acceleration)))
 
 (defn update-bird
   "Update a bird based upon its flocking behavior and the physical kinematics."
   [bird dt objects]  
   (let [objects (filter bird? objects)
-        nbrs (sort-by-proximity (:position bird) objects)
+        nbrs (sort-by-proximity (get-position bird) objects)
         floor (some #(when (= (:type %) :floor) %) objects)]
     (doseq [el (:vertices (:shape bird))]
       (println el))
@@ -127,7 +127,6 @@ so we only modify bird1."
   []  
   (let [initial-obj (init-world)
         birds (repeatedly num-birds random-bird)]
-    (println initial-obj)
     {:objects (concat initial-obj birds)
      :rotate-mode :none :translate-mode :none
      :dt 0.1
