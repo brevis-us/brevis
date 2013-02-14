@@ -124,10 +124,11 @@ so we only modify bird1."
 
 (defn initialize-simulation
   "This is the function where you add everything to the world."
-  []
-  (init-world)
-  (let [birds (repeatedly num-birds random-bird)]
-    {:objects birds
+  []  
+  (let [initial-obj (init-world)
+        birds (repeatedly num-birds random-bird)]
+    (println initial-obj)
+    {:objects (concat initial-obj birds)
      :rotate-mode :none :translate-mode :none
      :dt 0.1
      :rot-x 0 :rot-y 0 :rot-z 0

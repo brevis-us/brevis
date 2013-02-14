@@ -49,6 +49,7 @@ Both can be modified; however, two independent collisions are actually computed 
 (defn obj-to-geom
   "Create an ODE geometry for a obj"
   [obj]
+  
   (let [dim (:dim (:shape obj))
         pos (:position obj)]
     (OdeHelper/createBox (:space @*physics*) (.x dim) (.y dim) (.z dim))))
@@ -69,7 +70,7 @@ Both can be modified; however, two independent collisions are actually computed 
         mass (obj-to-mass obj)
         body (doto (OdeHelper/createBody (get-world))
                (.setMass mass)
-               (.setData {:uid uid})                (.setPosition (.x pos) (.y pos) (.z pos)))                       geom (doto (obj-to-geom obj)
+               (.setData {:uid uid :type (:type obj)})                (.setPosition (.x pos) (.y pos) (.z pos)))                       geom (doto (obj-to-geom obj)
                (.setBody body)
                (.setOffsetWorldPosition (.x pos) (.y pos) (.z pos))
                #_(.enable))]    
@@ -98,7 +99,8 @@ Both can be modified; however, two independent collisions are actually computed 
   "Move an object to the specified position."
   [obj v]
   (.setPosition (:body obj)
-    (.x v) (.y v) (.z v)))
+    (.x v) (.y v) (.z v))
+  obj)
 
 (defn odevec-to-vec3
   [ov]
@@ -195,11 +197,19 @@ Both can be modified; however, two independent collisions are actually computed 
   "Handle the collisions of a collection of real objects.
 Things is updated and returned as a vector."  [things collision-handlers]  (loop [things (vec things)         pairs (for [uid-pair @*collisions*]                                                                                                                         
                     [(some #(when (= (:uid (nth things %)) (:uid (first uid-pair))) %) (range (count things)))
-                     (some #(when (= (:uid (nth things %)) (:uid (second uid-pair))) %) (range (count things)))])]    (if (empty? pairs)      things      (recur (let [pair (first pairs)                   thing1 (nth things (first pair))                   thing2 (nth things (second pair))                   collision-handler (get collision-handlers [(:type thing1) (:type thing2)])]
+                     (some #(when (= (:uid (nth things %)) (:uid (second uid-pair))) %) (range (count things)))
+                     uid-pair])]
+    (when (some nil? (first pairs)) 
+      (println (first pairs)) 
+      (println @*collisions*) 
+      (println (doall (map :uid things)))
+      (println (doall (map :type things))))
+        (if (empty? pairs)      things      (recur (let [pair (first pairs)                   thing1 (nth things (first pair))                   thing2 (nth things (second pair))                   collision-handler (get collision-handlers [(:type thing1) (:type thing2)])]
                #_(println pair (:type thing1) (:type thing2)) 
                #_(println "Collision-handler" collision-handler [(:type thing1) (:type thing2)] (nil? collision-handler))                (cond (apply = pair); self-collision, somehow 
                      things                     (not (nil? collision-handler))                     (let [[thing1 thing2] (collision-handler thing1 thing2)]
-                       (println "Colliding" pair (:type thing1) (:type thing2))                                                                                                                                     (assoc things                         (first pair) thing1                         (second pair) thing2))                     :else things))    
+                       #_
+                         (println "Colliding" pair (:type thing1) (:type thing2))                                                                                                                                     (assoc things                         (first pair) thing1                         (second pair) thing2))                     :else things))    
              (rest pairs)))))
 
 (defn init-world  "Return a map of ODE physics for 1 world."  []  (let [world (doto (OdeHelper/createWorld)     
@@ -213,7 +223,8 @@ Things is updated and returned as a vector."  [things collision-handlers]  (lo
             environment {:objects [floor]
                          :joints nil}]
         (reset! *physics* (assoc @*physics*
-                                 :environment environment)))))
+                                 :environment environment))        
+        (:objects environment))))
 (defn reset-world  "Reset the *physics* global."  []  (loop []    (when (pos? (.getNumGeoms (:space @*physics*)))      (.remove (:space *physics*) (.getGeom (:space @*physics*) 0))      (recur)))  (let [[floor floor-joint] (make-floor)
         environment {:objects [floor]
                      :joints [floor-joint]}]    (reset! *physics* (assoc @*physics*
@@ -238,7 +249,7 @@ are removed from the simulation."
                                      (if f
                                        (f obj dt (remove #{obj} objects))
                                        obj))))
-	singles (filter #(not (seq? %)) updated-objects);; These objects didn't produce children                                                                         
+	      singles (filter #(not (seq? %)) updated-objects);; These objects didn't produce children                                                                         
         multiples (apply concat (filter seq? updated-objects))];; These are parents and children                                                                         
     (into [] (keep identity (concat singles multiples)))))
 
