@@ -15,20 +15,13 @@
 	   (java.awt.image BufferedImage)
 	   (java.io File IOException)
 	   (javax.imageio ImageIO))
-  (:import (org.lwjgl BufferUtils))  
-  )
+  (:import (org.lwjgl BufferUtils)))
 
-#_(defn update-objects
-  "Update all objects in the simulation. Objects whose update returns nil
-are removed from the simulation."
-  [objects dt]
-  (let [updated-objects (doall (for [obj objects]
-                                 ((@update-handlers (:type obj)) obj dt (remove #{obj} objects))))
-        singles (filter #(not (seq? %)) updated-objects);; These objects didn't produce children
-        multiples (apply concat (filter seq? updated-objects))];; These are parents and children
-    (keep identity (concat singles multiples))))
+;; ## Window and Graphical Environment
 
-(defn init [state]
+(defn init
+  "Initialize the brevis window and the graphical environment."
+  [state]
   (app/title! "brevis")
   (app/vsync! true)
   (app/key-repeat! false)
@@ -37,9 +30,7 @@ are removed from the simulation."
   (init-box-graphic)
   (enable :lighting)
   (enable :light0)
-;  (gl-enable :auto-normal)
-  (blend-func :src-alpha :one-minus-src-alpha)
-  #_(reset-simulation state))
+  (blend-func :src-alpha :one-minus-src-alpha))
 
 (defn reshape
   "Reshape after the window is resized."
@@ -55,7 +46,7 @@ are removed from the simulation."
     :window-height h))
 
 (defn display
-  "Dispaly the world."
+  "Display the world."
   [[dt time] state]
   (text/write-to-screen (str (int (/ 1 dt)) " fps") 0 0)
   (text/write-to-screen (str (:simulation-time state) " time") 0 30)
@@ -63,7 +54,6 @@ are removed from the simulation."
                              (:rot-x state) "," (:rot-y state) "," (:rot-z state) ")") 0 60)
   (text/write-to-screen (str "Translation [active " (:translate-mode state) "]: (" 
                              (:shift-x state) "," (:shift-y state) "," (:shift-z state) ")") 0 90)
-;  (text/write-to-screen (str (count (filter #(= (:type %) :bird) (:objects state))) " birds") 0 60)
   (rotate (:rot-x state) 1 0 0)
   (rotate (:rot-y state) 0 1 0)
   (rotate (:rot-z state) 0 0 1)
@@ -73,26 +63,19 @@ are removed from the simulation."
       (draw-shape obj)))
   (app/repaint!))
 
-#_(defn mouse-drag
-  "Rotate the world."
-  [[dx dy] _ button state]
-  (cond 
-    ; Rotate
-    (= :left button)
-    (assoc state
-;           :rot-x (+ (:rot-x state) dy)
-           :rot-z (+ (:rot-z state) dy)           
-           :rot-y (+ (:rot-y state) dx))
-    ; Zoom
-    (= :right button)
-    (assoc state
-           :shift-y (+ (:shift-z state)
-                       dy)
-           :shift-x (+ (:shift-x state)
-                      dx))))
+(defn screenshot
+  "Take a screenshot. Currently captures the entire screen."
+  [filename]
+  (let [img-type (second (re-find (re-matcher #"\.(\w+)$" filename)))
+	capture (.createScreenCapture (Robot.)
+				      (Rectangle. (.getScreenSize (Toolkit/getDefaultToolkit))))
+	file (File. filename)]
+    (ImageIO/write capture img-type file)))
+
+;; ## Input handling
 
 (defn mouse-drag
-  "Rotate the world."
+  "Perform the respective action given a mouse click and displacement."
   [[dx dy] _ button state]
   (let [displacement dx];(math/sqrt (+ (* dx dx) (* dy dy)))]
 	  (cond 
@@ -110,25 +93,11 @@ are removed from the simulation."
                (= (:translate-mode state) :x) {:shift-x (+ (:shift-x state) displacement)}               
                (= (:translate-mode state) :y) {:shift-y (+ (:shift-y state) displacement)}               
                (= (:translate-mode state) :z) {:shift-z (+ (:shift-z state) displacement)})))))
-
-;; Screenshot code
-
-(defn screenshot
-  "Take a screenshot."
-  [filename]
-  (let [img-type (second (re-find (re-matcher #"\.(\w+)$" filename)))
-	capture (.createScreenCapture (Robot.)
-				      (Rectangle. (.getScreenSize (Toolkit/getDefaultToolkit))))           
-;				      (Rectangle. (.getScreenSize (Toolkit/getDefaultToolkit))))
-	file (File. filename)]
-    (ImageIO/write capture img-type file)))
-
-;; end screenshot code
    
-(defn key-press [key state]
+(defn key-press
+  "Update the state in response to a keypress."
+  [key state]
   (cond
-;   (= "s" key) (screenshot state)
-;   (= "r" key) (reset-simulation state)
    (= "q" key) (assoc state
                       :rotate-mode :x)
    (= "w" key) (assoc state
@@ -176,6 +145,8 @@ are removed from the simulation."
      (assoc state 
           :terminated? true)
           )))
+
+;; ## Start a brevis instance
 
 (defn start-gui [initialize update]
   "Start the simulation with a GUI."

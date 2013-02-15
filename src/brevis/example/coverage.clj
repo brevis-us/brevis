@@ -7,7 +7,7 @@
         [cantor]))  
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Globals
+;; ## Globals
 
 (def num-robots 7)
 (def avoidance (atom 0.02))
@@ -19,7 +19,7 @@
 (def max-acceleration 2)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Dirt
+;; ## Dirt
 
 (defn dirt?
   "Is a thing dirt?"
@@ -45,7 +45,7 @@
 (add-update-handler :dirt update-dirt)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Robots
+;; ## Robots
 
 (defn robot?
   "Is a thing a robot?"
@@ -123,7 +123,7 @@
 (add-update-handler :robot update-robot); This tells the simulator how to update these objects
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Collision handling
+;; ## Collision handling
 ;;
 ;; Collision functions take [collider collidee] and return [collider collidee]
 ;;   Both can be modified; however, two independent collisions are actually computed [a b] and [b a].
@@ -166,7 +166,7 @@ so we only modify robot1."
 (add-collision-handler :robot :dirt vacuum)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; World updates
+;; ## World updates
 
 (defn make-obstruction
   "Make an obstruction at the (x,y) coordinate."
@@ -212,6 +212,8 @@ so we only modify robot1."
     #_(conj (cond (= :square map-type) (make-square-walls w h))
           floor)))
 
+;; ## brevis control code
+
 (defn initialize-simulation
   "This is the function where you add everything to the world."
   []
@@ -224,4 +226,5 @@ so we only modify robot1."
      :shift-x 0 :shift-y -20 :shift-z -150
      }))
 
+;; Start ze macheen
 (start-gui initialize-simulation update-world)
