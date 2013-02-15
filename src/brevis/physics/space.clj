@@ -6,22 +6,26 @@
         [brevis.shape core box])
   (:require [cantor.range]))
 
+;; ## Globals
+
+;; Hash map keyed on pairs of types with values of the respective collision function.
+;; 
+;; Keys are of the form [:ball :floor]
+;;
+;; Collision functions take [collider collidee] and return [collider collidee].
+;;
+;; Both can be modified; however, two independent collisions are actually computed [a b] and [b a]."
 (def #^:dynamic *collision-handlers*
-  "Hash map keyed on pairs of types with values of collision functions.
-Keys are of the form [:ball :floor] 
-Collision functions take [collider collidee] and return [collider collidee].                                                                                               
-Both can be modified; however, two independent collisions are actually computed [a b] and [b a]."
   (atom {}))
 
+;; Hash map keyed on type with values of the respective update function.
+;;
+;; An update function should take 3 arguments:
+;;
+;; [object dt neighbors] and return an updated version of object                                                                                                 
+;; given that dt amount of time has passed.
 (def #^:dynamic *update-handlers*
   (atom {}))
-
-(defn add-update-handler
-  "Associate an update function with a type. An update function should take 3                                                                                            
-arguments: [object dt neighbors] and return an updated version of object                                                                                                 
-given that dt amount of time has passed."
-  [type handler-fn]
-  (swap! *update-handlers* assoc type handler-fn))
 
 (def simulation-boundary
   (box3 (vec3 100 100 100)
@@ -30,10 +34,17 @@ given that dt amount of time has passed."
 (def #^:dynamic *physics* (atom nil))
 (def #^:dynamic *collisions* (atom #{}))
 
+;; ## Utilities
+
 (defn get-world
   "Return the current world"
   []
   (:world @*physics*))
+
+(defn add-update-handler
+  "Associate an update function with a type."
+  [type handler-fn]
+  (swap! *update-handlers* assoc type handler-fn))
 
 (defn add-collision-handler
   "Store the collision handler for typea colliding with typeb."
@@ -76,6 +87,8 @@ given that dt amount of time has passed."
   [obj]
   (let [dim (:dim (:shape obj))]
     (OdeHelper/createBox (:space @*physics*) (.x dim) (.y dim) (.z dim))))
+
+;; ## Real/Physical/Spatial
 
 (defn make-real
   "Add Real attributes to an object map."
@@ -144,46 +157,8 @@ given that dt amount of time has passed."
                     :shape (create-box w 0.1 h)})
         (vec3 0 -3 0)))
 
-#_(def contact-joint-array (into-array java.lang.Class [org.ode4j.ode.DContactJoint]))#_(def nearCallback
-  (proxy [org.ode4j.ode.DGeom$DNearCallback] []
-    (call [#^java.lang.Object data #^DGeom o1 #^DGeom o2]
-      (let [b1 (.getBody o1)
-            b2 (.getBody o2)]
-(println "Position b1:" (.getPosition b1) "Position b2:" (.getPosition b2) (.getLengths o1) (.getLengths o2) (.getClassID o1) (.getClassID o1) (.isEnabled o1) (.isEnabled o1))
-        (if (and b1 b2 (OdeHelper/areConnectedExcluding b1 b2 contact-joint-array))
-          (do (println "Position b1:" (.getPosition b1) "Position b2:" (.getPosition b2))
-               nil)              
-          (let [N 100; This sometimes needs to change
-                contacts (new DContactBuffer N)
-                n (OdeHelper/collide o1 o2 N (.getGeomBuffer contacts))]
-(println "Position b1:" (.getPosition b1) "Position b2:" (.getPosition b2))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
-            (when (> n 0)
-              (dotimes [i n]
-                (let [contact (.get contacts i)]
-                  (set! (.. contact surface mode)
-                        (bit-or (. OdeConstants dContactSlip1) (. OdeConstants dContactSlip2) #_(. OdeConstants dContactSoftERP)
-                                #_(. OdeConstants dContactSoftCFM) #_(. OdeConstants dContactApprox1)))
-                  (set! (.. contact surface mu) 100)
-                  (set! (.. contact surface slip1) 0.0)
-                  (set! (.. contact surface slip2) 0.0)
-                  #_(set! (.. contact surface soft_erp) 0.8)
-                  #_(set! (.. contact surface soft_cfm) 0.01)
-                  (doto (OdeHelper/createContactJoint (.getWorld b1) (:contact-group @*physics*) contact)
-                    (.attach (.getBody o1) (.getBody o2))))))))))))
-
-#_(def nearCallback
-  (proxy [org.ode4j.ode.DGeom$DNearCallback] []
-    (call [#^java.lang.Object data #^DGeom o1 #^DGeom o2]
-      (let [b1 (.getBody o1)
-            b2 (.getBody o2)]
-        (let [N 100; This sometimes needs to change
-              contacts (new DContactBuffer N)
-              n (OdeHelper/collide o1 o2 N (.getGeomBuffer contacts))]
-          (when (> n 0) 
-            (reset! *collisions* (concat @*collisions* 
-                                         (list [(.getData b1) (.getData b2)]
-                                               [(.getData b2) (.getData b1)])))))))))
-
+;; This callback is triggered by the physics engine. Currently the function does not technically
+;; check for a collision, it only uses ODE's collision predictor.
 (def nearCallback
   (proxy [org.ode4j.ode.DGeom$DNearCallback] []
     (call [#^java.lang.Object data #^DGeom o1 #^DGeom o2]
@@ -237,7 +212,6 @@ Things is updated and returned as a vector."  [things collision-handlers]  (lo
   (reset! *physics* (assoc @*physics* 
                            :time (+ (:time @*physics*) dt))))
 
-;; This should probably technically go somewhere else, but I demand that core functionality be provided with (:use [brevis.core])
 (defn update-objects
   "Update all objects in the simulation. Objects whose update returns nil                                                                                                
 are removed from the simulation."

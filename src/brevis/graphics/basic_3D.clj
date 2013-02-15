@@ -10,6 +10,10 @@
             [cantor.range]
             [penumbra.opengl.frame-buffer :as fb]))  
 
+;; ## Shape handling code
+;;
+;; < This is currently under revision. >
+
 (defn draw-shape
   "Draw a shape. Call this after translating, scaling, and setting color."
   [obj]

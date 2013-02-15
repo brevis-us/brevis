@@ -17,17 +17,3 @@
   []
   (def sphere-mesh 
        (create-display-list (draw-sphere (sphere-vertices 12)))))
-
-#_(defn draw-joint
-  "Draw a joint with a red sphere."
-  [j]
-  (let [dvec (new DVector3)]
-    (.getAnchor j dvec)
-    (let [pos (vec3 (.get0 dvec) (.get1 dvec) (.get2 dvec))
-          radius 0.2]
-;      (println "joint at" pos)
-      (push-matrix       
-       (translate pos);(sub pos (vec3 radius radius radius)))
-       (color (vec3 1 0 0))
-       (scale (vec3 (* radius 2) (* radius 2) (* radius 2)))
-       (call-display-list sphere-mesh)))))

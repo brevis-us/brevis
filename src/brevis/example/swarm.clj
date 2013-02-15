@@ -6,13 +6,17 @@
         [brevis.core]
         [cantor]))  
 
-; Swarm simulations are models of flocking behavior in collections of organisms. 
-;
-; These algorithms were first explored computationally in:
-;   Reynolds, Craig W. "Flocks, herds and schools: A distributed behavioral model." ACM SIGGRAPH Computer Graphics. Vol. 21. No. 4. ACM, 1987.
-
-;; Todo:
-; - spheres
+;; ## Swarm
+;;
+;; Swarm simulations are models of flocking behavior in collections of organisms.   
+;;
+;; These algorithms were first explored computationally in:
+;;
+;;   Reynolds, Craig W. "Flocks, herds and schools: A distributed behavioral model." ACM SIGGRAPH Computer Graphics. Vol. 21. No. 4. ACM, 1987.
+;;
+;; ## Todo
+;;
+;; - spheres
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
