@@ -1,2 +1,0 @@
-(ns brevis.shape.cone)
-

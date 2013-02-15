@@ -13,10 +13,9 @@
 
 ;; Todo:
 ; - spheres
-; - nice UI behavior
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Globals
+;; ## Globals
 
 (def num-birds 5)
 
@@ -28,7 +27,7 @@
 (def max-acceleration 2)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Birds
+;; ## Birds
 
 (defn bird?
   "Is a thing a bird?"
@@ -95,7 +94,7 @@
 (add-update-handler :bird update-bird); This tells the simulator how to update these objects
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Collision handling
+;; ## Collision handling
 ;;
 ;; Collision functions take [collider collidee] and return [collider collidee]
 ;;   Both can be modified; however, two independent collisions are actually computed [a b] and [b a].
@@ -120,7 +119,7 @@ so we only modify bird1."
 (add-collision-handler :bird :floor land)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; World updates
+;; ## brevis control code
 
 (defn initialize-simulation
   "This is the function where you add everything to the world."
@@ -133,4 +132,5 @@ so we only modify bird1."
      :rot-x 0 :rot-y 0 :rot-z 0
      :shift-x 0 :shift-y -20 :shift-z -50}))
 
+;; Start ze macheen
 (start-gui initialize-simulation update-world)

@@ -12,10 +12,10 @@
             [cantor.range]
             [penumbra.opengl.frame-buffer :as fb])
   (:import (java.awt AWTException Robot Rectangle Toolkit)
-	   (java.awt.image BufferedImage)
-	   (java.io File IOException)
-	   (javax.imageio ImageIO))
-  (:import (org.lwjgl BufferUtils)))
+           (java.awt.image BufferedImage)
+           (java.io File IOException)
+           (javax.imageio ImageIO)
+           (org.lwjgl BufferUtils)))
 
 ;; ## Window and Graphical Environment
 
