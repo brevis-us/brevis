@@ -84,13 +84,6 @@
     (mul (div v (length v)) max-acceleration)
     v))
 
-(defn bound-velocity
-  "Keeps the acceleration within a reasonable range."
-  [v]
-  (if (> (length v) max-velocity)
-    (mul (div v (length v)) max-velocity)
-    v))
-
 (defn swarm
   "Change the acceleration of a robot."
   [robot dt nbrs]
@@ -102,7 +95,6 @@
         d-centroid (sub centroid (:position robot))
         d-center (sub (vec3 0 0 0) (:position robot))]
     (assoc robot
-           :velocity (bound-velocity (:velocity robot))
            :acceleration (bound-acceleration
                            (add (:acceleration robot)
                                 (mul d-center @centering)
@@ -174,7 +166,7 @@ so we only modify robot1."
     (make-obstruction x y 1 1))
   ([x y w h]
     (make-real {:color [0.5 0.5 0.5]   
-                :position (vec3 x 1 y)
+                :position (vec3 x 1 y) 
                 :type :obstruction
                 :shape (create-box w 1 h)})))
 

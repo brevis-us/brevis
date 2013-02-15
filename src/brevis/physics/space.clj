@@ -7,6 +7,10 @@
   (:require [cantor.range]))
 
 (def #^:dynamic *collision-handlers*
+  "Hash map keyed on pairs of types with values of collision functions.
+Keys are of the form [:ball :floor] 
+Collision functions take [collider collidee] and return [collider collidee].                                                                                               
+Both can be modified; however, two independent collisions are actually computed [a b] and [b a]."
   (atom {}))
 
 (def #^:dynamic *update-handlers*
@@ -32,9 +36,7 @@ given that dt amount of time has passed."
   (:world @*physics*))
 
 (defn add-collision-handler
-  "Store the collision handler for typea colliding with typeb.                                                                                                           
-Collision functions take [collider collidee] and return [collider collidee]                                                                                              
-Both can be modified; however, two independent collisions are actually computed [a b] and [b a]."
+  "Store the collision handler for typea colliding with typeb."
   [typea typeb handler-fn]
   (swap! *collision-handlers* assoc
          [typea typeb] handler-fn))
@@ -85,7 +87,7 @@ Both can be modified; however, two independent collisions are actually computed 
 			         :acceleration (or (:acceleration obj) (vec3 0 0 0))
                :density (or (:density obj) 1)
 			         :shape (or (:shape obj) (create-box)))
-        pos (vec3 0 0 0) #_(get-position obj)
+        pos (or (:position obj) (vec3 0 0 0))
         mass (obj-to-mass obj)
         body (doto (OdeHelper/createBody (get-world))
                (.setMass mass)
