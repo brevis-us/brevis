@@ -53,10 +53,12 @@
          [typea typeb] handler-fn))
             
 (defn odevec-to-vec3
+  "Convert an ODE vector into a Cantor vector."
   [ov]
   (vec3 (.get0 ov) (.get1 ov) (.get2 ov)))
 
 (defn vec3-to-odevec
+  "Convert a Cantor vector into an ODE vector."
   [v3]
   (DVector3. (.x v3) (.y v3) (.z v3)))
 
@@ -132,6 +134,8 @@
 (defn move
   "Move an object to the specified position."
   [obj v]
+  (when-not (:body obj)
+    (println obj))
   (.setPosition (:body obj)
     (.x v) (.y v) (.z v))
   obj)

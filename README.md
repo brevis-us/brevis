@@ -5,8 +5,9 @@ brevis, a Second Generation artificial life simulator.
 brevis is a revitalization of the spirit of the breve simulator in the functional
 language, Clojure.
 	
-   http://cs.brandeis.edu/~kyleh/brevis
-
+Documentation:   http://cs.brandeis.edu/~kyleh/brevis
+Chat: #brevis@irc.freenode.net
+  
 by Kyle Harrington (kyleh@cs.brandeis.edu), 2011-2013.
    http://kyleharrington.com
 
