@@ -131,9 +131,9 @@ so we only modify bird1."
   "This is the function where you add everything to the world."
   []  
   (let [initial-obj (init-world)
-        birds (repeatedly num-birds random-bird)]
-    {:objects (concat initial-obj birds)
-     :rotate-mode :none :translate-mode :none
+        birds (doall (repeatedly num-birds #(add-object (random-bird))))]
+;    {:objects (concat initial-obj birds)
+     {:rotate-mode :none :translate-mode :none
      :dt 0.1
      :rot-x 0 :rot-y 0 :rot-z 0
      :shift-x 0 :shift-y -20 :shift-z -50}))

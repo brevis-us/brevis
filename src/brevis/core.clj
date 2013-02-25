@@ -59,7 +59,8 @@
   (rotate (:rot-z state) 0 0 1)
   (translate (:shift-x state) (:shift-y state) (:shift-z state))
   (with-disabled :texture-2d
-    (doseq [obj (:objects state)]
+    (doseq [obj (vals @*objects*)]    
+;    (doseq [obj (:objects state)]
       (draw-shape obj)))
   (app/repaint!))
 

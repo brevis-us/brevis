@@ -33,6 +33,7 @@
 
 (def #^:dynamic *physics* (atom nil))
 (def #^:dynamic *collisions* (atom #{}))
+(def #^:dynamic *objects* (atom {}))
 
 ;; ## Utilities
 
@@ -40,6 +41,11 @@
   "Return the current world"
   []
   (:world @*physics*))
+
+(defn add-object
+  "Add an object to the current world."
+  [obj]
+  (swap! *objects* assoc (:uid obj) obj))
 
 (defn add-update-handler
   "Associate an update function with a type."
@@ -203,7 +209,8 @@ Things is updated and returned as a vector."  [things collision-handlers]  (lo
             environment {:objects [floor]
                          :joints nil}]
         (reset! *physics* (assoc @*physics*
-                                 :environment environment))        
+                                 :environment environment))
+        (add-object floor)        
         (:objects environment))))
 (defn reset-world  "Reset the *physics* global."  []  (loop []    (when (pos? (.getNumGeoms (:space @*physics*)))      (.remove (:space *physics*) (.getGeom (:space @*physics*) 0))      (recur)))  (let [[floor floor-joint] (make-floor)
         environment {:objects [floor]
@@ -260,9 +267,14 @@ are removed from the simulation."
                                    [(some #(when (= (:uid (nth (:objects state) %)) (:uid (first uid-pair))) %) (range (count (:objects state))))
                                     (some #(when (= (:uid (nth (:objects state) %)) (:uid (second uid-pair))) %) (range (count (:objects state))))])))        
     #_(.empty (:contact-group *physics*))    
-    (increment-physics-time (:dt state))    
+    (increment-physics-time (:dt state))
+    (reset! *objects* (let [new-objs (handle-collisions (update-objects (vals @*objects*) (:dt state))                                                        
+                                                        @*collision-handlers*)]
+                        (zipmap (map :uid new-objs) new-objs)));; hacky and bad    
     (assoc state
-           :simulation-time (+ (:simulation-time state) (:dt state))
-           :objects (handle-collisions (update-objects (:objects state) (:dt state))
-                                                        @*collision-handlers*))))
+           :simulation-time (+ (:simulation-time state) (:dt state)))))
+                       
+;;           :objects (handle-collisions (update-objects (:objects state) (:dt state))
+;;           :objects (handle-collisions (update-objects @*objects* (:dt state))                                                        
+;;                                       @*collision-handlers*))))
 
