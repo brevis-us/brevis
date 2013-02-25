@@ -113,10 +113,12 @@ so we only modify bird1."
 (defn land
   "Collision between a bird and the floor."
   [bird floor]
-  [(assoc bird
-     :position (vec3 (.x (:position bird)) 0 (.z (:position bird)))
-     :acceleration (vec3 0 0 0)
-     :velocity (vec3 0 0 0))
+  (when (or (nil? bird) (nil? floor))
+    (println "Bird" bird) (println "Floor" floor))
+  [(move (set-velocity (assoc bird
+                        :acceleration (vec3 0 0 0))
+                       (vec3 0 0 0))
+         (vec3 0 0 0))
    floor])
 
 (add-collision-handler :bird :bird bump)

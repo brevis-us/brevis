@@ -65,7 +65,8 @@
 (defn set-velocity
   "Set the velocity of an object"
   [obj v]
-  (.setLinearVel (:body obj) (vec3-to-odevec v)))
+  (.setLinearVel (:body obj) (vec3-to-odevec v))
+  obj)
 
 (defn get-position
   "Return the position of an object"
@@ -216,7 +217,7 @@ Things is updated and returned as a vector."  [things collision-handlers]  (lo
   (reset! *physics* (assoc @*physics* 
                            :time (+ (:time @*physics*) dt))))
 
-(defn update-objects
+#_(defn update-objects
   "Update all objects in the simulation. Objects whose update returns nil                                                                                                
 are removed from the simulation."
   [objects dt]
@@ -226,8 +227,21 @@ are removed from the simulation."
                                      ;(println (get @update-handlers (:type obj)) obj dt (remove #{obj} objects))                                                        
                                      (if f
                                        (f obj dt (remove #{obj} objects))
-                                       obj))))
+                                       obj))))        
 	      singles (filter #(not (seq? %)) updated-objects);; These objects didn't produce children                                                                         
+        multiples (apply concat (filter seq? updated-objects))];; These are parents and children                                                                         
+    (into [] (keep identity (concat singles multiples)))))
+
+(defn update-objects
+  "Update all objects in the simulation. Objects whose update returns nil                                                                                                
+are removed from the simulation."
+  [objects dt]
+  (let [updated-objects (doall (for [obj objects]
+                                 (let [f (get @*update-handlers* (:type obj))]
+                                   (if f
+                                     (f obj dt (remove #{obj} objects))
+                                     obj))))        
+        singles (filter #(not (seq? %)) updated-objects);; These objects didn't produce children                                                                         
         multiples (apply concat (filter seq? updated-objects))];; These are parents and children                                                                         
     (into [] (keep identity (concat singles multiples)))))
 
