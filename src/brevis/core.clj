@@ -147,12 +147,48 @@
           :terminated? true)
           )))
 
+(defn mouse-move
+  "Respond to a change in x,y position of the mouse."
+  [[[dx dy] [x y]] state] 
+  #_(println x y)
+  state)
+    
+(defn mouse-up
+  "Respond to a mouse button being released"
+  [[x y] button state] 
+  #_(println button) 
+  state)
+    
+(defn mouse-click
+  "Respond to a click?"
+  [[x y] button state]
+  #_(println button)
+  state)
+
+(defn mouse-down
+  "Respond to a mouse button being pressed"
+  [[x y] button state]
+  #_(println button)
+  state)
+
+(defn mouse-wheel
+  "Respond to a mousewheel movement. dw is +/- depending on scroll-up or down."
+  [dw state]
+  #_(println dw)
+  state)
+
 ;; ## Start a brevis instance
 
 (defn start-gui [initialize update]
   "Start the simulation with a GUI."
   (app/start
-   {:reshape reshape, :init init, :mouse-drag mouse-drag, :key-press key-press, :update update, :display display}
+   {:reshape reshape, :init init, :mouse-drag mouse-drag, :key-press key-press, :update update, :display display
+    ;:mouse-move    (fn [[[dx dy] [x y]] state] (println )
+    ;:mouse-up       (fn [[x y] button state] (println button) state)
+    ;:mouse-click   (fn [[x y] button state] (println button) state)
+    ;:mouse-down    (fn [[x y] button state] (println button) state)
+    ;:mouse-wheel   (fn [dw state] (println dw) state)
+    }
    (merge {:rotate-mode :x :translate-mode :x     
            :rot-x 0 :rot-y 0 :rot-z 90
            :shift-x 0 :shift-y 20 :shift-z 0;-30
