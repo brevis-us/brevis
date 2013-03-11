@@ -28,7 +28,7 @@
 (def clustering (atom 0.1))
 (def centering (atom 0.1))
 
-(def max-acceleration 2)
+(def max-acceleration 5)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Birds

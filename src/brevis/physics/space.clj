@@ -87,15 +87,26 @@
 (defn obj-to-mass
   "Create an ODE mass for an object"
   [obj]
-  (let [dim (:dim (:shape obj))]
-    (doto (OdeHelper/createMass)
-      (.setBox (:density obj) (.x dim) (.y dim) (.z dim)))))
+  (let [dim (:dim (:shape obj))]    
+      (cond
+        (= (:type (:shape obj)) :box) 
+        (doto
+          (OdeHelper/createMass) 
+          (.setBox (:density obj) (.x dim) (.y dim) (.z dim)))
+        (= (:type (:shape obj)) :sphere)
+        (doto
+          (OdeHelper/createMass)
+          (.setSphere (:density obj) (.x dim))))))
+      
 
 (defn obj-to-geom
   "Create an ODE geometry for a obj"
   [obj]
   (let [dim (:dim (:shape obj))]
-    (OdeHelper/createBox (:space @*physics*) (.x dim) (.y dim) (.z dim))))
+    (cond
+      (= (:type (:shape obj)) :box) (OdeHelper/createBox (:space @*physics*) (.x dim) (.y dim) (.z dim))
+      (= (:type (:shape obj)) :sphere) (OdeHelper/createSphere (:space @*physics*) (.x dim)))))
+    
 
 ;; ## Real/Physical/Spatial
 
