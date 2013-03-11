@@ -3,7 +3,7 @@
         [penumbra.opengl core]
         [cantor]
         [brevis.physics.space]
-        [brevis.shape.box])
+        [brevis.shape box sphere])
   (:require [penumbra.app :as app]
             [penumbra.text :as text]
             [penumbra.data :as data]
@@ -31,5 +31,7 @@
 	   (rotate (.x vel) 1 0 0)
 	   (rotate (.y vel) 0 1 0)
 	   (rotate (.z vel) 0 0 1)
-	   (draw-textured-cube)
+	   (cond
+      (= (:type (:shape obj)) :box) (draw-textured-cube)
+      (= (:type (:shape obj)) :sphere) (draw-sphere))  
 	   #_(call-display-list (cond (= (:type (:shape obj)) :box) box-graphic)))))

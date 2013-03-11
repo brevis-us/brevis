@@ -50,7 +50,7 @@
   [position]  
   (move (make-real {:type :bird
               :color [1 0 0]
-              :shape (create-box)})
+              :shape (create-sphere)})
         position))
   
 (defn random-bird
