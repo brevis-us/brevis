@@ -24,13 +24,18 @@
   [state]
   (app/title! "brevis")
   (app/vsync! true)
-  (app/key-repeat! false)
+  ;(app/key-repeat! true)
   (enable :blend)
   (enable :depth-test)
   (init-box-graphic)
   (enable :lighting)
   (enable :light0)
   (blend-func :src-alpha :one-minus-src-alpha))
+
+
+(def shift-key-down (atom false))
+(defn sin [n] (float (Math/sin n)))
+(defn cos [n] (float (Math/cos n)))
 
 (defn reshape
   "Reshape after the window is resized."
@@ -49,11 +54,11 @@
   "Display the world."
   [[dt time] state]
   (text/write-to-screen (str (int (/ 1 dt)) " fps") 0 0)
-  (text/write-to-screen (str (:simulation-time state) " time") 0 30)
-  (text/write-to-screen (str "Rotation [active " (:rotate-mode state) "]: (" 
+  (text/write-to-screen (str (float (:simulation-time state)) " time") 0 30)
+  (text/write-to-screen (str "Rotation: (" 
                              (:rot-x state) "," (:rot-y state) "," (:rot-z state) ")") 0 60)
-  (text/write-to-screen (str "Translation [active " (:translate-mode state) "]: (" 
-                             (:shift-x state) "," (:shift-y state) "," (:shift-z state) ")") 0 90)
+  (text/write-to-screen (str "Translation: (" 
+                             (int (:shift-x state)) "," (int (:shift-y state)) "," (int (:shift-z state)) ")") 0 90)
   (rotate (:rot-x state) 1 0 0)
   (rotate (:rot-y state) 0 1 0)
   (rotate (:rot-z state) 0 0 1)
@@ -73,9 +78,8 @@
 	file (File. filename)]
     (ImageIO/write capture img-type file)))
 
-;; ## Input handling
 
-(defn mouse-drag
+#_(defn mouse-drag
   "Perform the respective action given a mouse click and displacement."
   [[dx dy] _ button state]
   (let [displacement dx];(math/sqrt (+ (* dx dx) (* dy dy)))]
@@ -94,11 +98,105 @@
                (= (:translate-mode state) :x) {:shift-x (+ (:shift-x state) displacement)}               
                (= (:translate-mode state) :y) {:shift-y (+ (:shift-y state) displacement)}               
                (= (:translate-mode state) :z) {:shift-z (+ (:shift-z state) displacement)})))))
-   
+
 (defn key-press
   "Update the state in response to a keypress."
   [key state]
   (cond
+    (= :lshift key) (reset! shift-key-down true)
+    (= "p" key) (do (app/pause!)
+                  state)
+    (= "o" key) (do (screenshot (str "brevis_screenshot_" (System/currentTimeMillis) ".png"))
+                  state)
+    (= :escape key)
+    (do (app/stop!)
+      (assoc state 
+             :terminated? true)
+      ))
+  (println @shift-key-down))
+
+(defn key-release
+  "Update the state in response to the release of a key"
+  [key state]
+  (cond
+    (= :lshift key) (reset! shift-key-down false)))
+
+;; ## Input handling
+(defn mouse-drag
+  "Rotate the world."
+  [[dx dy] _ button state]
+  (def rads (/ (Math/PI) 180))
+  (def thetaY (*(:rot-y state) rads))
+  (def sY (sin thetaY))
+  (def cY (cos thetaY))
+  (def thetaX (* (:rot-x state) rads))
+  (def sX (sin thetaX))
+  (def cX (cos thetaX))
+  
+  (if @shift-key-down
+    (cond 
+      ; Rotate
+      (= :left button)
+      (assoc state
+             :rot-x (+ (:rot-x state) dy)
+             :rot-y (+ (:rot-y state) dx))
+      (= :center button)
+      (assoc state
+             :shift-x (+ (:shift-x state) (* dx cY))
+             :shift-y (- (:shift-y state) (* dy cX))
+             :shift-z (+ (:shift-z state) (* dx sY))
+             )
+      ; Zoom
+      (= :right button)
+      (assoc state
+             :shift-x (+ (:shift-x state) (* (/ dy 6) (* sY -1)))
+             :shift-y (+ (:shift-y state) (* (/ dy 6) sX))
+             :shift-z (+ (:shift-z state) (* (/ dy 6) cY))           
+             ))))
+
+
+(defn mouse-wheel
+  "Respond to a mousewheel movement. dw is +/- depending on scroll-up or down."
+  [dw state]
+  (def rads (/ (Math/PI) 180))
+  (def thetaY (*(:rot-y state) rads))
+  (def sY (sin thetaY))
+  (def cY (cos thetaY))
+  (def thetaX (* (:rot-x state) rads))
+  (def sX (sin thetaX))
+  (def cX (cos thetaX))
+  
+  (assoc state
+         :shift-z (+ (:shift-z state) (* (/ dw 6) cY))
+         :shift-x (+ (:shift-x state) (* (/ dw 6) (* sY -1)))
+         :shift-y (+ (:shift-y state) (* (/ dw 6) sX))
+         ))
+
+         
+
+#_(defn turnAround
+  [rot-x ]
+  (if (or (= rot-x 90) (= rot-x -90))
+    ;z translation to be 0
+    )
+  (if (= rot-x 180)
+    ;z translation goes negative
+    )
+  (if (or (= rot-y 90) (= rot-y -90))
+    ;z translation to be 0
+    )
+  (if (= rot-x 180)
+    ;z translation goes negative
+    )
+  )
+
+
+
+#_(defn key-press
+  "Update the state in response to a keypress."
+  [key state]
+  (cond
+    
    (= "q" key) (assoc state
                       :rotate-mode :x)
    (= "w" key) (assoc state
@@ -171,18 +269,14 @@
   #_(println button)
   state)
 
-(defn mouse-wheel
-  "Respond to a mousewheel movement. dw is +/- depending on scroll-up or down."
-  [dw state]
-  #_(println dw)
-  state)
 
 ;; ## Start a brevis instance
 
 (defn start-gui [initialize update]
   "Start the simulation with a GUI."
   (app/start
-   {:reshape reshape, :init init, :mouse-drag mouse-drag, :key-press key-press, :update update, :display display
+   {:reshape reshape, :init init, :mouse-drag mouse-drag, :key-press key-press :mouse-wheel mouse-wheel, :update update, :display display
+    :key-release key-release
     ;:mouse-move    (fn [[[dx dy] [x y]] state] (println )
     ;:mouse-up       (fn [[x y] button state] (println button) state)
     ;:mouse-click   (fn [[x y] button state] (println button) state)
@@ -195,6 +289,7 @@
            :init-simulation initialize
            :dt 1 :last-report-time 0 :simulation-time 0}                      
           (initialize))))
+
 
 #_(defn start-nogui [iteration-step-size]
   (let [dt iteration-step-size
