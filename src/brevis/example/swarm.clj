@@ -21,7 +21,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds 5)
+(def num-birds 25)
 
 (def memory (atom 0.5))
 (def avoidance (atom 0.2))
@@ -41,9 +41,9 @@
 (defn random-bird-position
   "Returns a random valid bird position."
   []
-  (vec3 (- (rand 20) 10) 
-        (+ 10 -0.5 (rand))
-        (- (rand 20) 10)))
+  (vec3 (- (rand 100) 50) 
+        (+ 9.5 (rand))
+        (- (rand 100) 50)))
 
 (defn make-bird
   "Make a new bird with the specified program. At the specified location."
@@ -69,9 +69,14 @@
 (defn fly
   "Change the acceleration of a bird."
   [bird dt nbrs]
-  (let [closest-bird (first nbrs)
-        centroid (div (reduce add (map get-position nbrs)) 
-                      (count nbrs))
+  #_(println "fly: bird=" bird " nbrs=" nbrs)
+  (let [closest-bird (if (zero? (count nbrs))
+                       bird
+                       (first nbrs))
+        centroid (if (zero? (count nbrs))
+                   (get-position bird)
+                   (div (reduce add (map get-position nbrs)) 
+                        (count nbrs)))
         d-closest-bird (sub (get-position closest-bird) (get-position bird))
         d-centroid (sub centroid (get-position bird))
         d-center (sub (vec3 0 10 0) (get-position bird))
@@ -88,9 +93,11 @@
   "Update a bird based upon its flocking behavior and the physical kinematics."
   [bird dt objects]  
   (let [objects (filter bird? objects)
-        nbrs (sort-by-proximity (get-position bird) objects)
+;        nbrs (sort-by-proximity (get-position bird) objects)
+        nbrs (get-neighborhood bird objects)
         floor (some #(when (= (:type %) :floor) %) objects)]
-    (doseq [el (:vertices (:shape bird))]
+    #_(println nbrs)
+    #_(doseq [el (:vertices (:shape bird))]
       (println el))
     (update-object-kinematics 
       (fly bird dt nbrs) dt)))
@@ -135,8 +142,14 @@ so we only modify bird1."
 ;    {:objects (concat initial-obj birds)
      {:rotate-mode :none :translate-mode :none
      :dt 0.1
+     :physics-dt 0.02; currently ignored
      :rot-x 0 :rot-y 0 :rot-z 0
      :shift-x 0 :shift-y -20 :shift-z -50}))
 
 ;; Start ze macheen
-(start-gui initialize-simulation update-world)
+#_(start-gui initialize-simulation update-world)
+
+(defn -main [& args]
+  (start-gui initialize-simulation update-world))
+
+(-main)

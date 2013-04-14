@@ -31,6 +31,7 @@
   (box3 (vec3 100 100 100)
         (vec3 -100 -100 -100)))
 
+(def #^:dynamic *neighborhood-radius* (atom 2.0))
 (def #^:dynamic *physics* (atom nil))
 (def #^:dynamic *collisions* (atom #{}))
 (def #^:dynamic *objects* (atom {}))
@@ -148,6 +149,36 @@
   [position objects]
   (sort-by #(length (sub position (get-position %)))
            objects))
+
+(defn uids-to-objects
+  "Return the list of objects that corresponds to some UIDs"
+  [UIDs]
+  UIDs)
+
+(defn get-neighborhood
+  "Return a list of neighbor UIDs within the neighborhood radius"
+  [obj objects]
+;  (let [nbr-UIDs (into #{} (.getNeighborUIDs (:space @*physics*) (vec3-to-odevec (get-position obj))))]
+  (let [aabb (.getAABB (:geom obj))
+        center (.getCenter aabb)
+        maxlen (apply max (list (.len0 aabb) (.len1 aabb) (.len2 aabb)))
+        nbr-radius (+ maxlen @*neighborhood-radius*)
+        ;create a geometry for the neighborhoood
+        nbrhood (let [a (OdeHelper/createSphere (:space @*physics*) nbr-radius)] (.setPosition a center) a)                                            
+        nbrs-atom (atom #{})
+        nbr-callback (proxy [org.ode4j.ode.DGeom$DNearCallback] []
+                       (call [#^java.lang.Object data #^DGeom o1 #^DGeom o2]
+                         (let [b1 (.getBody o1)
+                               b2 (.getBody o2)]
+                           (when b1 (swap! nbrs-atom conj (.getData b1)))
+                           (when b2 (swap! nbrs-atom conj (.getData b2))))))
+        ]
+    ;use hashspace collide with a single geom on the neighborhood-geom
+    (OdeHelper/spaceCollide2 nbrhood (:space @*physics*) nil nbr-callback)
+    (.remove (:space @*physics*) nbrhood)
+    (doall (filter identity
+                   (for [uid-map (into [] @nbrs-atom)]
+                     (some #(when (= (:uid (nth objects %)) (:uid uid-map)) (nth objects %)) (range (count objects)))))))); this could return a null if the UID isn't found
   
 (defn move
   "Move an object to the specified position."
@@ -190,6 +221,7 @@
                                      (list [(.getData b1) (.getData b2)]
                                            [(.getData b2) (.getData b1)])))))))
 
+; collider override
 (defn handle-collisions
   "Handle the collisions of a collection of real objects.
 Things is updated and returned as a vector."  [things collision-handlers]  (loop [things (vec things)         pairs (for [uid-pair @*collisions*]                                                                                                                         
@@ -253,14 +285,17 @@ are removed from the simulation."
 (defn update-objects
   "Update all objects in the simulation. Objects whose update returns nil                                                                                                
 are removed from the simulation."
-  [objects dt]
-  (let [updated-objects (doall (for [obj objects]
+  [objects dt]  
+  (let [preup (System/nanoTime)
+        updated-objects (doall (for [obj objects]
                                  (let [f (get @*update-handlers* (:type obj))]
                                    (if f
                                      (f obj dt (remove #{obj} objects))
-                                     obj))))        
+                                     obj))))
+        postup (System/nanoTime)        
         singles (filter #(not (seq? %)) updated-objects);; These objects didn't produce children                                                                         
-        multiples (apply concat (filter seq? updated-objects))];; These are parents and children                                                                         
+        multiples (apply concat (filter seq? updated-objects))];; These are parents and children
+    (println "update-objects " (float (/ (- postup preup) 1000000000)))
     (into [] (keep identity (concat singles multiples)))))
 
 (defn update-world
@@ -272,15 +307,17 @@ are removed from the simulation."
       (.empty (:contact-group @*physics*)))
     #_(println "Number of obj in space:" (.getNumGeoms (:space @*physics*)))
     (reset! *collisions* #{})
-    (OdeHelper/spaceCollide (:space @*physics*) nil nearCallback)
-    (.quickStep (:world @*physics*) (:dt state))
+    (dotimes [i 1];(int (/ (:dt state) (:physics-dt state)))]
+      (OdeHelper/spaceCollide (:space @*physics*) nil nearCallback)
+      (.quickStep (:world @*physics*) (:dt state))
+      (increment-physics-time (:physics-dt state)))
     #_(println "Collisions" (doall (for [uid-pair @*collisions*]                                                                                                                         
                                    [(some #(when (= (:uid (nth (:objects state) %)) (:uid (first uid-pair))) %) (range (count (:objects state))))
                                     (some #(when (= (:uid (nth (:objects state) %)) (:uid (second uid-pair))) %) (range (count (:objects state))))])))        
     #_(.empty (:contact-group *physics*))    
-    (increment-physics-time (:dt state))
-    (reset! *objects* (let [new-objs (handle-collisions (update-objects (vals @*objects*) (:dt state))                                                        
-                                                        @*collision-handlers*)]
+    
+    (reset! *objects* (let [new-objs (handle-collisions (update-objects (vals @*objects*) (:dt state)) @*collision-handlers*)]                                                        
+                        ;[new-objs (update-objects (vals @*objects*) (:dt state))]
                         (zipmap (map :uid new-objs) new-objs)));; hacky and bad    
     (assoc state
            :simulation-time (+ (:simulation-time state) (:dt state)))))
