@@ -28,6 +28,7 @@
 		   #_(apply color (:color obj))
 		   (material :front-and-back
 		    :ambient-and-diffuse (into [] (conj col 1)); [1 1 1 1]
+        :specular [1 1 1 1]
 ;		    :specular            [0.5 0.4 0.4 1]
 		    :shininess           80)
 		   (translate pos)
@@ -35,6 +36,7 @@
 		   (rotate (.x vel) 1 0 0)
 		   (rotate (.y vel) 0 1 0)
 		   (rotate (.z vel) 0 0 1)
+       (enable :auto-normal)
 		   (cond
 	      (= (:type (:shape obj)) :box) (draw-textured-cube)
 	      (= (:type (:shape obj)) :sphere) (draw-sphere))  

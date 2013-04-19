@@ -32,11 +32,14 @@
   (init-checkers)
   (enable :lighting)
   (enable :light0)
-  ;(enable :light1)
+  (enable :light1)
   ;(enable :light2)
   ;(enable :light3)
   ;(enable :light4)
   ;(enable :light5)
+  ;(glfx/gl-enable :point-smooth)
+  ;(glfx/gl-enable :line-smooth)
+  (enable :polygon-smooth)
   (blend-func :src-alpha :one-minus-src-alpha)
   #_(glfx/enable-high-quality-rendering))
 
@@ -65,6 +68,11 @@
          :ambient [1 1 1 1]
          :specular [1 1 1 1]
          :position [1 -100 10 0]
+         :diffuse [1 1 1 1])
+  (light 1
+         :ambient [1 1 1 1]
+         :specular [1 1 1 1]
+         :position [100 -100 10 0]
          :diffuse [1 1 1 1])
   (assoc state
     :window-width w
