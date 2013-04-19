@@ -13,7 +13,8 @@
 (defn init-sky
   []
   (def #^:dynamic *sky*
-    (load-texture-from-file "/Users/kyleharrington/Documents/workspace/brevis/resources/img/sky.jpg")))
+    (load-texture-from-file "resources/img/sky.jpg")))
+    ;#_(load-texture-from-file "/Users/kyleharrington/Documents/workspace/brevis/resources/img/sky.jpg")))
 
 (defn init-shader
   []
