@@ -30,6 +30,7 @@
   (enable :depth-test)
   (init-box-graphic)
   (init-checkers)
+  (init-sky)
   (enable :lighting)
   (enable :light0)
   (enable :light1)
@@ -39,8 +40,10 @@
   ;(enable :light5)
   ;(glfx/gl-enable :point-smooth)
   ;(glfx/gl-enable :line-smooth)
-  (enable :polygon-smooth)
+  (enable :polygon-smooth)  
   (blend-func :src-alpha :one-minus-src-alpha)
+  (init-shader)  
+  state
   #_(glfx/enable-high-quality-rendering))
 
 #_(def #^:dynamic *lights* (atom []))
@@ -78,6 +81,25 @@
     :window-width w
     :window-height h))
 
+(defn draw-sky
+  "Draw a skybox"
+  []
+  (let [w 1000
+        h 1000
+        d 1000
+        pos (vec3 0 0 0) #_(vec3 (- (/ w 2)) 0 (- (/ d 2)))]
+    (when *sky*
+      (with-enabled :texture-2d
+        (with-texture *sky*         
+          (push-matrix
+            (material :front-and-back
+                      :ambient-and-diffuse [1 1 1 1]
+                      :specular [0 0 0 0];[1 1 1 1]
+                      :shininess           80)
+            (translate pos)
+            (apply scale [w h d])
+            (draw-textured-cube)))))))  
+
 (defn display
   "Display the world."
   [[dt time] state]
@@ -91,10 +113,11 @@
   (rotate (:rot-y state) 0 1 0)
   (rotate (:rot-z state) 0 0 1)
   (translate (:shift-x state) (:shift-y state) (:shift-z state))
-  (with-disabled :texture-2d
-    (doseq [obj (vals @*objects*)]    
+  ;(with-disabled :texture-2d
+  (draw-sky)
+  (doseq [obj (vals @*objects*)]    
 ;    (doseq [obj (:objects state)]
-      (draw-shape obj)))
+    (draw-shape obj))
   (app/repaint!))
 
 (defn screenshot
@@ -110,7 +133,7 @@
   "Update the state in response to a keypress."
   [key state]
   (cond
-    (= :lshift key) (reset! shift-key-down true)
+    (= :lshift key) (do (reset! shift-key-down true) state)
     (= "p" key) (do (app/pause!)
                   state)
     (= "o" key) (do (screenshot (str "brevis_screenshot_" (System/currentTimeMillis) ".png"))
@@ -119,14 +142,14 @@
     (do (app/stop!)
       (assoc state 
              :terminated? true)
-      ))
-  (println @shift-key-down))
+      )))
 
 (defn key-release
   "Update the state in response to the release of a key"
   [key state]
   (cond
-    (= :lshift key) (reset! shift-key-down false)))
+    (= :lshift key) (reset! shift-key-down false))
+  state)
 
 ;; ## Input handling
 (defn mouse-drag
@@ -177,59 +200,6 @@
          :shift-x (+ (:shift-x state) (* (/ dw 6) (* sY -1)))
          :shift-y (+ (:shift-y state) (* (/ dw 6) sX))
          ))
-
-#_(defn key-press
-  "Update the state in response to a keypress."
-  [key state]
-  (cond
-    
-   (= "q" key) (assoc state
-                      :rotate-mode :x)
-   (= "w" key) (assoc state
-                      :rotate-mode :y)
-   (= "e" key) (assoc state
-                      :rotate-mode :z)
-   (= "r" key) (assoc state
-                      :rotate-mode :none)
-   (= "a" key) (assoc state
-                      :translate-mode :x)
-   (= "s" key) (assoc state
-                      :translate-mode :y)
-   (= "d" key) (assoc state
-                      :translate-mode :z)
-   (= "f" key) (assoc state
-                      :translate-mode :none)
-   (= "p" key) (do (app/pause!)
-                 state)
-   (= "o" key) (do (screenshot (str "brevis_screenshot_" (System/currentTimeMillis) ".png"))
-                 state)
-   (app/key-pressed? :up) 
-   (merge state (cond 
-               (= (:rotate-mode state) :x) {:rot-x (+ (:rot-x state) 5)}               
-               (= (:rotate-mode state) :y) {:rot-y (+ (:rot-y state) 5)}               
-               (= (:rotate-mode state) :z) {:rot-z (+ (:rot-z state) 5)}))
-   (app/key-pressed? :down) 
-   (merge state (cond 
-               (= (:rotate-mode state) :x) {:rot-x (- (:rot-x state) 5)}               
-               (= (:rotate-mode state) :y) {:rot-y (- (:rot-y state) 5)}               
-               (= (:rotate-mode state) :z) {:rot-z (- (:rot-z state) 5)}))
-   (app/key-pressed? :left) 
-   (merge state
-             (cond 
-               (= (:translate-mode state) :x) {:shift-x (+ (:shift-x state) 5)}               
-               (= (:translate-mode state) :y) {:shift-y (+ (:shift-y state) 5)}               
-               (= (:translate-mode state) :z) {:shift-z (+ (:shift-z state) 5)}))
-   (app/key-pressed? :right) 
-   (merge state
-             (cond 
-               (= (:translate-mode state) :x) {:shift-x (- (:shift-x state) 5)}               
-               (= (:translate-mode state) :y) {:shift-y (- (:shift-y state) 5)}               
-               (= (:translate-mode state) :z) {:shift-z (- (:shift-z state) 5)}))   
-   (= :escape key)
-   (do (app/stop!)
-     (assoc state 
-          :terminated? true)
-          )))
 
 (defn mouse-move
   "Respond to a change in x,y position of the mouse."

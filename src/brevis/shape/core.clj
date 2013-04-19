@@ -29,6 +29,6 @@
 	     (apply concat
 	            (for [x (range 128) y (range 128)]
 	              (if (xor (even? (bit-shift-right x 4)) (even? (bit-shift-right y 4)))
-	                [1.0 0.0 0.0 1.0]
-	                [0.0 0.0 0.0 1.0]))))
+	                [0.6 0.6 0.6 1.0]
+	                [0.4 0.4 0.4 1.0]))))
      tex)))

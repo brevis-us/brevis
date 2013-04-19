@@ -3,6 +3,7 @@
   (:gen-class)
   (:import (org.ode4j.ode OdeHelper DSapSpace OdeConstants DContactBuffer DGeom DFixedJoint DContactJoint))  (:import (org.ode4j.math DVector3))  (:import java.lang.Math)  
   (:use [cantor]
+        [penumbra.opengl]
         [brevis.shape core box])
   (:require [cantor.range]))
 
@@ -207,8 +208,23 @@
   (move (make-real {:color [0 0 1]
                     :type :floor
                     :density 8050
+                    :texture *checkers*
                     :shape (create-box w 0.1 h)})
         (vec3 0 -3 0)))
+
+#_(defn make-sky
+  "Make a sky object."
+  [] 
+  (let [w 200
+        h 200
+        d 200]
+    (move (make-real {:color [0 0 1]
+                      :type :floor
+                      :density 8050
+                      ;:texture (load-texture-from-file "resouces/img/sky.jpg")
+                      :texture (load-texture-from-file "/Users/kyleharrington/Documents/workspace/brevis/resources/img/sky.jpg")
+                      :shape (create-box w h d)})
+        (vec3 (float (/ w 2)) (float (/ h 2)) (float (/ d 2))))))
 
 ;; This callback is triggered by the physics engine. Currently the function does not technically
 ;; check for a collision, it only uses ODE's collision predictor.
@@ -248,7 +264,7 @@ Things is updated and returned as a vector."  [things collision-handlers]  (lo
                        :time 0});      (let [[floor floor-joint] (make-floor 1000 1000)
     (println "Collision handlers:" (keys @*collision-handlers*))
     (println "Update handlers:" (keys @*update-handlers*))
-    (let [floor (make-floor 1000 1000)
+    (let [floor (make-floor 1000 1000)          
             environment {:objects [floor]
                          :joints nil}]
         (reset! *physics* (assoc @*physics*
@@ -295,7 +311,7 @@ are removed from the simulation."
         postup (System/nanoTime)        
         singles (filter #(not (seq? %)) updated-objects);; These objects didn't produce children                                                                         
         multiples (apply concat (filter seq? updated-objects))];; These are parents and children
-    (println "update-objects " (float (/ (- postup preup) 1000000000)))
+    #_(println "update-objects " (float (/ (- postup preup) 1000000000)))
     (into [] (keep identity (concat singles multiples)))))
 
 (defn update-world
