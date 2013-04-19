@@ -21,14 +21,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds 25)
+(def num-birds 50)
 
 (def memory (atom 0.5))
-(def avoidance (atom 0.2))
-(def clustering (atom 0.1))
-(def centering (atom 0.1))
+(def avoidance (atom 0.4))
+(def clustering (atom 0.2))
+(def centering (atom 0.2))
 
-(def max-acceleration 5)
+(def max-acceleration 10)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Birds
@@ -139,6 +139,8 @@ so we only modify bird1."
   []  
   (let [initial-obj (init-world)
         birds (doall (repeatedly num-birds #(add-object (random-bird))))]
+    #_(make-light {:position [1 -100 10 0]
+                 :diffuse [1 0.9 0.8 1]})
 ;    {:objects (concat initial-obj birds)
      {:rotate-mode :none :translate-mode :none
      :dt 0.1

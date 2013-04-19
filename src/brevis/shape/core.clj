@@ -1,7 +1,8 @@
 (ns brevis.shape.core
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
-        [cantor]))  
+        [cantor])
+  (:require [penumbra.data :as data]))  
 
 (defn resize-shape
   "Change the dimension of an object's shape."
@@ -20,13 +21,14 @@
 
 (defn xor [a b] (or (and a (not b)) (and (not a) b)))
 
-#_(defn create-checkers []
-  (let [tex (create-byte-texture 128 128)]
-    (data/overwrite!
-     tex
-     (apply concat
-            (for [x (range 128) y (range 128)]
-              (if (xor (even? (bit-shift-right x 4)) (even? (bit-shift-right y 4)))
-                [1 0 0 1]
-                [0 0 0 1]))))
-    tex))
+(defn init-checkers []
+  (def #^:dynamic *checkers* 
+	  (let [tex (create-byte-texture 128 128)]
+	    (data/overwrite!
+	     tex
+	     (apply concat
+	            (for [x (range 128) y (range 128)]
+	              (if (xor (even? (bit-shift-right x 4)) (even? (bit-shift-right y 4)))
+	                [1.0 0.0 0.0 1.0]
+	                [0.0 0.0 0.0 1.0]))))
+     tex)))

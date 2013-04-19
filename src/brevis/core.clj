@@ -10,7 +10,8 @@
             [penumbra.text :as text]
             [penumbra.data :as data]
             [cantor.range]
-            [penumbra.opengl.frame-buffer :as fb])
+            [penumbra.opengl.frame-buffer :as fb]
+            [penumbra.opengl.effects :as glfx])
   (:import (java.awt AWTException Robot Rectangle Toolkit)
            (java.awt.image BufferedImage)
            (java.io File IOException)
@@ -28,10 +29,27 @@
   (enable :blend)
   (enable :depth-test)
   (init-box-graphic)
+  (init-checkers)
   (enable :lighting)
   (enable :light0)
-  (blend-func :src-alpha :one-minus-src-alpha))
+  ;(enable :light1)
+  ;(enable :light2)
+  ;(enable :light3)
+  ;(enable :light4)
+  ;(enable :light5)
+  (blend-func :src-alpha :one-minus-src-alpha)
+  #_(glfx/enable-high-quality-rendering))
 
+#_(def #^:dynamic *lights* (atom []))
+#_(defn make-light
+  "Make a light."
+  [light-properties]
+  (let [id (count @*lights*)]
+    #_(eval (str "(enable" (keyword (str "light" id)) ")"))
+    #_(enable (keyword (str "light" id)))
+    (light id 
+           :position (:position light-properties)
+           :diffuse (:diffuse light-properties))))
 
 (def shift-key-down (atom false))
 (defn sin [n] (float (Math/sin n)))
@@ -44,8 +62,10 @@
   (load-identity)
   #_(translate 0 0 -40)
   (light 0 
-         :position [1 -100 1 0]
-         :diffuse [1 0.9 0.8 1])
+         :ambient [1 1 1 1]
+         :specular [1 1 1 1]
+         :position [1 -100 10 0]
+         :diffuse [1 1 1 1])
   (assoc state
     :window-width w
     :window-height h))
@@ -77,27 +97,6 @@
 				      (Rectangle. (.getScreenSize (Toolkit/getDefaultToolkit))))
 	file (File. filename)]
     (ImageIO/write capture img-type file)))
-
-
-#_(defn mouse-drag
-  "Perform the respective action given a mouse click and displacement."
-  [[dx dy] _ button state]
-  (let [displacement dx];(math/sqrt (+ (* dx dx) (* dy dy)))]
-	  (cond 
-	    ; Rotate
-	    (= :left button)
-      (merge state
-             (cond 
-               (= (:rotate-mode state) :x) {:rot-x (+ (:rot-x state) displacement)}               
-               (= (:rotate-mode state) :y) {:rot-y (+ (:rot-y state) displacement)}               
-               (= (:rotate-mode state) :z) {:rot-z (+ (:rot-z state) displacement)}))
-	    ; Zoom
-	    (= :right button)
-	    (merge state
-             (cond 
-               (= (:translate-mode state) :x) {:shift-x (+ (:shift-x state) displacement)}               
-               (= (:translate-mode state) :y) {:shift-y (+ (:shift-y state) displacement)}               
-               (= (:translate-mode state) :z) {:shift-z (+ (:shift-z state) displacement)})))))
 
 (defn key-press
   "Update the state in response to a keypress."
@@ -154,7 +153,6 @@
              :shift-z (+ (:shift-z state) (* (/ dy 6) cY))           
              ))))
 
-
 (defn mouse-wheel
   "Respond to a mousewheel movement. dw is +/- depending on scroll-up or down."
   [dw state]
@@ -171,26 +169,6 @@
          :shift-x (+ (:shift-x state) (* (/ dw 6) (* sY -1)))
          :shift-y (+ (:shift-y state) (* (/ dw 6) sX))
          ))
-
-         
-
-#_(defn turnAround
-  [rot-x ]
-  (if (or (= rot-x 90) (= rot-x -90))
-    ;z translation to be 0
-    )
-  (if (= rot-x 180)
-    ;z translation goes negative
-    )
-  (if (or (= rot-y 90) (= rot-y -90))
-    ;z translation to be 0
-    )
-  (if (= rot-x 180)
-    ;z translation goes negative
-    )
-  )
-
-
 
 #_(defn key-press
   "Update the state in response to a keypress."
