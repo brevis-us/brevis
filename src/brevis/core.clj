@@ -42,7 +42,7 @@
   ;(glfx/gl-enable :line-smooth)
   (enable :polygon-smooth)  
   (blend-func :src-alpha :one-minus-src-alpha)
-  (init-shader)  
+  #_(init-shader)  
   state
   #_(glfx/enable-high-quality-rendering))
 
