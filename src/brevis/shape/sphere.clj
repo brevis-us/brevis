@@ -23,14 +23,25 @@
 
 (defonce sphere-vertices (gen-sphere-vertices 25))
 
-(defn draw-sphere
-  []
-  (doseq [arcs (partition 2 1 sphere-vertices)]
-    (draw-quad-strip
-     (doseq [[a b] (map list (first arcs) (second arcs))]
-       (vertex a) (vertex b)))))
-
-#_(defn init-sphere
+(defn init-sphere
   []
   (def sphere-mesh 
-       (create-display-list (draw-sphere (sphere-vertices 12)))))
+       (create-display-list (doseq [arcs (partition 2 1 sphere-vertices)]                              
+                              (draw-quad-strip
+                                (doseq [[a b] (map list (first arcs) (second arcs))]
+                                  (normal (div a (length a)))
+                                  (vertex a) (vertex b)))))))
+
+;; figure out the vertices as we go
+#_(defn draw-sphere
+  []
+  (doseq [arcs (partition 2 1 sphere-vertices)]
+    (with-enabled :auto-normal
+      (draw-quad-strip
+        (doseq [[a b] (map list (first arcs) (second arcs))]
+          (vertex a) (vertex b))))))
+
+(defn draw-sphere
+  []
+  (sphere-mesh))
+

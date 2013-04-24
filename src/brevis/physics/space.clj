@@ -32,12 +32,12 @@
   (box3 (vec3 100 100 100)
         (vec3 -100 -100 -100)))
 
-(def #^:dynamic *neighborhood-radius* (atom 2.0))
+(def #^:dynamic *neighborhood-radius* (atom 8.0))
 (def #^:dynamic *physics* (atom nil))
 (def #^:dynamic *collisions* (atom #{}))
 (def #^:dynamic *objects* (atom {}))
 
-;; ## Utilities
+;; ## Utilities  
 
 (defn get-world
   "Return the current world"
@@ -109,6 +109,10 @@
       (= (:type (:shape obj)) :box) (OdeHelper/createBox (:space @*physics*) (.x dim) (.y dim) (.z dim))
       (= (:type (:shape obj)) :sphere) (OdeHelper/createSphere (:space @*physics*) (.x dim)))))
     
+(defn obj-to-nbr-geom
+  [obj]
+  (let [dim (:dim (:shape obj))]
+    (obj-to-geom (assoc-in obj [:shape :dim] (+ dim (* 2 (vec3 @*neighborhood-radius* @*neighborhood-radius* @*neighborhood-radius*)))))))
 
 ;; ## Real/Physical/Spatial
 
@@ -129,7 +133,7 @@
                (.setData {:uid uid :type (:type obj)})                (.setPosition (.x pos) (.y pos) (.z pos)))                       geom (doto (obj-to-geom obj)
                (.setBody body)
                (.setOffsetWorldPosition (.x pos) (.y pos) (.z pos))
-               #_(.enable))]    
+               #_(.enable))]
     (assoc obj
            :mass mass
            :body body
@@ -156,7 +160,8 @@
   [UIDs]
   UIDs)
 
-(defn get-neighborhood
+;; Leverage ODE to do the work
+(defn compute-neighborhood
   "Return a list of neighbor UIDs within the neighborhood radius"
   [obj objects]
 ;  (let [nbr-UIDs (into #{} (.getNeighborUIDs (:space @*physics*) (vec3-to-odevec (get-position obj))))]
@@ -180,6 +185,55 @@
     (doall (filter identity
                    (for [uid-map (into [] @nbrs-atom)]
                      (some #(when (= (:uid (nth objects %)) (:uid uid-map)) (nth objects %)) (range (count objects)))))))); this could return a null if the UID isn't found
+
+(defn insert-into [s x]
+  (let [[low high] (split-with #(< % x) s)]
+    (concat low [x] high)))
+
+(defn update-neighbors
+  "Update all neighborhoods"
+  [objs]  
+  (let [candidates #{}
+        positions (map #(let [p (get-position %)]                          
+                          [(.x p) (.y p) (.z p)])
+                       objs)]
+    ;; First loop over dimensions, maybe there is an issue with tie-breaking like Jon had with <3D situations (i.e. planar)
+    ;;   compute candidate neighbors
+    (doall (for [dim-positions positions]
+             (loop [rem (range (count dim-positions))
+                    sorted []];; too lazy to actually sort
+               (when-not (empty? rem)
+                 (let [targ (first rem)
+                       targ-val (nth dim-positions targ)]
+                   (doseq [srtobj sorted]
+                     (cond (> (Math/abs (- targ (nth dim-positions srtobj))) @*neighborhood-radius*)
+                       (do (disj candidates [targ srtobj]) (disj candidates [srtobj targ]))
+                       :else ;(<= (Math/abs (- targ srtobj)) @*neighborhood-radius*)
+                       (conj candidates [targ srtobj])))
+                   (recur (rest rem)
+                          (conj sorted targ)))))))
+    ;; Filter candidates and save the neighbors of each candidate
+    (let [nbrhoods (loop [rem (into [] candidates)    
+                          nbrhoods (zipmap (range (count objs))
+                                           #{})]
+                     (if (empty? rem) 
+                       nbrhoods
+                       (let [x (ffirst rem)
+                             y (second (first rem))
+                             dist (length (sub (nth positions x) (nth positions y)))]
+                         (recur (rest rem)
+                                (if (< dist @*neighborhood-radius*)
+                                  (assoc nbrhoods
+;                                         x (conj (nbrhoods x) y)
+;                                         y (conj (nbrhoods y) x))
+                                         x (conj (nbrhoods x) (:uid (nth objs y)))
+                                         y (conj (nbrhoods y) (:uid (nth objs x))))
+                                  nbrhoods)))))]
+      ;; Assoc neighborhoods and go home
+      #_(println "update-neighbors:" nbrhoods)
+      (doall (for [k (range (count objs))]
+               (assoc (nth objs k)
+                      :neighbors (nbrhoods k)))))))
   
 (defn move
   "Move an object to the specified position."
@@ -211,20 +265,6 @@
                     :texture *checkers*
                     :shape (create-box w 0.1 h)})
         (vec3 0 -3 0)))
-
-#_(defn make-sky
-  "Make a sky object."
-  [] 
-  (let [w 200
-        h 200
-        d 200]
-    (move (make-real {:color [0 0 1]
-                      :type :floor
-                      :density 8050
-                      ;:texture (load-texture-from-file "resouces/img/sky.jpg")
-                      :texture (load-texture-from-file "/Users/kyleharrington/Documents/workspace/brevis/resources/img/sky.jpg")
-                      :shape (create-box w h d)})
-        (vec3 (float (/ w 2)) (float (/ h 2)) (float (/ d 2))))))
 
 ;; This callback is triggered by the physics engine. Currently the function does not technically
 ;; check for a collision, it only uses ODE's collision predictor.
@@ -283,62 +323,39 @@ Things is updated and returned as a vector."  [things collision-handlers]  (lo
   (reset! *physics* (assoc @*physics* 
                            :time (+ (:time @*physics*) dt))))
 
-#_(defn update-objects
-  "Update all objects in the simulation. Objects whose update returns nil                                                                                                
-are removed from the simulation."
-  [objects dt]
-  (let [updated-objects (doall (for [obj objects]
-;                                 ((get @update-handlers (:type obj)) obj dt (remove #{obj} objects))))                                                                  
-                                   (let [f (get @*update-handlers* (:type obj))]
-                                     ;(println (get @update-handlers (:type obj)) obj dt (remove #{obj} objects))                                                        
-                                     (if f
-                                       (f obj dt (remove #{obj} objects))
-                                       obj))))        
-	      singles (filter #(not (seq? %)) updated-objects);; These objects didn't produce children                                                                         
-        multiples (apply concat (filter seq? updated-objects))];; These are parents and children                                                                         
-    (into [] (keep identity (concat singles multiples)))))
-
 (defn update-objects
   "Update all objects in the simulation. Objects whose update returns nil                                                                                                
 are removed from the simulation."
   [objects dt]  
-  (let [preup (System/nanoTime)
-        updated-objects (doall (for [obj objects]
+  (let [updated-objects (doall (for [obj objects]        
                                  (let [f (get @*update-handlers* (:type obj))]
                                    (if f
                                      (f obj dt (remove #{obj} objects))
                                      obj))))
-        postup (System/nanoTime)        
         singles (filter #(not (seq? %)) updated-objects);; These objects didn't produce children                                                                         
         multiples (apply concat (filter seq? updated-objects))];; These are parents and children
-    #_(println "update-objects " (float (/ (- postup preup) 1000000000)))
     (into [] (keep identity (concat singles multiples)))))
 
 (defn update-world
   "Update the world."
-  [[dt time] state]
+  [[dt t] state]
   (when (and  state
               (not (:terminated? state)))
     (when (:contact-group @*physics*)
       (.empty (:contact-group @*physics*)))
     #_(println "Number of obj in space:" (.getNumGeoms (:space @*physics*)))
     (reset! *collisions* #{})
-    (dotimes [i 1];(int (/ (:dt state) (:physics-dt state)))]
-      (OdeHelper/spaceCollide (:space @*physics*) nil nearCallback)
-      (.quickStep (:world @*physics*) (:dt state))
-      (increment-physics-time (:physics-dt state)))
-    #_(println "Collisions" (doall (for [uid-pair @*collisions*]                                                                                                                         
-                                   [(some #(when (= (:uid (nth (:objects state) %)) (:uid (first uid-pair))) %) (range (count (:objects state))))
-                                    (some #(when (= (:uid (nth (:objects state) %)) (:uid (second uid-pair))) %) (range (count (:objects state))))])))        
-    #_(.empty (:contact-group *physics*))    
+        
+    (OdeHelper/spaceCollide (:space @*physics*) nil nearCallback)
+    (.quickStep (:world @*physics*) (:dt state))
+    (increment-physics-time (:dt state))
     
-    (reset! *objects* (let [new-objs (handle-collisions (update-objects (vals @*objects*) (:dt state)) @*collision-handlers*)]                                                        
-                        ;[new-objs (update-objects (vals @*objects*) (:dt state))]
+    ;(reset! *objects* (let [new-objs (handle-collisions (update-objects (vals @*objects*) (:dt state)) @*collision-handlers*)]                                      
+    #_(println "\nTiming: obj, coll, nbrs:")
+    (reset! *objects* (let [new-objs (update-neighbors 
+                                       (handle-collisions 
+                                         (update-objects (vals @*objects*) (:dt state))
+                                         @*collision-handlers*))]
                         (zipmap (map :uid new-objs) new-objs)));; hacky and bad    
     (assoc state
            :simulation-time (+ (:simulation-time state) (:dt state)))))
-                       
-;;           :objects (handle-collisions (update-objects (:objects state) (:dt state))
-;;           :objects (handle-collisions (update-objects @*objects* (:dt state))                                                        
-;;                                       @*collision-handlers*))))
-

@@ -4,7 +4,7 @@
         [cantor]
         [brevis.graphics.basic-3D]
         [brevis.physics.space]
-        [brevis.shape core box])       
+        [brevis.shape core box sphere])       
   (:require [penumbra.app :as app]
             [clojure.math.numeric-tower :as math]
             [penumbra.text :as text]
@@ -29,19 +29,31 @@
   (enable :blend)
   (enable :depth-test)
   (init-box-graphic)
+  (init-sphere)
   (init-checkers)
   (init-sky)
   (enable :lighting)
   (enable :light0)
-  (enable :light1)
+  (light 0 
+         :ambient [0.1 0.1 0.1 1]
+         :specular [1 1 1 1]
+         :position [1 50 10 0]
+         :diffuse [1 1 1 1])
+  #_(enable :light1)
   ;(enable :light2)
   ;(enable :light3)
   ;(enable :light4)
   ;(enable :light5)
   ;(glfx/gl-enable :point-smooth)
   ;(glfx/gl-enable :line-smooth)
-  (enable :polygon-smooth)  
+  ;(enable :polygon-smooth)  
   (blend-func :src-alpha :one-minus-src-alpha)
+  
+;  (enable :normalize)
+;  (enable :cull-face)
+;  (enable :fog)
+;  (shade-model :flat)
+  
   #_(init-shader)  
   state
   #_(glfx/enable-high-quality-rendering))
@@ -68,11 +80,11 @@
   (load-identity)
   #_(translate 0 0 -40)
   (light 0 
-         :ambient [1 1 1 1]
+         :ambient [0.1 0.1 0.1 1]
          :specular [1 1 1 1]
-         :position [1 -100 10 0]
+         :position [1 50 10 0]
          :diffuse [1 1 1 1])
-  (light 1
+  #_(light 1
          :ambient [1 1 1 1]
          :specular [1 1 1 1]
          :position [100 -100 10 0]
@@ -89,7 +101,8 @@
         d 1000
         pos (vec3 0 0 0) #_(vec3 (- (/ w 2)) 0 (- (/ d 2)))]
     (when *sky*
-      (with-enabled :texture-2d
+      ;(with-enabled :texture-cube-map-seamless
+        (with-enabled :texture-2d
         (with-texture *sky*         
           (push-matrix
             (material :front-and-back
@@ -98,11 +111,11 @@
                       :shininess           80)
             (translate pos)
             (apply scale [w h d])
-            (draw-textured-cube)))))))  
+            (draw-textured-cube)))))))
 
 (defn display
   "Display the world."
-  [[dt time] state]
+  [[dt t] state]
   (text/write-to-screen (str (int (/ 1 dt)) " fps") 0 0)
   (text/write-to-screen (str (float (:simulation-time state)) " time") 0 30)
   (text/write-to-screen (str "Rotation: (" 

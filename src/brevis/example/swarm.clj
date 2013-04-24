@@ -14,9 +14,6 @@
 ;;
 ;;   Reynolds, Craig W. "Flocks, herds and schools: A distributed behavioral model." ACM SIGGRAPH Computer Graphics. Vol. 21. No. 4. ACM, 1987.
 ;;
-;; ## Todo
-;;
-;; - spheres
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
@@ -26,7 +23,7 @@
 (def memory (atom 0.5))
 (def avoidance (atom 0.4))
 (def clustering (atom 0.2))
-(def centering (atom 0.2))
+(def centering (atom 0.02))
 
 (def max-acceleration 10)
 
@@ -42,7 +39,7 @@
   "Returns a random valid bird position."
   []
   (vec3 (- (rand 100) 50) 
-        (+ 9.5 (rand))
+        (+ 9.5 (rand 10));; having this bigger than the neighbor radius will help with speed due to neighborhood computation
         (- (rand 100) 50)))
 
 (defn make-bird
@@ -69,7 +66,7 @@
 (defn fly
   "Change the acceleration of a bird."
   [bird dt nbrs]
-  #_(println "fly: bird=" bird " nbrs=" nbrs)
+  #_(println "fly: bird=" (:uid bird) " nbrs=" nbrs " " (count nbrs))
   (let [closest-bird (if (zero? (count nbrs))
                        bird
                        (first nbrs))
@@ -94,11 +91,16 @@
   [bird dt objects]  
   (let [objects (filter bird? objects)
 ;        nbrs (sort-by-proximity (get-position bird) objects)
-        nbrs (get-neighborhood bird objects)
-        floor (some #(when (= (:type %) :floor) %) objects)]
+        nbrs (compute-neighborhood bird objects)  ]      
+;        nbrs (map (fn [bird-uid]
+;                    (some #(= (:uid %) bird-uid) objects))
+;                  (:neighbors bird))]
+;        floor (some #(when (= (:type %) :floor) %) objects)]
     #_(println nbrs)
     #_(doseq [el (:vertices (:shape bird))]
       (println el))
+    #_(println " ")
+    #_(println "update-bird: bird=" (:uid bird) " nbrs=" nbrs " " (count nbrs))
     (update-object-kinematics 
       (fly bird dt nbrs) dt)))
 
@@ -144,7 +146,6 @@ so we only modify bird1."
 ;    {:objects (concat initial-obj birds)
      {:rotate-mode :none :translate-mode :none
      :dt 0.1
-     :physics-dt 0.02; currently ignored
      :rot-x 0 :rot-y 0 :rot-z 0
      :shift-x 0 :shift-y -20 :shift-z -50}))
 
