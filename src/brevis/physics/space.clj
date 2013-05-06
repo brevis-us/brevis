@@ -4,115 +4,9 @@
   (:import (org.ode4j.ode OdeHelper DSapSpace OdeConstants DContactBuffer DGeom DFixedJoint DContactJoint))  (:import (org.ode4j.math DVector3))  (:import java.lang.Math)  
   (:use [cantor]
         [penumbra.opengl]
-        [brevis.shape core box])
+        [brevis.shape core box]
+        [brevis.physics core collision utils])
   (:require [cantor.range]))
-
-;; ## Globals
-
-;; Hash map keyed on pairs of types with values of the respective collision function.
-;; 
-;; Keys are of the form [:ball :floor]
-;;
-;; Collision functions take [collider collidee] and return [collider collidee].
-;;
-;; Both can be modified; however, two independent collisions are actually computed [a b] and [b a]."
-(def #^:dynamic *collision-handlers*
-  (atom {}))
-
-;; Hash map keyed on type with values of the respective update function.
-;;
-;; An update function should take 3 arguments:
-;;
-;; [object dt neighbors] and return an updated version of object                                                                                                 
-;; given that dt amount of time has passed.
-(def #^:dynamic *update-handlers*
-  (atom {}))
-
-(def simulation-boundary
-  (box3 (vec3 100 100 100)
-        (vec3 -100 -100 -100)))
-
-(def #^:dynamic *neighborhood-radius* (atom 8.0))
-(def #^:dynamic *physics* (atom nil))
-(def #^:dynamic *collisions* (atom #{}))
-(def #^:dynamic *objects* (atom {}))
-
-;; ## Utilities  
-
-(defn get-world
-  "Return the current world"
-  []
-  (:world @*physics*))
-
-(defn add-object
-  "Add an object to the current world."
-  [obj]
-  (swap! *objects* assoc (:uid obj) obj))
-
-(defn add-update-handler
-  "Associate an update function with a type."
-  [type handler-fn]
-  (swap! *update-handlers* assoc type handler-fn))
-
-(defn add-collision-handler
-  "Store the collision handler for typea colliding with typeb."
-  [typea typeb handler-fn]
-  (swap! *collision-handlers* assoc
-         [typea typeb] handler-fn))
-            
-(defn odevec-to-vec3
-  "Convert an ODE vector into a Cantor vector."
-  [ov]
-  (vec3 (.get0 ov) (.get1 ov) (.get2 ov)))
-
-(defn vec3-to-odevec
-  "Convert a Cantor vector into an ODE vector."
-  [v3]
-  (DVector3. (.x v3) (.y v3) (.z v3)))
-
-(defn set-velocity
-  "Set the velocity of an object"
-  [obj v]
-  (.setLinearVel (:body obj) (vec3-to-odevec v))
-  obj)
-
-(defn get-position
-  "Return the position of an object"
-  [obj]
-  (odevec-to-vec3 (.getPosition (:body obj))))
-
-(defn get-velocity
-  "Return the velocity of an object"
-  [obj]
-  (odevec-to-vec3 (.getLinearVel (:body obj))))
-
-(defn obj-to-mass
-  "Create an ODE mass for an object"
-  [obj]
-  (let [dim (:dim (:shape obj))]    
-      (cond
-        (= (:type (:shape obj)) :box) 
-        (doto
-          (OdeHelper/createMass) 
-          (.setBox (:density obj) (.x dim) (.y dim) (.z dim)))
-        (= (:type (:shape obj)) :sphere)
-        (doto
-          (OdeHelper/createMass)
-          (.setSphere (:density obj) (.x dim))))))
-      
-
-(defn obj-to-geom
-  "Create an ODE geometry for a obj"
-  [obj]
-  (let [dim (:dim (:shape obj))]
-    (cond
-      (= (:type (:shape obj)) :box) (OdeHelper/createBox (:space @*physics*) (.x dim) (.y dim) (.z dim))
-      (= (:type (:shape obj)) :sphere) (OdeHelper/createSphere (:space @*physics*) (.x dim)))))
-    
-(defn obj-to-nbr-geom
-  [obj]
-  (let [dim (:dim (:shape obj))]
-    (obj-to-geom (assoc-in obj [:shape :dim] (+ dim (* 2 (vec3 @*neighborhood-radius* @*neighborhood-radius* @*neighborhood-radius*)))))))
 
 ;; ## Real/Physical/Spatial
 
@@ -137,14 +31,10 @@
     (assoc obj
            :mass mass
            :body body
+           :shininess 0
            :geom geom)))
 
-(defn collided?
-  "Have two objects collided?"
-  [obj1 obj2]
-  (contains? @*collisions* [(:uid obj1) (:uid obj2)]))
-
-(defn inside-boundary?
+#_(defn inside-boundary?
   "Returns true if an object is out of the boundary of the simulation."
   [obj]
   (cantor.range/inside? simulation-boundary (get-position obj)))
@@ -259,43 +149,13 @@
 (defn make-floor
   "Make a floor object."
   [w h]
-  (move (make-real {:color [0 0 1]
+  (move (make-real {:color [0.8 0.8 0.8]
+                    :shininess 0
                     :type :floor
                     :density 8050
                     :texture *checkers*
                     :shape (create-box w 0.1 h)})
         (vec3 0 -3 0)))
-
-;; This callback is triggered by the physics engine. Currently the function does not technically
-;; check for a collision, it only uses ODE's collision predictor.
-(def nearCallback
-  (proxy [org.ode4j.ode.DGeom$DNearCallback] []
-    (call [#^java.lang.Object data #^DGeom o1 #^DGeom o2]
-      (let [b1 (.getBody o1)
-            b2 (.getBody o2)]
-        (reset! *collisions* (concat @*collisions* 
-                                     (list [(.getData b1) (.getData b2)]
-                                           [(.getData b2) (.getData b1)])))))))
-
-; collider override
-(defn handle-collisions
-  "Handle the collisions of a collection of real objects.
-Things is updated and returned as a vector."  [things collision-handlers]  (loop [things (vec things)         pairs (for [uid-pair @*collisions*]                                                                                                                         
-                    [(some #(when (= (:uid (nth things %)) (:uid (first uid-pair))) %) (range (count things)))
-                     (some #(when (= (:uid (nth things %)) (:uid (second uid-pair))) %) (range (count things)))
-                     uid-pair])]
-    (when (some nil? (first pairs)) 
-      (println (first pairs)) 
-      (println @*collisions*) 
-      (println (doall (map :uid things)))
-      (println (doall (map :type things))))
-        (if (empty? pairs)      things      (recur (let [pair (first pairs)                   thing1 (nth things (first pair))                   thing2 (nth things (second pair))                   collision-handler (get collision-handlers [(:type thing1) (:type thing2)])]
-               #_(println pair (:type thing1) (:type thing2)) 
-               #_(println "Collision-handler" collision-handler [(:type thing1) (:type thing2)] (nil? collision-handler))                (cond (apply = pair); self-collision, somehow 
-                     things                     (not (nil? collision-handler))                     (let [[thing1 thing2] (collision-handler thing1 thing2)]
-                       #_
-                         (println "Colliding" pair (:type thing1) (:type thing2))                                                                                                                                     (assoc things                         (first pair) thing1                         (second pair) thing2))                     :else things))    
-             (rest pairs)))))
 
 (defn init-world  "Return a map of ODE physics for 1 world."  []  (let [world (doto (OdeHelper/createWorld)     
                       (.setGravity 0 0 0)                                                                                   
@@ -304,7 +164,7 @@ Things is updated and returned as a vector."  [things collision-handlers]  (lo
                        :time 0});      (let [[floor floor-joint] (make-floor 1000 1000)
     (println "Collision handlers:" (keys @*collision-handlers*))
     (println "Update handlers:" (keys @*update-handlers*))
-    (let [floor (make-floor 1000 1000)          
+    (let [floor (make-floor 500 500)          
             environment {:objects [floor]
                          :joints nil}]
         (reset! *physics* (assoc @*physics*
@@ -347,15 +207,15 @@ are removed from the simulation."
     (reset! *collisions* #{})
         
     (OdeHelper/spaceCollide (:space @*physics*) nil nearCallback)
-    (.quickStep (:world @*physics*) (:dt state))
-    (increment-physics-time (:dt state))
+    (.quickStep (:world @*physics*) (get-dt))
+    (increment-physics-time (get-dt))
     
     ;(reset! *objects* (let [new-objs (handle-collisions (update-objects (vals @*objects*) (:dt state)) @*collision-handlers*)]                                      
     #_(println "\nTiming: obj, coll, nbrs:")
     (reset! *objects* (let [new-objs (update-neighbors 
                                        (handle-collisions 
-                                         (update-objects (vals @*objects*) (:dt state))
+                                         (update-objects (vals @*objects*) (get-dt))
                                          @*collision-handlers*))]
                         (zipmap (map :uid new-objs) new-objs)));; hacky and bad    
     (assoc state
-           :simulation-time (+ (:simulation-time state) (:dt state)))))
+           :simulation-time (+ (:simulation-time state) (get-dt)))))

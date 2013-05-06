@@ -1,8 +1,8 @@
 (ns brevis.example.swarm
   (:require [clojure.zip :as zip])
   (:use [brevis.graphics.basic-3D]
-        [brevis.physics.space]
-        [brevis.shape box sphere]
+        [brevis.physics collision core space utils]
+        [brevis.shape box sphere cone]
         [brevis.core]
         [cantor]))  
 
@@ -20,7 +20,7 @@
 
 (def num-birds 50)
 
-(def memory (atom 0.5))
+(def memory (atom 0.1))
 (def avoidance (atom 0.4))
 (def clustering (atom 0.2))
 (def centering (atom 0.02))
@@ -48,6 +48,7 @@
   (move (make-real {:type :bird
               :color [1 0 0]
               :shape (create-sphere)})
+              ;:shape (create-cone)})
         position))
   
 (defn random-bird
@@ -139,20 +140,13 @@ so we only modify bird1."
 (defn initialize-simulation
   "This is the function where you add everything to the world."
   []  
-  (let [initial-obj (init-world)
-        birds (doall (repeatedly num-birds #(add-object (random-bird))))]
-    #_(make-light {:position [1 -100 10 0]
-                 :diffuse [1 0.9 0.8 1]})
-;    {:objects (concat initial-obj birds)
-     {:rotate-mode :none :translate-mode :none
-     :dt 0.1
-     :rot-x 0 :rot-y 0 :rot-z 0
-     :shift-x 0 :shift-y -20 :shift-z -50}))
+  (init-world)
+  (set-dt 0.1)
+  (dotimes [_ num-birds]
+    (add-object (random-bird))))
 
-;; Start ze macheen
-#_(start-gui initialize-simulation update-world)
-
+;; Start zee macheen
 (defn -main [& args]
-  (start-gui initialize-simulation update-world))
+  (start-gui initialize-simulation))
 
 (-main)

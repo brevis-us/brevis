@@ -2,8 +2,8 @@
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
         [cantor]
-        [brevis.physics.space]
-        [brevis.shape core box sphere])
+        [brevis.physics utils]
+        [brevis.shape core box sphere cone])
   (:require [penumbra.app :as app]
             [penumbra.text :as text]
             [penumbra.data :as data]
@@ -13,8 +13,8 @@
 (defn init-sky
   []
   (def #^:dynamic *sky*
-    (load-texture-from-file "resources/img/sky.jpg")))
-    ;#_(load-texture-from-file "/Users/kyleharrington/Documents/workspace/brevis/resources/img/sky.jpg")))
+    (load-texture-from-file "img/sky.jpg")))
+;    (load-texture-from-file "resources/img/sky.jpg")))
 
 (defn init-shader
   []
@@ -35,33 +35,40 @@
 
 ;; ## Shape handling code
 ;;
-;; < This is currently under revision. >
 
-(defn draw-shape
-  "Draw a shape. Call this after translating, scaling, and setting color."
+(defn- do-draw-shape
+  "Actually draw a primitive shape."
   [obj]
-  (if (:texture obj)          
-    (with-enabled :texture-2d
-      (with-texture brevis.shape.core/*checkers*;(:texture obj)      
-        (draw-shape (dissoc obj :texture))))
-    (let [pos (get-position obj)
+  (let [pos (get-position obj)
 	        vel (get-velocity obj)
 	        col (:color obj)]
      ;(with-pipeline shader-program [{:tint [1. 1. 0.]} (app/size)]
 		  (push-matrix
-		   #_(apply color (:color obj))
+       (shade-model :smooth)
+       (depth-test :less)
+		   (apply color (:color obj))
 		   (material :front-and-back
-		    :diffuse (into [] (conj col 1)); [1 1 1 1]
-        :specular [1 1 1 1]
-;		    :specular            [0.5 0.4 0.4 1]
-		    :shininess           80)
+               :ambient-and-diffuse (into [] (conj col 1)); [1 1 1 1]
+               :specular [1 1 1 1]
+               :shininess (:shininess obj))
 		   (translate pos)
 		   (apply scale (:dim (:shape obj)))
 		   (rotate (.x vel) 1 0 0)
 		   (rotate (.y vel) 0 1 0)
 		   (rotate (.z vel) 0 0 1)       
 		   (cond
-	      (= (:type (:shape obj)) :box) (draw-textured-cube)
-	      (= (:type (:shape obj)) :sphere) (draw-sphere))))
-		   #_(call-display-list (cond (= (:type (:shape obj)) :box) box-graphic))))
+        (= (:type (:shape obj)) :box) (draw-textured-cube)	      
+        (= (:type (:shape obj)) :cone) (draw-cone)
+        :else (draw-sphere);(= (:type (:shape obj)) :sphere) 
+       ))))
+
+(defn draw-shape
+  "Draw a shape. Call this after translating, scaling, and setting color."
+  [obj]
+  (if (:texture obj)
+    (with-enabled :texture-2d
+      (with-texture brevis.shape.core/*checkers*;(:texture obj)      
+        (do-draw-shape obj)))
+    (with-disabled :texture-2d
+      (do-draw-shape obj))))
 	  

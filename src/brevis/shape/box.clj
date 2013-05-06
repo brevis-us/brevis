@@ -28,14 +28,13 @@
 (defn init-box-graphic
   []
   (def box-graphic
-    (create-display-list
-     (draw-quads
-      (vertex -0.5 -0.5 0.5) (vertex -0.5 0.5 0.5) (vertex -0.5 0.5 -0.5) (vertex -0.5 -0.5 -0.5)
-      (vertex 0.5 -0.5 0.5) (vertex 0.5 0.5 0.5) (vertex 0.5 0.5 -0.5) (vertex 0.5 -0.5 -0.5)
-      (vertex 0.5 -0.5 -0.5) (vertex 0.5 -0.5 0.5) (vertex -0.5 -0.5 0.5) (vertex -0.5 -0.5 -0.5)
-      (vertex 0.5 0.5 -0.5) (vertex 0.5 0.5 0.5) (vertex -0.5 0.5 0.5) (vertex -0.5 0.5 -0.5)
-      (vertex -0.5 0.5 -0.5) (vertex 0.5 0.5 -0.5) (vertex 0.5 -0.5 -0.5) (vertex -0.5 -0.5 -0.5)
-      (vertex -0.5 0.5 0.5) (vertex 0.5 0.5 0.5) (vertex 0.5 -0.5 0.5) (vertex -0.5 -0.5 0.5)))))
+    (define-display-list :quads
+      [[(vec3 -0.5 -0.5 0.5) (vec3 -0.5 0.5 0.5) (vec3 -0.5 0.5 -0.5) (vec3 -0.5 -0.5 -0.5)]
+       [(vec3 0.5 -0.5 0.5) (vec3 0.5 0.5 0.5) (vec3 0.5 0.5 -0.5) (vec3 0.5 -0.5 -0.5)]
+       [(vec3 0.5 -0.5 -0.5) (vec3 0.5 -0.5 0.5) (vec3 -0.5 -0.5 0.5) (vec3 -0.5 -0.5 -0.5)]
+       [(vec3 0.5 0.5 -0.5) (vec3 0.5 0.5 0.5) (vec3 -0.5 0.5 0.5) (vec3 -0.5 0.5 -0.5)]
+       [(vec3 -0.5 0.5 -0.5) (vec3 0.5 0.5 -0.5) (vec3 0.5 -0.5 -0.5) (vec3 -0.5 -0.5 -0.5)]
+       [(vec3 -0.5 0.5 0.5) (vec3 0.5 0.5 0.5) (vec3 0.5 -0.5 0.5) (vec3 -0.5 -0.5 0.5)]])))
 
 (defn draw-textured-cube []
   (dotimes [_ 4]

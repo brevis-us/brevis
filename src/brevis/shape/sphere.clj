@@ -21,7 +21,7 @@
     (for [phi (range -90 91 (/ 180 (/ lod 2)))]
       (cartesian (polar3 theta phi)))))
 
-(defonce sphere-vertices (gen-sphere-vertices 25))
+(defonce sphere-vertices (gen-sphere-vertices 50))
 
 (defn init-sphere
   []

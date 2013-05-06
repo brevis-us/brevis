@@ -3,8 +3,8 @@
         [penumbra.opengl core]
         [cantor]
         [brevis.graphics.basic-3D]
-        [brevis.physics.space]
-        [brevis.shape core box sphere])       
+        [brevis.physics core space]
+        [brevis.shape core box sphere cone])       
   (:require [penumbra.app :as app]
             [clojure.math.numeric-tower :as math]
             [penumbra.text :as text]
@@ -28,46 +28,33 @@
   ;(app/key-repeat! true)
   (enable :blend)
   (enable :depth-test)
+  ;(clear-color [0 0 0 1])
   (init-box-graphic)
   (init-sphere)
+  (init-cone)
   (init-checkers)
   (init-sky)
   (enable :lighting)
   (enable :light0)
   (light 0 
-         :ambient [0.1 0.1 0.1 1]
-         :specular [1 1 1 1]
-         :position [1 50 10 0]
+         :specular [1 1 1 1.0]
+         ;:position [0 -1 0 0];;directional can be enabled after the penumbra update         
+         :position [250 -250 -100 1]         
          :diffuse [1 1 1 1])
-  #_(enable :light1)
-  ;(enable :light2)
-  ;(enable :light3)
-  ;(enable :light4)
-  ;(enable :light5)
+  (enable :light1)
+  (light 1
+         :specular [1 1 1 1.0]
+         ;:position [0 -1 0 0]
+         :position [250 250 -100 1]
+         :diffuse [1 1 1 1])
   ;(glfx/gl-enable :point-smooth)
   ;(glfx/gl-enable :line-smooth)
   ;(enable :polygon-smooth)  
-  (blend-func :src-alpha :one-minus-src-alpha)
-  
-;  (enable :normalize)
-;  (enable :cull-face)
-;  (enable :fog)
-;  (shade-model :flat)
-  
+  (blend-func :src-alpha :one-minus-src-alpha)  
+  (enable :normalize)
   #_(init-shader)  
   state
   #_(glfx/enable-high-quality-rendering))
-
-#_(def #^:dynamic *lights* (atom []))
-#_(defn make-light
-  "Make a light."
-  [light-properties]
-  (let [id (count @*lights*)]
-    #_(eval (str "(enable" (keyword (str "light" id)) ")"))
-    #_(enable (keyword (str "light" id)))
-    (light id 
-           :position (:position light-properties)
-           :diffuse (:diffuse light-properties))))
 
 (def shift-key-down (atom false))
 (defn sin [n] (float (Math/sin n)))
@@ -76,13 +63,12 @@
 (defn reshape
   "Reshape after the window is resized."
   [[x y w h] state]
-  (frustum-view 45 (/ w h) 0.1 1000)
+  (frustum-view  45 (/ w h) 0.1 2000)
   (load-identity)
   #_(translate 0 0 -40)
   (light 0 
-         :ambient [0.1 0.1 0.1 1]
-         :specular [1 1 1 1]
-         :position [1 50 10 0]
+         ;:specular [1 1 1 1]
+         :position [1 100 10 1]
          :diffuse [1 1 1 1])
   #_(light 1
          :ambient [1 1 1 1]
@@ -99,19 +85,32 @@
   (let [w 1000
         h 1000
         d 1000
-        pos (vec3 0 0 0) #_(vec3 (- (/ w 2)) 0 (- (/ d 2)))]
+        pos (vec3 0 0 0) ;(vec3 (- (/ w 2)) (- (/ h 2)) (- (/ d 2)))
+        ]
     (when *sky*
       ;(with-enabled :texture-cube-map-seamless
-        (with-enabled :texture-2d
-        (with-texture *sky*         
-          (push-matrix
-            (material :front-and-back
-                      :ambient-and-diffuse [1 1 1 1]
-                      :specular [0 0 0 0];[1 1 1 1]
-                      :shininess           80)
-            (translate pos)
-            (apply scale [w h d])
-            (draw-textured-cube)))))))
+      (with-disabled :lighting      
+        (with-enabled :depth-test
+          (with-enabled :texture-2d
+            (with-texture *sky*
+              (depth-test :lequal)
+              ;GL11.glShadeModel (GL11.GL_FLAT);
+               ; GL11.glDepthRange (1,1);
+              (push-matrix
+	            #_(color 0 0 1)
+	            #_(material :front-and-back
+	                      :ambient-and-diffuse [1 1 1 1]
+	                      :specular [0 0 0 0];[1 1 1 1]
+	;                      :shininess           80
+	                      )
+	            (material :front-and-back
+	                      :shininess 0
+	;                      :specular [0 0 0 1]
+	                      :ambient-and-diffuse [0 0 1 0.5])
+	            ;          :ambient-and-diffuse [1 1 1 1])
+	            (translate pos)
+	            (apply scale [w h d])
+	            (draw-textured-cube)))))))))
 
 (defn display
   "Display the world."
@@ -126,10 +125,8 @@
   (rotate (:rot-y state) 0 1 0)
   (rotate (:rot-z state) 0 0 1)
   (translate (:shift-x state) (:shift-y state) (:shift-z state))
-  ;(with-disabled :texture-2d
   (draw-sky)
-  (doseq [obj (vals @*objects*)]    
-;    (doseq [obj (:objects state)]
+  (doseq [obj (vals @*objects*)]
     (draw-shape obj))
   (app/repaint!))
 
@@ -241,23 +238,36 @@
 
 ;; ## Start a brevis instance
 
-(defn start-gui [initialize update]
+(defn- reset-core
+  "Reset the core variables."
+  []
+  #_(reset! *collision-handlers* {})
+  (reset! *collisions* {})
+  #_(reset! *update-handlers* {})
+  (reset! *physics* nil)
+  (reset! *objects* {}))
+
+(defn start-gui 
   "Start the simulation with a GUI."
-  (app/start
-   {:reshape reshape, :init init, :mouse-drag mouse-drag, :key-press key-press :mouse-wheel mouse-wheel, :update update, :display display
-    :key-release key-release
-    ;:mouse-move    (fn [[[dx dy] [x y]] state] (println )
-    ;:mouse-up       (fn [[x y] button state] (println button) state)
-    ;:mouse-click   (fn [[x y] button state] (println button) state)
-    ;:mouse-down    (fn [[x y] button state] (println button) state)
-    ;:mouse-wheel   (fn [dw state] (println dw) state)
-    }
-   (merge {:rotate-mode :x :translate-mode :x     
-           :rot-x 0 :rot-y 0 :rot-z 90
-           :shift-x 0 :shift-y 20 :shift-z 0;-30
-           :init-simulation initialize
-           :dt 1 :last-report-time 0 :simulation-time 0}                      
-          (initialize))))
+  ([initialize]
+    (start-gui initialize update-world))
+  ([initialize update]
+    (reset-core)
+	  (app/start
+	   {:reshape reshape, :init init, :mouse-drag mouse-drag, :key-press key-press :mouse-wheel mouse-wheel, :update update, :display display
+	    :key-release key-release
+	    ;:mouse-move    (fn [[[dx dy] [x y]] state] (println )
+	    ;:mouse-up       (fn [[x y] button state] (println button) state)
+	    ;:mouse-click   (fn [[x y] button state] (println button) state)
+	    ;:mouse-down    (fn [[x y] button state] (println button) state)
+	    ;:mouse-wheel   (fn [dw state] (println dw) state)
+	    }    
+    (do (initialize)
+      {:rotate-mode :none :translate-mode :none     
+       :rot-x 0 :rot-y 0 :rot-z 0
+       :shift-x 0 :shift-y -20 :shift-z -50;-30
+       :init-simulation initialize
+       :last-report-time 0 :simulation-time 0}))))
 
 
 #_(defn start-nogui [iteration-step-size]
