@@ -14,19 +14,19 @@
 (defn shape-position
   "Return the shape of the position for a given time."
   [time num-shapes shape-num]
-  #_(println time num-shapes shape-num)
   (vec3  (* 50 (cos (+ (* 2 Math/PI (/ shape-num num-shapes) time))))
          10
          (* 50 (sin (+ (* 2 Math/PI (/ shape-num num-shapes) time))))))
 
 (defn make-shapes
+  "Make the shapes that will be used in our simulation."
   []
-  (let [shapes [(create-sphere 5) (create-box 5 5 5)]
-        ]
+  (let [shapes [(create-sphere 5); A sphere of radius 5 
+                (create-box 5 10 2)]]; A box of width, length, height
     (for [num (range (count shapes))]
       (let [position (shape-position (get-time) (count shapes) num)]            
         (move (make-real {:type :demoshape
-                          :color [(- 1 (/ (inc num))) (/ (inc num)) 0]
+                          :color [0 (- 1 num) num 1]
                           :shape (nth shapes num)
                           :shape-number num})
               position)))))
@@ -34,14 +34,8 @@
 (defn update-demoshape
   "Update a demoshape."
   [demoshape dt objects]
-  #_(println (:type demoshape) demoshape)
   (let [new-position (shape-position (get-time) (count objects) (inc (:shape-number demoshape)))]
-    #_(println (get-position demoshape) new-position)
-    (assoc (move demoshape new-position)
-           :color [0 (- 1 (:shape-number demoshape)) (:shape-number demoshape) 1] 
-           #_(if (< (first (:color demoshape)) 0.05)
-                    [(rand) (rand) (rand)]
-                    (into [] (map #(- % 0.01) (:color demoshape)))))))           
+    (move demoshape new-position)))
       
 (add-update-handler :demoshape update-demoshape); This tells the simulator how to update these objects
 

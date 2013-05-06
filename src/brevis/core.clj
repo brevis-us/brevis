@@ -18,6 +18,11 @@
            (javax.imageio ImageIO)
            (org.lwjgl BufferUtils)))
 
+(def #^:dynamic *gui-state* (atom {:rotate-mode :none :translate-mode :none                                    
+                                   :rot-x 0 :rot-y 0 :rot-z 0
+                                   :shift-x 0 :shift-y -20 :shift-z -50;-30                                   
+                                   :last-report-time 0 :simulation-time 0}))
+
 ;; ## Window and Graphical Environment
 
 (defn init
@@ -264,11 +269,7 @@
 	    ;:mouse-wheel   (fn [dw state] (println dw) state)
 	    }    
     (do (initialize)
-      {:rotate-mode :none :translate-mode :none     
-       :rot-x 0 :rot-y 0 :rot-z 0
-       :shift-x 0 :shift-y -20 :shift-z -50;-30
-       :init-simulation initialize
-       :last-report-time 0 :simulation-time 0}))))
+      @*gui-state*))))
 
 
 #_(defn start-nogui [iteration-step-size]
