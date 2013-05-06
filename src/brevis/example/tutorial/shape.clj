@@ -47,6 +47,7 @@
   []  
   (init-world);; Make the world 
   (set-dt 0.01)
+  (add-object (make-floor 500 500))
   (let [shapes (make-shapes)];; Make our object
     (doseq [shape shapes]
       (add-object shape))));; Add the object to the simulation

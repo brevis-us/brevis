@@ -150,7 +150,7 @@
   "Make a floor object."
   [w h]
   (move (make-real {:color [0.8 0.8 0.8]
-                    :shininess 0
+                    :shininess 20
                     :type :floor
                     :density 8050
                     :texture *checkers*
@@ -163,8 +163,8 @@
     (reset! *physics* {:world world                             :space space                       :contact-group contact-group
                        :time 0});      (let [[floor floor-joint] (make-floor 1000 1000)
     (println "Collision handlers:" (keys @*collision-handlers*))
-    (println "Update handlers:" (keys @*update-handlers*))
-    (let [floor (make-floor 500 500)          
+    (println "Update handlers:" (keys @*update-handlers*))    
+    #_(let [floor (make-floor 500 500)          
             environment {:objects [floor]
                          :joints nil}]
         (reset! *physics* (assoc @*physics*

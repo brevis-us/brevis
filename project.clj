@@ -1,9 +1,10 @@
-(defproject brevis "0.2.3"
+(defproject brevis "0.2.4"
   :description "A Second-Generation Artificial Life Simulator"
   :url "https://github.com/kephale/brevis"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 ;  :resource-paths ["resources"]
+  :plugins [[lein-marginalia "0.7.1"]]
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [org.clojure/math.numeric-tower "0.0.2"]
 ;                 [kephale/ode4j "0.12.0-j1.4"]

@@ -3,7 +3,7 @@
         [penumbra.opengl core]
         [cantor]
         [brevis.graphics.basic-3D]
-        [brevis.physics core space]
+        [brevis.physics core space utils]
         [brevis.shape core box sphere cone])       
   (:require [penumbra.app :as app]
             [clojure.math.numeric-tower :as math]
@@ -118,23 +118,57 @@
 	            (apply scale [w h d])
 	            (draw-textured-cube)))))))))
 
+(defn get-min-vec
+  "Return the minimum vec3 of a collection, component-wise."
+  [vectors]
+  (reduce #(vec3 (Math/min (.x %1) (.x %2)) (Math/min (.y %1) (.y %2)) (Math/min (.z %1) (.z %2))) 
+          (vec3 java.lang.Double/POSITIVE_INFINITY java.lang.Double/POSITIVE_INFINITY java.lang.Double/POSITIVE_INFINITY)
+          vectors))
+
+(defn get-max-vec
+  "Return the maximum vec3 of a collection, component-wise."
+  [vectors]
+  (reduce #(vec3 (Math/max (.x %) (.x %2)) (Math/max (.y %1) (.y %2)) (Math/max (.z %1) (.z %2))) 
+          (vec3 java.lang.Double/NEGATIVE_INFINITY java.lang.Double/NEGATIVE_INFINITY java.lang.Double/NEGATIVE_INFINITY)
+          vectors))
+
+(defn camera-score
+  "What is the score of a current camera position relative to the world."
+  [state]
+  0)
+
+(defn auto-camera
+  "Automatically focus the camera to maximize the number of objects in view."
+  [state]
+  (let [obj-vecs (map get-position @*objects*)
+        min-vec (get-min-vec obj-vecs)
+        max-vec (get-max-vec obj-vecs)
+        mid-vec (div (add min-vec max-vec) 2)
+        comp-x (cos (* 2 Math/PI (/ (:rot-x state) 360)))
+        comp-y (cos (* 2 Math/PI (/ (:rot-y state) 360)))
+        comp-z (cos (* 2 Math/PI (/ (:rot-z state) 360)))
+        next-state state]
+    (if (> (camera-score next-state) (camera-score state))
+      next-state state)))                            
+
 (defn display
   "Display the world."
   [[dt t] state]
-  (text/write-to-screen (str (int (/ 1 dt)) " fps") 0 0)
-  (text/write-to-screen (str (float (:simulation-time state)) " time") 0 30)
-  (text/write-to-screen (str "Rotation: (" 
-                             (:rot-x state) "," (:rot-y state) "," (:rot-z state) ")") 0 60)
-  (text/write-to-screen (str "Translation: (" 
-                             (int (:shift-x state)) "," (int (:shift-y state)) "," (int (:shift-z state)) ")") 0 90)
-  (rotate (:rot-x state) 1 0 0)
-  (rotate (:rot-y state) 0 1 0)
-  (rotate (:rot-z state) 0 0 1)
-  (translate (:shift-x state) (:shift-y state) (:shift-z state))
-  (draw-sky)
-  (doseq [obj (vals @*objects*)]
-    (draw-shape obj))
-  (app/repaint!))
+  (let [state (if (:auto-camera state) (auto-camera state) state)]      
+	  (text/write-to-screen (str (int (/ 1 dt)) " fps") 0 0)
+	  (text/write-to-screen (str (float (:simulation-time state)) " time") 0 30)
+	  (text/write-to-screen (str "Rotation: (" 
+	                             (:rot-x state) "," (:rot-y state) "," (:rot-z state) ")") 0 60)
+	  (text/write-to-screen (str "Translation: (" 
+	                             (int (:shift-x state)) "," (int (:shift-y state)) "," (int (:shift-z state)) ")") 0 90)
+	  (rotate (:rot-x state) 1 0 0)
+	  (rotate (:rot-y state) 0 1 0)
+	  (rotate (:rot-z state) 0 0 1)
+	  (translate (:shift-x state) (:shift-y state) (:shift-z state))
+	  (draw-sky)
+	  (doseq [obj (vals @*objects*)]
+	    (draw-shape obj))
+	  (app/repaint!)))
 
 (defn screenshot
   "Take a screenshot. Currently captures the entire screen."

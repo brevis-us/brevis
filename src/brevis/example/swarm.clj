@@ -20,10 +20,10 @@
 
 (def num-birds 50)
 
-(def memory (atom 0.1))
-(def avoidance (atom 0.4))
-(def clustering (atom 0.2))
-(def centering (atom 0.02))
+(def memory (atom 0.0))
+(def avoidance (atom 0.8))
+(def clustering (atom 0.05))
+(def centering (atom 0.01))
 
 (def max-acceleration 10)
 
@@ -142,6 +142,7 @@ so we only modify bird1."
   []  
   (init-world)
   (set-dt 0.1)
+  (add-object (make-floor 500 500))
   (dotimes [_ num-birds]
     (add-object (random-bird))))
 
