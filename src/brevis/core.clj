@@ -37,13 +37,13 @@
   (enable :lighting)
   (enable :light0)
   (light 0 
-         :specular [1 1 1 1.0]
+         :specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
          ;:position [0 -1 0 0];;directional can be enabled after the penumbra update         
-         :position [250 -250 -100 1]         
+         :position [250 250 -100 1]         
          :diffuse [1 1 1 1])
-  (enable :light1)
-  (light 1
-         :specular [1 1 1 1.0]
+  #_(enable :light1)
+  #_(light 1
+         :specular [0.2 0.2 0.2 1.0]
          ;:position [0 -1 0 0]
          :position [250 250 -100 1]
          :diffuse [1 1 1 1])
@@ -94,6 +94,7 @@
           (with-enabled :texture-2d
             (with-texture *sky*
               (depth-test :lequal)
+              #_(depth-range 1 1)
               ;GL11.glShadeModel (GL11.GL_FLAT);
                ; GL11.glDepthRange (1,1);
               (push-matrix

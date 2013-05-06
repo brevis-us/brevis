@@ -38,7 +38,7 @@
   (let [new-position (shape-position (get-time) (count objects) (inc (:shape-number demoshape)))]
     #_(println (get-position demoshape) new-position)
     (assoc (move demoshape new-position)
-           :color [0 1 1 1] 
+           :color [0 (- 1 (:shape-number demoshape)) (:shape-number demoshape) 1] 
            #_(if (< (first (:color demoshape)) 0.05)
                     [(rand) (rand) (rand)]
                     (into [] (map #(- % 0.01) (:color demoshape)))))))           
