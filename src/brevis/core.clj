@@ -61,6 +61,14 @@
   state
   #_(glfx/enable-high-quality-rendering))
 
+(defn make-init
+  "Make an initialize function based upon a user-customized init function."
+  [user-init]
+  (fn [state]
+    (init state)
+    (user-init)
+    state))
+
 (def shift-key-down (atom false))
 (defn sin [n] (float (Math/sin n)))
 (defn cos [n] (float (Math/cos n)))
@@ -294,16 +302,15 @@
   ([initialize update]
     (reset-core)
 	  (app/start
-	   {:reshape reshape, :init init, :mouse-drag mouse-drag, :key-press key-press :mouse-wheel mouse-wheel, :update update, :display display
+	   {:reshape reshape, :init (make-init initialize), :mouse-drag mouse-drag, :key-press key-press :mouse-wheel mouse-wheel, :update update, :display display
 	    :key-release key-release
 	    ;:mouse-move    (fn [[[dx dy] [x y]] state] (println )
 	    ;:mouse-up       (fn [[x y] button state] (println button) state)
 	    ;:mouse-click   (fn [[x y] button state] (println button) state)
 	    ;:mouse-down    (fn [[x y] button state] (println button) state)
 	    ;:mouse-wheel   (fn [dw state] (println dw) state)
-	    }    
-    (do (initialize)
-      @*gui-state*))))
+	    }        
+    @*gui-state*)))
 
 
 #_(defn start-nogui [iteration-step-size]
