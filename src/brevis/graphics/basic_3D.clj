@@ -67,7 +67,7 @@
   [obj]
   (if (:texture obj)
     (with-enabled :texture-2d
-      (with-texture brevis.shape.core/*checkers*;(:texture obj)      
+      (with-texture (:texture obj)      
         (do-draw-shape obj)))
     (with-disabled :texture-2d
       (do-draw-shape obj))))
