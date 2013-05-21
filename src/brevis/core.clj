@@ -31,7 +31,7 @@
   [state]
   (app/title! "brevis")
   (app/vsync! true)
-  ;(app/key-repeat! true)
+  ;(app/key-repeat! false)
   (enable :blend)
   (enable :depth-test)
   ;(clear-color [0 0 0 1])
@@ -185,7 +185,7 @@
 (defn screenshot
   "Take a screenshot. Currently captures the entire screen."
   [filename state]
-  (println [(:window-x state) (:window-y state) (:window-width state) (:window-height state)])
+  ;(println [(:window-x state) (:window-y state) (:window-width state) (:window-height state)])
   (let [img-type (second (re-find (re-matcher #"\.(\w+)$" filename)))
 				capture (.createScreenCapture (Robot.)
 							      ;(Rectangle. (.getScreenSize (Toolkit/getDefaultToolkit))));; captures entire screen
@@ -198,8 +198,10 @@
 (defn key-press
   "Update the state in response to a keypress."
   [key state]
+  ;(println "key-press" key)
   (cond
-    (= :lshift key) (do (reset! shift-key-down true) state)
+    ;(= :lshift key) (do (reset! shift-key-down true) state)
+    (= "z" key) (do (reset! shift-key-down true) state)
     (= "p" key) (do (app/pause!)
                   state)
     (= "o" key) (do (screenshot (str "brevis_screenshot_" (System/currentTimeMillis) ".png") state)
@@ -213,8 +215,10 @@
 (defn key-release
   "Update the state in response to the release of a key"
   [key state]
+  ;(println "key-release" key) 
   (cond
-    (= :lshift key) (reset! shift-key-down false))
+    ;(= :lshift key) (reset! shift-key-down false))
+    (= "z" key) (reset! shift-key-down false))
   state)
 
 ;; ## Input handling
@@ -270,25 +274,25 @@
 (defn mouse-move
   "Respond to a change in x,y position of the mouse."
   [[[dx dy] [x y]] state] 
-  #_(println x y)
+  (println "mouse-move" x y)
   state)
     
 (defn mouse-up
   "Respond to a mouse button being released"
   [[x y] button state] 
-  #_(println button) 
+  (println "mouse-up" button) 
   state)
     
 (defn mouse-click
   "Respond to a click?"
   [[x y] button state]
-  #_(println button)
+  (println "mouse-click" button)
   state)
 
 (defn mouse-down
   "Respond to a mouse button being pressed"
   [[x y] button state]
-  #_(println button)
+  (println "mouse-down" button)
   state)
 
 
