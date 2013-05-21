@@ -5,7 +5,7 @@
         [brevis.graphics.basic-3D]
         [brevis.physics core space utils]
         [brevis.shape core box sphere cone])       
-  (:require [penumbra.app :as app]
+  (:require [penumbra.app :as app]            
             [clojure.math.numeric-tower :as math]
             [penumbra.text :as text]
             [penumbra.data :as data]
@@ -16,6 +16,7 @@
            (java.awt.image BufferedImage)
            (java.io File IOException)
            (javax.imageio ImageIO)
+           (org.lwjgl.opengl Display)
            (org.lwjgl BufferUtils)))
 
 (def #^:dynamic *gui-state* (atom {:rotate-mode :none :translate-mode :none                                    
@@ -64,6 +65,7 @@
 (defn make-init
   "Make an initialize function based upon a user-customized init function."
   [user-init]
+  (println "make-init")
   (fn [state]
     (init state)
     (user-init)
@@ -89,6 +91,8 @@
          :position [100 -100 10 0]
          :diffuse [1 1 1 1])
   (assoc state
+    :window-x x
+    :window-y y
     :window-width w
     :window-height h))
 
@@ -180,11 +184,15 @@
 
 (defn screenshot
   "Take a screenshot. Currently captures the entire screen."
-  [filename]
+  [filename state]
+  (println [(:window-x state) (:window-y state) (:window-width state) (:window-height state)])
   (let [img-type (second (re-find (re-matcher #"\.(\w+)$" filename)))
-	capture (.createScreenCapture (Robot.)
-				      (Rectangle. (.getScreenSize (Toolkit/getDefaultToolkit))))
-	file (File. filename)]
+				capture (.createScreenCapture (Robot.)
+							      ;(Rectangle. (.getScreenSize (Toolkit/getDefaultToolkit))));; captures entire screen
+			           ;(Rectangle. (:window-x state) (:window-y state) (:window-width state) (:window-height state)));; captures window only
+             (Rectangle. (Display/getX) (Display/getY) (:window-width state) (:window-height state)))
+				file (File. filename)]
+    (println "Screenshot written to:" (.getAbsolutePath file))
     (ImageIO/write capture img-type file)))
 
 (defn key-press
@@ -194,7 +202,7 @@
     (= :lshift key) (do (reset! shift-key-down true) state)
     (= "p" key) (do (app/pause!)
                   state)
-    (= "o" key) (do (screenshot (str "brevis_screenshot_" (System/currentTimeMillis) ".png"))
+    (= "o" key) (do (screenshot (str "brevis_screenshot_" (System/currentTimeMillis) ".png") state)
                   state)
     (= :escape key)
     (do (app/stop!)
