@@ -30,7 +30,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn init-sky
   []
   (def #^:dynamic *sky*
-    (load-texture-from-file "img/sky.jpg")))
+    (load-texture-from-file "resources/img/sky.jpg")))
 ;    (load-texture-from-file "resources/img/sky.jpg")))
 
 (defn init-shader
