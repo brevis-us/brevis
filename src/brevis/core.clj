@@ -204,28 +204,12 @@ Copyright 2012, 2013 Kyle Harrington"
 	    (draw-shape obj))
 	  (app/repaint!)))
 
-;; Using the java robot
-#_(defn screenshot
-  "Take a screenshot."
-  [filename state]
-  ;(println [(:window-x state) (:window-y state) (:window-width state) (:window-height state)])
-  (let [img-type (second (re-find (re-matcher #"\.(\w+)$" filename)))
-				capture (.createScreenCapture (Robot.)
-							      ;(Rectangle. (.getScreenSize (Toolkit/getDefaultToolkit))));; captures entire screen
-			           ;(Rectangle. (:window-x state) (:window-y state) (:window-width state) (:window-height state)));; captures window only
-             (Rectangle. (Display/getX) (Display/getY) (:window-width state) (:window-height state)))
-				file (File. filename)]
-    (println "Screenshot written to:" (.getAbsolutePath file))
-    (ImageIO/write capture img-type file)))
-
 (defn screenshot
   "Take a screenshot."
   [filename state]
   (let [pixels (int-array (* (:window-width state) (:window-height state))); Creating an rbg array of total pixels
         fb (ByteBuffer/allocateDirect (* 3 (:window-width state) (:window-height state))); allocate space for RBG pixels
         img-type (second (re-find (re-matcher #"\.(\w+)$" filename)))]        
-    ;(GL11/glReadPixels 0 0 (:window-width state) (:window-height state) GL_RGB GL_UNSIGNED_BYTE fb)
-    ;(GL11/glReadPixels (int 0) (int 0) (int (:window-width state)) (int (:window-height state)) :rgb :unsigned-byte fb)
     (fb/gl-read-pixels (int 0) (int 0) (int (:window-width state)) (int (:window-height state)) :rgb :unsigned-byte fb)
     (let [imageIn (BufferedImage. (:window-width state) (:window-height state) BufferedImage/TYPE_INT_RGB)]
       (dotimes [i (alength pixels)]

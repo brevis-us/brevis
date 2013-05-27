@@ -1,3 +1,20 @@
+#_"This file is part of brevis.                                                                                                                                                 
+                                                                                                                                                                                     
+    brevis is free software: you can redistribute it and/or modify                                                                                                           
+    it under the terms of the GNU General Public License as published by                                                                                                             
+    the Free Software Foundation, either version 3 of the License, or                                                                                                                
+    (at your option) any later version.                                                                                                                                              
+                                                                                                                                                                                     
+    brevis is distributed in the hope that it will be useful,                                                                                                                
+    but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                   
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                                                                                                    
+    GNU General Public License for more details.                                                                                                                                     
+                                                                                                                                                                                     
+    You should have received a copy of the GNU General Public License                                                                                                                
+    along with brevis.  If not, see <http://www.gnu.org/licenses/>.                                                                                                          
+                                                                                                                                                                                     
+Copyright 2012, 2013 Kyle Harrington"
+
 ;; This is for simulations that require space (such as physical or pseudo-physical worlds)
 (ns brevis.physics.space
   (:gen-class)
@@ -150,7 +167,7 @@
   "Make a floor object."
   [w h]
   (move (make-real {:color [0.8 0.8 0.8]
-                    :shininess 20
+                    :shininess 80
                     :type :floor
                     :density 8050
                     :texture *checkers*
@@ -212,10 +229,33 @@ are removed from the simulation."
     
     ;(reset! *objects* (let [new-objs (handle-collisions (update-objects (vals @*objects*) (:dt state)) @*collision-handlers*)]                                      
     #_(println "\nTiming: obj, coll, nbrs:")
-    (reset! *objects* (let [new-objs (update-neighbors 
+    #_(reset! *objects* (let [new-objs (update-neighbors 
                                        (handle-collisions 
                                          (update-objects (vals @*objects*) (get-dt))
                                          @*collision-handlers*))]
                         (zipmap (map :uid new-objs) new-objs)));; hacky and bad    
+    
+    ;; Update objects based upon their update method
+    (reset! *objects* (let [in-objs (vals (merge @*objects* @*added-objects*))]
+                        (reset! *added-objects* {})
+                        (let [new-objs (update-objects in-objs (get-dt))
+                              objs (zipmap (map :uid new-objs) new-objs)]
+                          (apply (partial dissoc objs) @*deleted-objects*))))
+    (reset! *deleted-objects* #{})
+    ;; Update objects for collisions
+    (when @collisions-enabled
+	    (reset! *objects* (let [in-objs (vals (merge @*objects* @*added-objects*))]
+	                        (reset! *added-objects* {})
+	                        (let [new-objs (handle-collisions in-objs @*collision-handlers*)
+                                objs (zipmap (map :uid new-objs) new-objs)]	                          
+                           (apply (partial dissoc objs) @*deleted-objects*)))))
+    (reset! *deleted-objects* #{})
+    ;; Finally update neighborhoods
+    (when @neighborhoods-enabled	    
+	    (reset! *objects* (let [in-objs (vals (merge @*objects* @*added-objects*))]
+	                        (reset! *added-objects* {})                        
+	                        (let [new-objs (update-neighbors in-objs)]
+	                          (zipmap (map :uid new-objs) new-objs)))))
+    
     (assoc state
            :simulation-time (+ (:simulation-time state) (get-dt)))))

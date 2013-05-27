@@ -1,3 +1,20 @@
+#_"This file is part of brevis.                                                                                                                                                 
+                                                                                                                                                                                     
+    brevis is free software: you can redistribute it and/or modify                                                                                                           
+    it under the terms of the GNU General Public License as published by                                                                                                             
+    the Free Software Foundation, either version 3 of the License, or                                                                                                                
+    (at your option) any later version.                                                                                                                                              
+                                                                                                                                                                                     
+    brevis is distributed in the hope that it will be useful,                                                                                                                
+    but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                   
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                                                                                                    
+    GNU General Public License for more details.                                                                                                                                     
+                                                                                                                                                                                     
+    You should have received a copy of the GNU General Public License                                                                                                                
+    along with brevis.  If not, see <http://www.gnu.org/licenses/>.                                                                                                          
+                                                                                                                                                                                     
+Copyright 2012, 2013 Kyle Harrington"
+
 (ns brevis.shape.core
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
@@ -75,6 +92,6 @@
 	     (apply concat
 	            (for [x (range 128) y (range 128)]
 	              (if (xor (even? (bit-shift-right x 4)) (even? (bit-shift-right y 4)))
-	                [0.6 0.6 0.6 1.0]
-	                [0.4 0.4 0.4 1.0]))))
+	                [0.9 0.9 0.9 1.0]
+	                [0.8 0.8 0.8 1.0]))))
      tex)))

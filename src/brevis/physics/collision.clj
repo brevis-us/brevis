@@ -1,3 +1,20 @@
+#_"This file is part of brevis.                                                                                                                                                 
+                                                                                                                                                                                     
+    brevis is free software: you can redistribute it and/or modify                                                                                                           
+    it under the terms of the GNU General Public License as published by                                                                                                             
+    the Free Software Foundation, either version 3 of the License, or                                                                                                                
+    (at your option) any later version.                                                                                                                                              
+                                                                                                                                                                                     
+    brevis is distributed in the hope that it will be useful,                                                                                                                
+    but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                   
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                                                                                                    
+    GNU General Public License for more details.                                                                                                                                     
+                                                                                                                                                                                     
+    You should have received a copy of the GNU General Public License                                                                                                                
+    along with brevis.  If not, see <http://www.gnu.org/licenses/>.                                                                                                          
+                                                                                                                                                                                     
+Copyright 2012, 2013 Kyle Harrington"
+
 (ns brevis.physics.collision
   (:gen-class)
   (:import (org.ode4j.ode OdeHelper DSapSpace OdeConstants DContactBuffer DGeom DFixedJoint DContactJoint))
@@ -42,11 +59,11 @@ Things is updated and returned as a vector."
                      (some #(when (= (:uid (nth things %)) (:uid (second uid-pair))) %) (range (count things)))
                      uid-pair])]
     (when (some nil? (first pairs)) 
+      (println "WARNING SOME NIL ELEMENTS IN HANDLE COLLISIONS.")
       (println (first pairs)) 
       (println @*collisions*) 
       (println (doall (map :uid things)))
       (println (doall (map :type things))))
-    
     (if (empty? pairs)
       things
       (recur (let [pair (first pairs)
