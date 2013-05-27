@@ -1,17 +1,17 @@
 #_"This file is part of brevis.                                                                                                                                                 
                                                                                                                                                                                      
-    Ekman's Garden is free software: you can redistribute it and/or modify                                                                                                           
+    brevis is free software: you can redistribute it and/or modify                                                                                                           
     it under the terms of the GNU General Public License as published by                                                                                                             
     the Free Software Foundation, either version 3 of the License, or                                                                                                                
     (at your option) any later version.                                                                                                                                              
                                                                                                                                                                                      
-    Ekman's Garden is distributed in the hope that it will be useful,                                                                                                                
+    brevis is distributed in the hope that it will be useful,                                                                                                                
     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                   
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                                                                                                    
     GNU General Public License for more details.                                                                                                                                     
                                                                                                                                                                                      
     You should have received a copy of the GNU General Public License                                                                                                                
-    along with Ekman's Garden.  If not, see <http://www.gnu.org/licenses/>.                                                                                                          
+    along with brevis.  If not, see <http://www.gnu.org/licenses/>.                                                                                                          
                                                                                                                                                                                      
 Copyright 2012, 2013 Kyle Harrington"     
 
@@ -38,6 +38,7 @@ Copyright 2012, 2013 Kyle Harrington"
            (org.lwjgl.opengl Display GL11)
            (org.lwjgl BufferUtils)))
 
+(def enable-display-text true)
 (def #^:dynamic *gui-state* (atom {:rotate-mode :none :translate-mode :none                                    
                                    :rot-x 0 :rot-y 0 :rot-z 0
                                    :shift-x 0 :shift-y -20 :shift-z -50;-30                                   
@@ -186,16 +187,18 @@ Copyright 2012, 2013 Kyle Harrington"
   "Display the world."
   [[dt t] state]
   (let [state (if (:auto-camera state) (auto-camera state) state)]      
-	  (text/write-to-screen (str (int (/ 1 dt)) " fps") 0 0)
-	  (text/write-to-screen (str (float (:simulation-time state)) " time") 0 30)
-	  (text/write-to-screen (str "Rotation: (" 
-	                             (:rot-x state) "," (:rot-y state) "," (:rot-z state) ")") 0 60)
-	  (text/write-to-screen (str "Translation: (" 
-	                             (int (:shift-x state)) "," (int (:shift-y state)) "," (int (:shift-z state)) ")") 0 90)
-	  (rotate (:rot-x state) 1 0 0)
-	  (rotate (:rot-y state) 0 1 0)
-	  (rotate (:rot-z state) 0 0 1)
-	  (translate (:shift-x state) (:shift-y state) (:shift-z state))
+    (when enable-display-text
+		  (text/write-to-screen (str (int (/ 1 dt)) " fps") 0 0)
+		  (text/write-to-screen (str (float (:simulation-time state)) " time") 0 30)
+		  (text/write-to-screen (str "Rotation: (" 
+		                             (:rot-x state) "," (:rot-y state) "," (:rot-z state) ")") 0 60)
+		  (text/write-to-screen (str "Translation: (" 
+		                             (int (:shift-x @*gui-state*)) "," (int (:shift-y @*gui-state*)) "," (int (:shift-z @*gui-state*)) ")") 0 90)
+	    (text/write-to-screen (str (int (count @*objects*)) " objs") 0 120))
+	  (rotate (:rot-x @*gui-state*) 1 0 0)
+	  (rotate (:rot-y @*gui-state*) 0 1 0)
+	  (rotate (:rot-z @*gui-state*) 0 0 1)
+	  (translate (:shift-x @*gui-state*) (:shift-y @*gui-state*) (:shift-z @*gui-state*))
 	  (draw-sky)
 	  (doseq [obj (vals @*objects*)]
 	    (draw-shape obj))
@@ -270,51 +273,50 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn mouse-drag
   "Rotate the world."
   [[dx dy] _ button state]
-  (def rads (/ (Math/PI) 180))
-  (def thetaY (*(:rot-y state) rads))
-  (def sY (sin thetaY))
-  (def cY (cos thetaY))
-  (def thetaX (* (:rot-x state) rads))
-  (def sX (sin thetaX))
-  (def cX (cos thetaX))
-  
-  (if @shift-key-down
-    (cond 
-      ; Rotate
-      (= :left button)
-      (assoc state
-             :rot-x (+ (:rot-x state) dy)
-             :rot-y (+ (:rot-y state) dx))
-      (= :center button)
-      (assoc state
-             :shift-x (+ (:shift-x state) (* dx cY))
-             :shift-y (- (:shift-y state) (* dy cX))
-             :shift-z (+ (:shift-z state) (* dx sY))
-             )
-      ; Zoom
-      (= :right button)
-      (assoc state
-             :shift-x (+ (:shift-x state) (* (/ dy 6) (* sY -1)))
-             :shift-y (+ (:shift-y state) (* (/ dy 6) sX))
-             :shift-z (+ (:shift-z state) (* (/ dy 6) cY))           
-             ))))
+  (let [rads (/ (Math/PI) 180)
+        thetaY (*(:rot-y state) rads)
+        sY (sin thetaY)
+        cY (cos thetaY)
+        thetaX (* (:rot-x state) rads)
+        sX (sin thetaX)
+        cX (cos thetaX)]  
+	  (when @shift-key-down
+	    (cond 
+	      ; Rotate
+	      (= :left button)
+	      (swap! *gui-state* assoc
+	             :rot-x (+ (:rot-x @*gui-state*) dy)
+	             :rot-y (+ (:rot-y @*gui-state*) dx))
+	      (= :right button)
+	      (swap! *gui-state* assoc
+	             :shift-x (+ (:shift-x @*gui-state*) (* dx cY))
+	             :shift-y (- (:shift-y @*gui-state*) (* dy cX))
+	             :shift-z (+ (:shift-z @*gui-state*) (* dx sY))
+	             )
+	      ; Zoom
+	      (= :center button)
+	      (swap! *gui-state* assoc
+	             :shift-x (+ (:shift-x @*gui-state*) (* (/ dy 6) (* sY -1)))
+	             :shift-y (+ (:shift-y @*gui-state*) (* (/ dy 6) sX))
+	             :shift-z (+ (:shift-z @*gui-state*) (* (/ dy 6) cY))           
+	             ))))
+  state)
 
 (defn mouse-wheel
   "Respond to a mousewheel movement. dw is +/- depending on scroll-up or down."
   [dw state]
-  (def rads (/ (Math/PI) 180))
-  (def thetaY (*(:rot-y state) rads))
-  (def sY (sin thetaY))
-  (def cY (cos thetaY))
-  (def thetaX (* (:rot-x state) rads))
-  (def sX (sin thetaX))
-  (def cX (cos thetaX))
-  
-  (assoc state
-         :shift-z (+ (:shift-z state) (* (/ dw 6) cY))
-         :shift-x (+ (:shift-x state) (* (/ dw 6) (* sY -1)))
-         :shift-y (+ (:shift-y state) (* (/ dw 6) sX))
-         ))
+  (let [rads (/ (Math/PI) 180)
+        thetaY (*(:rot-y state) rads)
+        sY (sin thetaY)
+        cY (cos thetaY)
+        thetaX (* (:rot-x state) rads)
+        sX (sin thetaX)
+        cX (cos thetaX)]
+  (swap! *gui-state* assoc
+						         :shift-z (+ (:shift-z @*gui-state*) (* (/ dw 6) cY))
+						         :shift-x (+ (:shift-x @*gui-state*) (* (/ dw 6) (* sY -1)))
+						         :shift-y (+ (:shift-y @*gui-state*) (* (/ dw 6) sX)))
+  state))
 
 (defn mouse-move
   "Respond to a change in x,y position of the mouse."
@@ -351,6 +353,12 @@ Copyright 2012, 2013 Kyle Harrington"
   #_(reset! *update-handlers* {})
   (reset! *physics* nil)
   (reset! *objects* {}))
+
+(defn disable-collisions "Disable collision detection." [] (reset! collisions-enabled false))
+(defn enable-collisions "Enable collision detection." [] (reset! collisions-enabled true))
+
+(defn disable-neighborhoods "Disable neighborhood detection." [] (reset! neighborhoods-enabled false))
+(defn enable-neighborhoods "Enable neighborhood detection." [] (reset! neighborhoods-enabled true))
 
 (defn start-gui 
   "Start the simulation with a GUI."
