@@ -1,3 +1,20 @@
+#_"This file is part of brevis.                                                                                                                                                 
+                                                                                                                                                                                     
+    brevis is free software: you can redistribute it and/or modify                                                                                                           
+    it under the terms of the GNU General Public License as published by                                                                                                             
+    the Free Software Foundation, either version 3 of the License, or                                                                                                                
+    (at your option) any later version.                                                                                                                                              
+                                                                                                                                                                                     
+    brevis is distributed in the hope that it will be useful,                                                                                                                
+    but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                   
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                                                                                                    
+    GNU General Public License for more details.                                                                                                                                     
+                                                                                                                                                                                     
+    You should have received a copy of the GNU General Public License                                                                                                                
+    along with brevis.  If not, see <http://www.gnu.org/licenses/>.                                                                                                          
+                                                                                                                                                                                     
+Copyright 2012, 2013 Kyle Harrington"
+
 (ns brevis.example.tutorial.shape
   (:import java.lang.Math)  
   (:use [brevis.graphics.basic-3D]
@@ -7,6 +24,8 @@
         [cantor]))    
 
 ;; ## Tutorial: shape
+;;
+;; ![](img/brevis_example_tutorial_shape.png?raw=true)
 ;; 
 ;; Use this tutorial to learn how to quickly draw shapes, change their colors, and move shapes around the world.
 ;; 
@@ -57,4 +76,4 @@
   (start-gui initialize-simulation))
 
 ;; Start zee macheen
-(-main)
+#_(-main)

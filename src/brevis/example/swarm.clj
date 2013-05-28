@@ -169,4 +169,4 @@ so we only modify bird1."
 (defn -main [& args]
   (start-gui initialize-simulation))
 
-(-main)
+#_(-main)
