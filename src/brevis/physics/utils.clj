@@ -98,6 +98,7 @@ Copyright 2012, 2013 Kyle Harrington"
   [obj]
   (let [dim (:dim (:shape obj))]
     (cond
+      (= (:type (:shape obj)) :cone) (OdeHelper/createSphere (:space @*physics*) (.x dim));; the cake is a lie
       (= (:type (:shape obj)) :box) (OdeHelper/createBox (:space @*physics*) (.x dim) (.y dim) (.z dim))
       (= (:type (:shape obj)) :sphere) (OdeHelper/createSphere (:space @*physics*) (.x dim)))))
     

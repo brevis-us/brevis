@@ -46,10 +46,29 @@ Copyright 2012, 2013 Kyle Harrington"
                (.setOffsetWorldPosition (.x pos) (.y pos) (.z pos))
                #_(.enable))]
     (assoc obj
+           :rotation (vec4 0 0 1 0.001);; Rotation is a quaternion
            :mass mass
            :body body
            :shininess 0
            :geom geom)))
+
+(defn orient-object
+  "Orient an object by changing its rotation such that its vertex points towards a target vector."
+  [obj obj-vec target-vec]
+  (if (or (zero? (length obj-vec)) 
+                (zero? (length target-vec)))
+    obj
+    (let [dir (cross obj-vec target-vec)
+          dir (div dir (length dir))
+          vdot (dot obj-vec target-vec)
+          vdot (max (min (/ vdot (* (length obj-vec) (length target-vec))) 1) -1)
+          angle (degrees (Math/acos vdot))]
+      ;(println obj-vec target-vec vdot dir angle)
+      (assoc obj
+             :rotation
+             (if (zero? (length dir))
+               (vec4 (.x obj-vec) (.y obj-vec) (.z obj-vec) 0.001)
+               (vec4 (.x dir) (.y dir) (.z dir) angle))))))
 
 #_(defn inside-boundary?
   "Returns true if an object is out of the boundary of the simulation."

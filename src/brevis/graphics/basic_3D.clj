@@ -16,6 +16,8 @@
 Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.graphics.basic-3D
+  (:import [java.lang.Math]
+           [java.nio ByteBuffer ByteOrder])
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
         [cantor]
@@ -57,8 +59,7 @@ Copyright 2012, 2013 Kyle Harrington"
   "Actually draw a primitive shape."
   [obj]
   (let [pos (get-position obj)
-	        vel (get-velocity obj)
-	        col (:color obj)]
+        col (:color obj)]
      ;(with-pipeline shader-program [{:tint [1. 1. 0.]} (app/size)]
 		  (push-matrix
        (shade-model :smooth)
@@ -67,16 +68,14 @@ Copyright 2012, 2013 Kyle Harrington"
 		   (material :front;-and-back
                :ambient-and-diffuse (into [] (conj col 1)); [1 1 1 1]
                :specular [1 1 1 1]
-               :shininess (:shininess obj))
-		   (translate pos)
-		   (apply scale (:dim (:shape obj)))
-		   (rotate (.x vel) 1 0 0)
-		   (rotate (.y vel) 0 1 0)
-		   (rotate (.z vel) 0 0 1)       
+               :shininess (:shininess obj))       
+		   (translate pos)       		   
+       (apply scale (:dim (:shape obj)))
+       (rotate (.w (:rotation obj)) (.x (:rotation obj)) (.y (:rotation obj)) (.z (:rotation obj)))
 		   (cond
-        (= (:type (:shape obj)) :box) (draw-box)	      
+        (= (:type (:shape obj)) :box)  (draw-box)	      
         (= (:type (:shape obj)) :cone) (draw-cone)
-        :else (draw-sphere);(= (:type (:shape obj)) :sphere) 
+        :else                          (draw-sphere);(= (:type (:shape obj)) :sphere) 
        ))))
 
 (defn draw-shape

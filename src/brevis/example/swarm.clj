@@ -16,7 +16,6 @@
 Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.example.swarm
-  (:require [clojure.zip :as zip])
   (:use [brevis.graphics.basic-3D]
         [brevis.physics collision core space utils]
         [brevis.shape box sphere cone]
@@ -66,8 +65,8 @@ Copyright 2012, 2013 Kyle Harrington"
   [position]  
   (move (make-real {:type :bird
               :color [1 0 0]
-              :shape (create-sphere)})
-              ;:shape (create-cone)})
+              ;:shape (create-sphere)})
+              :shape (create-cone)})
         position))
   
 (defn random-bird
@@ -102,25 +101,14 @@ Copyright 2012, 2013 Kyle Harrington"
                                 (mul d-center @centering)
                                 (mul d-closest-bird @avoidance)
                                 (mul d-centroid @clustering)))]
-    #_(println (:uid bird) new-acceleration)
-    (assoc bird
+    (assoc (orient-object bird (vec3 0 0 1) (get-velocity bird))
            :acceleration new-acceleration)))
 
 (defn update-bird
   "Update a bird based upon its flocking behavior and the physical kinematics."
   [bird dt objects]  
   (let [objects (filter bird? objects)
-;        nbrs (sort-by-proximity (get-position bird) objects)
-        nbrs (compute-neighborhood bird objects)  ]      
-;        nbrs (map (fn [bird-uid]
-;                    (some #(= (:uid %) bird-uid) objects))
-;                  (:neighbors bird))]
-;        floor (some #(when (= (:type %) :floor) %) objects)]
-    #_(println nbrs)
-    #_(doseq [el (:vertices (:shape bird))]
-      (println el))
-    #_(println " ")
-    #_(println "update-bird: bird=" (:uid bird) " nbrs=" nbrs " " (count nbrs))
+        nbrs (compute-neighborhood bird objects)]      
     (update-object-kinematics 
       (fly bird dt nbrs) dt)))
 
@@ -169,4 +157,4 @@ so we only modify bird1."
 (defn -main [& args]
   (start-gui initialize-simulation))
 
-#_(-main)
+(-main)
