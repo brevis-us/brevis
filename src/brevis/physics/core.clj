@@ -52,3 +52,4 @@ Copyright 2012, 2013 Kyle Harrington"
 (def #^:dynamic *deleted-objects* (atom #{}))
 (def collisions-enabled (atom true))
 (def neighborhoods-enabled (atom true))
+(def #^:dynamic *brevis-parallel* (atom true))
