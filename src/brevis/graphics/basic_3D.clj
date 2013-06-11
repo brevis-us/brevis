@@ -17,7 +17,8 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.graphics.basic-3D
   (:import [java.lang.Math]
-           [java.nio ByteBuffer ByteOrder])
+           [java.nio ByteBuffer ByteOrder]
+           [brevis.graphics Basic3D])
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
         [cantor]
@@ -73,7 +74,8 @@ Copyright 2012, 2013 Kyle Harrington"
        (apply scale (:dim (:shape obj)))
        (rotate (.w (:rotation obj)) (.x (:rotation obj)) (.y (:rotation obj)) (.z (:rotation obj)))
 		   (cond
-        (= (:type (:shape obj)) :box)  (draw-box)	      
+        (= (:type (:shape obj)) :box)  (draw-box)
+        ;(= (:type (:shape obj)) :box)  (do (Basic3D/drawBox 1.0 1.0 1.0) (draw-box))	      	      
         (= (:type (:shape obj)) :cone) (draw-cone)
         :else                          (draw-sphere);(= (:type (:shape obj)) :sphere) 
        ))))

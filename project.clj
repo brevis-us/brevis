@@ -5,6 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 ;  :resource-paths ["resources"]
   :plugins [[lein-marginalia "0.7.1"]]
+  :java-source-paths ["java"]
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [org.clojure/math.numeric-tower "0.0.2"]
 ;                 [kephale/ode4j "0.12.0-j1.4"]
