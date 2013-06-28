@@ -87,7 +87,7 @@ Copyright 2012, 2013 Kyle Harrington"
   UIDs)
 
 ;; Leverage ODE to do the work
-(defn compute-neighborhood
+#_(defn compute-neighborhood
   "Return a list of neighbor UIDs within the neighborhood radius"
   [obj objects]
 ;  (let [nbr-UIDs (into #{} (.getNeighborUIDs (:space @*physics*) (vec3-to-odevec (get-position obj))))]
@@ -112,11 +112,209 @@ Copyright 2012, 2013 Kyle Harrington"
                    (for [uid-map (into [] @nbrs-atom)]
                      (some #(when (= (:uid (nth objects %)) (:uid uid-map)) (nth objects %)) (range (count objects)))))))); this could return a null if the UID isn't found
 
+(defn compute-neighborhood
+  "Return a list of neighbor UIDs within the neighborhood radius"
+  ;; This should probably use extrema of object shape instead of center point
+  [obj objects]
+  (let [nbr-radius @*neighborhood-radius*
+        my-position (get-position obj) 
+        ;upper-comp #(< %1 (+ %2 nbr-radius))
+        ;lower-comp #(> %1 (- %2 nbr-radius))
+        ul-comp #(and (< %1 (+ %3 nbr-radius))
+                      (> %2 (- %4 nbr-radius)))
+        nbrs (atom (into #{} (keys @*objects*)))
+        to-remove (atom #{})] 
+    #_(println "initial" (count @nbrs))
+        ;; Find all UIDs that cannot be neighbors along this dimension
+      (doseq [their-uid @nbrs]
+        (let [them (get @*objects* their-uid)]
+          (when-not (< (obj-distance obj them) nbr-radius)
+            (swap! to-remove conj their-uid))))
+      ;; Remove from possible neighbors
+      #_(println "Removing" (count @to-remove) "from" (count @nbrs))
+      (doseq [exo @to-remove]
+        (swap! nbrs disj exo))
+    #_(println "final" (count (filter identity (seq @nbrs))))
+    #_(when-not (zero? (count (filter identity (seq @nbrs))))
+      (println "final set" (seq @nbrs)))
+    (doall (map #(get @*objects* %) (filter identity (seq @nbrs))))))
+
+;; Per dimension
+#_(defn compute-neighborhood
+  "Return a list of neighbor UIDs within the neighborhood radius"
+  ;; This should probably use extrema of object shape instead of center point
+  [obj objects]
+  (let [nbr-radius @*neighborhood-radius*
+        my-position (get-position obj) 
+        nbrs (atom (into #{} (keys @*objects*)))] 
+    #_(println "initial" (count @nbrs))
+    (doseq [dim [:x :y :z]]
+      (let [my-val (cond                 
+                  (= dim :x) (.x my-position) 
+                  (= dim :y) (.y my-position)                  
+                  (= dim :z) (.z my-position))
+            to-remove (atom #{})]
+        ;; Find all UIDs that cannot be neighbors along this dimension
+        (doseq [their-uid @nbrs]
+          (let [them (get @*objects* their-uid)
+                their-position (get-position them)
+                their-val (cond                 
+                            (= dim :x) (.x their-position)
+                            (= dim :y) (.y their-position)
+                            (= dim :z) (.z their-position))]
+            (when-not (and (< their-val (+ my-val nbr-radius))
+                           (> their-val (- my-val nbr-radius)))
+              (swap! to-remove conj their-uid))))
+        ;; Remove from possible neighbors
+        #_(println "Removing" (count @to-remove) "from" (count @nbrs))
+        (doseq [exo @to-remove]
+          (swap! nbrs disj exo))))
+    #_(println "final" (count (filter identity (seq @nbrs))))
+    #_(when-not (zero? (count (filter identity (seq @nbrs))))
+      (println "final set" (seq @nbrs)))
+    (doall (map #(get @*objects* %) (filter identity (seq @nbrs))))))
+    
+;; Old compute-neighborhood
+#_(defn compute-neighborhood
+  "Return a list of neighbor UIDs within the neighborhood radius"
+  [obj objects]
+  (let [aabb (.getAABB (:geom obj))
+        center (.getCenter aabb)
+        maxlen (apply max (list (.len0 aabb) (.len1 aabb) (.len2 aabb)))
+        nbr-radius (+ maxlen @*neighborhood-radius*)
+        ;create a geometry for the neighborhoood
+        nbrhood (let [a (OdeHelper/createSphere (:space @*physics*) nbr-radius)] (.setPosition a center) a)                                            
+        nbrs-atom (atom #{})
+        nbr-callback (proxy [org.ode4j.ode.DGeom$DNearCallback] []
+                       (call [#^java.lang.Object data #^DGeom o1 #^DGeom o2]
+                         (let [b1 (.getBody o1)
+                               b2 (.getBody o2)]
+                           (when b1 (swap! nbrs-atom conj (.getData b1)))
+                           (when b2 (swap! nbrs-atom conj (.getData b2))))))
+        ]
+    ;use hashspace collide with a single geom on the neighborhood-geom
+    (OdeHelper/spaceCollide2 nbrhood (:space @*physics*) nil nbr-callback)
+    (.remove (:space @*physics*) nbrhood)
+    (doall (filter identity
+                   (for [uid-map (into [] @nbrs-atom)]
+                     (some #(when (= (:uid (nth objects %)) (:uid uid-map)) (nth objects %)) (range (count objects))))))))
+
 (defn insert-into [s x]
   (let [[low high] (split-with #(< % x) s)]
     (concat low [x] high)))
 
+#_(defn update-neighbors
+  "Update all neighborhoods"
+  [objs]  
+  (let [all-uids (doall (keys @*objects*))
+        ;; Initialize everyone in everyone else's neighborhood
+        nbrhoods (zipmap (range (count all-uids)) 
+                         (repeatedly (count all-uids) 
+                                     #(atom (into [] all-uids))))
+        positions (doall (map #(.getPosition (:body (get @*objects* %))) all-uids))] 
+    (doseq [me (range (count all-uids))]      
+      (doseq [other (range me (count all-uids))]
+        (let [d (obj-distance (get-object (nth all-uids me))
+                              (get-object (nth all-uids other)))]
+          (when (> d @*neighborhood-radius*)
+            (do (reset! (nbrhoods me) 
+                        (assoc @(nbrhoods me)
+                               other nil))
+                (reset! (nbrhoods other)
+                        (assoc @(nbrhoods other)
+                           me nil)))))))
+    (doall (for [k (range (count objs))]
+             (assoc (nth objs k)
+                    :neighbors (doall (filter identity @(nbrhoods k))))))))
+
+;; broken chunked
+#_(defn chunked-update-neighbors
+  "Update all neighborhoods"
+  [objs]  
+  (let [num-chunks 16
+        all-uids (doall (keys @*objects*))
+        ;; Initialize everyone in everyone else's neighborhood
+        nbrhoods (zipmap (range (count all-uids)) 
+                         (repeatedly (count all-uids) 
+                                     #(atom (into [] all-uids))))
+        positions (doall (map #(.getPosition (:body (get @*objects* %))) all-uids))]
+    (pmapall (fn [chunk]             
+               (doseq [me (range chunk (count all-uids) num-chunks)]      
+				        (doseq [other (range (count all-uids))]
+				          (let [d (obj-distance (get-object (nth all-uids me))
+				                                (get-object (nth all-uids other)))]
+				            (when (> d @*neighborhood-radius*)
+				              (do (reset! (nbrhoods me) 
+				                          (assoc @(nbrhoods me)
+				                                 other nil))
+				                (reset! (nbrhoods other)
+				                        (assoc @(nbrhoods other)
+				                               me nil))))))))
+             (range num-chunks))
+    (doall (for [k (range (count objs))]
+             (assoc (nth objs k)
+                    :neighbors (doall (filter identity @(nbrhoods k))))))))
+
+(defn chunked-update-neighbors
+  "Update all neighborhoods"
+  [objs]  
+  (let [num-chunks 16
+        all-uids (doall (keys @*objects*))
+        all-pairs (loop [pairs []
+                         rem (range (count all-uids))]
+                    (if (empty? rem) 
+                      pairs
+                      (recur (concat pairs
+                                     (map #(vector (first rem) %) (rest rem)))
+                             (rest rem))))
+        nbr-pairs (doall (filter identity (pmap (fn [[me other]]
+                             (let [d (obj-distance (get-object (nth all-uids me))
+                                                   (get-object (nth all-uids other)))]
+                               (when (< d @*neighborhood-radius*)
+                                 [me other])))
+                           all-pairs)))
+        nbrhoods (loop [nbrhoods (zipmap (range (count all-uids)) (repeat #{}))
+                        rem nbr-pairs]
+                   (if (empty? rem)
+                     nbrhoods
+                     (let [[me other] (first rem)]
+                       (recur (assoc nbrhoods
+                                     me (conj (nbrhoods me) (nth all-uids other))
+                                     other (conj (nbrhoods other) (nth all-uids me)))
+                              (rest rem)))))]
+    #_(println nbr-pairs nbrhoods)
+    (doall (for [k (range (count objs))]
+             (assoc (nth objs k)
+                    :neighbors (doall (filter identity (nbrhoods k))))))))
+
 (defn update-neighbors
+  "Update all neighborhoods"
+  [objs]  
+  (if @*brevis-parallel*
+    (chunked-update-neighbors objs)
+    (let [all-uids (doall (keys @*objects*))
+	        ;; Initialize everyone in everyone else's neighborhood
+	        nbrhoods (zipmap (range (count all-uids)) 
+	                         (repeatedly (count all-uids) 
+	                                     #(atom (into [] all-uids))))
+	        positions (doall (map #(.getPosition (:body (get @*objects* %))) all-uids))] 
+	    (doseq [me (range (count all-uids))]      
+	      (doseq [other (range me (count all-uids))]
+	        (let [d (obj-distance (get-object (nth all-uids me))
+	                              (get-object (nth all-uids other)))]
+	          (when (> d @*neighborhood-radius*)
+	            (do (reset! (nbrhoods me) 
+	                        (assoc @(nbrhoods me)
+	                               other nil))
+	                (reset! (nbrhoods other)
+	                        (assoc @(nbrhoods other)
+	                           me nil)))))))
+	    (doall (for [k (range (count objs))]
+	             (assoc (nth objs k)
+	                    :neighbors (doall (filter identity @(nbrhoods k)))))))))
+
+;; old update-neighbors
+#_(defn update-neighbors
   "Update all neighborhoods"
   [objs]  
   (let [candidates #{}

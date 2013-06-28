@@ -20,7 +20,7 @@ Copyright 2012, 2013 Kyle Harrington"
         [brevis.physics collision core space utils]
         [brevis.shape box sphere cone]
         [brevis.core]
-        [cantor]))  
+        [cantor]))
 
 ;; ## Swarm
 ;;
@@ -32,6 +32,12 @@ Copyright 2012, 2013 Kyle Harrington"
 ;;
 ;;   Reynolds, Craig W. "Flocks, herds and schools: A distributed behavioral model." ACM SIGGRAPH Computer Graphics. Vol. 21. No. 4. ACM, 1987.
 ;;
+;;
+;; Todo:
+;; - auto-centering of camera
+;; - Voronoi neighborhoods (or some other acceleration)
+;; - accurate landing algorithm
+;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
@@ -39,8 +45,8 @@ Copyright 2012, 2013 Kyle Harrington"
 (def num-birds 50)
 
 (def memory (atom 0.0))
-(def avoidance (atom 0.8))
-(def clustering (atom 0.05))
+(def avoidance (atom 3.8))
+(def clustering (atom 3.05))
 (def centering (atom 0.01))
 
 (def max-acceleration 10)
@@ -108,7 +114,8 @@ Copyright 2012, 2013 Kyle Harrington"
   "Update a bird based upon its flocking behavior and the physical kinematics."
   [bird dt objects]  
   (let [objects (filter bird? objects)
-        nbrs (compute-neighborhood bird objects)]      
+        ;nbrs (compute-neighborhood bird objects)]
+        nbrs (get-neighbor-objects bird)]
     (update-object-kinematics 
       (fly bird dt nbrs) dt)))
 
@@ -132,10 +139,9 @@ so we only modify bird1."
   [bird floor]
   (when (or (nil? bird) (nil? floor))
     (println "Bird" bird) (println "Floor" floor))
-  [(move (set-velocity (assoc bird
-                        :acceleration (vec3 0 0 0))
-                       (vec3 0 0 0))
-         (vec3 0 0 0))
+  [(set-velocity (assoc bird
+                        :acceleration (vec3 0 0.5 0))
+                       (vec3 0 0.5 0))         
    floor])
 
 (add-collision-handler :bird :bird bump)
@@ -149,12 +155,16 @@ so we only modify bird1."
   []  
   (init-world)
   (set-dt 0.1)
+  (set-neighborhood-radius 10)
   (add-object (make-floor 500 500))
   (dotimes [_ num-birds]
     (add-object (random-bird))))
 
 ;; Start zee macheen
 (defn -main [& args]
-  (start-gui initialize-simulation))
+  (if-not (empty? args)
+    (start-nogui initialize-simulation)
+    (start-gui initialize-simulation)))
 
-(-main)
+;(-main)
+(-main :nogui)

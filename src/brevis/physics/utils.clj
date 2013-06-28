@@ -127,3 +127,26 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn set-dt
   [new-dt]
   (reset! *dt* new-dt)) 
+
+(defn obj-distance
+  "Return the distance between two objects, this is preferable because faster lookups can be standardized."
+  [me other]
+  (.distance 
+    (.getPosition (:body me)) 
+    (.getPosition (:body other))))
+;  (length (sub (get-position me) (get-position other))))
+
+(defn get-object
+  "Return the object by UID"
+  [uid]
+  (get @*objects* uid))
+
+(defn get-neighbor-objects
+  "Return the objects of a neighborhood."
+  [obj]
+  (map #(get @*objects* %) (:neighbors obj)))
+
+(defn set-neighborhood-radius
+  "Set the neighborhood radius."
+  [new-radius]
+  (reset! *neighborhood-radius* new-radius))

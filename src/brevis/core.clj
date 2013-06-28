@@ -361,6 +361,36 @@ Copyright 2012, 2013 Kyle Harrington"
 	    }        
     @*gui-state*)))
 
+(defn simulation-loop
+  "A simulation loop with no graphics."
+  [state]
+  ((:init state))
+  (let [write-interval 10]
+    (loop [state (assoc state
+                        :simulation-time 0)
+           t 0
+           twrite 0
+           wallwrite (java.lang.System/nanoTime)]
+      (when (> t (+ twrite write-interval))
+        (let [fps (double (/ (- t twrite) (- (java.lang.System/nanoTime) wallwrite) 0.0000000001))]
+          (println "Walltime" (java.lang.System/nanoTime) 
+                   "Simulation time" t
+                   "FPS" fps)))
+      (if (:terminated? state)
+        state
+        (recur ((:update state) [t (get-dt)] state)
+               (+ t (get-dt))
+               (if (> t (+ twrite write-interval)) t twrite)
+               (if (> t (+ twrite write-interval)) (java.lang.System/nanoTime) wallwrite))))))
+
+(defn start-nogui 
+  "Start the simulation with a GUI."
+  ([initialize]
+    (start-nogui initialize update-world))
+  ([initialize update]
+    (reset-core)
+	  (simulation-loop
+	   {:init initialize, :update update})))      
 
 #_(defn start-nogui [iteration-step-size]
   (let [dt iteration-step-size
