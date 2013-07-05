@@ -141,6 +141,12 @@ Copyright 2012, 2013 Kyle Harrington"
   [uid]
   (get @*objects* uid))
 
+(defn set-object
+  "Set the object at UID to a new version."
+  [uid new-obj]
+  ; should check if new-obj has the right uid
+  (swap! *objects* assoc uid new-obj))
+
 (defn get-neighbor-objects
   "Return the objects of a neighborhood."
   [obj]

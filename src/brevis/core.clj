@@ -183,18 +183,71 @@ Copyright 2012, 2013 Kyle Harrington"
     (if (> (camera-score next-state) (camera-score state))
       next-state state)))                            
 
+(def #^:dynamic *gui-message-board* (atom (sorted-map))) 
+
+(defn osd
+  "Write an onscreen message. Generally should be of the form:
+(osd :msg-type msg-type :fn <my-function or string> :start-t 0 :stop-t -1)
+:x and :y could also be specified
+stop-t = -1 means do not automatically erase"
+  ;[msg-type func x y start-t stop-t]
+  [& args]
+  (let [msg (apply hash-map args)
+        uid (gensym)]  
+    (swap! *gui-message-board* assoc
+           uid msg)
+    uid))
+
+(defn remove-osd-by-uid
+  "Remove an OSD message based on UID."
+  [uid]
+  (swap! *gui-message-board*
+         dissoc uid))
+
+(defn default-display-text
+  "Setup the default display-text."
+  []
+  (osd :msg-type :penumbra :fn (fn [[dt t] state] (str (int (/ 1 dt)) " fps")) :start-t 0 :stop-t -1)
+  (osd :msg-type :penumbra :fn (fn [[dt t] state] (str (float (:simulation-time state)) " time")) :start-t 0 :stop-t -1)
+  (osd :msg-type :brevis :fn #(str (int (count @*objects*)) " objs") :start-t 0 :stop-t 5))
+
+(defn update-display-text
+  "Update the onscreen displayed (OSD) text."
+  [[dt t] state]
+  (loop [msgs @*gui-message-board*
+         console-x 5
+         console-y 5]
+    (when-not (empty? msgs)      
+      (let [[uid msg] (first msgs)
+            x (or (:x msg) console-x)
+            y (or (:y msg) console-y)
+            sim-t (get-time)
+            started? (> sim-t (:start-t msg))
+            stopped? (and (> (:stop-t msg) 0) (> sim-t (:stop-t msg)))]
+        (when started?
+          (let [text (cond
+                       (= (:msg-type msg) :penumbra) ((:fn msg) [dt t] state)
+                       (= (:msg-type msg) :penumbra-rotate) ((:fn msg) [dt t] state)
+                       (= (:msg-type msg) :penumbra-translate) ((:fn msg) [dt t] state)
+                       (= (:msg-type msg) :brevis) ((:fn msg))
+                       :else (str "OSD msg type:" (:msg-type msg) "not recognized"))]
+            (text/write-to-screen text x y)))
+        (when stopped?
+          (remove-osd-by-uid uid))
+        (recur (cond
+                 (= (:msg-type msg) :penumbra-rotate) 
+                 (filter #(not= (:msg-type (second %)) :penumbra-rotate) (rest msgs))
+                 (= (:msg-type msg) :penumbra-translate) 
+                 (filter #(not= (:msg-type (second %)) :penumbra-translate) (rest msgs))
+                 :else (rest msgs))
+               x (+ y 30))))))
+  
 (defn display
   "Display the world."
   [[dt t] state]
   (let [state (if (:auto-camera state) (auto-camera state) state)]      
     (when enable-display-text
-		  (text/write-to-screen (str (int (/ 1 dt)) " fps") 0 0)
-		  (text/write-to-screen (str (float (:simulation-time state)) " time") 0 30)
-		  (text/write-to-screen (str "Rotation: (" 
-		                             (:rot-x state) "," (:rot-y state) "," (:rot-z state) ")") 0 60)
-		  (text/write-to-screen (str "Translation: (" 
-		                             (int (:shift-x @*gui-state*)) "," (int (:shift-y @*gui-state*)) "," (int (:shift-z @*gui-state*)) ")") 0 90)
-	    (text/write-to-screen (str (int (count @*objects*)) " objs") 0 120))
+      (update-display-text [dt t] state))
 	  (rotate (:rot-x @*gui-state*) 1 0 0)
 	  (rotate (:rot-y @*gui-state*) 0 1 0)
 	  (rotate (:rot-z @*gui-state*) 0 0 1)
@@ -263,7 +316,8 @@ Copyright 2012, 2013 Kyle Harrington"
         cY (cos thetaY)
         thetaX (* (:rot-x state) rads)
         sX (sin thetaX)
-        cX (cos thetaX)]  
+        cX (cos thetaX)
+        t (get-time)]  
 	  (when @shift-key-down
 	    (cond 
 	      ; Rotate
@@ -283,7 +337,13 @@ Copyright 2012, 2013 Kyle Harrington"
 	             :shift-x (+ (:shift-x @*gui-state*) (* (/ dy 6) (* sY -1)))
 	             :shift-y (+ (:shift-y @*gui-state*) (* (/ dy 6) sX))
 	             :shift-z (+ (:shift-z @*gui-state*) (* (/ dy 6) cY))           
-	             ))))
+	             )))
+   (osd :msg-type :penumbra-rotate :fn (fn [[dt t] state] (str "Rotation: (" 
+                                                        (:rot-x state) "," (:rot-y state) "," (:rot-z state) ")")) 
+        :start-t t :stop-t (+ t 3))
+   (osd :msg-type :penumbra-translate :fn (fn [[dt t] state] (str "Translation: (" 
+                                                        (int (:shift-x @*gui-state*)) "," (int (:shift-y @*gui-state*)) "," (int (:shift-z @*gui-state*)) ")")) 
+        :start-t t :stop-t (+ t 3)))
   state)
 
 (defn mouse-wheel
@@ -333,6 +393,7 @@ Copyright 2012, 2013 Kyle Harrington"
   "Reset the core variables."
   []
   #_(reset! *collision-handlers* {})
+  (reset! *gui-message-board* (sorted-map))
   (reset! *collisions* {})
   #_(reset! *update-handlers* {})
   (reset! *physics* nil)

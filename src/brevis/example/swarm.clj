@@ -156,6 +156,7 @@ so we only modify bird1."
   (init-world)
   (set-dt 0.1)
   (set-neighborhood-radius 10)
+  (default-display-text)
   (add-object (make-floor 500 500))
   (dotimes [_ num-birds]
     (add-object (random-bird))))
@@ -166,5 +167,6 @@ so we only modify bird1."
     (start-nogui initialize-simulation)
     (start-gui initialize-simulation)))
 
-;(-main)
-(-main :nogui)
+(when (find-ns 'ccw.complete)
+  (-main))
+;(-main :nogui)
