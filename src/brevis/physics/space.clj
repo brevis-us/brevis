@@ -455,12 +455,19 @@ are removed from the simulation."
                                          @*collision-handlers*))]
                         (zipmap (map :uid new-objs) new-objs)));; hacky and bad    
     
-    ;; Update objects based upon their update method
+    ;; Add/delete objects before updating them
     (reset! *objects* (let [in-objs (vals (merge @*objects* @*added-objects*))]
+                        (reset! *added-objects* {})
+                        (let [objs (zipmap (map :uid in-objs) in-objs)]                              
+                          (apply (partial dissoc objs) @*deleted-objects*))))
+    
+    ;; Update objects based upon their update method
+    (reset! *objects* (let [in-objs (vals @*objects*)]
                         (reset! *added-objects* {})
                         (let [new-objs (update-objects in-objs (get-dt))
                               objs (zipmap (map :uid new-objs) new-objs)]
                           (apply (partial dissoc objs) @*deleted-objects*))))
+    
     (reset! *deleted-objects* #{})
     ;; Update objects for collisions
     (when @collisions-enabled

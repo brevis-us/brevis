@@ -119,9 +119,9 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn draw-sky
   "Draw a skybox"
   []
-  (let [w 1000
-        h 1000
-        d 1000
+  (let [w 2000
+        h 2000
+        d 2000
         pos (vec3 0 0 0) ;(vec3 (- (/ w 2)) (- (/ h 2)) (- (/ d 2)))
         ]
     (when *sky*
@@ -242,20 +242,17 @@ stop-t = -1 means do not automatically erase"
                  :else (rest msgs))
                x (+ y 30))))))
   
-(defn display
-  "Display the world."
-  [[dt t] state]
-  (let [state (if (:auto-camera state) (auto-camera state) state)]      
-    (when enable-display-text
-      (update-display-text [dt t] state))
-	  (rotate (:rot-x @*gui-state*) 1 0 0)
-	  (rotate (:rot-y @*gui-state*) 0 1 0)
-	  (rotate (:rot-z @*gui-state*) 0 0 1)
-	  (translate (:shift-x @*gui-state*) (:shift-y @*gui-state*) (:shift-z @*gui-state*))
-	  (draw-sky)
-	  (doseq [obj (vals @*objects*)]
-	    (draw-shape obj))
-	  (app/repaint!)))
+(defn enable-video-recording
+  "Turn on video recording."
+  [video-name]
+  (swap! *gui-state* 
+         assoc :record-video true
+               :video-name video-name))
+
+(defn disable-video-recording
+  "Turn off video recording."
+  []
+  (swap! *gui-state* dissoc :record-video))
 
 (defn screenshot
   "Take a screenshot."
@@ -279,6 +276,24 @@ stop-t = -1 means do not automatically erase"
              file (File. filename)]
          ;; probably should use try-catch
          (ImageIO/write imageOut img-type file))))))
+
+(defn display
+  "Display the world."
+  [[dt t] state]
+  (let [state (if (:auto-camera state) (auto-camera state) state)]      
+    (when enable-display-text
+      (update-display-text [dt t] state))
+	  (rotate (:rot-x @*gui-state*) 1 0 0)
+	  (rotate (:rot-y @*gui-state*) 0 1 0)
+	  (rotate (:rot-z @*gui-state*) 0 0 1)
+	  (translate (:shift-x @*gui-state*) (:shift-y @*gui-state*) (:shift-z @*gui-state*))
+	  (draw-sky)
+	  (doseq [obj (vals @*objects*)]
+	    (draw-shape obj))
+	  (app/repaint!)
+   (when (:record-video @*gui-state*)
+     (screenshot (str (:video-name @*gui-state*) "_" (get-time) ".png") state))
+   ))
 
 (defn key-press
   "Update the state in response to a keypress."
