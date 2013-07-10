@@ -37,12 +37,12 @@ Developed for use with the Clojure Eclipse plugin, CounterClockwise (this must b
 
 Keyboard keys:
 
-esc - kill the simulation
-<hold> z \& <hold> left button - rotate camera
-<hold> z \& <hold> right button - translate camera
-mouse wheel forward/backward - zoom camera 
-p - pause
-o - screenshot
+esc - kill the simulation  
+<hold> z \& <hold> left button - rotate camera  
+<hold> z \& <hold> right button - translate camera  
+mouse wheel forward/backward - zoom camera   
+p - pause  
+o - screenshot  
 
 ## License
 
