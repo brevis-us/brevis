@@ -155,7 +155,7 @@ so we only modify bird1."
   []  
   (init-world)
   (set-dt 0.1)
-  (set-neighborhood-radius 10)
+  (set-neighborhood-radius 25)
   (default-display-text)
   #_(enable-video-recording "swarm_demo")
   (add-object (make-floor 500 500))

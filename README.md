@@ -11,44 +11,38 @@ Chat: #brevis@irc.freenode.net
 by Kyle Harrington (kyleh@cs.brandeis.edu), 2011-2013.
    http://kyleharrington.com
 
-## Prerequisites:
+## Getting started:
 
-The prerequisites are an IDE, the Clojure libraries and development environment, the git version control system, and the brevis source code.
+brevis is designed to be compatible with Eclipse and a couple of Eclipse addons. These instructions should work with Eclipse versions on all major OS platforms.
 
-Software you will need (all work for Linux, OS X, and Windows):
+1. Install Eclipse - The development environment - http://www.eclipse.org/ 
 
-Eclipse - http://www.eclipse.org/ (I generally download Eclipse Classic)
+2. Install the EGit addon for Eclipse - Version control -  http://www.eclipse.org/egit/
 
-Counterclockwise Eclipse plugin - http://code.google.com/p/counterclockwise/wiki/Documentation#Install_Counterclockwise_plugin
-[In Eclipse: Help menu->Install new software->Update site : http://ccw.cgrand.net/updatesite/]
+3. Install the CounterClockwise - Clojure support in Eclipse - http://code.google.com/p/counterclockwise/
 
-Git version control can be performed within Eclipse (http://eclipse.github.com/); however, I use stand-alone git programs (see the "Applications" section at the bottom of https://github.com/).
+4. Download brevis. Within Eclipse, Import Project->Team->Git URI, choose an address listed on https://github.com/kephale/brevis
+
+5. One-time project configuration. Within Eclipse, right click on brevis (the project you just imported), choose Leiningen->Reset Project Configuration
 
 ## Usage
 
 Developed for use with the Clojure Eclipse plugin, CounterClockwise (this must be installed).
 
-0. Obtain brevis from http://github.com/kephale/brevis
+1. Open brevis.example.swarm
 
-1. Create a default project in Eclipse. 
+2. Menu: Clojure -> Load file in REPL
 
-Uncheck the default location and point it to the location to which brevis was obtained.
-
-2. Right click on the new project Leiningen->Reset Project Configuration
-
-3. Open brevis.example.swarm
-
-4. Menu: Clojure -> Load file in REPL
+## Controlling the simulation
 
 Keyboard keys:
 
 esc - kill the simulation
-
-...
-
-5. Try doing things in your repl like: (reset! avoidance 0.2)
-
-6. Enjoy. There is more to come...
+<hold> z \& <hold> left button - rotate camera
+<hold> z \& <hold> right button - translate camera
+mouse wheel forward/backward - zoom camera 
+p - pause
+o - screenshot
 
 ## License
 

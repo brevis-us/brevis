@@ -245,6 +245,7 @@ stop-t = -1 means do not automatically erase"
 (defn enable-video-recording
   "Turn on video recording."
   [video-name]
+  (def video-counter (atom 0))
   (swap! *gui-state* 
          assoc :record-video true
                :video-name video-name))
@@ -292,7 +293,9 @@ stop-t = -1 means do not automatically erase"
 	    (draw-shape obj))
 	  (app/repaint!)
    (when (:record-video @*gui-state*)
-     (screenshot (str (:video-name @*gui-state*) "_" (get-time) ".png") state))
+     (screenshot (str (:video-name @*gui-state*) "_" @video-counter ".png") state)
+     (swap! video-counter inc))   
+     ;(screenshot (str (:video-name @*gui-state*) "_" (get-time) ".png") state))
    ))
 
 (defn key-press
