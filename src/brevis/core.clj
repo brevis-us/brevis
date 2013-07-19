@@ -44,6 +44,10 @@ Copyright 2012, 2013 Kyle Harrington"
                                    :shift-x 0 :shift-y -20 :shift-z -50;-30                                   
                                    :last-report-time 0 :simulation-time 0}))
 
+;; ## Todo:
+;;
+;; - Picking algorithm for choosing 3D objects with mouse
+
 ;; ## Window and Graphical Environment
 
 (defn init

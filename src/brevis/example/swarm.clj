@@ -34,9 +34,8 @@ Copyright 2012, 2013 Kyle Harrington"
 ;;
 ;;
 ;; Todo:
-;; - auto-centering of camera
+;; - auto-centering of camera (and skybox?)
 ;; - Voronoi neighborhoods (or some other acceleration)
-;; - accurate landing algorithm
 ;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

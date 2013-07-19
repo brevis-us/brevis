@@ -74,10 +74,12 @@ Copyright 2012, 2013 Kyle Harrington"
        (apply scale (:dim (:shape obj)))
        (rotate (.w (:rotation obj)) (.x (:rotation obj)) (.y (:rotation obj)) (.z (:rotation obj)))
 		   (cond
-        (= (:type (:shape obj)) :box)  (draw-box)
-        ;(= (:type (:shape obj)) :box)  (do (Basic3D/drawBox 1.0 1.0 1.0) (draw-box))	      	      
-        (= (:type (:shape obj)) :cone) (draw-cone)
-        :else                          (draw-sphere);(= (:type (:shape obj)) :sphere) 
+        ;#_(= (:type (:shape obj)) :box)  (draw-box)
+        (= (:type (:shape obj)) :box)  (Basic3D/drawBox 1.0 1.0 1.0)
+        ;#_(= (:type (:shape obj)) :cone) (draw-cone)
+        (= (:type (:shape obj)) :cone)  (Basic3D/drawCone 0.8 0.01 1.2 25 25)
+        ;:else                          (draw-sphere);(= (:type (:shape obj)) :sphere) 
+        :else                          (Basic3D/drawSphere 2.0 20 20)
        ))))
 
 (defn draw-shape

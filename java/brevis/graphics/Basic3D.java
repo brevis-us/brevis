@@ -1,5 +1,7 @@
 package brevis.graphics;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.glu.Cylinder;
+import org.lwjgl.util.glu.Sphere;
 
 
 public class Basic3D {
@@ -47,5 +49,21 @@ public class Basic3D {
 		
 
 		//System.out.println( "I wish I was printing a box of " + w + "," + h + "," + d + " dimensions ");
+	}
+	
+	static public void drawSphere(float r, int stack, int string) {
+
+		Sphere s = new Sphere();
+	
+		s.draw(r, stack, string);
+
+	}
+
+	static public void drawCone(float baseRadius, float topRadius, float height, int slices, int stacks) {
+
+		Cylinder c = new Cylinder();
+	
+		c.draw(baseRadius, topRadius, height, slices, stacks);
+
 	}
 }
