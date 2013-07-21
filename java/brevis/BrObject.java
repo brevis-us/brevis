@@ -15,9 +15,38 @@ public class BrObject {
 	
 	public Vector<Long> nbrs;
 	
+	BrObject() {
+		uid = (long)-1;
+		type = "Unassigned";
+		acceleration = new Vector3d( 0, 0, 0 );
+		velocity = new Vector3d( 0, 0, 0 );
+		position = new Vector3d( 0, 0, 0 );
+		shape = new BrShape();
+	}
+	
 	public double distanceTo( BrObject other ) {
 		Vector3d delta = (Vector3d) position.clone();
 		delta.sub( other.position );
 		return delta.length();
+	}
+	
+	public void setUID( Long UID ) {
+		uid = UID;
+	}
+	
+	public void setType( String newType ) {
+		type = newType;
+	}
+	
+	public Vector<Long> getNeighbors() {
+		return nbrs;
+	}
+	
+	public void clearNeighbors() {
+		nbrs.clear();
+	}
+	
+	public void addNeighbor( Long UID ) {
+		nbrs.add( UID );
 	}
 }

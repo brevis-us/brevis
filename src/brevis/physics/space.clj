@@ -31,7 +31,8 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn make-real
   "Add Real attributes to an object map."
   [obj]
-  (let [uid (gensym)
+  (let [;uid (gensym)
+        uid (long (hash (gensym)))
         obj (assoc obj        
 			         :uid uid
 			         :real true

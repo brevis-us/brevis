@@ -15,7 +15,8 @@
                                                                                                                                                                                      
 Copyright 2012, 2013 Kyle Harrington"
 
-(ns brevis.physics.core)
+(ns brevis.physics.core
+  (:import (brevis Engine)))
 
 ;; ## Globals
 
@@ -54,4 +55,6 @@ Copyright 2012, 2013 Kyle Harrington"
 (def neighborhoods-enabled (atom true))
 (def #^:dynamic *brevis-parallel* (atom true))
 
-(def #^:dynamic *java-engine* (atom nil))
+#_(def #^:dynamic *java-engine* (atom nil))
+
+(def #^:dynamic *java-engine* (atom (Engine.)))

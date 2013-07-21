@@ -67,9 +67,10 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn map-to-brobject
   "Convert a hash map to a BrObject."
   [obj]
-  (let [brobj (doto (BrObject.)
-                (.setUID (:uid obj))
-                (.setType (name (:type obj))))];; NOT COMPLETE
+  (let [brobj (BrObject.)
+        brobj (doto (new BrObject)
+                (.setUID (long (:uid obj)))
+                (.setType (str (name (:type obj)))))];; NOT COMPLETE
     brobj))
 
 (defn add-object
@@ -193,5 +194,5 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn set-neighborhood-radius
   "Set the neighborhood radius."
   [new-radius]
-  (.setNeighborhoodRadius @*java-engine* new-radius)
+  (.setNeighborhoodRadius @*java-engine* (double new-radius))
   #_(reset! *neighborhood-radius* new-radius))

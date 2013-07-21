@@ -7,6 +7,10 @@ public class BrShape {
 	
 	public BrShapeType type;
 	
+	BrShape() {
+		type = BrShapeType.SPHERE;
+	}
+	
 	public void draw() {
 		
 	}

@@ -239,7 +239,7 @@ public class Engine {
 		return objects.get( UID );
 	}
 	
-	public void setNeighorhoodRadius( double r ) {
+	public void setNeighborhoodRadius( Double r ) {
 		neighborhoodRadius = r;
 	}
 }
