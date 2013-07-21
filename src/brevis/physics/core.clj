@@ -53,3 +53,5 @@ Copyright 2012, 2013 Kyle Harrington"
 (def collisions-enabled (atom true))
 (def neighborhoods-enabled (atom true))
 (def #^:dynamic *brevis-parallel* (atom true))
+
+(def #^:dynamic *java-engine* (atom nil))

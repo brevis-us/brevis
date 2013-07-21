@@ -430,7 +430,8 @@ stop-t = -1 means do not automatically erase"
 (defn start-gui 
   "Start the simulation with a GUI."
   ([initialize]
-    (start-gui initialize update-world))
+    (start-gui initialize java-update-world))    
+;    (start-gui initialize update-world))
   ([initialize update]
     (reset-core)
 	  (app/start

@@ -19,6 +19,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (ns brevis.physics.space
   (:gen-class)
   (:import (org.ode4j.ode OdeHelper DSapSpace OdeConstants DContactBuffer DGeom DFixedJoint DContactJoint))  (:import (org.ode4j.math DVector3))  (:import java.lang.Math)  
+  (:import (brevis Engine BrPhysics BrObject))
   (:use [cantor]
         [penumbra.opengl]
         [brevis.shape core box]
@@ -433,6 +434,18 @@ are removed from the simulation."
         multiples (apply concat (filter seq? updated-objects))];; These are parents and children
     (into [] (keep identity (concat singles multiples)))))
 
+(defn java-update-world
+  "Update the world (Java engine)."
+  [[dt t] state]
+  (when (and state
+             (not (:terminated? state)))
+    (when-not @*java-engine*
+      (reset! *java-engine*
+              (Engine.)))
+    (when @*java-engine*
+      (.updateWorld @*java-engine* (double dt)))
+    state))
+
 (defn update-world
   "Update the world."
   [[dt t] state]
@@ -467,8 +480,8 @@ are removed from the simulation."
                         (let [new-objs (update-objects in-objs (get-dt))
                               objs (zipmap (map :uid new-objs) new-objs)]
                           (apply (partial dissoc objs) @*deleted-objects*))))
-    
     (reset! *deleted-objects* #{})
+    
     ;; Update objects for collisions
     (when @collisions-enabled
 	    (reset! *objects* (let [in-objs (vals (merge @*objects* @*added-objects*))]
@@ -477,6 +490,7 @@ are removed from the simulation."
                                 objs (zipmap (map :uid new-objs) new-objs)]	                          
                            (apply (partial dissoc objs) @*deleted-objects*)))))
     (reset! *deleted-objects* #{})
+    
     ;; Finally update neighborhoods
     (when @neighborhoods-enabled	    
 	    (reset! *objects* (let [in-objs (vals (merge @*objects* @*added-objects*))]

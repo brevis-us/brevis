@@ -19,6 +19,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (:import (org.ode4j.ode OdeHelper DSapSpace OdeConstants DContactBuffer DGeom DFixedJoint DContactJoint))
   (:import (org.ode4j.math DVector3))
   (:import java.lang.Math)  
+  (:import (brevis Engine BrPhysics BrObject))
   (:use [cantor]
         [penumbra.opengl]
         [brevis.shape core box]
@@ -38,25 +39,53 @@ Copyright 2012, 2013 Kyle Harrington"
       (apply await agents)
       (doall (map deref agents)))))
 
-(defn get-world
+#_(defn get-world
   "Return the current world"
   []
   (:world @*physics*))
 
-(defn get-time
+(defn get-world
+  "Return the current world"
+  []
+  (.getWorld @*java-engine*))
+
+#_(defn get-time
   "Return the current time."
   []
   (:time @*physics*))
 
-(defn add-object
+(defn get-time
+  "Return the current time."
+  []
+  (.getTime @*java-engine*))
+
+#_(defn add-object
   "Add an object to the current world."
   [obj]
   (swap! *added-objects* assoc (:uid obj) obj))
 
+(defn map-to-brobject
+  "Convert a hash map to a BrObject."
+  [obj]
+  (let [brobj (doto (BrObject.)
+                (.setUID (:uid obj))
+                (.setType (name (:type obj))))];; NOT COMPLETE
+    brobj))
+
+(defn add-object
+  "Add an object to the current world."
+  [obj]
+  (.addObject @*java-engine* (:uid obj) (map-to-brobject obj)))
+
+#_(defn del-object
+  "Delete an object to the current world."
+  [obj]
+  (swap! *deleted-objects* conj (:uid obj)))
+
 (defn del-object
   "Add an object to the current world."
   [obj]
-  (swap! *deleted-objects* conj (:uid obj)))
+  (.deleteObject @*java-engine* (:uid obj)))
 
 #_(defn add-object*
   "(Internal version, use add-object) Add an object to the current world."
@@ -66,7 +95,11 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn add-update-handler
   "Associate an update function with a type."
   [type handler-fn]
-  (swap! *update-handlers* assoc type handler-fn))
+  (let [uh (proxy [brevis.Engine$UpdateHandler] []
+				    (update [#^brevis.Engine engine #^Long uid #^Double dt]
+              (let [obj (.getObject engine uid)]
+                (handler-fn obj dt (.getNeighbors obj)))))]
+    (.addUpdateHandler @*java-engine* (str (name type)) uh)))
             
 (defn odevec-to-vec3
   "Convert an ODE vector into a Cantor vector."
@@ -136,10 +169,15 @@ Copyright 2012, 2013 Kyle Harrington"
     (.getPosition (:body other))))
 ;  (length (sub (get-position me) (get-position other))))
 
-(defn get-object
+#_(defn get-object
   "Return the object by UID"
   [uid]
   (get @*objects* uid))
+
+(defn get-object
+  "Return the object by UID"
+  [uid]
+  (.getObject @*java-engine*))
 
 (defn set-object
   "Set the object at UID to a new version."
@@ -155,4 +193,5 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn set-neighborhood-radius
   "Set the neighborhood radius."
   [new-radius]
-  (reset! *neighborhood-radius* new-radius))
+  (.setNeighborhoodRadius @*java-engine* new-radius)
+  #_(reset! *neighborhood-radius* new-radius))
