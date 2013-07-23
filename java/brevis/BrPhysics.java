@@ -30,4 +30,8 @@ public class BrPhysics {
 	public double getTime() {
 		return time;
 	}
+	
+	public DSpace getSpace() {
+		return space;
+	}
 }

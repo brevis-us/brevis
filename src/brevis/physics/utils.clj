@@ -64,19 +64,18 @@ Copyright 2012, 2013 Kyle Harrington"
   [obj]
   (swap! *added-objects* assoc (:uid obj) obj))
 
-(defn map-to-brobject
+#_(defn map-to-brobject
   "Convert a hash map to a BrObject."
   [obj]
-  (let [brobj (BrObject.)
-        brobj (doto (new BrObject)
-                (.setUID (long (:uid obj)))
-                (.setType (str (name (:type obj)))))];; NOT COMPLETE
+  (let [brobj (BrObject.)]    
+    (.setUID brobj (long (:uid obj)))
+    (.setType brobj (str (name (:type obj))));; NOT COMPLETE
     brobj))
 
 (defn add-object
   "Add an object to the current world."
   [obj]
-  (.addObject @*java-engine* (:uid obj) (map-to-brobject obj)))
+  (.addObject @*java-engine* (:uid obj) obj))
 
 #_(defn del-object
   "Delete an object to the current world."
@@ -152,7 +151,13 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn set-acceleration
   "Set the acceleration of an object."
   [obj v]
-  (.setAcceleration obj v))
+  (.setAcceleration obj v)
+  obj)
+
+(defn get-body
+  "Return the physics body of an object."
+  [obj]
+  (.getBody obj))
 
 (defn obj-to-mass
   "Create an ODE mass for an object"

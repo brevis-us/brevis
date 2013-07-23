@@ -88,8 +88,12 @@ public class Engine {
 
 		@Override
 		public void call(Object data, DGeom o1, DGeom o2) {
-			SimpleEntry<Long,Long> p1 = new SimpleEntry<Long,Long>((Long)o1.getBody().getData(), (Long)o2.getBody().getData());
-			SimpleEntry<Long,Long> p2 = new SimpleEntry<Long,Long>((Long)o2.getBody().getData(), (Long)o1.getBody().getData());
+			HashMap<String,Object> o1map = (HashMap<String,Object>)o1.getBody().getData();
+			HashMap<String,Object> o2map = (HashMap<String,Object>)o2.getBody().getData();
+			Long uid1 = (Long)o1map.get("uid");
+			Long uid2 = (Long)o2map.get("uid");
+			SimpleEntry<Long,Long> p1 = new SimpleEntry<Long,Long>( uid1, uid2 );
+			SimpleEntry<Long,Long> p2 = new SimpleEntry<Long,Long>( uid2, uid1 );
 			Engine.globalCollisions.add( p1 );
 			Engine.globalCollisions.add( p2 );
 			

@@ -28,7 +28,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 ;; ## Real/Physical/Spatial
 
-(defn make-real
+#_(defn make-real
   "Add Real attributes to an object map."
   [obj]
   (let [;uid (gensym)
@@ -43,7 +43,9 @@ Copyright 2012, 2013 Kyle Harrington"
         mass (obj-to-mass obj)
         body (doto (OdeHelper/createBody (get-world))
                (.setMass mass)
-               (.setData {:uid uid :type (:type obj)})                (.setPosition (.x pos) (.y pos) (.z pos)))                       geom (doto (obj-to-geom obj)
+               (.setData {:uid uid :type (:type obj)}) 
+               (.setPosition (.x pos) (.y pos) (.z pos)))               
+        geom (doto (obj-to-geom obj)
                (.setBody body)
                (.setOffsetWorldPosition (.x pos) (.y pos) (.z pos))
                #_(.enable))]
@@ -53,6 +55,23 @@ Copyright 2012, 2013 Kyle Harrington"
            :body body
            :shininess 0
            :geom geom)))
+
+(defn make-real
+  "Add Real attributes to an object map."
+  [obj]
+  (let [uid (long (hash (gensym)))        
+        obj (assoc obj        
+			         :uid uid
+			         :real true
+			         :acceleration (or (:acceleration obj) (vec3 0 0 0))
+               :density (or (:density obj) 1)
+			         :shape (or (:shape obj) (create-box)))
+        pos (or (:position obj) (vec3 0 0 0))
+        brobj (BrObject.)]
+    (.makeReal brobj @*java-engine*)
+    (.setUID brobj uid)
+    (.setType brobj (str (name (:type obj))))
+    brobj))
 
 (defn orient-object
   "Orient an object by changing its rotation such that its vertex points towards a target vector."
@@ -361,7 +380,7 @@ Copyright 2012, 2013 Kyle Harrington"
                (assoc (nth objs k)
                       :neighbors (nbrhoods k)))))))
   
-(defn move
+#_(defn move
   "Move an object to the specified position."
   [obj v]
   (when-not (:body obj)
@@ -370,15 +389,21 @@ Copyright 2012, 2013 Kyle Harrington"
     (.x v) (.y v) (.z v))
   obj)
 
+(defn move
+  "Move an object to the specified position."
+  [obj v]
+  (.setPosition obj v)
+  obj)
+
 (defn update-object-kinematics
   "Update the kinematics of an object by applying acceleration and velocity for an infinitesimal amount of time."
   [obj dt]
   (let [newvel (add (get-velocity obj)
-                    (mul (:acceleration obj) dt))
+                    (mul (get-acceleration obj) dt))
         m 0.05
-        f (mul (:acceleration obj)
+        f (mul (get-acceleration obj)
                m)]; f = ma    
-    (.addForce (:body obj) (.x f) (.y f) (.z f))
+    (.addForce (get-body obj) (.x f) (.y f) (.z f))
     #_(.setLinearVel (:body obj) (.x newvel) (.y newvel) (.z newvel)); avoids conversion that set-velocity would do
     obj))
 
