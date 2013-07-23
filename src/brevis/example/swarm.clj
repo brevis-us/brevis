@@ -17,10 +17,9 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.example.swarm
   (:use [brevis.graphics.basic-3D]
-        [brevis.physics collision core space utils]
+        [brevis.physics collision core space utils vector]
         [brevis.shape box sphere cone]
-        [brevis.core]
-        [cantor]))
+        [brevis.core]))
 
 ;; ## Swarm
 ;;
@@ -91,6 +90,7 @@ Copyright 2012, 2013 Kyle Harrington"
   "Change the acceleration of a bird."
   [bird dt nbrs]
   #_(println "fly: bird=" (:uid bird) " nbrs=" nbrs " " (count nbrs))
+  (println "fly:" (get-position bird))
   (let [closest-bird (if (zero? (count nbrs))
                        bird
                        (first nbrs))
@@ -101,13 +101,22 @@ Copyright 2012, 2013 Kyle Harrington"
         d-closest-bird (sub (get-position closest-bird) (get-position bird))
         d-centroid (sub centroid (get-position bird))
         d-center (sub (vec3 0 10 0) (get-position bird))
+        tmp (println (mul (get-acceleration bird) @memory)
+                     (mul d-center @centering)
+                     (mul d-closest-bird @avoidance)
+                     (mul d-centroid @clustering))
+        tmp (println (add (mul (get-acceleration bird) @memory)
+                                (mul d-center @centering)))
+;                                (mul d-closest-bird @avoidance)
+;                                (mul d-centroid @clustering)))
         new-acceleration (bound-acceleration
-                           (add (mul (:acceleration bird) @memory)
+                           (add (mul (get-acceleration bird) @memory)
                                 (mul d-center @centering)
                                 (mul d-closest-bird @avoidance)
                                 (mul d-centroid @clustering)))]
-    (assoc (orient-object bird (vec3 0 0 1) (get-velocity bird))
-           :acceleration new-acceleration)))
+    (set-acceleration
+      (orient-object bird (vec3 0 0 1) (get-velocity bird))
+      new-acceleration)))
 
 (defn update-bird
   "Update a bird based upon its flocking behavior and the physical kinematics."

@@ -20,10 +20,10 @@ Copyright 2012, 2013 Kyle Harrington"
   (:import (org.ode4j.math DVector3))
   (:import java.lang.Math)  
   (:import (brevis Engine BrPhysics BrObject))
-  (:use [cantor]
+  (:use ;[cantor]
         [penumbra.opengl]
         [brevis.shape core box]
-        [brevis.physics core])
+        [brevis.physics core vector])
   (:require [cantor.range]))  
 
 ;; from lspector's taggp (avail on github)
@@ -112,21 +112,47 @@ Copyright 2012, 2013 Kyle Harrington"
   [v3]
   (DVector3. (.x v3) (.y v3) (.z v3)))
 
-(defn set-velocity
+#_(defn set-velocity
   "Set the velocity of an object"
   [obj v]
   (.setLinearVel (:body obj) (vec3-to-odevec v))
   obj)
 
-(defn get-position
+(defn set-velocity
+  "Set the velocity of an object"
+  [obj v]
+  (.setVelocity obj v)
+  obj)
+
+#_(defn get-position
   "Return the position of an object"
   [obj]
   (odevec-to-vec3 (.getPosition (:body obj))))
 
-(defn get-velocity
+(defn get-position
+  "Return the position of an object"
+  [obj]
+  (.getPosition obj))
+
+#_(defn get-velocity
   "Return the velocity of an object"
   [obj]
   (odevec-to-vec3 (.getLinearVel (:body obj))))
+
+(defn get-velocity
+  "Return the velocity of an object"
+  [obj]
+  (.getVelocity obj))
+
+(defn get-acceleration
+  "Return the acceleration of an object."
+  [obj]
+  (.getAcceleration obj))
+
+(defn set-acceleration
+  "Set the acceleration of an object."
+  [obj v]
+  (.setAcceleration obj v))
 
 (defn obj-to-mass
   "Create an ODE mass for an object"
@@ -196,3 +222,14 @@ Copyright 2012, 2013 Kyle Harrington"
   [new-radius]
   (.setNeighborhoodRadius @*java-engine* (double new-radius))
   #_(reset! *neighborhood-radius* new-radius))
+
+;; the following 2 functions from ztellman's cantor (see github)
+(defn radians
+  "Transforms degrees to radians."
+  [x]
+  (* (/ Math/PI 180.0) (double x)))
+
+(defn degrees
+  "Transforms radians to degrees."
+  [x]
+  (* (/ 180.0 Math/PI) (double x)))

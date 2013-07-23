@@ -20,10 +20,10 @@ Copyright 2012, 2013 Kyle Harrington"
   (:gen-class)
   (:import (org.ode4j.ode OdeHelper DSapSpace OdeConstants DContactBuffer DGeom DFixedJoint DContactJoint))  (:import (org.ode4j.math DVector3))  (:import java.lang.Math)  
   (:import (brevis Engine BrPhysics BrObject))
-  (:use [cantor]
+  (:use 
         [penumbra.opengl]
         [brevis.shape core box]
-        [brevis.physics core collision utils])
+        [brevis.physics core collision utils vector])
   (:require [cantor.range]))
 
 ;; ## Real/Physical/Spatial

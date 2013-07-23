@@ -15,7 +15,7 @@ public class BrObject {
 	
 	public Vector<Long> nbrs;
 	
-	BrObject() {
+	public BrObject() {
 		uid = (long)-1;
 		type = "Unassigned";
 		acceleration = new Vector3d( 0, 0, 0 );
@@ -48,5 +48,25 @@ public class BrObject {
 	
 	public void addNeighbor( Long UID ) {
 		nbrs.add( UID );
+	}
+	
+	public Vector3d getPosition() {
+		return position;
+	}
+	
+	public Vector3d getVelocity() {
+		return velocity;
+	}
+	
+	public Vector3d getAcceleration() {
+		return acceleration;
+	}
+	
+	public void setAcceleration( Vector3d v ) {
+		acceleration = v;
+	}
+	
+	public void setVelocity( Vector3d v ) {
+		velocity = v;
 	}
 }

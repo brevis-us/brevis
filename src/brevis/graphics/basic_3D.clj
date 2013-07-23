@@ -21,13 +21,13 @@ Copyright 2012, 2013 Kyle Harrington"
            [brevis.graphics Basic3D])
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
-        [cantor]
+        ;[cantor]
         [brevis.physics utils]
         [brevis.shape core box sphere cone])
   (:require [penumbra.app :as app]
             [penumbra.text :as text]
             [penumbra.data :as data]
-            [cantor.range]
+            ;[cantor.range]
             [penumbra.opengl.frame-buffer :as fb]))  
 
 (defn init-sky

@@ -18,9 +18,9 @@ Copyright 2012, 2013 Kyle Harrington"
 (ns brevis.core
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
-        [cantor]
+        ;[cantor]
         [brevis.graphics.basic-3D]
-        [brevis.physics core space utils]
+        [brevis.physics core space utils vector]
         [brevis.shape core box sphere cone])       
   (:require [penumbra.app :as app]            
             [clojure.math.numeric-tower :as math]
