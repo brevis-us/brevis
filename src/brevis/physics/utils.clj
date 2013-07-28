@@ -72,10 +72,15 @@ Copyright 2012, 2013 Kyle Harrington"
     (.setType brobj (str (name (:type obj))));; NOT COMPLETE
     brobj))
 
+(defn get-uid
+  "Return the UID of an object."
+  [obj]
+  (.getUID obj))
+
 (defn add-object
   "Add an object to the current world."
   [obj]
-  (.addObject @*java-engine* (:uid obj) obj))
+  (.addObject @*java-engine* (get-uid obj) obj))
 
 #_(defn del-object
   "Delete an object to the current world."
@@ -85,7 +90,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn del-object
   "Add an object to the current world."
   [obj]
-  (.deleteObject @*java-engine* (:uid obj)))
+  (.deleteObject @*java-engine* (get-uid obj)))
 
 #_(defn add-object*
   "(Internal version, use add-object) Add an object to the current world."
@@ -97,6 +102,7 @@ Copyright 2012, 2013 Kyle Harrington"
   [type handler-fn]
   (let [uh (proxy [brevis.Engine$UpdateHandler] []
 				    (update [#^brevis.Engine engine #^Long uid #^Double dt]
+          (println "inside an update handler" uid dt)
               (let [obj (.getObject engine uid)]
                 (handler-fn obj dt (.getNeighbors obj)))))]
     (.addUpdateHandler @*java-engine* (str (name type)) uh)))

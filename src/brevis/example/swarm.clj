@@ -76,7 +76,8 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn random-bird
   "Make a new random bird."
   []
-  (make-bird (random-bird-position)))
+  (let [bird (make-bird (random-bird-position))]
+    bird))
 
 (defn bound-acceleration
   "Keeps the acceleration within a reasonable range."
@@ -113,6 +114,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn update-bird
   "Update a bird based upon its flocking behavior and the physical kinematics."
   [bird dt objects]  
+  #_(println (get-time) bird)
   (let [objects (filter bird? objects)
         ;nbrs (compute-neighborhood bird objects)]
         nbrs (get-neighbor-objects bird)]

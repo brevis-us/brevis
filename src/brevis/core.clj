@@ -83,6 +83,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (blend-func :src-alpha :one-minus-src-alpha)  
   (enable :normalize)
   #_(init-shader)  
+  (java-init-world)
   state
   #_(glfx/enable-high-quality-rendering))
 
@@ -126,7 +127,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (let [w 2000
         h 2000
         d 2000
-        pos (vec3 0 0 0) ;(vec3 (- (/ w 2)) (- (/ h 2)) (- (/ d 2)))
+        pos [0 0 0] ;(vec3 (- (/ w 2)) (- (/ h 2)) (- (/ d 2)))
         ]
     (when *sky*
       ;(with-enabled :texture-cube-map-seamless

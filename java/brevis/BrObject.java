@@ -47,6 +47,10 @@ public class BrObject {
 		uid = UID;
 	}
 	
+	public Long getUID( ) {
+		return uid;	
+	}
+	
 	public void setType( String newType ) {
 		type = newType;
 	}

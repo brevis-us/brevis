@@ -68,9 +68,9 @@ Copyright 2012, 2013 Kyle Harrington"
 			         :shape (or (:shape obj) (create-box)))
         pos (or (:position obj) (vec3 0 0 0))
         brobj (BrObject.)]
-    (.makeReal brobj @*java-engine*)
     (.setUID brobj uid)
     (.setType brobj (str (name (:type obj))))
+    (.makeReal brobj @*java-engine*)    
     brobj))
 
 (defn orient-object
@@ -471,6 +471,14 @@ are removed from the simulation."
     (when @*java-engine*
       (.updateWorld @*java-engine* (double dt)))
     state))
+
+(defn java-init-world
+  "Initialize the world (Java engine)."
+  []
+  (when-not @*java-engine*
+      (reset! *java-engine*
+              (Engine.)))
+  (.initWorld @*java-engine*))
 
 (defn update-world
   "Update the world."
