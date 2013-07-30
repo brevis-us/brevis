@@ -76,8 +76,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn random-bird
   "Make a new random bird."
   []
-  (let [bird (make-bird (random-bird-position))]
-    bird))
+  (make-bird (random-bird-position)))    
 
 (defn bound-acceleration
   "Keeps the acceleration within a reasonable range."
