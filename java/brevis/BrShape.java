@@ -1,5 +1,7 @@
 package brevis;
 
+import javax.vecmath.Vector3d;
+
 import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DMass;
 import org.ode4j.ode.DSpace;
@@ -31,5 +33,10 @@ public class BrShape {
 	
 	public DGeom createGeom( DSpace space ) {
 		return OdeHelper.createSphere( space, 1 );
+	}
+	
+	public Vector3d getDimension() {
+		Vector3d v = new Vector3d(1,1,1);
+		return v;
 	}
 }

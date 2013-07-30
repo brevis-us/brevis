@@ -90,7 +90,7 @@ Copyright 2012, 2013 Kyle Harrington"
   "Change the acceleration of a bird."
   [bird dt nbrs]
   #_(println "fly: bird=" (:uid bird) " nbrs=" nbrs " " (count nbrs))
-  (println "fly:" (get-position bird))
+  #_(println "fly:" (get-position bird))
   (let [closest-bird (if (zero? (count nbrs))
                        bird
                        (first nbrs))

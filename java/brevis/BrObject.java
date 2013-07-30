@@ -21,6 +21,7 @@ public class BrObject {
 	public BrShape shape;
 	public DMass mass;
 	public Vector4d rotation;
+	public Vector4d color;
 	
 	public Vector<Long> nbrs;
 	
@@ -35,6 +36,8 @@ public class BrObject {
 		velocity = new Vector3d( 0, 0, 0 );
 		position = new Vector3d( 0, 0, 0 );
 		shape = new BrShape();
+		color = new Vector4d( 1, 1, 1, 1 );
+		rotation = new Vector4d( 1, 0, 0, 0 );
 	}
 	
 	public double distanceTo( BrObject other ) {
@@ -128,5 +131,17 @@ public class BrObject {
 		geom = shape.createGeom( e.physics.getSpace() );
 		geom.setBody( body );
 		geom.setOffsetWorldPosition( position.x, position.y, position.z );		
+	}
+	
+	public Vector4d getColor() {
+		return color;
+	}
+	
+	public Vector3d getDimension() {
+		return shape.getDimension();
+	}
+	
+	public Vector4d getRotation() {
+		return rotation;
 	}
 }

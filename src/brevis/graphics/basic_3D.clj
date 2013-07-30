@@ -56,23 +56,40 @@ Copyright 2012, 2013 Kyle Harrington"
 ;; ## Shape handling code
 ;;
 
+(defn vector3d-to-seq
+  [v]
+  "Return a seq that contains the vector3d's data"
+  [(.x v) (.y v) (.z v)])
+
+(defn vector4d-to-seq
+  [v]
+  "Return a seq that contains the vector3d's data"
+  [(.x v) (.y v) (.z v) (.w v)])
+
 (defn- do-draw-shape
   "Actually draw a primitive shape."
   [obj]
-  (let [pos (get-position obj)
-        col (:color obj)]
+  (let [posvec (get-position obj)
+        pos (vector3d-to-seq posvec)
+        colvec (get-color obj)
+        col (vector4d-to-seq colvec)
+        dim (vector3d-to-seq (get-dimension obj))        
+        rot (vector4d-to-seq (get-rotation obj))
+        shin 80]
      ;(with-pipeline shader-program [{:tint [1. 1. 0.]} (app/size)]
+    #_(println "do-draw-shape" pos col dim rot)
 		  (push-matrix
        (shade-model :smooth)
        (depth-test :less)
-		   (apply color (:color obj))
+		   #_(apply color (:color obj))
+       (apply color col)
 		   (material :front;-and-back
                :ambient-and-diffuse (into [] (conj col 1)); [1 1 1 1]
                :specular [1 1 1 1]
-               :shininess (:shininess obj))       
+               :shininess shin)       
 		   (translate pos)       		   
-       (apply scale (:dim (:shape obj)))
-       (rotate (.w (:rotation obj)) (.x (:rotation obj)) (.y (:rotation obj)) (.z (:rotation obj)))
+       (apply scale dim)
+       (apply rotate rot)
 		   (cond
         ;#_(= (:type (:shape obj)) :box)  (draw-box)
         (= (:type (:shape obj)) :box)  (Basic3D/drawBox 1.0 1.0 1.0)

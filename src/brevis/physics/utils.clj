@@ -102,7 +102,7 @@ Copyright 2012, 2013 Kyle Harrington"
   [type handler-fn]
   (let [uh (proxy [brevis.Engine$UpdateHandler] []
 				    (update [#^brevis.Engine engine #^Long uid #^Double dt]
-          (println "inside an update handler" uid dt)
+          #_(println "inside an update handler" uid dt)
               (let [obj (.getObject engine uid)]
                 (handler-fn obj dt (.getNeighbors obj)))))]
     (.addUpdateHandler @*java-engine* (str (name type)) uh)))
@@ -244,3 +244,19 @@ Copyright 2012, 2013 Kyle Harrington"
   "Transforms radians to degrees."
   [x]
   (* (/ 180.0 Math/PI) (double x)))
+
+
+(defn get-color
+  "Return the color of an object."
+  [obj]
+  (.getColor obj))
+
+(defn get-rotation
+  "Return the rotation of an object."
+  [obj]
+  (.getRotation obj))
+
+(defn get-dimension
+  "Return the dimension of an object."
+  [obj]
+  (.getDimension obj))

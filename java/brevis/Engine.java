@@ -1,10 +1,12 @@
 package brevis;
 
 import java.util.AbstractMap.SimpleEntry;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.Vector;
 
 import org.ode4j.ode.DGeom;
@@ -263,5 +265,9 @@ public class Engine {
 	
 	public void setNeighborhoodRadius( Double r ) {
 		neighborhoodRadius = r;
+	}
+	
+	public Collection<BrObject> getObjects() {
+		return objects.values();
 	}
 }
