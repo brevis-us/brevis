@@ -403,8 +403,8 @@ Copyright 2012, 2013 Kyle Harrington"
         m 0.05
         f (mul (get-acceleration obj)
                m)]; f = ma    
+    (println "update-object-kinematics" (get-uid obj) (get-position obj))    
     (.addForce (get-body obj) (.x f) (.y f) (.z f))
-    #_(.setLinearVel (:body obj) (.x newvel) (.y newvel) (.z newvel)); avoids conversion that set-velocity would do
     obj))
 
 (defn make-floor

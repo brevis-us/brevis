@@ -299,7 +299,7 @@ stop-t = -1 means do not automatically erase"
 	  (rotate (:rot-z @*gui-state*) 0 0 1)
 	  (translate (:shift-x @*gui-state*) (:shift-y @*gui-state*) (:shift-z @*gui-state*))
 	  (draw-sky)
-    (println "display drawing n objects:" (count (get-objects)))
+    #_(println "display drawing n objects:" (count (get-objects)))
 	  (doseq [obj (get-objects)]
 	    (draw-shape obj))
 	  (app/repaint!)

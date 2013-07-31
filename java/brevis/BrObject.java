@@ -11,6 +11,8 @@ import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DMass;
 import org.ode4j.ode.OdeHelper;
 
+import brevis.Utils;
+
 public class BrObject {
 	public Long uid;
 	public String type;
@@ -71,7 +73,8 @@ public class BrObject {
 	}
 	
 	public Vector3d getPosition() {
-		return position;
+		//return position;
+		return brevis.Utils.DVector3CToVector3d( body.getPosition() );
 	}
 	
 	public Vector3d getVelocity() {
@@ -91,7 +94,8 @@ public class BrObject {
 	}
 	
 	public void setPosition( Vector3d v ) {
-		position = v;
+		//position = v;
+		body.setPosition( brevis.Utils.Vector3dToDVector3( v ) );
 	}
 	
 	public DBody getBody( ) {
