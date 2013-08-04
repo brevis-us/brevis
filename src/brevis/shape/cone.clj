@@ -29,7 +29,7 @@ Copyright 2012, 2013 Kyle Harrington"
   ([length base]
     (BrShape/createCone length base)))
 
-(defn gen-cone-faces
+#_(defn gen-cone-faces
   [length lod]
   (let [interval (/ 360 lod)
         base (range 0 361 interval)]
@@ -39,7 +39,7 @@ Copyright 2012, 2013 Kyle Harrington"
             ;p2 (Math/cos (- theta interval))]
         [(vec3 0 0 length) (vec3 p1 p2 0) (vec3 p2 p1 0)]))))
 
-(defn init-cone
+#_(defn init-cone
   []
   (def cone-mesh
     (create-display-list 
@@ -57,7 +57,7 @@ Copyright 2012, 2013 Kyle Harrington"
                     (apply normal (compute-normal [(apply vec3 first-vertex) (vec3 x y 0) (vec3 px py 0)])))
 		              (vertex x y 0)))))))))
 
-(defn draw-cone
+#_(defn draw-cone
   []
   (cone-mesh))
 

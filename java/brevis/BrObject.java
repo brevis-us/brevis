@@ -138,6 +138,10 @@ public class BrObject implements clojure.lang.IRecord {
 		geom.setOffsetWorldPosition( position.x, position.y, position.z );		
 	}
 	
+	public void setColor( Vector4d c ) {
+		color = c;
+	}
+	
 	public Vector4d getColor() {
 		return color;
 	}

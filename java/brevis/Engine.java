@@ -154,7 +154,9 @@ public class Engine {
 				//System.out.println( "--" + getTime() + " updating object " + entry.getKey() );
 				BrObject newObj = uh.update( this, entry.getKey(), dt );
 				updatedObjects.put( entry.getKey(), newObj );
-			}			
+			} else {
+				updatedObjects.put( entry.getKey(), obj );
+			}
 		}
 		objects = updatedObjects;
 	}

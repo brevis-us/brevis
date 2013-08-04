@@ -68,6 +68,8 @@ Copyright 2012, 2013 Kyle Harrington"
 			         :shape (or (:shape obj) (create-box)))
         pos (or (:position obj) (vec3 0 0 0))
         brobj (BrObject.)]
+    (when (:color obj)
+      (.setColor brobj (:color obj)))
     (.setUID brobj uid)
     (.setType brobj (str (name (:type obj))))
     (.setShape brobj (:shape obj))
@@ -410,8 +412,8 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (defn make-floor
   "Make a floor object."
-  [w h]
-  (move (make-real {:color [0.8 0.8 0.8]
+  [w h]  
+  (move (make-real {:color (vec4 0.8 0.8 0.8 1)
                     :shininess 80
                     :type :floor
                     :density 8050

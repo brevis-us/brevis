@@ -213,7 +213,7 @@ stop-t = -1 means do not automatically erase"
   "Setup the default display-text."
   []
   (osd :msg-type :penumbra :fn (fn [[dt t] state] (str (int (/ 1 dt)) " fps")) :start-t 0 :stop-t -1)
-  (osd :msg-type :penumbra :fn (fn [[dt t] state] (str (float (:simulation-time state)) " time")) :start-t 0 :stop-t -1)
+  (osd :msg-type :penumbra :fn (fn [[dt t] state] (str (float (get-time)) " time")) :start-t 0 :stop-t -1)
   (osd :msg-type :brevis :fn #(str (int (count @*objects*)) " objs") :start-t 0 :stop-t 5))
 
 (defn update-display-text
@@ -367,11 +367,13 @@ stop-t = -1 means do not automatically erase"
 	             :shift-y (+ (:shift-y @*gui-state*) (* (/ dy 6) sX))
 	             :shift-z (+ (:shift-z @*gui-state*) (* (/ dy 6) cY))           
 	             )))
-   (osd :msg-type :penumbra-rotate :fn (fn [[dt t] state] (str "Rotation: (" 
-                                                        (:rot-x state) "," (:rot-y state) "," (:rot-z state) ")")) 
+   (osd :msg-type :penumbra-rotate 
+        :fn (fn [[dt t] state] (str "Rotation: (" 
+                                    (:rot-x @*gui-state*) "," (:rot-y @*gui-state*) "," (:rot-z @*gui-state*) ")")) 
         :start-t t :stop-t (+ t 3))
-   (osd :msg-type :penumbra-translate :fn (fn [[dt t] state] (str "Translation: (" 
-                                                        (int (:shift-x @*gui-state*)) "," (int (:shift-y @*gui-state*)) "," (int (:shift-z @*gui-state*)) ")")) 
+   (osd :msg-type :penumbra-translate 
+        :fn (fn [[dt t] state] (str "Translation: (" 
+                                    (int (:shift-x @*gui-state*)) "," (int (:shift-y @*gui-state*)) "," (int (:shift-z @*gui-state*)) ")")) 
         :start-t t :stop-t (+ t 3)))
   state)
 

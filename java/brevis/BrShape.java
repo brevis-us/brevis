@@ -42,7 +42,13 @@ public class BrShape {
 	}
 	
 	public DGeom createGeom( DSpace space ) {
-		return OdeHelper.createSphere( space, 1 );
+		switch( type ) {
+		case BOX:
+			return OdeHelper.createBox( space, dim.x, dim.y, dim.z );			
+		default:
+		case SPHERE:
+			return OdeHelper.createSphere( space, dim.x );			
+		}		
 	}
 	
 	public Vector3d getDimension() {
