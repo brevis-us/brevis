@@ -217,6 +217,7 @@ public class Engine {
 	 * Initialization functions
 	 */
 	public void initWorld( ) {
+		physics.time = 0;		
 		objects.clear();
 		synchronizeObjects();		
 	}

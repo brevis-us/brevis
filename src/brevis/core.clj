@@ -370,11 +370,11 @@ stop-t = -1 means do not automatically erase"
    (osd :msg-type :penumbra-rotate 
         :fn (fn [[dt t] state] (str "Rotation: (" 
                                     (:rot-x @*gui-state*) "," (:rot-y @*gui-state*) "," (:rot-z @*gui-state*) ")")) 
-        :start-t t :stop-t (+ t 3))
+        :start-t t :stop-t (+ t 1))
    (osd :msg-type :penumbra-translate 
         :fn (fn [[dt t] state] (str "Translation: (" 
                                     (int (:shift-x @*gui-state*)) "," (int (:shift-y @*gui-state*)) "," (int (:shift-z @*gui-state*)) ")")) 
-        :start-t t :stop-t (+ t 3)))
+        :start-t t :stop-t (+ t 1)))
   state)
 
 (defn mouse-wheel
