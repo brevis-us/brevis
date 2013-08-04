@@ -16,19 +16,18 @@
 Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.shape.cone
+  (:import [brevis BrShape])
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
-        [brevis.shape.core]
-        [cantor])) 
+        [brevis.physics.vector]
+        [brevis.shape.core])) 
 
 (defn create-cone
   "Create a cone object."
   ([]
      (create-cone 1 1))
   ([length base]
-     {:dim (vec3 (Math/max length base) (Math/max length base) (Math/max length base))
-      :type :cone
-      }))
+    (BrShape/createCone length base)))
 
 (defn gen-cone-faces
   [length lod]

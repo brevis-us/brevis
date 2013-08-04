@@ -13,9 +13,13 @@ public class BrShape {
 	};
 	
 	public BrShapeType type;
+	public Vector3d dim;
 	
-	BrShape() {
-		type = BrShapeType.SPHERE;
+	BrShape( BrShapeType t, Vector3d d ) {
+		//type = BrShapeType.SPHERE;
+		//dim = new Vector3d(1,1,1);
+		type = t;
+		dim = d;
 	}
 	
 	public void draw() {
@@ -27,7 +31,13 @@ public class BrShape {
 	 */
 	public DMass createMass( double density ) {
 		DMass m = OdeHelper.createMass();
-		m.setBox(density, 1, 1, 1);
+		if( type == BrShapeType.BOX ) {
+			m.setBox(density, dim.x, dim.y, dim.z );
+		} else if( type == BrShapeType.SPHERE ) {
+			m.setSphere( density, dim.x );
+		} else if( type == BrShapeType.CONE ) {
+			m.setSphere(density, dim.x);
+		}
 		return m;
 	}
 	
@@ -36,7 +46,18 @@ public class BrShape {
 	}
 	
 	public Vector3d getDimension() {
-		Vector3d v = new Vector3d(1,1,1);
-		return v;
+		return dim;
+	}
+	
+	public static BrShape createSphere( double r ) {
+		return ( new BrShape( BrShapeType.SPHERE, new Vector3d( r, r, r ) ) );
+	}
+	
+	public static BrShape createBox( double x, double y, double z ) {
+		return ( new BrShape( BrShapeType.BOX, new Vector3d( x, y, z ) ) );
+	}
+	
+	public static BrShape createCone( double length, double base ) {
+		return ( new BrShape( BrShapeType.CONE, new Vector3d( length, base, 10 )));	// last element of vector is # of sides
 	}
 }

@@ -16,12 +16,13 @@
 Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.shape.box
+  (:import [brevis BrShape])
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
         [brevis.shape.core]
         [cantor]))        
 
-(defn create-box
+#_(defn create-box
   "Create a box object."
   ([]
      (create-box 1 1 1))
@@ -30,11 +31,12 @@ Copyright 2012, 2013 Kyle Harrington"
       :type :box
       }))
 
-(defn make-box
-  "Add box attributes to an object map."
-  [obj]
-  (assoc obj
-    :shape (create-box)))
+(defn create-box
+  "Create a box object."
+  ([]
+     (create-box 1 1 1))
+  ([width height depth]
+    (BrShape/createBox width height depth)))
 
 (defn create-collision-box 
   "Create a collision shape for a box."

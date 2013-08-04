@@ -16,12 +16,12 @@
 Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.shape.sphere
+  (:import [brevis BrShape])
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
-        [brevis.shape.core]
-        [cantor])) 
+        [brevis.shape.core])) 
 
-(defn create-sphere
+#_(defn create-sphere
   "Create a sphere object."
   ([]
      (create-sphere 1))
@@ -30,17 +30,24 @@ Copyright 2012, 2013 Kyle Harrington"
       :type :sphere
       }))
 
+(defn create-sphere
+  "Create a sphere object."
+  ([]
+     (create-sphere 1))
+  ([radius]
+    (BrShape/createSphere radius)))
+
 ;; currently mostly taken from ztellman's penumbra
 
-(defn gen-sphere-vertices
+#_(defn gen-sphere-vertices
   [lod]
   (for [theta (range 0 361 (/ 360 lod))]
     (for [phi (range -90 91 (/ 180 (/ lod 2)))]
       (cartesian (polar3 theta phi)))))
 
-(defonce sphere-vertices (gen-sphere-vertices 50))
+#_(defonce sphere-vertices (gen-sphere-vertices 50))
 
-(defn init-sphere
+#_(defn init-sphere
   []
   (def sphere-mesh 
        (create-display-list (doseq [arcs (partition 2 1 sphere-vertices)]                              
@@ -58,7 +65,7 @@ Copyright 2012, 2013 Kyle Harrington"
         (doseq [[a b] (map list (first arcs) (second arcs))]
           (vertex a) (vertex b))))))
 
-(defn draw-sphere
+#_(defn draw-sphere
   []
   (sphere-mesh))
 

@@ -139,6 +139,13 @@ public class Engine {
 	 */
 	public void updateObjects( double dt ) {
 		HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
+		
+		// Call the 0 update handler once
+		if( updateHandlers.containsKey( 0 ) ) {
+			UpdateHandler global_uh = updateHandlers.get( 0 );
+			BrObject placeholder = global_uh.update( this, null, dt );
+		}		
+		
 		//System.out.println( "updateObjects " + objects.keySet() );
 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
 			BrObject obj = entry.getValue();
@@ -208,6 +215,7 @@ public class Engine {
 	 * Initialization functions
 	 */
 	public void initWorld( ) {
+		objects.clear();
 		synchronizeObjects();		
 	}
 	

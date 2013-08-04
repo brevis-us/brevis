@@ -18,10 +18,10 @@ Copyright 2012, 2013 Kyle Harrington"
 (ns brevis.example.tutorial.shape
   (:import java.lang.Math)  
   (:use [brevis.graphics.basic-3D]
-        [brevis.physics collision core space utils]
+        [brevis.physics collision core space utils vector]
         [brevis.shape box sphere cone]
         [brevis.core]
-        [cantor]))    
+        ))    
 
 ;; ## Tutorial: shape
 ;;
@@ -76,4 +76,5 @@ Copyright 2012, 2013 Kyle Harrington"
   (start-gui initialize-simulation))
 
 ;; Start zee macheen
-#_(-main)
+(when (find-ns 'ccw.complete)
+  (-main))

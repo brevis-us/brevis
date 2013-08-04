@@ -70,6 +70,7 @@ Copyright 2012, 2013 Kyle Harrington"
         brobj (BrObject.)]
     (.setUID brobj uid)
     (.setType brobj (str (name (:type obj))))
+    (.setShape brobj (:shape obj))
     (.makeReal brobj @*java-engine*)    
     brobj))
 
@@ -403,7 +404,7 @@ Copyright 2012, 2013 Kyle Harrington"
         m 0.05
         f (mul (get-acceleration obj)
                m)]; f = ma    
-    (println "update-object-kinematics" (get-uid obj) (get-position obj))    
+    #_(println "update-object-kinematics" (get-uid obj) (get-position obj))    
     (.addForce (get-body obj) (.x f) (.y f) (.z f))
     obj))
 

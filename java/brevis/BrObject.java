@@ -13,7 +13,8 @@ import org.ode4j.ode.OdeHelper;
 
 import brevis.Utils;
 
-public class BrObject {
+//public class BrObject {
+public class BrObject implements clojure.lang.IRecord {
 	public Long uid;
 	public String type;
 	public Vector3d acceleration;
@@ -37,7 +38,7 @@ public class BrObject {
 		acceleration = new Vector3d( 0, 0, 0 );
 		velocity = new Vector3d( 0, 0, 0 );
 		position = new Vector3d( 0, 0, 0 );
-		shape = new BrShape();
+		shape = BrShape.createSphere( 1 );
 		color = new Vector4d( 1, 1, 1, 1 );
 		rotation = new Vector4d( 1, 0, 0, 0 );
 	}

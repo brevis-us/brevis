@@ -69,8 +69,8 @@ Copyright 2012, 2013 Kyle Harrington"
   [position]  
   (move (make-real {:type :bird
               :color [1 0 0]
-              ;:shape (create-sphere)})
               :shape (create-cone)})
+              ;:shape (create-cone)})
         position))
   
 (defn random-bird
