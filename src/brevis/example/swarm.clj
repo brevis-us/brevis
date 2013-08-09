@@ -43,8 +43,8 @@ Copyright 2012, 2013 Kyle Harrington"
 (def num-birds 50)
 
 (def memory (atom 0.0))
-(def avoidance (atom 3.8))
-(def clustering (atom 3.05))
+(def avoidance (atom 1.8))
+(def clustering (atom 1.05))
 (def centering (atom 0.01))
 
 (def max-acceleration 10)
@@ -69,7 +69,7 @@ Copyright 2012, 2013 Kyle Harrington"
   [position]  
   (move (make-real {:type :bird
               :color (vec4 1 0 0 1)
-              :shape (create-cone)})
+              :shape (create-sphere)})
               ;:shape (create-cone)})
         position))
   
@@ -106,6 +106,7 @@ Copyright 2012, 2013 Kyle Harrington"
                                 (mul d-center @centering)
                                 (mul d-closest-bird @avoidance)
                                 (mul d-centroid @clustering)))]
+    #_(println d-center d-closest-bird d-centroid)
     (set-acceleration
       (orient-object bird (vec3 0 0 1) (get-velocity bird))
       new-acceleration)))

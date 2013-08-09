@@ -170,4 +170,13 @@ public class BrObject implements clojure.lang.IRecord {
 	public Vector4d getRotation() {
 		return rotation;
 	}
+	
+	public DMass getMass() {
+		return mass;
+	}
+	
+	public double getDoubleMass() {
+		return mass.getMass();	
+	}
+	
 }

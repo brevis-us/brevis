@@ -223,10 +223,16 @@ Copyright 2012, 2013 Kyle Harrington"
   ; should check if new-obj has the right uid
   (swap! *objects* assoc uid new-obj))
 
-(defn get-neighbor-objects
+#_(defn get-neighbor-objects
   "Return the objects of a neighborhood."
   [obj]
   (map #(get @*objects* %) (:neighbors obj)))
+
+(defn get-neighbor-objects
+  "Return the objects of a neighborhood."
+  [obj]
+  #_(println (.getNeighbors obj))
+  (map #(.getObject @*java-engine* %) (.getNeighbors obj)))
 
 (defn set-neighborhood-radius
   "Set the neighborhood radius."
@@ -260,3 +266,13 @@ Copyright 2012, 2013 Kyle Harrington"
   "Return the dimension of an object."
   [obj]
   (.getDimension obj))
+
+(defn get-mass
+  "Return the mass of an object."
+  [obj]
+  (.getMass obj))
+
+(defn get-double-mass
+  "Return the mass of an object."
+  [obj]
+  (.getDoubleMass obj))

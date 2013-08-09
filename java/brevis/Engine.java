@@ -220,10 +220,12 @@ public class Engine {
 			Vector<Long> nbrs = new Vector<Long>();
 			for( Map.Entry<Long,BrObject> otherEntry : objects.entrySet() ) {
 				BrObject otherObj = otherEntry.getValue();
-				if( obj.distanceTo( otherObj ) > neighborhoodRadius ) {
+				//System.out.println( "Distance to " + obj.distanceTo( otherObj ) );
+				if( obj.distanceTo( otherObj ) < neighborhoodRadius ) {
 					nbrs.add( otherObj.uid );
 				}
 			}
+			//System.out.println( "Neighbors of " + obj + " " + nbrs.size() );
 			obj.nbrs = nbrs;
 			updatedObjects.put( entry.getKey(), obj );
 		}
