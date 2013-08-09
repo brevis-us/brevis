@@ -40,7 +40,7 @@ Copyright 2012, 2013 Kyle Harrington"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds 50)
+(def num-birds 25)
 
 (def memory (atom 0.0))
 (def avoidance (atom 1.8))

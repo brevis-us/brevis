@@ -61,8 +61,11 @@ public class BrObject implements clojure.lang.IRecord {
 	}
 	
 	public double distanceTo( BrObject other ) {
-		Vector3d delta = (Vector3d) position.clone();
+		/*Vector3d delta = (Vector3d) position.clone();
 		delta.sub( other.position );
+		System.out.println( "distanceTo " + position + " " + other.position + " " + delta );*/
+		Vector3d delta = getPosition();
+		delta.sub( other.getPosition() );		
 		return delta.length();
 	}
 	
