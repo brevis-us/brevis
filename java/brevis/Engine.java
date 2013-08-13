@@ -30,6 +30,8 @@ import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DWorld;
 import org.ode4j.ode.OdeHelper;
 
+import clojure.lang.PersistentVector;
+
 public class Engine {	
 	
 	/*
@@ -46,9 +48,16 @@ public class Engine {
 	
 	// All collisions are pairwise now.
 	// Compute the collision after DT amount of time for object with UID colliding with UID, other	
-	public static class CollisionHandler {
+	/*public static class CollisionHandler {
 		public BrObject collide( BrObject subj, BrObject othr, Double dt) {			
 			return subj;
+		}
+	}*/
+	
+	public static class CollisionHandler {
+		public clojure.lang.PersistentVector collide( Engine engine, BrObject subj, BrObject othr, Double dt) {
+			clojure.lang.PersistentVector v = clojure.lang.PersistentVector.create( subj, othr );						
+			return v;
 		}
 	}
 	
@@ -196,12 +205,14 @@ public class Engine {
 			BrObject subj = updatedObjects.get( entry.getKey() );
 			BrObject othr = updatedObjects.get( entry.getValue() );
 			if( subj != null && othr != null ) {
-				//System.out.println( "collision " + subj + " " + othr );
 				SimpleEntry<String,String> typeEntry = new SimpleEntry<String,String>(subj.type,othr.type);
 				CollisionHandler ch = collisionHandlers.get( typeEntry );
+				
+				//System.out.println( "collision " + subj + " " + othr + " " + ch + " " + typeEntry + " " + collisionHandlers );				
 				if( ch != null ) {
-					BrObject newObj = ch.collide( subj, othr, dt );
-					updatedObjects.put( entry.getKey() , newObj );
+					PersistentVector pair = ch.collide( this, subj, othr, dt );
+					BrObject newSubj = (BrObject) pair.get(0);
+					updatedObjects.put( entry.getKey() , newSubj );
 				}
 			}
 		}
@@ -287,6 +298,11 @@ public class Engine {
 	
 	public void addUpdateHandler( String type, UpdateHandler uh ) {
 		updateHandlers.put( type,  uh );
+	}
+	
+	public void addCollisionHandler( String typea, String typeb, CollisionHandler ch ) {
+		SimpleEntry<String,String> typeEntry = new SimpleEntry<String,String>( typea, typeb );
+		collisionHandlers.put( typeEntry,  ch );
 	}
 	
 	public BrObject getObject( long UID ) {

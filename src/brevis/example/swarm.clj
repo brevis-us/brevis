@@ -40,7 +40,7 @@ Copyright 2012, 2013 Kyle Harrington"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds 25)
+(def num-birds 100)
 
 (def memory (atom 0.0))
 (def avoidance (atom 1.8))
@@ -60,9 +60,9 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn random-bird-position
   "Returns a random valid bird position."
   []
-  (vec3 (- (rand 100) 50) 
+  (vec3 (- (rand num-birds) (/ num-birds 2)) 
         (+ 9.5 (rand 10));; having this bigger than the neighbor radius will help with speed due to neighborhood computation
-        (- (rand 100) 50)))
+        (- (rand num-birds) (/ num-birds 2))))
 
 (defn make-bird
   "Make a new bird with the specified program. At the specified location."
@@ -106,7 +106,7 @@ Copyright 2012, 2013 Kyle Harrington"
                                 (mul d-center @centering)
                                 (mul d-closest-bird @avoidance)
                                 (mul d-centroid @clustering)))]
-    #_(println d-center d-closest-bird d-centroid)
+    #_(println d-center d-closest-bird d-centroid)    
     (set-acceleration
       (orient-object bird (vec3 0 0 1) (get-velocity bird))
       new-acceleration)))
@@ -133,7 +133,9 @@ Copyright 2012, 2013 Kyle Harrington"
   "Collision between two birds. This is called on [bird1 bird2] and [bird2 bird1] independently
 so we only modify bird1."
   [bird1 bird2]
-  [(assoc bird1 :color [(rand) (rand) (rand)])
+  [(set-color bird1 (vec4 (rand) (rand) (rand) 1))
+   bird2]
+  #_[(assoc bird1 :color [(rand) (rand) (rand)])
    bird2])
 
 (defn land
@@ -141,9 +143,11 @@ so we only modify bird1."
   [bird floor]
   (when (or (nil? bird) (nil? floor))
     (println "Bird" bird) (println "Floor" floor))
-  [(set-velocity (assoc bird
-                        :acceleration (vec3 0 0.5 0))
-                       (vec3 0 0.5 0))         
+  [(set-acceleration
+     bird
+     #_(set-velocity bird
+                   (vec3 0 0.5 0))
+     (vec3 0 0.5 0))         
    floor])
 
 (add-collision-handler :bird :bird bump)
@@ -159,6 +163,7 @@ so we only modify bird1."
   (set-dt 0.1)
   (set-neighborhood-radius 25)
   (default-display-text)
+  (reset! collisions-enabled false)
   #_(enable-video-recording "swarm_demo")
   (add-object (make-floor 500 500))
   (dotimes [_ num-birds]

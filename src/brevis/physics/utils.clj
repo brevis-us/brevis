@@ -257,6 +257,12 @@ Copyright 2012, 2013 Kyle Harrington"
   [obj]
   (.getColor obj))
 
+(defn set-color
+  "Return the color of an object."
+  [obj col]
+  (.setColor obj col)
+  obj)
+
 (defn get-rotation
   "Return the rotation of an object."
   [obj]

@@ -19,18 +19,29 @@ Copyright 2012, 2013 Kyle Harrington"
   (:gen-class)
   (:import (org.ode4j.ode OdeHelper DSapSpace OdeConstants DContactBuffer DGeom DFixedJoint DContactJoint))
   (:import (org.ode4j.math DVector3))
-  (:import java.lang.Math)  
+  (:import java.lang.Math)
+  (:import (brevis Engine BrPhysics BrObject))  
   (:use [cantor]
         [penumbra.opengl]
         [brevis.shape core box]
         [brevis.physics core])
   (:require [cantor.range]))
 
-(defn add-collision-handler
+#_(defn add-collision-handler
   "Store the collision handler for typea colliding with typeb."
   [typea typeb handler-fn]
   (swap! *collision-handlers* assoc
          [typea typeb] handler-fn))
+
+;; Finish this, consider changing collision handlers to take entries
+(defn add-collision-handler
+  "Store the collision handler for typea colliding with typeb."
+  [typea typeb handler-fn]
+  (let [ch (proxy [brevis.Engine$CollisionHandler] []             
+             (collide [#^brevis.Engine engine #^BrObject subj #^BrObject othr #^Double dt]
+               (handler-fn subj othr)))]
+    (.addCollisionHandler @*java-engine* (str (name typea)) (str (name typeb)) ch)))    
+
 
 (defn collided?
   "Have two objects collided?"

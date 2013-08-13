@@ -49,6 +49,11 @@ public class BrObject implements clojure.lang.IRecord {
 	public DBody body;
 	public DGeom geom;
 	
+	public String toString() {
+		String s = "#BrObject{ UID = " + uid + "}";		
+		return s;
+	}
+	
 	public BrObject() {
 		uid = (long)-1;
 		type = "Unassigned";
