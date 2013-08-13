@@ -217,6 +217,7 @@ public class Engine {
 			}
 		}
 		objects = updatedObjects;
+		collisions.clear();
 	}
 	
 	
