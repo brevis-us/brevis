@@ -47,7 +47,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (def clustering (atom 1.05))
 (def centering (atom 0.01))
 
-(def max-acceleration 10)
+(def max-acceleration 100)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Birds
@@ -81,8 +81,8 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn bound-acceleration
   "Keeps the acceleration within a reasonable range."
   [v]
-  v
-  #_(if (> (length v) max-acceleration)
+  
+  (if (> (length v) max-acceleration)
     (mul (div v (length v)) max-acceleration)
     v))
 
@@ -91,13 +91,14 @@ Copyright 2012, 2013 Kyle Harrington"
   [bird dt nbrs]
   #_(println "fly: bird=" (:uid bird) " nbrs=" nbrs " " (count nbrs))
   #_(println "fly:" (get-position bird))
-  (let [closest-bird (if (zero? (count nbrs))
+  (let [num-nbrs (count nbrs)
+        closest-bird (if (zero? num-nbrs)
                        bird
                        (first nbrs))
-        centroid (if (zero? (count nbrs))
+        centroid (if (zero? num-nbrs)
                    (get-position bird)
                    (div (reduce add (map get-position nbrs)) 
-                        (count nbrs)))
+                        num-nbrs))
         d-closest-bird (sub (get-position closest-bird) (get-position bird))
         d-centroid (sub centroid (get-position bird))
         d-center (sub (vec3 0 10 0) (get-position bird))
