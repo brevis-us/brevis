@@ -315,7 +315,7 @@ stop-t = -1 means do not automatically erase"
   ;(println "key-press" key)
   (cond
     ;(= :lshift key) (do (reset! shift-key-down true) state)
-    (= "z" key) (do (reset! shift-key-down true) state)
+    (= "z" key) (do (reset! shift-key-down true) state)    
     (= "p" key) (do (app/pause!)
                   state)
     (= "o" key) (do (screenshot (str "brevis_screenshot_" (System/currentTimeMillis) ".png") state)
@@ -347,7 +347,7 @@ stop-t = -1 means do not automatically erase"
         sX (sin thetaX)
         cX (cos thetaX)
         t (get-time)]  
-	  (when @shift-key-down
+;	  (when @shift-key-down
 	    (cond 
 	      ; Rotate
 	      (= :left button)
@@ -366,7 +366,7 @@ stop-t = -1 means do not automatically erase"
 	             :shift-x (+ (:shift-x @*gui-state*) (* (/ dy 6) (* sY -1)))
 	             :shift-y (+ (:shift-y @*gui-state*) (* (/ dy 6) sX))
 	             :shift-z (+ (:shift-z @*gui-state*) (* (/ dy 6) cY))           
-	             )))
+	             ))
    (osd :msg-type :penumbra-rotate 
         :fn (fn [[dt t] state] (str "Rotation: (" 
                                     (:rot-x @*gui-state*) "," (:rot-y @*gui-state*) "," (:rot-z @*gui-state*) ")")) 

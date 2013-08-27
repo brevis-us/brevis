@@ -215,13 +215,14 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn make-floor
   "Make a floor object."
   [w h]  
-  (move (make-real {:color (vec4 0.8 0.8 0.8 1)
+  (set-texture (move (make-real {:color (vec4 0.8 0.8 0.8 1)
                     :shininess 80
                     :type :floor
                     :density 8050
-                    :texture *checkers*
+;                    :texture *checkers*
                     :shape (create-box w 0.1 h)})
-        (vec3 0 -3 0)))
+                     (vec3 0 -3 0))
+               *checkers*))
 
 (defn init-world  "Return a map of ODE physics for 1 world."  []  (let [world (doto (OdeHelper/createWorld)     
                       (.setGravity 0 0 0)                                                                                   

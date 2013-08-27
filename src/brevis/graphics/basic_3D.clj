@@ -18,6 +18,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (ns brevis.graphics.basic-3D
   (:import [java.lang.Math]
            [java.nio ByteBuffer ByteOrder]
+           [org.lwjgl.opengl GL11]
            [brevis.graphics Basic3D])
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
@@ -76,7 +77,6 @@ Copyright 2012, 2013 Kyle Harrington"
         dim (vector3d-to-seq (get-dimension obj))        
         rot (vector4d-to-seq (get-rotation obj))
         shin 80]
-     ;(with-pipeline shader-program [{:tint [1. 1. 0.]} (app/size)]
     #_(println "do-draw-shape" pos col dim rot)
 		  (push-matrix
        (shade-model :smooth)
@@ -90,21 +90,35 @@ Copyright 2012, 2013 Kyle Harrington"
 		   (translate pos)       		   
        (apply scale dim)
        (apply rotate rot)
+       #_(when (pos? (.getTextureId obj))
+         (GL11/glBindTexture GL11/GL_TEXTURE_2D (.getTextureId obj)))
 		   (cond
         ;#_(= (:type (:shape obj)) :box)  (draw-box)
         (= (:type (:shape obj)) :box)  (Basic3D/drawBox 1.0 1.0 1.0)
         ;#_(= (:type (:shape obj)) :cone) (draw-cone)
         (= (:type (:shape obj)) :cone)  (Basic3D/drawCone 0.8 0.01 1.2 25 25)
         ;:else                          (draw-sphere);(= (:type (:shape obj)) :sphere) 
-        :else                          (Basic3D/drawSphere 2.0 20 20)
-       ))))
+        :else                          (Basic3D/drawSphere 2.0 20 20))
+     #_(GL11/glBindTexture GL11/GL_TEXTURE_2D 0)
+     )))
 
-(defn draw-shape
+#_(defn draw-shape
   "Draw a shape. Call this after translating, scaling, and setting color."
   [obj]
   (if (:texture obj)
     (with-enabled :texture-2d
       (with-texture (:texture obj)      
+        (do-draw-shape obj)))
+    (with-disabled :texture-2d
+      (do-draw-shape obj))))
+
+(defn draw-shape
+  "Draw a shape. Call this after translating, scaling, and setting color."
+  [obj]
+  (do-draw-shape obj)
+  #_(if (get-texture obj)
+    (with-enabled :texture-2d
+      (with-texture (get-texture obj)      
         (do-draw-shape obj)))
     (with-disabled :texture-2d
       (do-draw-shape obj))))

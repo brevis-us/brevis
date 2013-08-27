@@ -16,6 +16,8 @@
 Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.shape.core
+  (:import [java.awt.image BufferedImage]
+           [java.awt Color])
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
         [cantor])
@@ -84,7 +86,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (defn xor [a b] (or (and a (not b)) (and (not a) b)))
 
-(defn init-checkers []
+#_(defn init-checkers []
   (def #^:dynamic *checkers* 
 	  (let [tex (create-byte-texture 128 128)]
 	    (data/overwrite!
@@ -95,3 +97,13 @@ Copyright 2012, 2013 Kyle Harrington"
 	                [0.9 0.9 0.9 1.0]
 	                [0.8 0.8 0.8 1.0]))))
      tex)))
+
+(defn init-checkers []
+  (def #^:dynamic *checkers* 
+	  (let [tex (BufferedImage. 128 128 BufferedImage/TYPE_INT_ARGB)]
+     (for [x (range 128) y (range 128)]       
+       (.setRGB tex x y
+         (.getRGB (if (xor (even? (bit-shift-right x 4)) (even? (bit-shift-right y 4)))
+                    (Color. 0.9 0.9 0.9 1.0)
+                    (Color. 0.8 0.8 0.8 1.0)))))
+     tex)))	                

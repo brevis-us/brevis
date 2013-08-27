@@ -282,3 +282,15 @@ Copyright 2012, 2013 Kyle Harrington"
   "Return the mass of an object."
   [obj]
   (.getDoubleMass obj))
+
+(defn get-texture
+  "Return the texture of an object."
+  [obj]
+  (.getTexture obj))
+
+(defn set-texture
+  "set the texture of an object."
+  [obj new-tex]
+  (.setTexture obj new-tex)
+  obj)
+
