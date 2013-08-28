@@ -94,9 +94,10 @@ Copyright 2012, 2013 Kyle Harrington"
          (GL11/glBindTexture GL11/GL_TEXTURE_2D (.getTextureId obj)))
 		   (cond
         ;#_(= (:type (:shape obj)) :box)  (draw-box)
-        (= (:type (:shape obj)) :box)  (Basic3D/drawBox 1.0 1.0 1.0)
+        ;(= (:type (:shape obj)) :box)  (Basic3D/drawBox 1.0 1.0 1.0)
+        (= (.getType (.getShape obj)) "box")  (Basic3D/drawBox 1.0 1.0 1.0)        
         ;#_(= (:type (:shape obj)) :cone) (draw-cone)
-        (= (:type (:shape obj)) :cone)  (Basic3D/drawCone 0.8 0.01 1.2 25 25)
+        (= (.getType (.getShape obj)) "cone")  (Basic3D/drawCone 0.8 0.01 1.2 25 25)
         ;:else                          (draw-sphere);(= (:type (:shape obj)) :sphere) 
         :else                          (Basic3D/drawSphere 2.0 20 20))
      #_(GL11/glBindTexture GL11/GL_TEXTURE_2D 0)

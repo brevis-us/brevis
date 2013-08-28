@@ -43,6 +43,20 @@ public class BrShape {
 		
 	}
 	
+	public String getType() {
+		if( type == BrShapeType.BOX ) {
+			return "box";
+		} else if( type == BrShapeType.SPHERE ) {
+			return "sphere";
+		} else if( type == BrShapeType.CONE ) {
+			return "cone";
+		} else if( type == BrShapeType.MESH ) {
+			return "mesh";
+		} else {
+			return "unknown";
+		}
+	}
+	
 	/*
 	 * Return a mass that is appropriate for this object and its dimensions
 	 */
