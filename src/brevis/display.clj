@@ -15,27 +15,37 @@
                                                                                                                                                                                      
 Copyright 2012, 2013 Kyle Harrington"     
 
-(ns brevis.utils
-  (:use [brevis globals]
-        [brevis.physics core]))
+(ns brevis.display
+  (:use [brevis globals])
+  (:require [penumbra.opengl.frame-buffer :as fb])
+  (:import (java.awt AWTException Robot Rectangle Toolkit)
+           (java.awt.geom AffineTransform)
+           (java.awt.image AffineTransformOp BufferedImage)
+           (java.nio ByteBuffer)
+           (java.io File IOException)
+           (javax.imageio ImageIO)
+           (org.lwjgl.opengl Display GL11)
+           (org.lwjgl BufferUtils)))
 
-(defn reset-core
-  "Reset the core variables."
-  []
-  #_(reset! *collision-handlers* {})
-  (reset! *gui-message-board* (sorted-map))
-  (reset! *collisions* {})
-  #_(reset! *update-handlers* {})
-  (reset! *physics* nil)
-  (reset! *objects* {}))
-
-(defn disable-collisions "Disable collision detection." [] (reset! collisions-enabled false))
-(defn enable-collisions "Enable collision detection." [] (reset! collisions-enabled true))
-
-(defn disable-neighborhoods "Disable neighborhood detection." [] (reset! neighborhoods-enabled false))
-(defn enable-neighborhoods "Enable neighborhood detection." [] (reset! neighborhoods-enabled true))
-
-(defn get-objects
-  "Return all objects in the simulation."
-  []
-  (seq (.getObjects  @*java-engine*)))
+(defn screenshot
+  "Take a screenshot."
+  [filename state]
+  (let [pixels (int-array (* (:window-width state) (:window-height state))); Creating an rbg array of total pixels
+        fb (ByteBuffer/allocateDirect (* 3 (:window-width state) (:window-height state))); allocate space for RBG pixels
+        img-type (second (re-find (re-matcher #"\.(\w+)$" filename)))]        
+    (fb/gl-read-pixels (int 0) (int 0) (int (:window-width state)) (int (:window-height state)) :rgb :unsigned-byte fb)
+    (let [imageIn (BufferedImage. (:window-width state) (:window-height state) BufferedImage/TYPE_INT_RGB)]
+      (dotimes [i (alength pixels)]
+        (let [bidx (* 3 i)]
+          (aset pixels i 
+                (+ (bit-shift-left (.get fb bidx) 16) 
+                   (bit-shift-left (.get fb (inc bidx)) 8) 
+                   (bit-shift-left (.get fb (inc (inc bidx))) 0))))) 
+     (.setRGB imageIn 0 0 (:window-width state) (:window-height state) pixels 0 (:window-width state)); Allocate colored pixel to buffered Image
+     (let [at (AffineTransform/getScaleInstance 1 -1)]; Creating the transformation direction (horizontal)
+       (.translate at 0 (- (.getHeight imageIn)))
+       (let [opRotated (AffineTransformOp. at AffineTransformOp/TYPE_BILINEAR);//Applying transformation
+             imageOut (. opRotated filter imageIn nil)
+             file (File. filename)]
+         ;; probably should use try-catch
+         (ImageIO/write imageOut img-type file))))))

@@ -15,27 +15,11 @@
                                                                                                                                                                                      
 Copyright 2012, 2013 Kyle Harrington"     
 
-(ns brevis.utils
-  (:use [brevis globals]
-        [brevis.physics core]))
+(ns brevis.globals)
 
-(defn reset-core
-  "Reset the core variables."
-  []
-  #_(reset! *collision-handlers* {})
-  (reset! *gui-message-board* (sorted-map))
-  (reset! *collisions* {})
-  #_(reset! *update-handlers* {})
-  (reset! *physics* nil)
-  (reset! *objects* {}))
-
-(defn disable-collisions "Disable collision detection." [] (reset! collisions-enabled false))
-(defn enable-collisions "Enable collision detection." [] (reset! collisions-enabled true))
-
-(defn disable-neighborhoods "Disable neighborhood detection." [] (reset! neighborhoods-enabled false))
-(defn enable-neighborhoods "Enable neighborhood detection." [] (reset! neighborhoods-enabled true))
-
-(defn get-objects
-  "Return all objects in the simulation."
-  []
-  (seq (.getObjects  @*java-engine*)))
+(def enable-display-text true)
+(def #^:dynamic *gui-state* (atom {:rotate-mode :none :translate-mode :none                                    
+                                   :rot-x 0 :rot-y 0 :rot-z 0
+                                   :shift-x 0 :shift-y -20 :shift-z -50;-30                                   
+                                   :last-report-time 0 :simulation-time 0}))
+(def #^:dynamic *gui-message-board* (atom (sorted-map))) 

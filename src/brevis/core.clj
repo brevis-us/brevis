@@ -18,7 +18,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (ns brevis.core
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
-        ;[cantor]
+        [brevis globals utils input osd display]
         [brevis.graphics.basic-3D]
         [brevis.physics core space utils vector]
         [brevis.shape core box sphere cone])       
@@ -37,12 +37,6 @@ Copyright 2012, 2013 Kyle Harrington"
            (javax.imageio ImageIO)
            (org.lwjgl.opengl Display GL11)
            (org.lwjgl BufferUtils)))
-
-(def enable-display-text true)
-(def #^:dynamic *gui-state* (atom {:rotate-mode :none :translate-mode :none                                    
-                                   :rot-x 0 :rot-y 0 :rot-z 0
-                                   :shift-x 0 :shift-y -20 :shift-z -50;-30                                   
-                                   :last-report-time 0 :simulation-time 0}))
 
 ;; ## Todo:
 ;;
@@ -90,15 +84,11 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn make-init
   "Make an initialize function based upon a user-customized init function."
   [user-init]
-  (println "make-init")
+  #_(println "make-init")
   (fn [state]
     (init state)
     (user-init)
     state))
-
-(def shift-key-down (atom false))
-(defn sin [n] (float (Math/sin n)))
-(defn cos [n] (float (Math/cos n)))
 
 (defn reshape
   "Reshape after the window is resized."
@@ -115,6 +105,12 @@ Copyright 2012, 2013 Kyle Harrington"
          :specular [1 1 1 1]
          :position [100 -100 10 0]
          :diffuse [1 1 1 1])
+  (reset! *gui-state*
+          (assoc @*gui-state*
+                 :window-x x
+                 :window-y y
+                 :window-width w
+                 :window-height h))
   (assoc state
     :window-x x
     :window-y y
@@ -187,65 +183,6 @@ Copyright 2012, 2013 Kyle Harrington"
         next-state state]
     (if (> (camera-score next-state) (camera-score state))
       next-state state)))                            
-
-(def #^:dynamic *gui-message-board* (atom (sorted-map))) 
-
-(defn osd
-  "Write an onscreen message. Generally should be of the form:
-(osd :msg-type msg-type :fn <my-function or string> :start-t 0 :stop-t -1)
-:x and :y could also be specified
-stop-t = -1 means do not automatically erase"
-  ;[msg-type func x y start-t stop-t]
-  [& args]
-  (let [msg (apply hash-map args)
-        uid (gensym)]  
-    (swap! *gui-message-board* assoc
-           uid msg)
-    uid))
-
-(defn remove-osd-by-uid
-  "Remove an OSD message based on UID."
-  [uid]
-  (swap! *gui-message-board*
-         dissoc uid))
-
-(defn default-display-text
-  "Setup the default display-text."
-  []
-  (osd :msg-type :penumbra :fn (fn [[dt t] state] (str (int (/ 1 dt)) " fps")) :start-t 0 :stop-t -1)
-  (osd :msg-type :penumbra :fn (fn [[dt t] state] (str (float (get-time)) " time")) :start-t 0 :stop-t -1)
-  (osd :msg-type :brevis :fn #(str (int (count @*objects*)) " objs") :start-t 0 :stop-t 5))
-
-(defn update-display-text
-  "Update the onscreen displayed (OSD) text."
-  [[dt t] state]
-  (loop [msgs @*gui-message-board*
-         console-x 5
-         console-y 5]
-    (when-not (empty? msgs)      
-      (let [[uid msg] (first msgs)
-            x (or (:x msg) console-x)
-            y (or (:y msg) console-y)
-            sim-t (get-time)
-            started? (> sim-t (:start-t msg))
-            stopped? (and (> (:stop-t msg) 0) (> sim-t (:stop-t msg)))]
-        (when started?
-          (let [text (cond
-                       (= (:msg-type msg) :penumbra) ((:fn msg) [dt t] state)
-                       (= (:msg-type msg) :penumbra-rotate) ((:fn msg) [dt t] state)
-                       (= (:msg-type msg) :penumbra-translate) ((:fn msg) [dt t] state)
-                       (= (:msg-type msg) :brevis) ((:fn msg))
-                       :else (str "OSD msg type:" (:msg-type msg) "not recognized"))]
-            (text/write-to-screen text x y)))
-        (when stopped?
-          (remove-osd-by-uid uid))
-        (recur (cond
-                 (= (:msg-type msg) :penumbra-rotate) 
-                 (filter #(not= (:msg-type (second %)) :penumbra-rotate) (rest msgs))
-                 (= (:msg-type msg) :penumbra-translate) 
-                 (filter #(not= (:msg-type (second %)) :penumbra-translate) (rest msgs))
-                 :else (rest msgs))
-               x (+ y 30))))))
   
 (defn enable-video-recording
   "Turn on video recording."
@@ -259,34 +196,6 @@ stop-t = -1 means do not automatically erase"
   "Turn off video recording."
   []
   (swap! *gui-state* dissoc :record-video))
-
-(defn screenshot
-  "Take a screenshot."
-  [filename state]
-  (let [pixels (int-array (* (:window-width state) (:window-height state))); Creating an rbg array of total pixels
-        fb (ByteBuffer/allocateDirect (* 3 (:window-width state) (:window-height state))); allocate space for RBG pixels
-        img-type (second (re-find (re-matcher #"\.(\w+)$" filename)))]        
-    (fb/gl-read-pixels (int 0) (int 0) (int (:window-width state)) (int (:window-height state)) :rgb :unsigned-byte fb)
-    (let [imageIn (BufferedImage. (:window-width state) (:window-height state) BufferedImage/TYPE_INT_RGB)]
-      (dotimes [i (alength pixels)]
-        (let [bidx (* 3 i)]
-          (aset pixels i 
-                (+ (bit-shift-left (.get fb bidx) 16) 
-                   (bit-shift-left (.get fb (inc bidx)) 8) 
-                   (bit-shift-left (.get fb (inc (inc bidx))) 0))))) 
-     (.setRGB imageIn 0 0 (:window-width state) (:window-height state) pixels 0 (:window-width state)); Allocate colored pixel to buffered Image
-     (let [at (AffineTransform/getScaleInstance 1 -1)]; Creating the transformation direction (horizontal)
-       (.translate at 0 (- (.getHeight imageIn)))
-       (let [opRotated (AffineTransformOp. at AffineTransformOp/TYPE_BILINEAR);//Applying transformation
-             imageOut (. opRotated filter imageIn nil)
-             file (File. filename)]
-         ;; probably should use try-catch
-         (ImageIO/write imageOut img-type file))))))
-
-(defn get-objects
-  "Return all objects in the simulation."
-  []
-  (seq (.getObjects  @*java-engine*)))
 
 (defn display
   "Display the world."
@@ -309,132 +218,7 @@ stop-t = -1 means do not automatically erase"
      ;(screenshot (str (:video-name @*gui-state*) "_" (get-time) ".png") state))
    ))
 
-(defn key-press
-  "Update the state in response to a keypress."
-  [key state]
-  ;(println "key-press" key)
-  (cond
-    ;(= :lshift key) (do (reset! shift-key-down true) state)
-    (= "z" key) (do (reset! shift-key-down true) state)    
-    (= "p" key) (do (app/pause!)
-                  state)
-    (= "o" key) (do (screenshot (str "brevis_screenshot_" (System/currentTimeMillis) ".png") state)
-                  state)
-    (= :escape key)
-    (do (app/stop!)
-      (assoc state 
-             :terminated? true)
-      )))
-
-(defn key-release
-  "Update the state in response to the release of a key"
-  [key state]
-  ;(println "key-release" key) 
-  (cond
-    ;(= :lshift key) (reset! shift-key-down false))
-    (= "z" key) (reset! shift-key-down false))
-  state)
-
-;; ## Input handling
-(defn mouse-drag
-  "Rotate the world."
-  [[dx dy] _ button state]
-  (let [rads (/ (Math/PI) 180)
-        thetaY (*(:rot-y state) rads)
-        sY (sin thetaY)
-        cY (cos thetaY)
-        thetaX (* (:rot-x state) rads)
-        sX (sin thetaX)
-        cX (cos thetaX)
-        t (get-time)]  
-;	  (when @shift-key-down
-	    (cond 
-	      ; Rotate
-	      (= :left button)
-	      (swap! *gui-state* assoc
-	             :rot-x (+ (:rot-x @*gui-state*) dy)
-	             :rot-y (+ (:rot-y @*gui-state*) dx))
-	      (= :right button)
-	      (swap! *gui-state* assoc
-	             :shift-x (+ (:shift-x @*gui-state*) (* dx cY))
-	             :shift-y (- (:shift-y @*gui-state*) (* dy cX))
-	             :shift-z (+ (:shift-z @*gui-state*) (* dx sY))
-	             )
-	      ; Zoom
-	      (= :center button)
-	      (swap! *gui-state* assoc
-	             :shift-x (+ (:shift-x @*gui-state*) (* (/ dy 6) (* sY -1)))
-	             :shift-y (+ (:shift-y @*gui-state*) (* (/ dy 6) sX))
-	             :shift-z (+ (:shift-z @*gui-state*) (* (/ dy 6) cY))           
-	             ))
-   (osd :msg-type :penumbra-rotate 
-        :fn (fn [[dt t] state] (str "Rotation: (" 
-                                    (:rot-x @*gui-state*) "," (:rot-y @*gui-state*) "," (:rot-z @*gui-state*) ")")) 
-        :start-t t :stop-t (+ t 1))
-   (osd :msg-type :penumbra-translate 
-        :fn (fn [[dt t] state] (str "Translation: (" 
-                                    (int (:shift-x @*gui-state*)) "," (int (:shift-y @*gui-state*)) "," (int (:shift-z @*gui-state*)) ")")) 
-        :start-t t :stop-t (+ t 1)))
-  state)
-
-(defn mouse-wheel
-  "Respond to a mousewheel movement. dw is +/- depending on scroll-up or down."
-  [dw state]
-  (let [rads (/ (Math/PI) 180)
-        thetaY (*(:rot-y state) rads)
-        sY (sin thetaY)
-        cY (cos thetaY)
-        thetaX (* (:rot-x state) rads)
-        sX (sin thetaX)
-        cX (cos thetaX)]
-  (swap! *gui-state* assoc
-						         :shift-z (+ (:shift-z @*gui-state*) (* (/ dw 6) cY))
-						         :shift-x (+ (:shift-x @*gui-state*) (* (/ dw 6) (* sY -1)))
-						         :shift-y (+ (:shift-y @*gui-state*) (* (/ dw 6) sX)))
-  state))
-
-(defn mouse-move
-  "Respond to a change in x,y position of the mouse."
-  [[[dx dy] [x y]] state] 
-  (println "mouse-move" x y)
-  state)
-    
-(defn mouse-up
-  "Respond to a mouse button being released"
-  [[x y] button state] 
-  (println "mouse-up" button) 
-  state)
-    
-(defn mouse-click
-  "Respond to a click?"
-  [[x y] button state]
-  (println "mouse-click" button)
-  state)
-
-(defn mouse-down
-  "Respond to a mouse button being pressed"
-  [[x y] button state]
-  (println "mouse-down" button)
-  state)
-
-
 ;; ## Start a brevis instance
-
-(defn- reset-core
-  "Reset the core variables."
-  []
-  #_(reset! *collision-handlers* {})
-  (reset! *gui-message-board* (sorted-map))
-  (reset! *collisions* {})
-  #_(reset! *update-handlers* {})
-  (reset! *physics* nil)
-  (reset! *objects* {}))
-
-(defn disable-collisions "Disable collision detection." [] (reset! collisions-enabled false))
-(defn enable-collisions "Enable collision detection." [] (reset! collisions-enabled true))
-
-(defn disable-neighborhoods "Disable neighborhood detection." [] (reset! neighborhoods-enabled false))
-(defn enable-neighborhoods "Enable neighborhood detection." [] (reset! neighborhoods-enabled true))
 
 (defn start-gui 
   "Start the simulation with a GUI."

@@ -19,7 +19,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (:use [brevis.graphics.basic-3D]
         [brevis.physics collision core space utils vector]
         [brevis.shape box sphere cone]
-        [brevis.core]))
+        [brevis core osd]))
 
 ;; ## Swarm
 ;;
