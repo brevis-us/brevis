@@ -106,6 +106,11 @@ Copyright 2012, 2013 Kyle Harrington"
               (let [obj (.getObject engine uid)]
                 (handler-fn obj dt (.getNeighbors obj)))))]
     (.addUpdateHandler @*java-engine* (str (name type)) uh)))
+
+(defn enable-kinematics-update
+  "Enable automatic kinematics for this type."
+  [type]
+  (.enableUpdateKinematics @*java-engine* (str (name type))))
             
 (defn odevec-to-vec3
   "Convert an ODE vector into a Cantor vector."

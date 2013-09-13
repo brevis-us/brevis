@@ -67,6 +67,7 @@ public class Engine {
 	
 	// updateHandlers
 	protected HashMap<String,UpdateHandler> updateHandlers;
+	protected HashMap<String,Boolean> updateKinematics;
 	// dt
 	public double dt = 1.0;
 	// neighborhoodRadius
@@ -102,6 +103,7 @@ public class Engine {
 	
 	public Engine() {
 		updateHandlers = new HashMap<String,UpdateHandler>();		
+		updateKinematics = new HashMap<String,Boolean>();		
 		physics = new BrPhysics();
 		objects = new HashMap<Long,BrObject>();
 		addedObjects = new HashMap<Long,BrObject>();
@@ -132,15 +134,16 @@ public class Engine {
 			}*/
 		}
 		
-	}
+	}	
 	
 	/* updatePhysics
 	 * Move according to physics
 	 */
 	public void updatePhysics( double dt ) {
 		physics.contactGroup.empty();
-		OdeHelper.spaceCollide( physics.space, null, new BrevisCollision() );
-		physics.world.quickStep( dt );
+		OdeHelper.spaceCollide( physics.space, null, new BrevisCollision() );		
+		physics.world.quickStep( dt );						
+		
 		physics.time += dt;		
 	}
 	
@@ -176,13 +179,20 @@ public class Engine {
 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
 			BrObject obj = entry.getValue();
 			UpdateHandler uh = updateHandlers.get( obj.type );
+			
+			BrObject newObj = obj;
 			if( uh != null ) {
 				//System.out.println( "--" + getTime() + " updating object " + entry.getKey() );
-				BrObject newObj = uh.update( this, entry.getKey(), dt );
-				updatedObjects.put( entry.getKey(), newObj );
-			} else {
-				updatedObjects.put( entry.getKey(), obj );
+				newObj = uh.update( this, entry.getKey(), dt );				
+			} 
+			
+			Boolean kh = updateKinematics.get( obj.type );
+			//System.out.println( obj.type + " " + kh );
+			if( kh != null && kh ) {
+				newObj.updateObjectKinematics( dt );
 			}
+			
+			updatedObjects.put( entry.getKey(), newObj );
 		}
 		objects = updatedObjects;
 	}
@@ -299,6 +309,11 @@ public class Engine {
 	
 	public void addUpdateHandler( String type, UpdateHandler uh ) {
 		updateHandlers.put( type,  uh );
+	}
+	
+	public void enableUpdateKinematics( String type ) {
+		//System.out.println( type );
+		updateKinematics.put( type, true );
 	}
 	
 	public void addCollisionHandler( String typea, String typeb, CollisionHandler ch ) {

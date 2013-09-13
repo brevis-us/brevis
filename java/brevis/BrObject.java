@@ -141,7 +141,13 @@ public class BrObject implements clojure.lang.IPersistentMap {
 	}
 	
 	public Vector3d getVelocity() {
-		return velocity;
+		return brevis.Utils.DVector3CToVector3d( body.getLinearVel() );
+		//return velocity;
+	}
+	
+	public Vector3d getForce() {
+		return brevis.Utils.DVector3CToVector3d( body.getForce() );
+		//return velocity;
 	}
 	
 	public Vector3d getAcceleration() {
@@ -153,7 +159,8 @@ public class BrObject implements clojure.lang.IPersistentMap {
 	}
 	
 	public void setVelocity( Vector3d v ) {
-		velocity = v;
+		//velocity = v;
+		body.setLinearVel( brevis.Utils.Vector3dToDVector3( v ) );
 	}
 	
 	public void setPosition( Vector3d v ) {
@@ -213,6 +220,7 @@ public class BrObject implements clojure.lang.IPersistentMap {
 	}
 	
 	public Vector4d getRotation() {
+		
 		return rotation;
 	}
 	
@@ -265,7 +273,42 @@ public class BrObject implements clojure.lang.IPersistentMap {
 
         //Send texel data to OpenGL
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, texture.getWidth(), texture.getHeight(), 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
-				
+				        
+	}
+	
+	/*
+	 * Updat the orientation of an object
+	 */
+	public void orient( Vector3d objVec, Vector3d targetVec ) {
+		if( objVec.length() != 0 && targetVec.length() != 0 ) {
+			Vector3d dir = new Vector3d();
+			dir.cross( objVec, targetVec );
+			//dir.cross( targetVec, objVec );
+			//System.out.println( "orient cross " + dir );
+			dir.normalize();
+			//dir.scale( 1.0 / dir.length() );
+			double vdot = objVec.dot( targetVec );
+			vdot = Math.max( Math.min( vdot / ( objVec.length() * targetVec.length() ), 
+									   1.0), -1.0 );
+			double angle = ( Math.acos( vdot ) * ( Math.PI / 180.0 ) );
+			if( dir.length() == 0 ) 
+				rotation.set( objVec.x, objVec.y, objVec.z, 0.001 );
+			else
+				rotation.set( dir.x, dir.y, dir.z, angle );
+			//System.out.println( "orient " + objVec + " " + targetVec + " " + dir + " " + vdot + " " + rotation );
+		}
+	}
+	
+	public void updateObjectKinematics( double dt ) {	
+	//(defn update-object-kinematics
+	//		  "Update the kinematics of an object by applying acceleration and velocity for an infinitesimal amount of time."
+		Vector3d f = (Vector3d) acceleration.clone();
+		f.scale( getDoubleMass() );
+		getBody().addForce( f.x, f.y, f.z );
+		orient( new Vector3d(0,0,1), getVelocity() );
+		//orient( new Vector3d(0,1,0), getVelocity() );
+		//orient( new Vector3d(1,0,0), getForce() );
+		//System.out.println( "Object " + uid + " force " + f );
 	}
 	
 	public int getTextureId() {
@@ -334,5 +377,5 @@ public class BrObject implements clojure.lang.IPersistentMap {
 		return null;
 	}
 
-
+	
 }

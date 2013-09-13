@@ -77,7 +77,7 @@ Copyright 2012, 2013 Kyle Harrington"
         dim (vector3d-to-seq (get-dimension obj))        
         rot (vector4d-to-seq (get-rotation obj))
         shin 80]
-    #_(println "do-draw-shape" pos col dim rot)
+    #_(println "do-draw-shape" pos rot (get-velocity obj))
 		  (push-matrix
        (shade-model :smooth)
        (depth-test :less)

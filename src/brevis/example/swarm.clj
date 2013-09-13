@@ -69,8 +69,8 @@ Copyright 2012, 2013 Kyle Harrington"
   [position]  
   (move (make-real {:type :bird
               :color (vec4 1 0 0 1)
-              :shape (create-sphere)})
-              ;:shape (create-cone)})
+              ;:shape (create-sphere)})
+              :shape (create-cone)})
         position))
   
 (defn random-bird
@@ -80,8 +80,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (defn bound-acceleration
   "Keeps the acceleration within a reasonable range."
-  [v]
-  
+  [v]  
   (if (> (length v) max-acceleration)
     (mul (div v (length v)) max-acceleration)
     v))
@@ -91,7 +90,8 @@ Copyright 2012, 2013 Kyle Harrington"
   [bird dt nbrs]
   #_(println "fly: bird=" (:uid bird) " nbrs=" nbrs " " (count nbrs))
   #_(println "fly:" (get-position bird))
-  (let [num-nbrs (count nbrs)
+  (let [nbrs (filter bird? (get-neighbor-objects bird))        
+        num-nbrs (count nbrs)
         closest-bird (if (zero? num-nbrs)
                        bird
                        (first nbrs))
@@ -109,10 +109,11 @@ Copyright 2012, 2013 Kyle Harrington"
                                 (mul d-centroid @clustering)))]
     #_(println d-center d-closest-bird d-centroid)    
     (set-acceleration
-      (orient-object bird (vec3 0 0 1) (get-velocity bird))
+      #_(orient-object bird (vec3 0 0 1) (get-velocity bird))
+      bird
       new-acceleration)))
 
-(defn update-bird
+#_(defn update-bird
   "Update a bird based upon its flocking behavior and the physical kinematics."
   [bird dt objects]  
   #_(println (get-time) bird)
@@ -122,7 +123,9 @@ Copyright 2012, 2013 Kyle Harrington"
     (update-object-kinematics 
       (fly bird dt nbrs) dt)))
 
-(add-update-handler :bird update-bird); This tells the simulator how to update these objects
+(enable-kinematics-update :bird); This tells the simulator to move our objects
+;(add-update-handler :bird update-bird); This tells the simulator how to update these objects
+(add-update-handler :bird fly); This tells the simulator how to update these objects
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Collision handling
