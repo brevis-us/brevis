@@ -66,7 +66,10 @@ public class BrObject implements clojure.lang.IPersistentMap {
 	public DGeom geom;
 	
 	public String toString() {
-		String s = "#BrObject{ UID = " + uid + "}";		
+		String s = "#BrObject{ :UID " + uid + ", :type " + type + ", :acceleration " + acceleration +
+				", :velocity " + velocity + ", :position " + position + ", :density " + density +
+				", :rotation " + rotation + ", : color " + color + ", :shape " + shape +
+				"}";		
 		return s;
 	}
 	
@@ -285,23 +288,30 @@ public class BrObject implements clojure.lang.IPersistentMap {
 			dir.cross( objVec, targetVec );
 			//dir.cross( targetVec, objVec );
 			//System.out.println( "orient cross " + dir );
+			dir.set( ( objVec.y * targetVec.z - objVec.z * targetVec.y ), 
+					 ( objVec.z * targetVec.x - objVec.x * targetVec.z ), 
+					 ( objVec.x * targetVec.y - objVec.y * targetVec.x ) );
 			dir.normalize();
 			//dir.scale( 1.0 / dir.length() );
 			double vdot = objVec.dot( targetVec );
 			vdot = Math.max( Math.min( vdot / ( objVec.length() * targetVec.length() ), 
 									   1.0), -1.0 );
-			double angle = ( Math.acos( vdot ) * ( Math.PI / 180.0 ) );
+			//double angle = ( Math.acos( vdot ) * ( Math.PI / 180.0 ) );
+			double angle = ( Math.acos( vdot ) * ( 180.0 / Math.PI ) );
 			if( dir.length() == 0 ) 
 				rotation.set( objVec.x, objVec.y, objVec.z, 0.001 );
 			else
 				rotation.set( dir.x, dir.y, dir.z, angle );
 			//System.out.println( "orient " + objVec + " " + targetVec + " " + dir + " " + vdot + " " + rotation );
+			
 		}
 	}
 	
 	public void updateObjectKinematics( double dt ) {	
 	//(defn update-object-kinematics
 	//		  "Update the kinematics of an object by applying acceleration and velocity for an infinitesimal amount of time."
+		//System.out.print( this );
+		
 		Vector3d f = (Vector3d) acceleration.clone();
 		f.scale( getDoubleMass() );
 		getBody().addForce( f.x, f.y, f.z );
@@ -360,7 +370,7 @@ public class BrObject implements clojure.lang.IPersistentMap {
 
 	@Override
 	public ISeq seq() {
-		// TODO Auto-generated method stub
+		// TODO Auto-generated method stub		
 		return null;
 		//return ISeq( myMap.keySet() );
 	}

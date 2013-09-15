@@ -62,13 +62,13 @@ Copyright 2012, 2013 Kyle Harrington"
         sX (sin thetaX)
         cX (cos thetaX)
         t (get-time)]  
-;	  (when @shift-key-down
 	    (cond 
 	      ; Rotate
 	      (= :left button)
 	      (swap! *gui-state* assoc
 	             :rot-x (+ (:rot-x @*gui-state*) dy)
 	             :rot-y (+ (:rot-y @*gui-state*) dx))
+       ; Translate
 	      (= :right button)
 	      (swap! *gui-state* assoc
 	             :shift-x (+ (:shift-x @*gui-state*) (* dx cY))

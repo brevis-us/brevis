@@ -47,6 +47,13 @@
              (double (* s (.y v)))
              (double (* s (.z v)))))
 
+(defn elmul
+  "Multiply a Vector3d by a scalar."
+  [v w]
+  (Vector3d. (double (* (.x w) (.x v)))
+             (double (* (.y w) (.y v)))
+             (double (* (.z w) (.z v)))))
+
 (defn dot
   "Dot product of 2 vectors."
   [v1 v2]

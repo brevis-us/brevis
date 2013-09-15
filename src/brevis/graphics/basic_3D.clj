@@ -23,18 +23,21 @@ Copyright 2012, 2013 Kyle Harrington"
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
         ;[cantor]
+        [brevis globals]
         [brevis.physics utils]
         [brevis.shape core box sphere cone])
   (:require [penumbra.app :as app]
             [penumbra.text :as text]
             [penumbra.data :as data]
             ;[cantor.range]
+            [clojure.java.io]
             [penumbra.opengl.frame-buffer :as fb]))  
 
 (defn init-sky
   []
   (def #^:dynamic *sky*
-    (load-texture-from-file "resources/img/sky.jpg")))
+    (load-texture-from-file (.getPath (clojure.java.io/resource "img/sky.jpg")))
+    #_(load-texture-from-file "resources/img/sky.jpg")))
 ;    (load-texture-from-file "resources/img/sky.jpg")))
 
 (defn init-shader
@@ -90,6 +93,7 @@ Copyright 2012, 2013 Kyle Harrington"
 		   (translate pos)       		   
        (apply scale dim)
        (apply rotate rot)
+       #_(println "Rotation: " rot)
        #_(when (pos? (.getTextureId obj))
          (GL11/glBindTexture GL11/GL_TEXTURE_2D (.getTextureId obj)))
 		   (cond
@@ -116,7 +120,11 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn draw-shape
   "Draw a shape. Call this after translating, scaling, and setting color."
   [obj]
-  (do-draw-shape obj)
+  (Basic3D/drawShape obj (:rot-x @*gui-state*) (:rot-y @*gui-state*) (:rot-z @*gui-state*) 
+                     (:shift-x @*gui-state*) (:shift-y @*gui-state*) (:shift-z @*gui-state*)                      
+                     (double-array [0 0 1 0])
+                     (.getDimension (.getShape obj)))
+  #_(do-draw-shape obj)
   #_(if (get-texture obj)
     (with-enabled :texture-2d
       (with-texture (get-texture obj)      

@@ -162,7 +162,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn set-acceleration
   "Set the acceleration of an object."
   [obj v]
-  (.setAcceleration obj v)
+  (.setAcceleration obj v)  
   obj)
 
 (defn get-body
@@ -220,13 +220,14 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn get-object
   "Return the object by UID"
   [uid]
-  (.getObject @*java-engine*))
+  (.getObject @*java-engine* uid))
 
 (defn set-object
   "Set the object at UID to a new version."
   [uid new-obj]
+  (.setObject @*java-engine* uid new-obj)
   ; should check if new-obj has the right uid
-  (swap! *objects* assoc uid new-obj))
+  #_(swap! *objects* assoc uid new-obj))
 
 #_(defn get-neighbor-objects
   "Return the objects of a neighborhood."
@@ -237,7 +238,12 @@ Copyright 2012, 2013 Kyle Harrington"
   "Return the objects of a neighborhood."
   [obj]
   #_(println (.getNeighbors obj))
-  (map #(.getObject @*java-engine* %) (.getNeighbors obj)))
+  (let [nbrs (.getNeighbors obj)]
+    (when nbrs
+      #_(println "get-neighbor-objects" (.size nbrs) (count (map #(get-object %)
+          (seq (.toArray nbrs)))))      
+	    (map #(get-object %)
+          (seq (.toArray nbrs))))))
 
 (defn set-neighborhood-radius
   "Set the neighborhood radius."
@@ -292,6 +298,11 @@ Copyright 2012, 2013 Kyle Harrington"
   "Return the texture of an object."
   [obj]
   (.getTexture obj))
+
+(defn get-type
+  "Return the type of an object."
+  [obj]
+  (.getType obj))
 
 (defn set-texture
   "set the texture of an object."

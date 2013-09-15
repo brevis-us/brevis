@@ -321,7 +321,17 @@ public class Engine {
 		collisionHandlers.put( typeEntry,  ch );
 	}
 	
-	public BrObject getObject( long UID ) {
+	public Vector<Long> allObjectUIDs() {
+		Vector<Long> v = new Vector<Long>();
+		v.addAll( objects.keySet() );
+		return v;
+	}
+	
+	public Collection<BrObject> allObjects() {
+		return objects.values();
+	}
+	
+	public BrObject getObject( Long UID ) {
 		return objects.get( UID );
 	}
 	
