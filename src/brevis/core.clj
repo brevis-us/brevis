@@ -197,7 +197,7 @@ Copyright 2012, 2013 Kyle Harrington"
   []
   (swap! *gui-state* dissoc :record-video))
 
-(defn display
+#_(defn display
   "Display the world."
   [[dt t] state]
   (let [state (if (:auto-camera state) (auto-camera state) state)]      
@@ -211,6 +211,62 @@ Copyright 2012, 2013 Kyle Harrington"
     #_(println "display drawing n objects:" (count (get-objects)))
 	  (doseq [obj (get-objects)]
 	    (draw-shape obj))
+	  (app/repaint!)
+   (when (:record-video @*gui-state*)
+     (screenshot (str (:video-name @*gui-state*) "_" @video-counter ".png") state)
+     (swap! video-counter inc))   
+     ;(screenshot (str (:video-name @*gui-state*) "_" (get-time) ".png") state))
+   ))
+
+(defn display
+  "Display the world."
+  [[dt t] state]
+  (let [state (if (:auto-camera state) (auto-camera state) state)]      
+    (clear)
+    (enable :lighting)
+    (enable :light0)
+    (disable :texture-2D)
+    (disable :texture-gen-s)
+		(disable :texture-gen-t)
+    (shade-model :flat)
+    (enable :depth-test)
+    (depth-test :less)
+    (enable :cull-face)
+    ;(cull-face :black)
+    ;GL11.glFrontFace (GL11.GL_CCW);
+    (viewport 0 0 (:window-width @*gui-state*) (:window-height @*gui-state*))
+    (gl-matrix-mode :projection)
+    (gl-load-identity-matrix)
+    ;should if on width>height
+    (frustum-view 60.0 (/ (double (:window-width @*gui-state*)) (:window-height @*gui-state*)) 1.0 100.0)
+    (light 0 
+         :specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
+         :position [0 -1 0 0];;directional can be enabled after the penumbra update         
+         ;:position [250 250 -100 1]         
+         :diffuse [1 1 1 1])
+    (color 1 1 1)
+    (clear-color 0.5 0.5 0.5 0)
+    (clear)
+    (gl-matrix-mode :modelview)
+    (gl-load-identity-matrix)
+    (set-camera
+      (:shift-x @*gui-state*) (:shift-y @*gui-state*) (:shift-z @*gui-state*)
+      (:rot-x @*gui-state*) (:rot-y @*gui-state*) (:rot-z @*gui-state*))
+    (light 0 
+           :position [0 -1 0 0])    
+	  (draw-sky)
+   (enable :lighting)
+   (disable :texture-2D)
+   (shade-model :flat)
+   (enable :depth-test)
+   (depth-test :less)
+   (color 1 1 1)
+    #_(println "display drawing n objects:" (count (get-objects)))
+	  (doseq [obj (get-objects)]
+	    (draw-shape obj))
+   
+   (when enable-display-text
+     (update-display-text [dt t] state))
 	  (app/repaint!)
    (when (:record-video @*gui-state*)
      (screenshot (str (:video-name @*gui-state*) "_" @video-counter ".png") state)

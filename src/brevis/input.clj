@@ -55,19 +55,39 @@ Copyright 2012, 2013 Kyle Harrington"
   "Rotate the world."
   [[dx dy] _ button state]
   (let [rads (/ (Math/PI) 180)
-        thetaY (*(:rot-y state) rads)
+        thetaY (*(:rot-z state) rads)
         sY (sin thetaY)
         cY (cos thetaY)
         thetaX (* (:rot-x state) rads)
         sX (sin thetaX)
         cX (cos thetaX)
-        t (get-time)]  
-	    (cond 
+        t (get-time)
+        
+        side (* 0.01 dx)
+        fwd (if (:right button) (* 0.01 dy) 0)]
+    (swap! *gui-state* assoc
+           :rot-x (+ (:rot-x @*gui-state*) dx)
+           :rot-z (+ (:rot-z @*gui-state*) dy)
+           :shift-x (+ (:shift-x @*gui-state*) (* (- sX) side) (* cX fwd))
+           :shift-y (+ (:shift-y @*gui-state*) (* cX side) (* sX fwd))
+           :shift-z (if (= :middle button)
+                           (+ (:shift-z @*gui-state*) (* 0.01 dy))
+                           (:shift-z @*gui-state*)))
+
+	    #_(cond 
 	      ; Rotate
 	      (= :left button)
 	      (swap! *gui-state* assoc
-	             :rot-x (+ (:rot-x @*gui-state*) dy)
-	             :rot-y (+ (:rot-y @*gui-state*) dx))
+	             :rot-x (loop [ang (+ (:rot-x @*gui-state*) dy)]
+                       (cond
+                         (> ang 180) (recur (- ang 360))
+                         (< ang -180) (recur (+ ang 360))
+                         :else ang))                       
+	             :rot-y (loop [ang (+ (:rot-y @*gui-state*) dy)]
+                       (cond
+                         (> ang 180) (recur (- ang 360))
+                         (< ang -180) (recur (+ ang 360))
+                         :else ang)))                       
        ; Translate
 	      (= :right button)
 	      (swap! *gui-state* assoc

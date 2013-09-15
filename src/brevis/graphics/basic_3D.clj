@@ -117,10 +117,16 @@ Copyright 2012, 2013 Kyle Harrington"
     (with-disabled :texture-2d
       (do-draw-shape obj))))
 
+(defn set-camera
+  "Set the camera parameters."
+  [x y z h p r]
+  (Basic3D/setCamera x y z h p r))
+
 (defn draw-shape
   "Draw a shape. Call this after translating, scaling, and setting color."
   [obj]
-  (Basic3D/drawShape obj (:rot-x @*gui-state*) (:rot-y @*gui-state*) (:rot-z @*gui-state*) 
+  (Basic3D/drawShape obj (double-array [0 0 1 0]) (.getDimension (.getShape obj)))                     
+  #_(Basic3D/drawShape obj (:rot-x @*gui-state*) (:rot-y @*gui-state*) (:rot-z @*gui-state*) 
                      (:shift-x @*gui-state*) (:shift-y @*gui-state*) (:shift-z @*gui-state*)                      
                      (double-array [0 0 1 0])
                      (.getDimension (.getShape obj)))

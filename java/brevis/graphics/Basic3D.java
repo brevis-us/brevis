@@ -23,7 +23,9 @@ import java.nio.FloatBuffer;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4d;
+import javax.vecmath.Vector4f;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.Cylinder;
 import org.lwjgl.util.glu.Sphere;
@@ -31,6 +33,10 @@ import org.lwjgl.util.glu.Sphere;
 import brevis.BrObject;
 
 public class Basic3D {
+    private static final float LIGHTX = 1.0f;
+    private static final float LIGHTY = 0.4f;
+    private static final float SHADOW_INTENSITY = 0.65f;
+	
 	static public void drawBox(float w, float h, float d) {
 		GL11.glBegin(GL11.GL_QUADS);
 			// Front
@@ -105,9 +111,93 @@ public class Basic3D {
         lp[2]=res[2];
         lp[3]=res[3];                                        // Homogenous Coordinate
     }	    
-	
+
+    // ode4j-sdk drawstuff
+    private static float[] color = {0,0,0,0};       // current r,g,b,alpha color                                                                                                                                                          
+    //private static DS_TEXTURE_NUMBER tnum = DS_TEXTURE_NUMBER.DS_NONE;                      // current texture number                                                                                                                     
+    
+    public static void setCamera (float x, float y, float z, float h, float p, float r)
+    {
+            GL11.glMatrixMode (GL11.GL_MODELVIEW);
+            GL11.glLoadIdentity();
+            GL11.glRotatef (90, 0,0,1);
+            GL11.glRotatef (90, 0,1,0);
+            GL11.glRotatef (r, 1,0,0);
+            GL11.glRotatef (p, 0,1,0);
+            GL11.glRotatef (-h, 0,0,1);
+            GL11.glTranslatef (-x,-y,-z);
+    }   
+    
+    private FloatBuffer light_ambient2 = BufferUtils.createFloatBuffer(4);
+    private FloatBuffer light_diffuse2 = BufferUtils.createFloatBuffer(4);
+    private FloatBuffer light_specular2 = BufferUtils.createFloatBuffer(4);
+    public void setColor (float r, float g, float b, float alpha)
+    {
+            //GLfloat light_ambient[4],light_diffuse[4],light_specular[4];                                                                                                                                                                
+            light_ambient2.put( new float[]{ r*0.3f, g*0.3f, b*0.3f, alpha }).flip();
+            light_diffuse2.put( new float[]{ r*0.7f, g*0.7f, b*0.7f, alpha }).flip();
+            light_specular2.put( new float[]{ r*0.2f, g*0.2f, b*0.2f, alpha }).flip();
+            GL11.glMaterial (GL11.GL_FRONT_AND_BACK, GL11.GL_AMBIENT, light_ambient2);
+            GL11.glMaterial (GL11.GL_FRONT_AND_BACK, GL11.GL_DIFFUSE, light_diffuse2);
+            GL11.glMaterial (GL11.GL_FRONT_AND_BACK, GL11.GL_SPECULAR, light_specular2);
+            GL11.glMaterialf (GL11.GL_FRONT_AND_BACK, GL11.GL_SHININESS, 5.0f);
+    }
+    
+    private FloatBuffer matrixF = BufferUtils.createFloatBuffer(16);
+
+//  static void setTransform (final float pos[3], final float R[12])                                                                                                                                                                      
+    public void setTransform (final float[] pos, final float[] R)
+    {
+            //GLfloat                                                                                                                                                                                                                     
+            float[] matrix=new float[16];
+            matrix[0]=R[0];
+            matrix[1]=R[4];
+            matrix[2]=R[8];
+            matrix[3]=0;
+            matrix[4]=R[1];
+            matrix[5]=R[5];
+            matrix[6]=R[9];
+            matrix[7]=0;
+            matrix[8]=R[2];
+            matrix[9]=R[6];
+            matrix[10]=R[10];
+            matrix[11]=0;
+            matrix[12]=pos[0];
+            matrix[13]=pos[1];
+            matrix[14]=pos[2];
+            matrix[15]=1;
+            matrixF.put(matrix);
+            matrixF.flip();
+            GL11.glPushMatrix();
+            GL11.glMultMatrix (matrixF);
+    }
+    
+    private FloatBuffer matrixSST = BufferUtils.createFloatBuffer(16);
+    private void setShadowTransform()
+    {
+            //GLfloat                                                                                                                                                                                                                     
+            float[] matrix=new float[16];
+            for (int i=0; i<16; i++) matrix[i] = 0;
+            matrix[0]=1;
+            matrix[5]=1;
+            matrix[8]=-LIGHTX;
+            matrix[9]=-LIGHTY;
+            matrix[15]=1;
+            matrixSST.put( matrix );
+//          for (int i=0; i < 16; i++) matrixSST.put(i, 0);                                                                                                                                                                               
+//          matrixSST.put(0, 1);                                                                                                                                                                                                          
+//          matrixSST.put(5, 1);                                                                                                                                                                                                          
+//          matrixSST.put(8, -LIGHTX);                                                                                                                                                                                                    
+//          matrixSST.put(9, -LIGHTY);                                                                                                                                                                                                    
+//          matrixSST.put(15, 1);                                                                                                                                                                                                         
+            matrixSST.flip();
+            GL11.glPushMatrix();
+            GL11.glMultMatrix (matrixSST);
+    }    
+    
 	// some from nehe lesson 27    
-	static public void drawShape( BrObject obj, double xrot, double yrot, double zrot, double xoff, double yoff, double zoff, double[] lp, Vector3d dim ) {
+	//static public void drawShape( BrObject obj, double xrot, double yrot, double zrot, double xoff, double yoff, double zoff, double[] lp, Vector3d dim ) {
+    static public void drawShape( BrObject obj, double[] lp, Vector3d dim ) {
 		float Minv[] = new float[16];
         float wlp[] = new float[4];        
 		
@@ -127,11 +217,12 @@ public class Basic3D {
 
         // we build the inversed matrix by doing all the actions in reverse order
         // and with reverse parameters (notice -xrot, -yrot, -ObjPos[], etc.)
-        GL11.glLoadIdentity();                                   // Reset Matrix
-        GL11.glTranslatef((float) xoff, (float) yoff, (float) zoff);      // Position The Object
-        GL11.glRotatef((float) -zrot, 0.0f, 0.0f, 1.0f);                 // Rotate By -yrot On Y Axis
-        GL11.glRotatef((float) -yrot, 0.0f, 1.0f, 0.0f);                 // Rotate By -yrot On Y Axis
-        GL11.glRotatef((float) -xrot, 1.0f, 0.0f, 0.0f);                 // Rotate By -xrot On X Axis
+        //GL11.glLoadIdentity();                                   // Reset Matrix
+        //GL11.glTranslatef((float) pos.x, (float) pos.y, (float) pos.z);      // Position The Object
+        //GL11.glRotatef((float) rot.w, rot.x, rot.y, rot.z);
+        //GL11.glRotatef((float) -zrot, 0.0f, 0.0f, 1.0f);                 // Rotate By -yrot On Y Axis
+        //GL11.glRotatef((float) -yrot, 0.0f, 1.0f, 0.0f);                 // Rotate By -yrot On Y Axis
+        //GL11.glRotatef((float) -xrot, 1.0f, 0.0f, 0.0f);                 // Rotate By -xrot On X Axis
         //GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX,(FloatBuffer)floatBuffer.asFloatBuffer().put(Minv).flip());              // Retrieve ModelView Matrix (Stores In Minv)
         /*lp[0] = lightPos[0];                                // Store Light Position X In lp[0]
         lp[1] = lightPos[1];                                // Store Light Position Y In lp[1]
@@ -160,6 +251,7 @@ public class Basic3D {
         //GL11.glTranslatef(0.0f, 0.0f, -20.0f);                   // Zoom Into The Screen 20 Units
         drawGLRoom();                                       // Draw The Room*/
         
+        GL11.glPushMatrix();
         GL11.glTranslatef(objPos[0], objPos[1], objPos[2]);      // Position The Object
         Vector4d rot = obj.getRotation();
         GL11.glRotatef( (float)rot.w, (float)rot.x, (float)rot.y, (float)rot.z);
@@ -174,6 +266,8 @@ public class Basic3D {
         	drawCone( (float)0.8, (float)0.01, (float)1.2, 25, 25 );
         else
         	drawSphere( 2, 20, 20);
+        
+        GL11.glPopMatrix();
 
         //castShadow(obj, lp);                               // Procedure For Casting The Shadow Based On The Silhouette
                             
