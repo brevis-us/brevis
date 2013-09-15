@@ -218,6 +218,11 @@ Copyright 2012, 2013 Kyle Harrington"
      ;(screenshot (str (:video-name @*gui-state*) "_" (get-time) ".png") state))
    ))
 
+(defn init-view
+  "Initialize the gui-state global to the default."
+  []
+  (reset! *gui-state* default-gui-state))
+
 (defn display
   "Display the world."
   [[dt t] state]
@@ -231,14 +236,15 @@ Copyright 2012, 2013 Kyle Harrington"
     (shade-model :flat)
     (enable :depth-test)
     (depth-test :less)
-    (enable :cull-face)
+    ;(enable :cull-face)
     ;(cull-face :black)
     ;GL11.glFrontFace (GL11.GL_CCW);
     (viewport 0 0 (:window-width @*gui-state*) (:window-height @*gui-state*))
     (gl-matrix-mode :projection)
     (gl-load-identity-matrix)
     ;should if on width>height
-    (frustum-view 60.0 (/ (double (:window-width @*gui-state*)) (:window-height @*gui-state*)) 1.0 100.0)
+    ;(frustum-view 60.0 (/ (double (:window-width @*gui-state*)) (:window-height @*gui-state*)) 1.0 1000.0)
+    (frustum-view  45 (/ (double (:window-width @*gui-state*)) (:window-height @*gui-state*)) 0.1 2000)
     (light 0 
          :specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
          :position [0 -1 0 0];;directional can be enabled after the penumbra update         
@@ -283,16 +289,18 @@ Copyright 2012, 2013 Kyle Harrington"
 ;    (start-gui initialize update-world))
   ([initialize update]
     (reset-core)
-	  (app/start
-	   {:reshape reshape, :init (make-init initialize), :mouse-drag mouse-drag, :key-press key-press :mouse-wheel mouse-wheel, :update update, :display display
-	    :key-release key-release
-	    ;:mouse-move    (fn [[[dx dy] [x y]] state] (println )
-	    ;:mouse-up       (fn [[x y] button state] (println button) state)
-	    ;:mouse-click   (fn [[x y] button state] (println button) state)
-	    ;:mouse-down    (fn [[x y] button state] (println button) state)
-	    ;:mouse-wheel   (fn [dw state] (println dw) state)
-	    }        
-    @*gui-state*)))
+	  (reset! *app-thread*
+           (Thread. (fn [] (app/start
+                             {:reshape reshape, :init (make-init initialize), :mouse-drag mouse-drag, :key-press key-press :mouse-wheel mouse-wheel, :update update, :display display
+                              :key-release key-release
+                              ;:mouse-move    (fn [[[dx dy] [x y]] state] (println )
+                              ;:mouse-up       (fn [[x y] button state] (println button) state)
+                              ;:mouse-click   (fn [[x y] button state] (println button) state)
+                              ;:mouse-down    (fn [[x y] button state] (println button) state)
+                              ;:mouse-wheel   (fn [dw state] (println dw) state)
+                              }        
+                             @*gui-state*))))
+   (.start @*app-thread*)))
 
 (defn simulation-loop
   "A simulation loop with no graphics."

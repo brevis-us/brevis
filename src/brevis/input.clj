@@ -55,7 +55,7 @@ Copyright 2012, 2013 Kyle Harrington"
   "Rotate the world."
   [[dx dy] _ button state]
   (let [rads (/ (Math/PI) 180)
-        thetaY (*(:rot-z state) rads)
+        thetaY (*(:rot-y state) rads)
         sY (sin thetaY)
         cY (cos thetaY)
         thetaX (* (:rot-x state) rads)
@@ -64,10 +64,10 @@ Copyright 2012, 2013 Kyle Harrington"
         t (get-time)
         
         side (* 0.01 dx)
-        fwd (if (:right button) (* 0.01 dy) 0)]
+        fwd (if (= :right button) (* 0.01 dy) 0)]
     (swap! *gui-state* assoc
-           :rot-x (+ (:rot-x @*gui-state*) dx)
-           :rot-z (+ (:rot-z @*gui-state*) dy)
+           :rot-x (+ (:rot-x @*gui-state*) dy)
+           :rot-y (+ (:rot-y @*gui-state*) dx)
            :shift-x (+ (:shift-x @*gui-state*) (* (- sX) side) (* cX fwd))
            :shift-y (+ (:shift-y @*gui-state*) (* cX side) (* sX fwd))
            :shift-z (if (= :middle button)

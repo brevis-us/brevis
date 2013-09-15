@@ -118,13 +118,17 @@ public class Basic3D {
     
     public static void setCamera (float x, float y, float z, float h, float p, float r)
     {
-            GL11.glMatrixMode (GL11.GL_MODELVIEW);
+            //GL11.glMatrixMode (GL11.GL_MODELVIEW);
             GL11.glLoadIdentity();
             GL11.glRotatef (90, 0,0,1);
             GL11.glRotatef (90, 0,1,0);
-            GL11.glRotatef (r, 1,0,0);
+            /*GL11.glRotatef (r, 1,0,0);
             GL11.glRotatef (p, 0,1,0);
             GL11.glRotatef (-h, 0,0,1);
+            GL11.glTranslatef (-x,-y,-z);*/
+            GL11.glRotatef (-r, 1,0,0);
+            GL11.glRotatef (-p, 0,1,0);
+            GL11.glRotatef (h, 0,0,1);
             GL11.glTranslatef (-x,-y,-z);
     }   
     

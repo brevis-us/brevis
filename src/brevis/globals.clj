@@ -18,8 +18,12 @@ Copyright 2012, 2013 Kyle Harrington"
 (ns brevis.globals)
 
 (def enable-display-text true)
-(def #^:dynamic *gui-state* (atom {:rotate-mode :none :translate-mode :none                                    
-                                   :rot-x 0 :rot-y 0 :rot-z 0
-                                   :shift-x 0 :shift-y -20 :shift-z -50;-30                                   
-                                   :last-report-time 0 :simulation-time 0}))
+
+(def default-gui-state {:rotate-mode :none :translate-mode :none                                    
+                        :rot-x 90 :rot-y 90 :rot-z 90
+                        :shift-x 0 :shift-y -20 :shift-z -50;-30                                   
+                        :last-report-time 0 :simulation-time 0})
+  
+(def #^:dynamic *gui-state* (atom default-gui-state))
 (def #^:dynamic *gui-message-board* (atom (sorted-map))) 
+(def #^:dynamic *app-thread* (atom nil))
