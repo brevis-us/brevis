@@ -24,7 +24,8 @@ Copyright 2012, 2013 Kyle Harrington"
         [penumbra.opengl]
         [brevis.shape core box]
         [brevis.physics core collision utils vector])
-  (:require [cantor.range]))
+  (:require [cantor.range]
+            [clojure.java.io]))
 
 ;; ## Real/Physical/Spatial
 
@@ -222,7 +223,7 @@ Copyright 2012, 2013 Kyle Harrington"
 ;                    :texture *checkers*
                     :shape (create-box w 0.1 h)})
                      (vec3 0 -3 0))
-               *checkers*))
+               (.getPath (clojure.java.io/resource "img/checker_large.png"))))
 
 (defn init-world  "Return a map of ODE physics for 1 world."  []  (let [world (doto (OdeHelper/createWorld)     
                       (.setGravity 0 0 0)                                                                                   

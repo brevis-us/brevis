@@ -120,15 +120,15 @@ public class Basic3D {
     {
             //GL11.glMatrixMode (GL11.GL_MODELVIEW);
             GL11.glLoadIdentity();
-            GL11.glRotatef (90, 0,0,1);
-            GL11.glRotatef (90, 0,1,0);
+            //GL11.glRotatef (90, 0,0,1);
+            //GL11.glRotatef (90, 0,1,0);
             /*GL11.glRotatef (r, 1,0,0);
             GL11.glRotatef (p, 0,1,0);
             GL11.glRotatef (-h, 0,0,1);
             GL11.glTranslatef (-x,-y,-z);*/
-            GL11.glRotatef (-r, 1,0,0);
-            GL11.glRotatef (-p, 0,1,0);
-            GL11.glRotatef (h, 0,0,1);
+            GL11.glRotatef (r, 1,0,0);
+            GL11.glRotatef (p, 0,1,0);
+            GL11.glRotatef (-h, 0,0,1);
             GL11.glTranslatef (-x,-y,-z);
     }   
     
@@ -256,13 +256,18 @@ public class Basic3D {
         drawGLRoom();                                       // Draw The Room*/
         
         GL11.glPushMatrix();
+        GL11.glColor4d( obj.color.x, obj.color.y, obj.color.z, obj.color.w );
         GL11.glTranslatef(objPos[0], objPos[1], objPos[2]);      // Position The Object
+        GL11.glScaled( dim.x, dim.y, dim.z );
         Vector4d rot = obj.getRotation();
         GL11.glRotatef( (float)rot.w, (float)rot.x, (float)rot.y, (float)rot.z);
         //GL11.glRotatef((float) xrot, 1.0f, 0.0f, 0.0f);                  // Spin It On The X Axis By xrot
         //GL11.glRotatef((float) yrot, 0.0f, 1.0f, 0.0f);                  // Spin It On The Y Axis By yrot               
-        
-        GL11.glScaled( dim.x, dim.y, dim.z );
+                
+        if( obj.getTextureId() != -1 ) {
+        	GL11.glEnable(GL11.GL_TEXTURE_2D);
+        	GL11.glBindTexture(GL11.GL_TEXTURE_2D, obj.getTextureId() );
+        }
         
         if( obj.getShape().getType() == "box" )
         	drawBox( 1, 1, 1 );

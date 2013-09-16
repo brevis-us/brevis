@@ -227,15 +227,18 @@ Copyright 2012, 2013 Kyle Harrington"
   "Display the world."
   [[dt t] state]
   (let [state (if (:auto-camera state) (auto-camera state) state)]      
-    (clear)
+    (clear)    
     (enable :lighting)
     (enable :light0)
-    (disable :texture-2D)
+    (enable :texture-2D)
     (disable :texture-gen-s)
 		(disable :texture-gen-t)
-    (shade-model :flat)
+    (shade-model :smooth)
+    (enable :blend)
+    (blend-func :src-alpha :one-minus-src-alpha)  
+    (enable :normalize)
     (enable :depth-test)
-    (depth-test :less)
+    (depth-test :lequal)
     ;(enable :cull-face)
     ;(cull-face :black)
     ;GL11.glFrontFace (GL11.GL_CCW);
@@ -244,7 +247,7 @@ Copyright 2012, 2013 Kyle Harrington"
     (gl-load-identity-matrix)
     ;should if on width>height
     ;(frustum-view 60.0 (/ (double (:window-width @*gui-state*)) (:window-height @*gui-state*)) 1.0 1000.0)
-    (frustum-view  45 (/ (double (:window-width @*gui-state*)) (:window-height @*gui-state*)) 0.1 2000)
+    (frustum-view 45.0 (/ (double (:window-width @*gui-state*)) (:window-height @*gui-state*)) 0.1 3000)
     (light 0 
          :specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
          :position [0 -1 0 0];;directional can be enabled after the penumbra update         
@@ -254,6 +257,7 @@ Copyright 2012, 2013 Kyle Harrington"
     (clear-color 0.5 0.5 0.5 0)
     (clear)
     (gl-matrix-mode :modelview)
+    ;(GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST)
     (gl-load-identity-matrix)
     (set-camera
       (:shift-x @*gui-state*) (:shift-y @*gui-state*) (:shift-z @*gui-state*)
@@ -263,9 +267,9 @@ Copyright 2012, 2013 Kyle Harrington"
 	  (draw-sky)
    (enable :lighting)
    (disable :texture-2D)
-   (shade-model :flat)
-   (enable :depth-test)
-   (depth-test :less)
+   ;(shade-model :flat)
+   ;(enable :depth-test)
+   ;(depth-test :less)
    (color 1 1 1)
     #_(println "display drawing n objects:" (count (get-objects)))
 	  (doseq [obj (get-objects)]

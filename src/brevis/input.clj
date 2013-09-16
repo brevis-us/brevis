@@ -50,6 +50,42 @@ Copyright 2012, 2013 Kyle Harrington"
     ;(= "z" key) (reset! shift-key-down false))
   state)
 
+(defn rotate-x
+  "Rotate about the X-axis"
+  [delta]
+  (swap! *gui-state* assoc
+         :rot-x (+ (:rot-x @*gui-state*) delta)))
+
+(defn rotate-y
+  "Rotate about the Y-axis"
+  [delta]
+  (swap! *gui-state* assoc
+         :rot-y (+ (:rot-y @*gui-state*) delta)))
+
+(defn rotate-z
+  "Rotate about the Z-axis"
+  [delta]
+  (swap! *gui-state* assoc
+         :rot-z (+ (:rot-z @*gui-state*) delta)))
+
+(defn shift-x
+  "Shift along the X-axis"
+  [delta]
+  (swap! *gui-state* assoc
+         :shift-x (+ (:shift-x @*gui-state*) delta)))
+
+(defn shift-y
+  "Shift along the Y-axis"
+  [delta]
+  (swap! *gui-state* assoc
+         :shift-y (+ (:shift-y @*gui-state*) delta)))
+
+(defn shift-z
+  "Shift along the Z-axis"
+  [delta]
+  (swap! *gui-state* assoc
+         :shift-z (+ (:shift-z @*gui-state*) delta)))
+
 ;; ## Input handling
 (defn mouse-drag
   "Rotate the world."
@@ -66,7 +102,8 @@ Copyright 2012, 2013 Kyle Harrington"
         side (* 0.01 dx)
         fwd (if (= :right button) (* 0.01 dy) 0)]
     (swap! *gui-state* assoc
-           :rot-x (+ (:rot-x @*gui-state*) dy)
+           ;:rot-x (+ (:rot-x @*gui-state*) dy)
+           :rot-z (+ (:rot-z @*gui-state*) dy)
            :rot-y (+ (:rot-y @*gui-state*) dx)
            :shift-x (+ (:shift-x @*gui-state*) (* (- sX) side) (* cX fwd))
            :shift-y (+ (:shift-y @*gui-state*) (* cX side) (* sX fwd))
@@ -121,11 +158,20 @@ Copyright 2012, 2013 Kyle Harrington"
         cY (cos thetaY)
         thetaX (* (:rot-x state) rads)
         sX (sin thetaX)
-        cX (cos thetaX)]
+        cX (cos thetaX)
+        t (get-time)]
   (swap! *gui-state* assoc
 						         :shift-z (+ (:shift-z @*gui-state*) (* (/ dw 6) cY))
 						         :shift-x (+ (:shift-x @*gui-state*) (* (/ dw 6) (* sY -1)))
 						         :shift-y (+ (:shift-y @*gui-state*) (* (/ dw 6) sX)))
+  (osd :msg-type :penumbra-rotate 
+        :fn (fn [[dt t] state] (str "Rotation: (" 
+                                    (:rot-x @*gui-state*) "," (:rot-y @*gui-state*) "," (:rot-z @*gui-state*) ")")) 
+        :start-t t :stop-t (+ t 1))
+   (osd :msg-type :penumbra-translate 
+        :fn (fn [[dt t] state] (str "Translation: (" 
+                                    (int (:shift-x @*gui-state*)) "," (int (:shift-y @*gui-state*)) "," (int (:shift-z @*gui-state*)) ")")) 
+        :start-t t :stop-t (+ t 1))
   state))
 
 (defn mouse-move

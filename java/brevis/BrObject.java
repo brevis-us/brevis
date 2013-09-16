@@ -18,6 +18,7 @@
 package brevis;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.HashMap;
@@ -29,6 +30,9 @@ import java.util.Vector;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector4d;
 
+import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.opengl.TextureLoader;
+import org.newdawn.slick.util.ResourceLoader;
 import org.ode4j.ode.DBody;
 import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DMass;
@@ -53,7 +57,7 @@ public class BrObject implements clojure.lang.IPersistentMap {
 	public Vector4d rotation;
 	public Vector4d color;
 	//public BufferedImage texture;	
-	public BufferedImage texture;	
+	public Texture texture;	
 	public Object data;
 	
 	public HashMap<Object,Object> myMap;
@@ -84,6 +88,7 @@ public class BrObject implements clojure.lang.IPersistentMap {
 		rotation = new Vector4d( 1, 0, 0, 0 );
 		data = null;
 		myMap = new HashMap<Object,Object>();
+		texture = null;
 	}
 	
 	public BrObject assoc(Object key, Object val) {
@@ -116,6 +121,10 @@ public class BrObject implements clojure.lang.IPersistentMap {
 	
 	public void setUID( Long UID ) {
 		uid = UID;
+	}
+	
+	public String getType() {
+		return type;
 	}
 	
 	public Long getUID( ) {
@@ -235,11 +244,11 @@ public class BrObject implements clojure.lang.IPersistentMap {
 		return mass.getMass();	
 	}
 	
-	public BufferedImage getTexture() {
+	/*public BufferedImage getTexture() {
 		return texture;
-	}
+	}*/
 	
-	public void setTexture(BufferedImage newTexture) {
+	/*public void setTexture(BufferedImage newTexture) {
 		texture = newTexture;
 
 		int[] pixels = new int[texture.getWidth() * texture.getHeight()];
@@ -253,7 +262,8 @@ public class BrObject implements clojure.lang.IPersistentMap {
                 buffer.put((byte) ((pixel >> 16) & 0xFF));     // Red component
                 buffer.put((byte) ((pixel >> 8) & 0xFF));      // Green component
                 buffer.put((byte) (pixel & 0xFF));               // Blue component
-                buffer.put((byte) ((pixel >> 24) & 0xFF));    // Alpha component. Only for RGBA
+                //buffer.put((byte) (0xFF));    // Alpha component. Only for RGBA
+                //buffer.put((byte) ((pixel >> 24) & 0xFF));    // Alpha component. Only for RGBA
             }
         }
 
@@ -271,13 +281,35 @@ public class BrObject implements clojure.lang.IPersistentMap {
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
 
         //Setup texture scaling filtering
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+        //GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+        //GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 
         //Send texel data to OpenGL
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, texture.getWidth(), texture.getHeight(), 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, texture.getWidth(), texture.getHeight(), 0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, buffer);
 				        
+	}*/
+	
+	public void setTexture( String filename ) {
+		
+		try {
+			// load texture from PNG file
+			texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream(filename));
+		
+			System.out.println("Texture loaded: "+texture);
+			System.out.println(">> Image width: "+texture.getImageWidth());
+			System.out.println(">> Image height: "+texture.getImageHeight());
+			System.out.println(">> Texture width: "+texture.getTextureWidth());
+			System.out.println(">> Texture height: "+texture.getTextureHeight());
+			System.out.println(">> Texture ID: "+texture.getTextureID());
+		} catch (IOException e) {
+			System.out.println( "Error loading texture: " + filename );
+			e.printStackTrace();
+		}		
+		
 	}
+	
 	
 	/*
 	 * Updat the orientation of an object
@@ -322,7 +354,11 @@ public class BrObject implements clojure.lang.IPersistentMap {
 	}
 	
 	public int getTextureId() {
-		return texId;
+		//return texId;
+		if( texture != null )
+			return texture.getTextureID();
+		else
+			return -1;
 	}
 
 	@Override

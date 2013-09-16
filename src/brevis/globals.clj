@@ -20,8 +20,8 @@ Copyright 2012, 2013 Kyle Harrington"
 (def enable-display-text true)
 
 (def default-gui-state {:rotate-mode :none :translate-mode :none                                    
-                        :rot-x 90 :rot-y 90 :rot-z 90
-                        :shift-x 0 :shift-y -20 :shift-z -50;-30                                   
+                        :rot-x 90 :rot-y -90 :rot-z -45
+                        :shift-x 400 :shift-y 400 :shift-z -50;-30                                   
                         :last-report-time 0 :simulation-time 0})
   
 (def #^:dynamic *gui-state* (atom default-gui-state))
