@@ -10,6 +10,6 @@
                  [org.clojure/math.numeric-tower "0.0.2"]
 ;                 [kephale/ode4j "0.12.0-j1.4"]
                  [kephale/ode4j "20130414_001"]
-                 [kephale/cantor "0.4.1"]
+                 ;[kephale/cantor "0.4.1"]
                  [kephale/penumbra "0.6.5-SNAPSHOT"]
                  ])

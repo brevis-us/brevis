@@ -20,7 +20,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
         [brevis.shape.core]
-        [cantor]))        
+        #_[cantor]))        
 
 #_(defn create-box
   "Create a box object."
@@ -38,7 +38,7 @@ Copyright 2012, 2013 Kyle Harrington"
   ([width height depth]
     (BrShape/createBox width height depth)))
 
-(defn create-collision-box 
+#_(defn create-collision-box 
   "Create a collision shape for a box."
   [pos shape]
   (box3 (sub pos (div (:dim shape) 2))

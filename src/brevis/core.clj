@@ -26,7 +26,7 @@ Copyright 2012, 2013 Kyle Harrington"
             [clojure.math.numeric-tower :as math]
             [penumbra.text :as text]
             [penumbra.data :as data]
-            [cantor.range]
+            ;[cantor.range]
             [penumbra.opengl.frame-buffer :as fb]
             [penumbra.opengl.effects :as glfx])
   (:import (java.awt AWTException Robot Rectangle Toolkit)

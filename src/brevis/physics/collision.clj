@@ -21,7 +21,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (:import (org.ode4j.math DVector3))
   (:import java.lang.Math)
   (:import (brevis Engine BrPhysics BrObject))  
-  (:use [cantor]
+  (:use ;[cantor]
         [penumbra.opengl]
         [brevis.shape core box]
         [brevis.physics core])

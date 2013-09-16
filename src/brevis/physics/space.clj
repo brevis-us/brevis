@@ -24,7 +24,7 @@ Copyright 2012, 2013 Kyle Harrington"
         [penumbra.opengl]
         [brevis.shape core box]
         [brevis.physics core collision utils vector])
-  (:require [cantor.range]
+  (:require ;[cantor.range]
             [clojure.java.io]))
 
 ;; ## Real/Physical/Spatial

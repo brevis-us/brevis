@@ -20,7 +20,8 @@ Copyright 2012, 2013 Kyle Harrington"
            [java.awt Color])
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
-        [cantor])
+        [brevis.physics vector]
+        #_[cantor])
   (:require [penumbra.data :as data]))  
 
 (defn compute-normal

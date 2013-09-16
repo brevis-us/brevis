@@ -23,8 +23,8 @@ Copyright 2012, 2013 Kyle Harrington"
   (:use ;[cantor]
         [penumbra.opengl]
         [brevis.shape core box]
-        [brevis.physics core vector])
-  (:require [cantor.range]))  
+        [brevis.physics core vector]))
+  ;(:require [cantor.range]))  
 
 ;; from lspector's taggp (avail on github)
 (defn pmapall
