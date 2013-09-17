@@ -87,7 +87,7 @@ public class BrShape {
 	}
 	
 	public static BrShape createSphere( double r ) {
-		return ( new BrShape( BrShapeType.SPHERE, new Vector3d( r, r, r ) ) );
+		return ( new BrShape( BrShapeType.SPHERE, new Vector3d( r, 25, r ) ) );
 	}
 	
 	public static BrShape createBox( double x, double y, double z ) {
@@ -95,6 +95,6 @@ public class BrShape {
 	}
 	
 	public static BrShape createCone( double length, double base ) {
-		return ( new BrShape( BrShapeType.CONE, new Vector3d( length, base, 10 )));	// last element of vector is # of sides
+		return ( new BrShape( BrShapeType.CONE, new Vector3d( length, base, 25 )));	// last element of vector is # of sides or stacks (depending on renderer)
 	}
 }

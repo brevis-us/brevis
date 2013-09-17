@@ -21,7 +21,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (def default-gui-state {:rotate-mode :none :translate-mode :none                                    
                         :rot-x 90 :rot-y -90 :rot-z -45
-                        :shift-x 400 :shift-y 400 :shift-z -50;-30                                   
+                        :shift-x 300 :shift-y 300 :shift-z -50;-30                                   
                         :last-report-time 0 :simulation-time 0})
   
 (def #^:dynamic *gui-state* (atom default-gui-state))

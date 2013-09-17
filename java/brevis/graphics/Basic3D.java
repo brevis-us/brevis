@@ -31,6 +31,7 @@ import org.lwjgl.util.glu.Cylinder;
 import org.lwjgl.util.glu.Sphere;
 
 import brevis.BrObject;
+import brevis.BrShape;
 
 public class Basic3D {
     private static final float LIGHTX = 1.0f;
@@ -132,10 +133,11 @@ public class Basic3D {
             GL11.glTranslatef (-x,-y,-z);
     }   
     
-    private FloatBuffer light_ambient2 = BufferUtils.createFloatBuffer(4);
-    private FloatBuffer light_diffuse2 = BufferUtils.createFloatBuffer(4);
-    private FloatBuffer light_specular2 = BufferUtils.createFloatBuffer(4);
-    public void setColor (float r, float g, float b, float alpha)
+    // ow the static pain
+    private static FloatBuffer light_ambient2 = BufferUtils.createFloatBuffer(4);
+    private static FloatBuffer light_diffuse2 = BufferUtils.createFloatBuffer(4);
+    private static FloatBuffer light_specular2 = BufferUtils.createFloatBuffer(4);
+    public static void setColor (float r, float g, float b, float alpha)
     {
             //GLfloat light_ambient[4],light_diffuse[4],light_specular[4];                                                                                                                                                                
             light_ambient2.put( new float[]{ r*0.3f, g*0.3f, b*0.3f, alpha }).flip();
@@ -256,9 +258,14 @@ public class Basic3D {
         drawGLRoom();                                       // Draw The Room*/
         
         GL11.glPushMatrix();
-        GL11.glColor4d( obj.color.x, obj.color.y, obj.color.z, obj.color.w );
+        //GL11.glColor4d( obj.color.x, obj.color.y, obj.color.z, obj.color.w );
+        setColor( (float)obj.color.x, (float)obj.color.y, (float)obj.color.z, (float)obj.color.w );
         GL11.glTranslatef(objPos[0], objPos[1], objPos[2]);      // Position The Object
-        GL11.glScaled( dim.x, dim.y, dim.z );
+                
+        if( ! ( obj.getShape().type == BrShape.BrShapeType.CONE ||
+        		obj.getShape().type == BrShape.BrShapeType.SPHERE ) ) {         	 
+        	GL11.glScaled( dim.x, dim.y, dim.z );
+        }
         Vector4d rot = obj.getRotation();
         GL11.glRotatef( (float)rot.w, (float)rot.x, (float)rot.y, (float)rot.z);
         //GL11.glRotatef((float) xrot, 1.0f, 0.0f, 0.0f);                  // Spin It On The X Axis By xrot
@@ -272,9 +279,10 @@ public class Basic3D {
         if( obj.getShape().getType() == "box" )
         	drawBox( 1, 1, 1 );
         else if( obj.getShape().getType() == "cone" )
-        	drawCone( (float)0.8, (float)0.01, (float)1.2, 25, 25 );
+        	//drawCone( (float)0.8, (float)0.01, (float)1.2, 25, 25 );
+        	drawCone( (float)dim.x, (float)0.01, (float)dim.y, (int)dim.z, 25 );
         else
-        	drawSphere( 2, 20, 20);
+        	drawSphere( (float)dim.x, (int)dim.y, 20);
         
         GL11.glPopMatrix();
 

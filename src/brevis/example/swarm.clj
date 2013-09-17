@@ -70,7 +70,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (move (make-real {:type :bird
               :color (vec4 1 0 0 1)
               ;:shape (create-sphere)})
-              :shape (create-cone)})
+              :shape (create-cone 2 10)})
         position))
   
 (defn random-bird

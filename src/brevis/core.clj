@@ -230,6 +230,7 @@ Copyright 2012, 2013 Kyle Harrington"
     (clear)    
     (enable :lighting)
     (enable :light0)
+    #_(enable :light1)
     (enable :texture-2D)
     (disable :texture-gen-s)
 		(disable :texture-gen-t)
@@ -247,8 +248,13 @@ Copyright 2012, 2013 Kyle Harrington"
     (gl-load-identity-matrix)
     ;should if on width>height
     ;(frustum-view 60.0 (/ (double (:window-width @*gui-state*)) (:window-height @*gui-state*)) 1.0 1000.0)
-    (frustum-view 45.0 (/ (double (:window-width @*gui-state*)) (:window-height @*gui-state*)) 0.1 3000)
+    (frustum-view 60.0 (/ (double (:window-width @*gui-state*)) (:window-height @*gui-state*)) 0.1 3000)
     (light 0 
+         :specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
+         :position [0 300 0 0];;directional can be enabled after the penumbra update         
+         ;:position [250 250 -100 1]         
+         :diffuse [1 1 1 1])
+    #_(light 1 
          :specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
          :position [0 -1 0 0];;directional can be enabled after the penumbra update         
          ;:position [250 250 -100 1]         

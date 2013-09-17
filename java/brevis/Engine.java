@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.Vector;
 
@@ -243,7 +244,7 @@ public class Engine {
 			for( Map.Entry<Long,BrObject> otherEntry : objects.entrySet() ) {
 				BrObject otherObj = otherEntry.getValue();
 				//System.out.println( "Distance to " + obj.distanceTo( otherObj ) );
-				if( obj.distanceTo( otherObj ) < neighborhoodRadius ) {
+				if( obj.distanceTo( otherObj ) < neighborhoodRadius && obj != otherObj ) {
 					nbrs.add( otherObj.uid );
 				}
 			}

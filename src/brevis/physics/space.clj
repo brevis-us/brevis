@@ -230,8 +230,8 @@ Copyright 2012, 2013 Kyle Harrington"
                       #_(.setGravity 0 -9.81 0))        space (OdeHelper/createHashSpace)        contact-group (OdeHelper/createJointGroup)]
     (reset! *physics* {:world world                             :space space                       :contact-group contact-group
                        :time 0});      (let [[floor floor-joint] (make-floor 1000 1000)
-    (println "Collision handlers:" (keys @*collision-handlers*))
-    (println "Update handlers:" (keys @*update-handlers*))    
+    #_(println "Collision handlers:" (keys @*collision-handlers*))
+    #_(println "Update handlers:" (keys @*update-handlers*))    
     #_(let [floor (make-floor 500 500)          
             environment {:objects [floor]
                          :joints nil}]
@@ -250,8 +250,6 @@ Copyright 2012, 2013 Kyle Harrington"
   [dt]
   (reset! *physics* (assoc @*physics* 
                            :time (+ (:time @*physics*) dt))))
-
-
 
 (defn update-objects
   "Update all objects in the simulation. Objects whose update returns nil                                                                                                

@@ -208,8 +208,8 @@ Copyright 2012, 2013 Kyle Harrington"
   "Return the distance between two objects, this is preferable because faster lookups can be standardized."
   [me other]
   (.distance 
-    (.getPosition (:body me)) 
-    (.getPosition (:body other))))
+    (.getPosition (get-body me)) 
+    (.getPosition (get-body other))))
 ;  (length (sub (get-position me) (get-position other))))
 
 #_(defn get-object
