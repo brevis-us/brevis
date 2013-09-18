@@ -36,7 +36,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn init-sky
   []
   (def #^:dynamic *sky*
-    (load-texture-from-file (.getPath (clojure.java.io/resource "img/sky.jpg")))
+    (load-texture-from-file (clojure.java.io/resource "img/sky.jpg"))
     #_(load-texture-from-file "resources/img/sky.jpg")))
 ;    (load-texture-from-file "resources/img/sky.jpg")))
 

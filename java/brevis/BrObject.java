@@ -18,7 +18,9 @@
 package brevis;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.HashMap;
@@ -32,6 +34,7 @@ import javax.vecmath.Vector4d;
 
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
+import org.newdawn.slick.util.ClasspathLocation;
 import org.newdawn.slick.util.ResourceLoader;
 import org.ode4j.ode.DBody;
 import org.ode4j.ode.DGeom;
@@ -297,11 +300,16 @@ public class BrObject implements clojure.lang.IPersistentMap {
 				        
 	}*/
 	
-	public void setTexture( String filename ) {
+	//public void setTexture( String filename ) {
+	public void setTexture( URL filename ) {
 		
 		try {
 			// load texture from PNG file
-			texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream(filename));
+			//texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream(filename));
+			//ResourceLoader.addResourceLocation( new ClasspathLocation() );// this should probably be a 1x thing
+			//texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream( filename.getPath() ) );
+			//texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream( filename.getFile() ) );
+			texture = TextureLoader.getTexture("PNG", filename.openStream() );
 		
 			/*System.out.println("Texture loaded: "+texture);
 			System.out.println(">> Image width: "+texture.getImageWidth());

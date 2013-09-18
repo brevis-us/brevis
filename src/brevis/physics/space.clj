@@ -223,7 +223,7 @@ Copyright 2012, 2013 Kyle Harrington"
 ;                    :texture *checkers*
                     :shape (create-box w 0.1 h)})
                      (vec3 0 -3 0))
-               (.getPath (clojure.java.io/resource "img/checker_large.png"))))
+               (clojure.java.io/resource "img/checker_large.png")))
 
 (defn init-world  "Return a map of ODE physics for 1 world."  []  (let [world (doto (OdeHelper/createWorld)     
                       (.setGravity 0 0 0)                                                                                   
