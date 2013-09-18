@@ -38,4 +38,4 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn get-objects
   "Return all objects in the simulation."
   []
-  (seq (.getObjects  @*java-engine*)))
+  (seq (.toArray (.getObjects  @*java-engine*))))

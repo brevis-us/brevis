@@ -223,6 +223,11 @@ Copyright 2012, 2013 Kyle Harrington"
   []
   (reset! *gui-state* default-gui-state))
 
+(defn drawable?
+  "Is an object drawable?"
+  [obj]
+  (.isDrawable obj))
+
 (defn display
   "Display the world."
   [[dt t] state]
@@ -251,12 +256,7 @@ Copyright 2012, 2013 Kyle Harrington"
     (frustum-view 60.0 (/ (double (:window-width @*gui-state*)) (:window-height @*gui-state*)) 0.1 3000)
     (light 0 
          :specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
-         :position [0 300 0 0];;directional can be enabled after the penumbra update         
-         ;:position [250 250 -100 1]         
-         :diffuse [1 1 1 1])
-    #_(light 1 
-         :specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
-         :position [0 -1 0 0];;directional can be enabled after the penumbra update         
+         :position [0 1 0 0];;directional can be enabled after the penumbra update         
          ;:position [250 250 -100 1]         
          :diffuse [1 1 1 1])
     (color 1 1 1)
@@ -269,7 +269,7 @@ Copyright 2012, 2013 Kyle Harrington"
       (:shift-x @*gui-state*) (:shift-y @*gui-state*) (:shift-z @*gui-state*)
       (:rot-x @*gui-state*) (:rot-y @*gui-state*) (:rot-z @*gui-state*))
     (light 0 
-           :position [0 -1 0 0])    
+           :position [0 1 0 0])    
 	  (draw-sky)
    (enable :lighting)
    (disable :texture-2D)
@@ -279,7 +279,8 @@ Copyright 2012, 2013 Kyle Harrington"
    (color 1 1 1)
     #_(println "display drawing n objects:" (count (get-objects)))
 	  (doseq [obj (get-objects)]
-	    (draw-shape obj))
+     (when (drawable? obj)
+       (draw-shape obj)))
    
    (when enable-display-text
      (update-display-text [dt t] state))

@@ -80,7 +80,8 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn add-object
   "Add an object to the current world."
   [obj]
-  (.addObject @*java-engine* (get-uid obj) obj))
+  (.addObject @*java-engine* (get-uid obj) obj) 
+  obj)
 
 #_(defn del-object
   "Delete an object to the current world."
@@ -106,6 +107,39 @@ Copyright 2012, 2013 Kyle Harrington"
               (let [obj (.getObject engine uid)]
                 (handler-fn obj dt (.getNeighbors obj)))))]
     (.addUpdateHandler @*java-engine* (str (name type)) uh)))
+
+(defn add-global-update-handler
+  "Add a global update handler with specified priority."
+  [priority handler-fn]
+  (let [gh (proxy [brevis.Engine$GlobalUpdateHandler] []
+             (update [#^brevis.Engine engine]
+               (handler-fn)))]
+    (.addGlobalUpdateHandler @*java-engine* priority gh)))
+
+#_(defn param-label
+  "Convert a string into an ODE param label."
+  [s]
+  (cond
+    (= s "dParamVel2") dParamVel2
+    (= s "dParamVel") dParamVel
+    (= s "dParamFMax2") dParamFMax2
+    (= s "dParamFMax") dParamFMax
+    (= s "dParamLoStop") dParamLoStop
+    (= s "dParamHiStop") dParamHiStop
+    (= s "dParamFudgeFactor") dParamFudgeFactor))
+
+#_(defn set-joint-param
+  "Set a joint parameter."
+  [joint param-name value]
+  (let [param-fn (cond (= :hinge2 (:joint-type joint)) .dJointSetHinge2Param)]
+    (param-fn (param-label param-name) value)))
+
+(defn set-joint-vel
+  "Set the velocity of a joint."
+  [joint value] 
+  #_(println "set-joint-vel" (.getJoint joint) value) 
+  (cond (= "hinge2" (.getType joint))    
+    (.setParamVel (.getJoint joint) value)))
 
 (defn enable-kinematics-update
   "Enable automatic kinematics for this type."

@@ -65,6 +65,8 @@ public class BrObject implements clojure.lang.IPersistentMap {
 	public Vector<Long> nbrs;
 	protected int texId = -1;
 	
+	public boolean drawable = true;
+	
 	// Physics
 	public DBody body;
 	public DGeom geom;
@@ -89,6 +91,10 @@ public class BrObject implements clojure.lang.IPersistentMap {
 		data = null;
 		myMap = new HashMap<Object,Object>();
 		texture = null;
+	}
+	
+	public boolean isDrawable() {
+		return drawable;
 	}
 	
 	public BrObject assoc(Object key, Object val) {

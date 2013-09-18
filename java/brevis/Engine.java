@@ -19,6 +19,7 @@ package brevis;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -47,6 +48,18 @@ public class Engine {
 		}
 	}
 	
+	public static class GlobalUpdateHandler {
+		public Long priority = (long) 0;
+		public void update( Engine engine ) {			
+		}
+		public Long getPriority () {
+			return priority;
+		}
+		public void setPriority( Long priority2 ) {
+			priority = priority2;
+		}
+	}
+	
 	// All collisions are pairwise now.
 	// Compute the collision after DT amount of time for object with UID colliding with UID, other	
 	/*public static class CollisionHandler {
@@ -69,6 +82,7 @@ public class Engine {
 	// updateHandlers
 	protected HashMap<String,UpdateHandler> updateHandlers;
 	protected HashMap<String,Boolean> updateKinematics;
+	protected PriorityQueue<GlobalUpdateHandler> globalUpdateHandlers; 
 	// dt
 	public double dt = 1.0;
 	// neighborhoodRadius
@@ -100,7 +114,16 @@ public class Engine {
 	// enableParallel
 	public boolean brevisParallel = true;
 	
-	/* Methods: */		
+	/* Methods: */	
+	
+	class GUHComparator implements Comparator<GlobalUpdateHandler> {
+
+		@Override
+		public int compare(GlobalUpdateHandler gh1, GlobalUpdateHandler gh2) {
+			return (int) ( gh1.priority - gh2.priority );
+		}
+		
+	}
 	
 	public Engine() {
 		updateHandlers = new HashMap<String,UpdateHandler>();		
@@ -113,6 +136,9 @@ public class Engine {
 		collisionHandlers = new HashMap< SimpleEntry<String,String>, CollisionHandler >();
 		collisions = new HashSet< SimpleEntry<Long,Long> >();
 		globalCollisions = new HashSet< SimpleEntry<Long,Long> >();
+		
+		globalUpdateHandlers = 
+				new PriorityQueue<GlobalUpdateHandler>(1, (Comparator<GlobalUpdateHandler>) new GUHComparator() );
 	}
 	
 	public static class BrevisCollision implements DGeom.DNearCallback {
@@ -198,6 +224,20 @@ public class Engine {
 		objects = updatedObjects;
 	}
 	
+	/* globalUpdateObjects
+	 * Call individual update functions
+	 */
+	public void globalUpdateObjects( boolean preIndividual ) {
+		
+		for( GlobalUpdateHandler gh : globalUpdateHandlers ) {
+			if( preIndividual && gh.getPriority() < 0 ) {
+				gh.update( this );
+			} else if ( !preIndividual && gh.getPriority() >= 0 ) {
+				gh.update( this );
+			}
+		}
+	}
+	
 	/* handleCollisions
 	 * Respond to all computed collisions
 	 */
@@ -243,9 +283,10 @@ public class Engine {
 			Vector<Long> nbrs = new Vector<Long>();
 			for( Map.Entry<Long,BrObject> otherEntry : objects.entrySet() ) {
 				BrObject otherObj = otherEntry.getValue();
-				//System.out.println( "Distance to " + obj.distanceTo( otherObj ) );
+				//System.out.println( "Distance to " + obj.distanceTo( otherObj ) + " radius " + neighborhoodRadius );
 				if( obj.distanceTo( otherObj ) < neighborhoodRadius && obj != otherObj ) {
 					nbrs.add( otherObj.uid );
+					//System.out.println( "Adding neighbor " + obj.getType() );
 				}
 			}
 			//System.out.println( "Neighbors of " + obj + " " + nbrs.size() );
@@ -274,7 +315,15 @@ public class Engine {
 			synchronizeObjects();
 		}
 		
+		// Global update handlers < 0 run before individual object updates
+		globalUpdateObjects( true );
+		synchronizeObjects();
+		
 		updateObjects( dt );
+		synchronizeObjects();
+		
+		// Global update handlers >= 0 run after individual object updates
+		globalUpdateObjects( false );
 		synchronizeObjects();
 		
 		if( collisionsEnabled ) {
@@ -312,6 +361,11 @@ public class Engine {
 		updateHandlers.put( type,  uh );
 	}
 	
+	public void addGlobalUpdateHandler( Long priority, GlobalUpdateHandler gh ) {
+		gh.setPriority( priority );
+		globalUpdateHandlers.add( gh );
+	}
+	
 	public void enableUpdateKinematics( String type ) {
 		//System.out.println( type );
 		updateKinematics.put( type, true );
@@ -343,4 +397,8 @@ public class Engine {
 	public Collection<BrObject> getObjects() {
 		return objects.values();
 	}
+	
+	public BrPhysics getPhysics() {
+		return physics;
+	}	
 }

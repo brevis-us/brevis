@@ -1,4 +1,4 @@
-(defproject brevis "0.3.2-SNAPSHOT"
+(defproject brevis "0.4.0-SNAPSHOT"
   :description "A Second-Generation Artificial Life Simulator"
   :url "https://github.com/kephale/brevis"
   :license {:name "Eclipse Public License"
@@ -8,6 +8,7 @@
   :java-source-paths ["java"]
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/math.numeric-tower "0.0.2"]
+                 [java3d/vecmath "1.3.1"]
 ;                 [kephale/ode4j "0.12.0-j1.4"]
                  [kephale/ode4j "20130414_001"]
                  ;[kephale/cantor "0.4.1"]

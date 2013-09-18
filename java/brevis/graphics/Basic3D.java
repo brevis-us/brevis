@@ -92,7 +92,7 @@ public class Basic3D {
 
 	}
 
-	static public void drawCone(float baseRadius, float topRadius, float height, int slices, int stacks) {
+	static public void drawCylinder(float baseRadius, float topRadius, float height, int slices, int stacks) {
 
 		Cylinder c = new Cylinder();
 	
@@ -263,7 +263,8 @@ public class Basic3D {
         GL11.glTranslatef(objPos[0], objPos[1], objPos[2]);      // Position The Object
                 
         if( ! ( obj.getShape().type == BrShape.BrShapeType.CONE ||
-        		obj.getShape().type == BrShape.BrShapeType.SPHERE ) ) {         	 
+        		obj.getShape().type == BrShape.BrShapeType.SPHERE ||
+        		obj.getShape().type == BrShape.BrShapeType.CYLINDER ) ) {         	 
         	GL11.glScaled( dim.x, dim.y, dim.z );
         }
         Vector4d rot = obj.getRotation();
@@ -274,13 +275,16 @@ public class Basic3D {
         if( obj.getTextureId() != -1 ) {
         	GL11.glEnable(GL11.GL_TEXTURE_2D);
         	GL11.glBindTexture(GL11.GL_TEXTURE_2D, obj.getTextureId() );
+        } else {
+        	GL11.glDisable(GL11.GL_TEXTURE_2D);
         }
         
         if( obj.getShape().getType() == "box" )
         	drawBox( 1, 1, 1 );
         else if( obj.getShape().getType() == "cone" )
-        	//drawCone( (float)0.8, (float)0.01, (float)1.2, 25, 25 );
-        	drawCone( (float)dim.x, (float)0.01, (float)dim.y, (int)dim.z, 25 );
+        	drawCylinder( (float)dim.x, (float)0.01, (float)dim.y, (int)dim.z, 25 );
+        else if( obj.getShape().getType() == "cone" )
+        	drawCylinder( (float)dim.x, (float)dim.y, (float)dim.y, (int)dim.z, 25 );
         else
         	drawSphere( (float)dim.x, (int)dim.y, 20);
         

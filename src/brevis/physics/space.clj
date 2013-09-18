@@ -73,7 +73,7 @@ Copyright 2012, 2013 Kyle Harrington"
       (.setColor brobj (:color obj)))
     (.setUID brobj uid)
     (.setType brobj (str (name (:type obj))))
-    (.setShape brobj (:shape obj))
+    (.setShape brobj (:shape obj))    
     (.makeReal brobj @*java-engine*)    
     brobj))
 

@@ -26,7 +26,7 @@ import org.ode4j.ode.OdeHelper;
 
 public class BrShape {
 	public enum BrShapeType {
-		BOX, SPHERE, CONE, MESH
+		BOX, SPHERE, CONE, CYLINDER, MESH
 	};
 	
 	public BrShapeType type;
@@ -49,7 +49,9 @@ public class BrShape {
 		} else if( type == BrShapeType.SPHERE ) {
 			return "sphere";
 		} else if( type == BrShapeType.CONE ) {
-			return "cone";
+			return "cone";			
+		} else if( type == BrShapeType.CYLINDER ) {
+			return "cylinder";
 		} else if( type == BrShapeType.MESH ) {
 			return "mesh";
 		} else {
@@ -68,6 +70,8 @@ public class BrShape {
 			m.setSphere( density, dim.x );
 		} else if( type == BrShapeType.CONE ) {
 			m.setSphere(density, dim.x);
+		} else if( type == BrShapeType.CYLINDER ) {
+			m.setSphere(density, dim.x);
 		}
 		return m;
 	}
@@ -80,6 +84,10 @@ public class BrShape {
 		case SPHERE:
 			return OdeHelper.createSphere( space, dim.x );			
 		}		
+	}
+	
+	public void setDimension( Vector3d newd ) {
+		dim = newd;
 	}
 	
 	public Vector3d getDimension() {
@@ -96,5 +104,9 @@ public class BrShape {
 	
 	public static BrShape createCone( double length, double base ) {
 		return ( new BrShape( BrShapeType.CONE, new Vector3d( length, base, 25 )));	// last element of vector is # of sides or stacks (depending on renderer)
+	}
+	
+	public static BrShape createCylinder( double length, double radius ) {
+		return ( new BrShape( BrShapeType.CYLINDER, new Vector3d( length, radius, 25 )));	// last element of vector is # of sides or stacks (depending on renderer)
 	}
 }
