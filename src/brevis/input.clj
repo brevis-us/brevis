@@ -20,34 +20,49 @@ Copyright 2012, 2013 Kyle Harrington"
   (:use [brevis globals display utils osd]
         [brevis.physics utils]))
 
+(def #^:dynamic *input-handlers* (atom {:key-press {}
+                                        :key-release {}}));; no mouse yet
+
 #_(def shift-key-down (atom false))
 (defn sin [n] (float (Math/sin n)))
 (defn cos [n] (float (Math/cos n)))
 
+(defn add-input-handler
+  "Add an input handler."
+  [input-type input-predicate behavior]
+  (reset! *input-handlers*
+          (assoc-in @*input-handlers*
+                    [:key-press input-predicate] behavior)))
+
+(defn default-input-handlers
+  "Define the default input handlers."
+  []
+  (add-input-handler :key-press
+                     #(= "p" %)
+                     #(app/pause!))
+  (add-input-handler :key-press
+                     #(= "o" %)
+                     #(screenshot (str "brevis_screenshot_" (System/currentTimeMillis) ".png")))
+  (add-input-handler :key-press
+                     #(= :escape %)
+                     #(app/stop!)))
+;; Currently forcing default input handlers to be enabled
+(default-input-handlers)
+
 (defn key-press
   "Update the state in response to a keypress."
   [key state]
-  ;(println "key-press" key)
-  (cond
-    ;(= :lshift key) (do (reset! shift-key-down true) state)
-    ;(= "z" key) (do (reset! shift-key-down true) state)    
-    (= "p" key) (do (app/pause!)
-                  state)
-    (= "o" key) (do (screenshot (str "brevis_screenshot_" (System/currentTimeMillis) ".png") state)
-                  state)
-    (= :escape key)
-    (do (app/stop!)
-      (assoc state 
-             :terminated? true)
-      )))
+  (doseq [[predicate behavior] (:key-press @*input-handlers*)]
+    (when (predicate key)
+      (behavior)))
+  state)
 
 (defn key-release
   "Update the state in response to the release of a key"
   [key state]
-  ;(println "key-release" key) 
-  ;(cond
-    ;(= :lshift key) (reset! shift-key-down false))
-    ;(= "z" key) (reset! shift-key-down false))
+  (doseq [[predicate behavior] (:key-release @*input-handlers*)]
+    (when (predicate key)
+      (behavior)))
   state)
 
 (defn rotate-x

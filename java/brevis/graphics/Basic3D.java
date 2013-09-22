@@ -179,15 +179,15 @@ public class Basic3D {
     }
     
     private FloatBuffer matrixSST = BufferUtils.createFloatBuffer(16);
-    private void setShadowTransform()
+    private void setShadowTransform( float lightX, float lightY )
     {
             //GLfloat                                                                                                                                                                                                                     
             float[] matrix=new float[16];
             for (int i=0; i<16; i++) matrix[i] = 0;
             matrix[0]=1;
             matrix[5]=1;
-            matrix[8]=-LIGHTX;
-            matrix[9]=-LIGHTY;
+            matrix[8]=-lightX;
+            matrix[9]=-lightY;
             matrix[15]=1;
             matrixSST.put( matrix );
 //          for (int i=0; i < 16; i++) matrixSST.put(i, 0);                                                                                                                                                                               
@@ -292,16 +292,6 @@ public class Basic3D {
 
         //castShadow(obj, lp);                               // Procedure For Casting The Shadow Based On The Silhouette
                             
-        /*GL11.glColor4f(0.7f, 0.4f, 0.0f, 1.0f);                  // Set Color To Purplish Blue
-        GL11.glDisable(GL11.GL_LIGHTING);                             // Disable Lighting
-        GL11.glDepthMask(false);                              // Disable Depth Mask
-        GL11.glTranslatef(lp[0], lp[1], lp[2]);                  // Translate To Light's Position
-                                                            // Notice We're Still In Local Coordinate System
-        q.draw(0.2f, 16, 8);                          // Draw A Little Yellow Sphere (Represents Light)
-        GL11.glEnable(GL11.GL_LIGHTING);                              // Enable Lighting
-        GL11.glDepthMask(true);                               // Enable Depth Mask*/
-
-        //GL11.glFlush();                                          // Flush The OpenGL Pipeline		
 		
 	}
 }

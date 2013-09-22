@@ -1,4 +1,4 @@
-(defproject brevis "0.4.2-SNAPSHOT"
+(defproject brevis "0.4.3-SNAPSHOT"
   :description "A Second-Generation Artificial Life Simulator"
   :url "https://github.com/kephale/brevis"
   :license {:name "Eclipse Public License"
@@ -14,4 +14,5 @@
                  ;[kephale/cantor "0.4.1"]
                  [kephale/penumbra "0.6.5-SNAPSHOT"]
                  [kephale/slick-util "1.0.1"]
+                 [org.l33tlabs.twl/pngdecoder "1.0"]
                  ])
