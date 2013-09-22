@@ -282,9 +282,12 @@ Copyright 2012, 2013 Kyle Harrington"
      (when (drawable? obj)
        (draw-shape obj)))
    
-   (when enable-display-text
+   (when @enable-display-text
      (update-display-text [dt t] state))
 	  (app/repaint!)
+   (when @*screenshot-filename*
+     (screenshot @*screenshot-filename* state)
+     (reset! *screenshot-filename* nil))
    (when (:record-video @*gui-state*)
      (screenshot (str (:video-name @*gui-state*) "_" @video-counter ".png") state)
      (swap! video-counter inc))   
@@ -300,6 +303,8 @@ Copyright 2012, 2013 Kyle Harrington"
 ;    (start-gui initialize update-world))
   ([initialize update]
     (reset-core)
+    (when (.contains (System/getProperty "os.name") "indows")
+      (reset! enable-display-text false))
 	  (reset! *app-thread*
            (Thread. (fn [] (app/start
                              {:reshape reshape, :init (make-init initialize), :mouse-drag mouse-drag, :key-press key-press :mouse-wheel mouse-wheel, :update update, :display display

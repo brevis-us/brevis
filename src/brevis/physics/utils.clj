@@ -344,3 +344,10 @@ Copyright 2012, 2013 Kyle Harrington"
   (.setTexture obj new-tex)
   obj)
 
+(defn set-texture-image
+  "set the texture of an object to a bufferedimage."
+  [obj new-tex-img]
+  #_(.setTextureImage obj new-tex-img)
+  (.setTextureImage obj new-tex-img)
+  obj)
+

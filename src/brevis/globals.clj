@@ -17,7 +17,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.globals)
 
-(def enable-display-text true)
+(def enable-display-text (atom true))
 
 (def default-gui-state {:rotate-mode :none :translate-mode :none                                    
                         :rot-x 90 :rot-y -90 :rot-z -45
@@ -27,3 +27,4 @@ Copyright 2012, 2013 Kyle Harrington"
 (def #^:dynamic *gui-state* (atom default-gui-state))
 (def #^:dynamic *gui-message-board* (atom (sorted-map))) 
 (def #^:dynamic *app-thread* (atom nil))
+(def #^:dynamic *screenshot-filename* (atom nil))

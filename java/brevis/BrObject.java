@@ -20,6 +20,7 @@ package brevis;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -32,7 +33,10 @@ import java.util.Vector;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector4d;
 
+import org.newdawn.slick.opengl.ImageIOImageData;
+import org.newdawn.slick.opengl.InternalTextureLoader;
 import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.opengl.TextureImpl;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ClasspathLocation;
 import org.newdawn.slick.util.ResourceLoader;
@@ -257,48 +261,52 @@ public class BrObject implements clojure.lang.IPersistentMap {
 		return texture;
 	}*/
 	
-	/*public void setTexture(BufferedImage newTexture) {
-		texture = newTexture;
+	public void setTextureImage(BufferedImage newTexture) {
+		//texture = newTexture;
+		int textureID = InternalTextureLoader.createTextureID();
+		TextureImpl timp = new TextureImpl("NORESOURCE", GL11.GL_TEXTURE_2D, textureID);
+		
+		ImageIOImageData iiid = new ImageIOImageData();
+				
+        ByteBuffer buffer = iiid.imageToByteBuffer( newTexture, false, false, null );
 
-		int[] pixels = new int[texture.getWidth() * texture.getHeight()];
-        pixels = texture.getRGB(0, 0, texture.getWidth(), texture.getHeight(), pixels, 0, texture.getWidth());
+        int width;
+        int height;
+        int texWidth;
+        int texHeight;
 
-        ByteBuffer buffer = BufferUtils.createByteBuffer(texture.getWidth() * texture.getHeight() * 4); //4 for RGBA, 3 for RGB
+        boolean hasAlpha;
 
-        for(int y = 0; y < texture.getHeight(); y++){
-            for(int x = 0; x < texture.getWidth(); x++){
-                int pixel = pixels[y * texture.getWidth() + x];
-                buffer.put((byte) ((pixel >> 16) & 0xFF));     // Red component
-                buffer.put((byte) ((pixel >> 8) & 0xFF));      // Green component
-                buffer.put((byte) (pixel & 0xFF));               // Blue component
-                //buffer.put((byte) (0xFF));    // Alpha component. Only for RGBA
-                //buffer.put((byte) ((pixel >> 24) & 0xFF));    // Alpha component. Only for RGBA
-            }
-        }
+        width = newTexture.getWidth();
+        height = newTexture.getHeight();
+        hasAlpha = newTexture.getColorModel().hasAlpha();
 
-        buffer.flip(); //FOR THE LOVE OF GOD DO NOT FORGET THIS
-
-        // You now have a ByteBuffer filled with the color data of each pixel.
-        // Now just create a texture ID and bind it. Then you can load it using 
-        // whatever OpenGL method you want, for example:
-
-        texId = GL11.glGenTextures(); //Generate texture ID
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, texId); //Bind texture ID
-
-        //Setup wrap mode
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
-
-        //Setup texture scaling filtering
-        //GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-        //GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-
-        //Send texel data to OpenGL
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, texture.getWidth(), texture.getHeight(), 0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, buffer);
+        texWidth = (int) Math.pow( 2, Math.ceil( Math.log( texture.getTextureWidth() ) / Math.log( 2 ) ) );
+        texHeight = (int) Math.pow( 2, Math.ceil( Math.log( texture.getTextureHeight() ) / Math.log( 2 ) ) );
+              
+        int srcPixelFormat = hasAlpha ? GL11.GL_RGBA : GL11.GL_RGB;
+        int componentCount = hasAlpha ? 4 : 3;
+        
+        int minFilter = 0;//scale?
+        int magFilter = 0;
+        
+        timp.setAlpha( hasAlpha );
+        timp.setHeight( height );
+        timp.setWidth( width );
+        timp.setTextureID( textureID );
+        timp.setTextureHeight( texHeight );
+        timp.setTextureWidth( texWidth );                       
+        
+        System.out.println( "setTextureimage " + width + " " + height + " " + hasAlpha + " " + texWidth + " " + texHeight );
+        
+        timp.setTextureData(srcPixelFormat, componentCount, minFilter, magFilter, buffer);
+        
+        //System.out.println( texture );
+        //System.out.println( timp );
+        
+        texture = timp;
 				        
-	}*/
+	}
 	
 	//public void setTexture( String filename ) {
 	public void setTexture( URL filename ) {
@@ -323,10 +331,11 @@ public class BrObject implements clojure.lang.IPersistentMap {
 		}		
 		
 	}
+
 	
 	
 	/*
-	 * Updat the orientation of an object
+	 * Update the orientation of an object
 	 */
 	public void orient( Vector3d objVec, Vector3d targetVec ) {
 		if( objVec.length() != 0 && targetVec.length() != 0 ) {
