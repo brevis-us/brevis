@@ -71,6 +71,7 @@ Copyright 2012, 2013 Kyle Harrington"
          :position [0 -1 0 0]
          ;:position [250 250 -100 1]
          :diffuse [1 1 1 1])
+  (glfx/light-model :light-model-ambient [0.5 0.5 0.5 1.0])
   ;(glfx/gl-enable :point-smooth)
   ;(glfx/gl-enable :line-smooth)
   ;(enable :polygon-smooth)  
@@ -78,6 +79,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (enable :normalize)
   #_(init-shader)  
   (java-init-world)
+  #_(glfx/enable-high-quality-rendering)
   state
   #_(glfx/enable-high-quality-rendering))
 
@@ -245,8 +247,8 @@ Copyright 2012, 2013 Kyle Harrington"
     (enable :normalize)
     (enable :depth-test)
     (depth-test :lequal)
-    ;(enable :cull-face)
-    ;(cull-face :black)
+    #_(enable :cull-face)
+    #_(cull-face :black)
     ;GL11.glFrontFace (GL11.GL_CCW);
     (viewport 0 0 (:window-width @*gui-state*) (:window-height @*gui-state*))
     (gl-matrix-mode :projection)
@@ -254,7 +256,7 @@ Copyright 2012, 2013 Kyle Harrington"
     ;should if on width>height
     ;(frustum-view 60.0 (/ (double (:window-width @*gui-state*)) (:window-height @*gui-state*)) 1.0 1000.0)
     (frustum-view 60.0 (/ (double (:window-width @*gui-state*)) (:window-height @*gui-state*)) 0.1 3000)
-    (light 0 
+    #_(light 0 
          :specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
          :position [0 1 0 0];;directional can be enabled after the penumbra update         
          ;:position [250 250 -100 1]         
@@ -268,8 +270,15 @@ Copyright 2012, 2013 Kyle Harrington"
     (set-camera
       (:shift-x @*gui-state*) (:shift-y @*gui-state*) (:shift-z @*gui-state*)
       (:rot-x @*gui-state*) (:rot-y @*gui-state*) (:rot-z @*gui-state*))
-    (light 0 
-           :position [0 1 0 0])    
+    #_(light 0 
+           :position [0 1 0 0])
+    (light 0
+           :ambient [0 0 0 1]
+         ;:specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
+         :position [1 1 1 0];;directional can be enabled after the penumbra update         
+         ;:position [250 250 -100 1]         
+         ;:diffuse [1 1 1 1]
+         )    
 	  (draw-sky)
    (enable :lighting)
    (disable :texture-2D)
