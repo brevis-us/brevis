@@ -17,20 +17,41 @@
 
 package brevis;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+
 import javax.vecmath.Vector3d;
 
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.ARBVertexBufferObject;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GLContext;
 import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DMass;
 import org.ode4j.ode.DSpace;
 import org.ode4j.ode.OdeHelper;
+
+import brevis.graphics.BrMesh;
 
 public class BrShape {
 	public enum BrShapeType {
 		BOX, SPHERE, CONE, CYLINDER, MESH
 	};
 	
+	static public String objDir = "obj/";
+	
 	public BrShapeType type;
 	public Vector3d dim;
+	public int vertBID = -1;
+	public int colBID = -1;
+	public int idxBID = -1;
+	public int numIdx = 0;
+	public BrMesh mesh = null;
 	
 	BrShape( BrShapeType t, Vector3d d ) {
 		//type = BrShapeType.SPHERE;
@@ -75,6 +96,96 @@ public class BrShape {
 		}
 		return m;
 	}
+	
+	/*public static int createVBOID() {
+		  if (GLContext.getCapabilities().GL_ARB_vertex_buffer_object) {
+		    IntBuffer buffer = BufferUtils.createIntBuffer(1);
+		    ARBVertexBufferObject.glGenBuffersARB(buffer);
+		    return buffer.get(0);
+		  }
+		  return 0;
+		}*/
+	
+	/*
+	public static int createVBOID() {
+	    //IntBuffer buffer = BufferUtils.createIntBuffer(1);
+	    //GL15.glGenBuffers(buffer);
+	    //return buffer.get(0);
+	    //Or alternatively you can simply use the convenience method:
+	    return GL15.glGenBuffers(); //Which can only supply you with a single id.
+	}
+
+
+	public static void vertexBufferData(int id, FloatBuffer buffer) { //Not restricted to FloatBuffer
+	    GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, id); //Bind buffer (also specifies type of buffer)
+	    GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW); //Send up the data and specify usage hint.
+	}
+	public static void indexBufferData(int id, IntBuffer buffer) { //Not restricted to IntBuffer
+	    GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, id);
+	    GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+	}
+
+	public void createVBOFromMesh( ) {
+		vertBID = createVBOID();
+		colBID = createVBOID();
+		idxBID = createVBOID();
+		numIdx = mesh.numIdx();
+		
+		vertexBufferData( vertBID, FloatBuffer.wrap( mesh.verts ) );
+		vertexBufferData( colBID, FloatBuffer.wrap( mesh.col ) );
+		indexBufferData( idxBID, IntBuffer.wrap( mesh .idx ) );
+		
+	}
+	
+	public void createMesh() {
+		mesh = new BrMesh();
+		
+		if( type == BrShapeType.BOX ) {
+			mesh.initBox( dim );			
+		} else if( type == BrShapeType.SPHERE ) {
+			mesh.initSphere( dim );
+		} else if( type == BrShapeType.CONE ) {
+			mesh.initCone( dim );
+		} else if( type == BrShapeType.CYLINDER ) {
+			mesh.initCylinder( dim );
+		}
+	}
+	
+	public static void bufferData(int id, FloatBuffer buffer) {
+		  if (GLContext.getCapabilities().GL_ARB_vertex_buffer_object) {
+		    ARBVertexBufferObject.glBindBufferARB(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, id);
+		    ARBVertexBufferObject.glBufferDataARB(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, buffer, ARBVertexBufferObject.GL_STATIC_DRAW_ARB);
+		  }
+		}
+*/
+	
+	public void createMesh() {		
+		String filename  = "";
+		if( type == BrShapeType.BOX ) {
+			//mesh.initBox( dim );
+			filename = "box.obj";
+		} else if( type == BrShapeType.SPHERE ) {
+			//mesh.initSphere( dim );
+			filename = "sphere.obj";
+		} else if( type == BrShapeType.CONE ) {
+			//mesh.initCone( dim );
+			filename = "cone.obj";
+		} else if( type == BrShapeType.CYLINDER ) {
+			//mesh.initCylinder( dim );
+			filename = "cylinder.obj";
+		}
+		filename = objDir + filename;
+		
+		try {
+			//FileReader fr = new FileReader(filename);
+			BufferedReader br = new BufferedReader( new InputStreamReader( ClassLoader.getSystemResource( filename ).openStream() ) );
+			//System.out.println( "Loading object: " + filename );
+			mesh = new BrMesh( br, true );
+			//mesh.opengldrawtolist();
+		} catch( Exception e ) {
+			e.printStackTrace();
+		}
+	}		
 	
 	public DGeom createGeom( DSpace space ) {
 		switch( type ) {

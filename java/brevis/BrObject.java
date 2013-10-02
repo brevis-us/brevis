@@ -229,7 +229,10 @@ public class BrObject implements clojure.lang.IPersistentMap {
 		
 		geom = shape.createGeom( e.physics.getSpace() );
 		geom.setBody( body );
-		geom.setOffsetWorldPosition( position.x, position.y, position.z );		
+		geom.setOffsetWorldPosition( position.x, position.y, position.z );
+		
+		shape.createMesh();
+		//shape.createVBOFromMesh();
 	}
 	
 	public void setColor( Vector4d c ) {

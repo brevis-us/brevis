@@ -40,13 +40,11 @@ Copyright 2012, 2013 Kyle Harrington"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds 100)
+(def num-birds 200)
 
-(def memory (atom 0.0))
-(def avoidance (atom 1.8))
-(def clustering (atom 1.05))
-(def centering (atom 0.01))
+(def avoidance-distance (atom 5))
 
+(def speed 25)
 (def max-acceleration 100)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -55,14 +53,16 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn bird?
   "Is a thing a bird?"
   [thing]
-  (= (:type thing) :bird))
+  (= (get-type thing) "bird"))
 
 (defn random-bird-position
   "Returns a random valid bird position."
   []
-  (vec3 (- (rand num-birds) (/ num-birds 2)) 
-        (+ 9.5 (rand 10));; having this bigger than the neighbor radius will help with speed due to neighborhood computation
-        (- (rand num-birds) (/ num-birds 2))))
+  (let [w num-birds
+        h w]
+    (vec3 (- (rand w) (/ w 2)) 
+          (+ 59.5 (rand 10));; having this bigger than the neighbor radius will help with speed due to neighborhood computation
+          (- (rand h) (/ h 2)))))
 
 (defn make-bird
   "Make a new bird with the specified program. At the specified location."
@@ -70,7 +70,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (move (make-real {:type :bird
               :color (vec4 1 0 0 1)
               ;:shape (create-sphere)})
-              :shape (create-cone 2 10)})
+              :shape (create-cone 2.2 1.5)})
         position))
   
 (defn random-bird
@@ -88,43 +88,33 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn fly
   "Change the acceleration of a bird."
   [bird dt nbrs]
-  #_(println "fly: bird=" (:uid bird) " nbrs=" nbrs " " (count nbrs))
-  #_(println "fly:" (get-position bird))
   (let [nbrs (filter bird? (get-neighbor-objects bird))        
-        num-nbrs (count nbrs)
-        closest-bird (if (zero? num-nbrs)
-                       bird
-                       (first nbrs))
-        centroid (if (zero? num-nbrs)
-                   (get-position bird)
-                   (div (reduce add (map get-position nbrs)) 
-                        num-nbrs))
-        d-closest-bird (sub (get-position closest-bird) (get-position bird))
-        d-centroid (sub centroid (get-position bird))
-        d-center (sub (vec3 0 10 0) (get-position bird))
-        new-acceleration (bound-acceleration
-                           (add (mul (get-acceleration bird) @memory)
-                                (mul d-center @centering)
-                                (mul d-closest-bird @avoidance)
-                                (mul d-centroid @clustering)))]
-    #_(println d-center d-closest-bird d-centroid)    
+        closest-bird (when-not (empty? nbrs)
+                       (rand-nth nbrs))
+        new-acceleration (if-not closest-bird
+                           ;; No neighbor, move randomly
+                           (elmul (vec3 (- (rand) 0.5) (- (rand) 0.5) (- (rand) 0.5))
+                                  (mul (get-position bird) -1.0))
+                           (let [dvec (sub (get-position bird) (get-position closest-bird)) 
+                                 len (length dvec)]
+                             (add (sub (get-velocity closest-bird) (get-velocity bird)); velocity matching
+                                  (if (<= len @avoidance-distance)
+                                    ;; If far from neighbor, get closer
+                                    dvec
+                                    ;; If too close to neighbor, move away
+                                    (add (mul dvec -1.0)
+                                         (vec3 (rand 0.1) (rand 0.1) (rand 0.1)))))));; add a small random delta so we don't get into a loop                                    
+        new-acceleration (if (zero? (length new-acceleration))
+                           new-acceleration
+                           (mul new-acceleration (/ 1 (length new-acceleration))))]
     (set-acceleration
-      #_(orient-object bird (vec3 0 0 1) (get-velocity bird))
-      bird
-      new-acceleration)))
-
-#_(defn update-bird
-  "Update a bird based upon its flocking behavior and the physical kinematics."
-  [bird dt objects]  
-  #_(println (get-time) bird)
-  (let [objects (filter bird? objects)
-        ;nbrs (compute-neighborhood bird objects)]
-        nbrs (get-neighbor-objects bird)]
-    (update-object-kinematics 
-      (fly bird dt nbrs) dt)))
+      (if (> (length (get-position bird)) 500)
+        (move bird (vec3 0 25 0))
+        bird)
+      (add (mul (get-acceleration bird) 0.5)
+           (mul new-acceleration speed)))))
 
 (enable-kinematics-update :bird); This tells the simulator to move our objects
-;(add-update-handler :bird update-bird); This tells the simulator how to update these objects
 (add-update-handler :bird fly); This tells the simulator how to update these objects
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -136,22 +126,14 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn bump
   "Collision between two birds. This is called on [bird1 bird2] and [bird2 bird1] independently
 so we only modify bird1."
-  [bird1 bird2]
+  [bird1 bird2]  
   [(set-color bird1 (vec4 (rand) (rand) (rand) 1))
-   bird2]
-  #_[(assoc bird1 :color [(rand) (rand) (rand)])
    bird2])
 
 (defn land
   "Collision between a bird and the floor."
   [bird floor]
-  (when (or (nil? bird) (nil? floor))
-    (println "Bird" bird) (println "Floor" floor))
-  [(set-acceleration
-     bird
-     #_(set-velocity bird
-                   (vec3 0 0.5 0))
-     (vec3 0 0.5 0))         
+  [(set-velocity (set-acceleration bird (vec3 0 10.5 0)) (vec3 0 0 0));; maybe move as well       
    floor])
 
 (add-collision-handler :bird :bird bump)
@@ -164,11 +146,11 @@ so we only modify bird1."
   "This is the function where you add everything to the world."
   []  
   (init-world)
+  (init-view)
   (set-dt 0.1)
   (set-neighborhood-radius 25)
   (default-display-text)
-  (reset! collisions-enabled false)
-  #_(enable-video-recording "swarm_demo")
+  #_(disable-collisions)
   (add-object (make-floor 500 500))
   (dotimes [_ num-birds]
     (add-object (random-bird))))
@@ -179,6 +161,7 @@ so we only modify bird1."
     (start-nogui initialize-simulation)
     (start-gui initialize-simulation)))
 
+;; For autostart with Counterclockwise in Eclipse
 (when (find-ns 'ccw.complete)
   (-main))
 ;(-main :nogui)

@@ -27,6 +27,7 @@ import javax.vecmath.Vector4f;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
 import org.lwjgl.util.glu.Cylinder;
 import org.lwjgl.util.glu.Sphere;
 
@@ -279,14 +280,21 @@ public class Basic3D {
         	GL11.glDisable(GL11.GL_TEXTURE_2D);
         }
         
-        if( obj.getShape().getType() == "box" )
-        	drawBox( 1, 1, 1 );
-        else if( obj.getShape().getType() == "cone" )
-        	drawCylinder( (float)dim.x, (float)0.01, (float)dim.y, (int)dim.z, 25 );
-        else if( obj.getShape().getType() == "cone" )
-        	drawCylinder( (float)dim.x, (float)dim.y, (float)dim.y, (int)dim.z, 25 );
-        else
-        	drawSphere( (float)dim.x, (int)dim.y, 20);
+        
+        // Render primitives directly with vertex commands       
+        if( obj.getShape().mesh == null ) {
+	        if( obj.getShape().getType() == "box" )
+	        	drawBox( 1, 1, 1 );
+	        else if( obj.getShape().getType() == "cone" )
+	        	drawCylinder( (float)dim.x, (float)0.01, (float)dim.y, (int)dim.z, 25 );
+	        else if( obj.getShape().getType() == "cone" )
+	        	drawCylinder( (float)dim.x, (float)dim.y, (float)dim.y, (int)dim.z, 25 );
+	        else
+	        	drawSphere( (float)dim.x, (int)dim.y, 20);
+        } else {
+        	//System.out.println( "Rendering from mesh" );
+        	obj.getShape().mesh.opengldraw();
+    	}
         
         GL11.glPopMatrix();
 
