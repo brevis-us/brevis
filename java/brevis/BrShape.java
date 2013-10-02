@@ -180,7 +180,7 @@ public class BrShape {
 			//FileReader fr = new FileReader(filename);
 			BufferedReader br = new BufferedReader( new InputStreamReader( ClassLoader.getSystemResource( filename ).openStream() ) );
 			//System.out.println( "Loading object: " + filename );
-			mesh = new BrMesh( br, true );
+			mesh = new BrMesh( br, false );
 			//mesh.opengldrawtolist();
 		} catch( Exception e ) {
 			e.printStackTrace();

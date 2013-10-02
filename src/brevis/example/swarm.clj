@@ -40,7 +40,7 @@ Copyright 2012, 2013 Kyle Harrington"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds 200)
+(def num-birds 500)
 
 (def avoidance-distance (atom 5))
 
@@ -90,7 +90,8 @@ Copyright 2012, 2013 Kyle Harrington"
   [bird dt nbrs]
   (let [nbrs (filter bird? (get-neighbor-objects bird))        
         closest-bird (when-not (empty? nbrs)
-                       (rand-nth nbrs))
+                       (first nbrs)
+                       #_(rand-nth nbrs))
         new-acceleration (if-not closest-bird
                            ;; No neighbor, move randomly
                            (elmul (vec3 (- (rand) 0.5) (- (rand) 0.5) (- (rand) 0.5))

@@ -373,8 +373,8 @@ public class BrObject implements clojure.lang.IPersistentMap {
 		Vector3d f = (Vector3d) acceleration.clone();
 		f.scale( getDoubleMass() );
 		getBody().addForce( f.x, f.y, f.z );
-		orient( new Vector3d(0,0,1), getVelocity() );
-		//orient( new Vector3d(0,1,0), getVelocity() );
+		//orient( new Vector3d(0,0,1), getVelocity() );
+		orient( new Vector3d(0,1,0), getVelocity() );
 		//orient( new Vector3d(1,0,0), getForce() );
 		//System.out.println( "Object " + uid + " force " + f );
 	}
