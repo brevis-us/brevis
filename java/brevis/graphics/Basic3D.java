@@ -265,21 +265,20 @@ public class Basic3D {
                 
         if( ! ( obj.getShape().type == BrShape.BrShapeType.CONE ||
         		obj.getShape().type == BrShape.BrShapeType.SPHERE ||
-        		obj.getShape().type == BrShape.BrShapeType.CYLINDER ) ) {         	 
+        		obj.getShape().type == BrShape.BrShapeType.CYLINDER ||
+        		obj.getShape().type == BrShape.BrShapeType.MESH ) ) {         	 
         	GL11.glScaled( dim.x, dim.y, dim.z );
+        	System.out.println( "drawShape " + dim );
         }
         Vector4d rot = obj.getRotation();
         GL11.glRotatef( (float)rot.w, (float)rot.x, (float)rot.y, (float)rot.z);
-        //GL11.glRotatef((float) xrot, 1.0f, 0.0f, 0.0f);                  // Spin It On The X Axis By xrot
-        //GL11.glRotatef((float) yrot, 0.0f, 1.0f, 0.0f);                  // Spin It On The Y Axis By yrot               
                 
         if( obj.getTextureId() != -1 ) {
         	GL11.glEnable(GL11.GL_TEXTURE_2D);
         	GL11.glBindTexture(GL11.GL_TEXTURE_2D, obj.getTextureId() );
         } else {
         	GL11.glDisable(GL11.GL_TEXTURE_2D);
-        }
-        
+        }        
         
         // Render primitives directly with vertex commands       
         if( obj.getShape().mesh == null ) {

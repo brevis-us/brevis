@@ -58,6 +58,7 @@ public class BrShape {
 		//dim = new Vector3d(1,1,1);
 		type = t;
 		dim = d;
+		createMesh();
 	}
 	
 	BrShape( String filename ) {
@@ -206,6 +207,7 @@ public class BrShape {
 			}
 						
 			dim = new Vector3d( mesh.getXWidth(), mesh.getYHeight(), mesh.getZDepth() );
+			
 			//mesh.opengldrawtolist();
 		} catch( Exception e ) {
 			e.printStackTrace();

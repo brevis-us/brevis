@@ -44,7 +44,7 @@ Copyright 2012, 2013 Kyle Harrington"
              (double (/ (.z v) s))))
     
 (defn add
-  "Add 2 Vector3d's"
+  "Add Vector3d's"
   ([v1 v2]
     (let [v (Vector3d.)]      
       (.add v v1 v2)

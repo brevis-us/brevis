@@ -21,7 +21,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (:import (org.ode4j.ode OdeHelper DSapSpace OdeConstants DContactBuffer DGeom DFixedJoint DContactJoint))  (:import (org.ode4j.math DVector3))  (:import java.lang.Math)  
   (:import (brevis Engine BrPhysics BrObject))
   (:use [penumbra.opengl]
-        [brevis vector]
+        [brevis vector utils]
         [brevis.shape core box]
         [brevis.physics core collision utils])
   (:require [clojure.java.io]))
@@ -176,11 +176,11 @@ Copyright 2012, 2013 Kyle Harrington"
   "Make a floor object."
   [w h]  
   (set-texture (move (make-real {:color (vec4 0.8 0.8 0.8 1)
-                    :shininess 80
-                    :type :floor
-                    :density 8050
-;                    :texture *checkers*
-                    :shape (create-box w 0.1 h)})
+                                 :shininess 80
+                                 :type :floor
+                                 :density 8050
+                                 ;                    :texture *checkers*
+                                 :shape (create-box w 0.1 h)})
                      (vec3 0 -3 0))
                (clojure.java.io/resource "img/checker_large.png")))
 

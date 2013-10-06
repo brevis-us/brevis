@@ -121,9 +121,6 @@ public class BrObject implements clojure.lang.IPersistentMap {
 		return this;
 	}
 	
-	// Should add this to a destructor
-	//GL11.glDeleteTextures( texId );
-	
 	public double distanceTo( BrObject other ) {
 		/*Vector3d delta = (Vector3d) position.clone();
 		delta.sub( other.position );
@@ -232,9 +229,9 @@ public class BrObject implements clojure.lang.IPersistentMap {
 		geom.setBody( body );
 		geom.setOffsetWorldPosition( position.x, position.y, position.z );
 		
-		if( shape.type != BrShapeType.MESH ) {
+		/*if( shape.type != BrShapeType.MESH ) {
 			shape.createMesh();
-		}
+		}*/
 		//shape.createVBOFromMesh();
 	}
 	

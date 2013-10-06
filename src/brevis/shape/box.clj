@@ -29,6 +29,7 @@ Copyright 2012, 2013 Kyle Harrington"
   ([width height depth]
     (let [box (BrShape/createBox width height depth)]
       (.setDimension box (vec3 width height depth))
+      ;(println "create-box" (.getDimension box))
       box)))
 
 (defn draw-textured-cube
