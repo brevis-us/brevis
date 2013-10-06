@@ -20,8 +20,7 @@ Copyright 2012, 2013 Kyle Harrington"
            [java.awt Color])
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
-        [brevis.physics vector]
-        #_[cantor])
+        [brevis vector])
   (:require [penumbra.data :as data]))  
 
 (defn compute-normal
@@ -86,18 +85,6 @@ Copyright 2012, 2013 Kyle Harrington"
       (texture 1 0) (vertex 1 0 0))))
 
 (defn xor [a b] (or (and a (not b)) (and (not a) b)))
-
-#_(defn init-checkers []
-  (def #^:dynamic *checkers* 
-	  (let [tex (create-byte-texture 128 128)]
-	    (data/overwrite!
-	     tex
-	     (apply concat
-	            (for [x (range 128) y (range 128)]
-	              (if (xor (even? (bit-shift-right x 4)) (even? (bit-shift-right y 4)))
-	                [0.9 0.9 0.9 1.0]
-	                [0.8 0.8 0.8 1.0]))))
-     tex)))
 
 (defn init-checkers []
   (def #^:dynamic *checkers* 

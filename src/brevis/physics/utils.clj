@@ -20,11 +20,10 @@ Copyright 2012, 2013 Kyle Harrington"
   (:import (org.ode4j.math DVector3))
   (:import java.lang.Math)  
   (:import (brevis Engine BrPhysics BrObject))
-  (:use ;[cantor]
-        [penumbra.opengl]
-        [brevis.shape core box]
-        [brevis.physics core vector]))
-  ;(:require [cantor.range]))  
+  (:use [penumbra.opengl]        
+        [brevis vector]
+        [brevis.shape core box]        
+        [brevis.physics core]))
 
 ;; from lspector's taggp (avail on github)
 (defn pmapall
@@ -39,38 +38,15 @@ Copyright 2012, 2013 Kyle Harrington"
       (apply await agents)
       (doall (map deref agents)))))
 
-#_(defn get-world
-  "Return the current world"
-  []
-  (:world @*physics*))
-
 (defn get-world
   "Return the current world"
   []
   (.getWorld @*java-engine*))
 
-#_(defn get-time
-  "Return the current time."
-  []
-  (:time @*physics*))
-
 (defn get-time
   "Return the current time."
   []
   (.getTime @*java-engine*))
-
-#_(defn add-object
-  "Add an object to the current world."
-  [obj]
-  (swap! *added-objects* assoc (:uid obj) obj))
-
-#_(defn map-to-brobject
-  "Convert a hash map to a BrObject."
-  [obj]
-  (let [brobj (BrObject.)]    
-    (.setUID brobj (long (:uid obj)))
-    (.setType brobj (str (name (:type obj))));; NOT COMPLETE
-    brobj))
 
 (defn get-uid
   "Return the UID of an object."
@@ -83,20 +59,10 @@ Copyright 2012, 2013 Kyle Harrington"
   (.addObject @*java-engine* (get-uid obj) obj) 
   obj)
 
-#_(defn del-object
-  "Delete an object to the current world."
-  [obj]
-  (swap! *deleted-objects* conj (:uid obj)))
-
 (defn del-object
   "Add an object to the current world."
   [obj]
   (.deleteObject @*java-engine* (get-uid obj)))
-
-#_(defn add-object*
-  "(Internal version, use add-object) Add an object to the current world."
-  [obj]
-  (swap! *objects* assoc (:uid obj) obj))
 
 (defn add-update-handler
   "Associate an update function with a type."
@@ -156,32 +122,16 @@ Copyright 2012, 2013 Kyle Harrington"
   [v3]
   (DVector3. (.x v3) (.y v3) (.z v3)))
 
-#_(defn set-velocity
-  "Set the velocity of an object"
-  [obj v]
-  (.setLinearVel (:body obj) (vec3-to-odevec v))
-  obj)
-
 (defn set-velocity
   "Set the velocity of an object"
   [obj v]
   (.setVelocity obj v)
   obj)
 
-#_(defn get-position
-  "Return the position of an object"
-  [obj]
-  (odevec-to-vec3 (.getPosition (:body obj))))
-
 (defn get-position
   "Return the position of an object"
   [obj]
   (.getPosition obj))
-
-#_(defn get-velocity
-  "Return the velocity of an object"
-  [obj]
-  (odevec-to-vec3 (.getLinearVel (:body obj))))
 
 (defn get-velocity
   "Return the velocity of an object"
@@ -244,12 +194,6 @@ Copyright 2012, 2013 Kyle Harrington"
   (.distance 
     (.getPosition (get-body me)) 
     (.getPosition (get-body other))))
-;  (length (sub (get-position me) (get-position other))))
-
-#_(defn get-object
-  "Return the object by UID"
-  [uid]
-  (get @*objects* uid))
 
 (defn get-object
   "Return the object by UID"
@@ -259,31 +203,20 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn set-object
   "Set the object at UID to a new version."
   [uid new-obj]
-  (.setObject @*java-engine* uid new-obj)
-  ; should check if new-obj has the right uid
-  #_(swap! *objects* assoc uid new-obj))
-
-#_(defn get-neighbor-objects
-  "Return the objects of a neighborhood."
-  [obj]
-  (map #(get @*objects* %) (:neighbors obj)))
+  (.setObject @*java-engine* uid new-obj))
 
 (defn get-neighbor-objects
   "Return the objects of a neighborhood."
   [obj]
-  #_(println (.getNeighbors obj))
   (let [nbrs (.getNeighbors obj)]
     (when nbrs
-      #_(println "get-neighbor-objects" (.size nbrs) (count (map #(get-object %)
-          (seq (.toArray nbrs)))))      
-	    (map #(get-object %)
-          (seq (.toArray nbrs))))))
+      (map #(get-object %)
+           (seq (.toArray nbrs))))))
 
 (defn set-neighborhood-radius
   "Set the neighborhood radius."
   [new-radius]
-  (.setNeighborhoodRadius @*java-engine* (double new-radius))
-  #_(reset! *neighborhood-radius* new-radius))
+  (.setNeighborhoodRadius @*java-engine* (double new-radius)))
 
 ;; the following 2 functions from ztellman's cantor (see github)
 (defn radians
@@ -295,7 +228,6 @@ Copyright 2012, 2013 Kyle Harrington"
   "Transforms radians to degrees."
   [x]
   (* (/ 180.0 Math/PI) (double x)))
-
 
 (defn get-color
   "Return the color of an object."
@@ -347,7 +279,6 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn set-texture-image
   "set the texture of an object to a bufferedimage."
   [obj new-tex-img]
-  #_(.setTextureImage obj new-tex-img)
   (.setTextureImage obj new-tex-img)
   obj)
 

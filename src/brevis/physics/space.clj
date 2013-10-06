@@ -20,42 +20,14 @@ Copyright 2012, 2013 Kyle Harrington"
   (:gen-class)
   (:import (org.ode4j.ode OdeHelper DSapSpace OdeConstants DContactBuffer DGeom DFixedJoint DContactJoint))  (:import (org.ode4j.math DVector3))  (:import java.lang.Math)  
   (:import (brevis Engine BrPhysics BrObject))
-  (:use 
-        [penumbra.opengl]
+  (:use [penumbra.opengl]
+        [brevis vector]
         [brevis.shape core box]
-        [brevis.physics core collision utils vector])
-  (:require ;[cantor.range]
-            [clojure.java.io]))
+        [brevis.physics core collision utils])
+  (:require [clojure.java.io]))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Real/Physical/Spatial
-
-#_(defn make-real
-  "Add Real attributes to an object map."
-  [obj]
-  (let [;uid (gensym)
-        uid (long (hash (gensym)))
-        obj (assoc obj        
-			         :uid uid
-			         :real true
-			         :acceleration (or (:acceleration obj) (vec3 0 0 0))
-               :density (or (:density obj) 1)
-			         :shape (or (:shape obj) (create-box)))
-        pos (or (:position obj) (vec3 0 0 0))
-        mass (obj-to-mass obj)
-        body (doto (OdeHelper/createBody (get-world))
-               (.setMass mass)
-               (.setData {:uid uid :type (:type obj)}) 
-               (.setPosition (.x pos) (.y pos) (.z pos)))               
-        geom (doto (obj-to-geom obj)
-               (.setBody body)
-               (.setOffsetWorldPosition (.x pos) (.y pos) (.z pos))
-               #_(.enable))]
-    (assoc obj
-           :rotation (vec4 0 0 1 0.001);; Rotation is a quaternion
-           :mass mass
-           :body body
-           :shininess 0
-           :geom geom)))
 
 (defn make-real
   "Add Real attributes to an object map."
@@ -77,24 +49,6 @@ Copyright 2012, 2013 Kyle Harrington"
     (.makeReal brobj @*java-engine*)    
     brobj))
 
-#_(defn orient-object
-  "Orient an object by changing its rotation such that its vertex points towards a target vector."
-  [obj obj-vec target-vec]
-  (if (or (zero? (length obj-vec)) 
-                (zero? (length target-vec)))
-    obj
-    (let [dir (cross obj-vec target-vec)
-          dir (div dir (length dir))
-          vdot (dot obj-vec target-vec)
-          vdot (max (min (/ vdot (* (length obj-vec) (length target-vec))) 1) -1)
-          angle (degrees (Math/acos vdot))]
-      ;(println obj-vec target-vec vdot dir angle)
-      (assoc obj
-             :rotation
-             (if (zero? (length dir))
-               (vec4 (.x obj-vec) (.y obj-vec) (.z obj-vec) 0.001)
-               (vec4 (.x dir) (.y dir) (.z dir) angle))))))
-
 (defn orient-object
   "Orient an object by changing its rotation such that its vertex points towards a target vector."
   [obj obj-vec target-vec]
@@ -110,13 +64,9 @@ Copyright 2012, 2013 Kyle Harrington"
   (sort-by #(length (sub position (get-position %)))
            objects))
 
-(defn uids-to-objects
-  "Return the list of objects that corresponds to some UIDs"
-  [UIDs]
-  UIDs)
 
 (defn compute-neighborhood
-  "Return a list of neighbor UIDs within the neighborhood radius"
+  "Return a list of neighbor UIDs within the neighborhood radius (deprecated)"
   ;; This should probably use extrema of object shape instead of center point
   [obj objects]
   (let [nbr-radius @*neighborhood-radius*
@@ -147,7 +97,7 @@ Copyright 2012, 2013 Kyle Harrington"
     (concat low [x] high)))
 
 (defn chunked-update-neighbors
-  "Update all neighborhoods"
+  "Update all neighborhoods (deprecated)"
   [objs]  
   (let [num-chunks 16
         all-uids (doall (keys @*objects*))
@@ -179,7 +129,7 @@ Copyright 2012, 2013 Kyle Harrington"
                     :neighbors (doall (filter identity (nbrhoods k))))))))
 
 (defn update-neighbors
-  "Update all neighborhoods"
+  "Update all neighborhoods (deprecated)"
   [objs]  
   (if @*brevis-parallel*
     (chunked-update-neighbors objs)
@@ -262,7 +212,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (defn update-objects
   "Update all objects in the simulation. Objects whose update returns nil                                                                                                
-are removed from the simulation."
+are removed from the simulation. (deprecated)"
   [objects dt]  
   (let [updated-objects 
         (pmapall (fn [obj]                             
@@ -295,26 +245,17 @@ are removed from the simulation."
   (.initWorld @*java-engine*))
 
 (defn update-world
-  "Update the world."
+  "Update the world. (deprecated)"
   [[dt t] state]
   (when (and  state
               (not (:terminated? state)))
     (when (:contact-group @*physics*)
       (.empty (:contact-group @*physics*)))
-    #_(println "Number of obj in space:" (.getNumGeoms (:space @*physics*)))
     (reset! *collisions* #{})
         
     (OdeHelper/spaceCollide (:space @*physics*) nil nearCallback)
     (.quickStep (:world @*physics*) (get-dt))
     (increment-physics-time (get-dt))
-    
-    ;(reset! *objects* (let [new-objs (handle-collisions (update-objects (vals @*objects*) (:dt state)) @*collision-handlers*)]                                      
-    #_(println "\nTiming: obj, coll, nbrs:")
-    #_(reset! *objects* (let [new-objs (update-neighbors 
-                                       (handle-collisions 
-                                         (update-objects (vals @*objects*) (get-dt))
-                                         @*collision-handlers*))]
-                        (zipmap (map :uid new-objs) new-objs)));; hacky and bad    
     
     ;; Add/delete objects before updating them
     (reset! *objects* (let [in-objs (vals (merge @*objects* @*added-objects*))]

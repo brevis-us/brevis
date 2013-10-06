@@ -18,15 +18,14 @@ Copyright 2012, 2013 Kyle Harrington"
 (ns brevis.core
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
-        [brevis globals utils input osd display]
+        [brevis globals utils input osd display vector]
         [brevis.graphics.basic-3D]
-        [brevis.physics core space utils vector]
+        [brevis.physics core space utils]
         [brevis.shape core box sphere cone])       
   (:require [penumbra.app :as app]            
             [clojure.math.numeric-tower :as math]
             [penumbra.text :as text]
             [penumbra.data :as data]
-            ;[cantor.range]
             [penumbra.opengl.frame-buffer :as fb]
             [penumbra.opengl.effects :as glfx])
   (:import (java.awt AWTException Robot Rectangle Toolkit)
@@ -199,27 +198,6 @@ Copyright 2012, 2013 Kyle Harrington"
   []
   (swap! *gui-state* dissoc :record-video))
 
-#_(defn display
-  "Display the world."
-  [[dt t] state]
-  (let [state (if (:auto-camera state) (auto-camera state) state)]      
-    (when enable-display-text
-      (update-display-text [dt t] state))
-	  (rotate (:rot-x @*gui-state*) 1 0 0)
-	  (rotate (:rot-y @*gui-state*) 0 1 0)
-	  (rotate (:rot-z @*gui-state*) 0 0 1)
-	  (translate (:shift-x @*gui-state*) (:shift-y @*gui-state*) (:shift-z @*gui-state*))
-	  (draw-sky)
-    #_(println "display drawing n objects:" (count (get-objects)))
-	  (doseq [obj (get-objects)]
-	    (draw-shape obj))
-	  (app/repaint!)
-   (when (:record-video @*gui-state*)
-     (screenshot (str (:video-name @*gui-state*) "_" @video-counter ".png") state)
-     (swap! video-counter inc))   
-     ;(screenshot (str (:video-name @*gui-state*) "_" (get-time) ".png") state))
-   ))
-
 (defn init-view
   "Initialize the gui-state global to the default."
   []
@@ -311,7 +289,7 @@ Copyright 2012, 2013 Kyle Harrington"
     (start-gui initialize java-update-world))    
 ;    (start-gui initialize update-world))
   ([initialize update]
-    (reset-core)
+    #_(reset-core)
     (when (.contains (System/getProperty "os.name") "indows")
       (reset! enable-display-text false))
 	  (reset! *app-thread*
@@ -326,6 +304,8 @@ Copyright 2012, 2013 Kyle Harrington"
                               }        
                              @*gui-state*))))
    (.start @*app-thread*)))
+
+;; ## Non-graphical simulation loop (may need updating)
 
 (defn simulation-loop
   "A simulation loop with no graphics."
@@ -354,19 +334,6 @@ Copyright 2012, 2013 Kyle Harrington"
   ([initialize]
     (start-nogui initialize update-world))
   ([initialize update]
-    (reset-core)
+    #_(reset-core)
 	  (simulation-loop
 	   {:init initialize, :update update})))      
-
-#_(defn start-nogui [iteration-step-size]
-  (let [dt iteration-step-size
-        max-t 25]
-    (loop [t 0
-           state (reset-simulation {:iteration-step-size iteration-step-size
-                                    :simulation-time 0})]
-      (when (zero? t) (report state))
-      (if (and (not (zero? max-t)) (> (+ t dt) max-t))
-        (println "Simulation complete")
-        (recur (+ t dt) (update [dt t] state))))))
-    
-

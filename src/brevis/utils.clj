@@ -19,7 +19,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (:use [brevis globals]
         [brevis.physics core]))
 
-(defn reset-core
+#_(defn reset-core
   "Reset the core variables."
   []
   #_(reset! *collision-handlers* {})
@@ -29,11 +29,11 @@ Copyright 2012, 2013 Kyle Harrington"
   (reset! *physics* nil)
   (reset! *objects* {}))
 
-(defn disable-collisions "Disable collision detection." [] (reset! collisions-enabled false))
-(defn enable-collisions "Enable collision detection." [] (reset! collisions-enabled true))
+#_(defn disable-collisions "Disable collision detection." [] (reset! collisions-enabled false))
+#_(defn enable-collisions "Enable collision detection." [] (reset! collisions-enabled true))
 
-(defn disable-neighborhoods "Disable neighborhood detection." [] (reset! neighborhoods-enabled false))
-(defn enable-neighborhoods "Enable neighborhood detection." [] (reset! neighborhoods-enabled true))
+#_(defn disable-neighborhoods "Disable neighborhood detection." [] (reset! neighborhoods-enabled false))
+#_(defn enable-neighborhoods "Enable neighborhood detection." [] (reset! neighborhoods-enabled true))
 
 (defn get-objects
   "Return all objects in the simulation."

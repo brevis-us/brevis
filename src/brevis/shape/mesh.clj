@@ -15,16 +15,16 @@
                                                                                                                                                                                      
 Copyright 2012, 2013 Kyle Harrington"
 
-(ns brevis.shape.cone
+(ns brevis.shape.mesh
   (:import [brevis BrShape])
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
-        [brevis vector]
-        [brevis.shape.core])) 
+        [brevis.shape.core]))        
 
-(defn create-cone
-  "Create a cone object."
-  ([]
-     (create-cone 1 1))
-  ([length base]
-    (BrShape/createCone length base)))
+(defn create-mesh
+  "Create a mesh object."
+  [filename]
+  #_(println "create-mesh" filename)
+  (BrShape/createMeshFromFile filename)
+  #_(BrShape. filename)
+  #_(BrShape/loadMesh (BrShape.) filename))

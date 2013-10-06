@@ -18,9 +18,9 @@ Copyright 2012, 2013 Kyle Harrington"
 (ns brevis.example.tutorial.shape
   (:import java.lang.Math)  
   (:use [brevis.graphics.basic-3D]
-        [brevis.physics collision core space utils vector]
+        [brevis.physics collision core space utils]
         [brevis.shape box sphere cone]
-        [brevis.core]
+        [brevis core vector]
         ))    
 
 ;; ## Tutorial: shape

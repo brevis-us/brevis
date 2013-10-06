@@ -186,13 +186,13 @@ public class BrShape {
 		}
 		filename = objDir + filename;
 		
-		System.out.println( "createMesh " + filename + " " + type );
+		//System.out.println( "createMesh " + filename + " " + type );
 		loadMesh( filename, true );
 	}
 	
 	public void loadMesh( String filename, boolean isResource ) {
 		try {
-			System.out.println( "Loading object: " + filename );			
+			//System.out.println( "Loading object: " + filename );			
 			
 			if( isResource ) {			
 			//FileReader fr = new FileReader(filename);		
