@@ -19,32 +19,21 @@ Copyright 2012, 2013 Kyle Harrington"
   (:import [brevis BrShape])
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
-        [brevis.shape.core]
-        #_[cantor]))        
-
-#_(defn create-box
-  "Create a box object."
-  ([]
-     (create-box 1 1 1))
-  ([width height depth]
-     {:dim (vec3 width height depth)
-      :type :box
-      }))
+        [brevis.physics vector]
+        [brevis.shape.core]))
 
 (defn create-box
   "Create a box object."
   ([]
      (create-box 1 1 1))
   ([width height depth]
-    (BrShape/createBox width height depth)))
+    (let [box (BrShape/createBox width height depth)]
+      (.setDimension box (vec3 width height depth))
+      box)))
 
-#_(defn create-collision-box 
-  "Create a collision shape for a box."
-  [pos shape]
-  (box3 (sub pos (div (:dim shape) 2))
-	(add pos (div (:dim shape) 2))))
-
-(defn draw-textured-cube []
+(defn draw-textured-cube
+  "This function is depricated, use the Java Basic3D class."
+  []
   (dotimes [_ 4]
     (rotate 90 0 1 0)
     (textured-quad))
@@ -57,15 +46,7 @@ Copyright 2012, 2013 Kyle Harrington"
   []
   (def box-mesh 
     (create-display-list 
-      (draw-textured-cube)))
-  #_(def box-graphic
-    (define-display-list :quads
-      [[(vec3 -0.5 -0.5 0.5) (vec3 -0.5 0.5 0.5) (vec3 -0.5 0.5 -0.5) (vec3 -0.5 -0.5 -0.5)]
-       [(vec3 0.5 -0.5 0.5) (vec3 0.5 0.5 0.5) (vec3 0.5 0.5 -0.5) (vec3 0.5 -0.5 -0.5)]
-       [(vec3 0.5 -0.5 -0.5) (vec3 0.5 -0.5 0.5) (vec3 -0.5 -0.5 0.5) (vec3 -0.5 -0.5 -0.5)]
-       [(vec3 0.5 0.5 -0.5) (vec3 0.5 0.5 0.5) (vec3 -0.5 0.5 0.5) (vec3 -0.5 0.5 -0.5)]
-       [(vec3 -0.5 0.5 -0.5) (vec3 0.5 0.5 -0.5) (vec3 0.5 -0.5 -0.5) (vec3 -0.5 -0.5 -0.5)]
-       [(vec3 -0.5 0.5 0.5) (vec3 0.5 0.5 0.5) (vec3 0.5 -0.5 0.5) (vec3 -0.5 -0.5 0.5)]])))
+      (draw-textured-cube))))
 
 (defn draw-box
   []

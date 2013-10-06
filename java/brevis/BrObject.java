@@ -49,6 +49,7 @@ import org.lwjgl.opengl.*;
 
 import clojure.lang.*;
 import brevis.Utils;
+import brevis.BrShape.BrShapeType;
 
 //public class BrObject {
 //public class BrObject implements clojure.lang.IRecord {
@@ -231,7 +232,9 @@ public class BrObject implements clojure.lang.IPersistentMap {
 		geom.setBody( body );
 		geom.setOffsetWorldPosition( position.x, position.y, position.z );
 		
-		shape.createMesh();
+		if( shape.type != BrShapeType.MESH ) {
+			shape.createMesh();
+		}
 		//shape.createVBOFromMesh();
 	}
 	
@@ -241,6 +244,10 @@ public class BrObject implements clojure.lang.IPersistentMap {
 	
 	public Vector4d getColor() {
 		return color;
+	}
+	
+	public void setDimension( Vector3d newDim ) {
+		shape.setDimension( newDim );
 	}
 	
 	public Vector3d getDimension() {

@@ -60,6 +60,11 @@ public class BrShape {
 		dim = d;
 	}
 	
+	BrShape( String filename ) {
+		type = BrShapeType.MESH;
+		loadMesh( filename, false );
+	}
+	
 	public void draw() {
 		
 	}
@@ -93,11 +98,16 @@ public class BrShape {
 			m.setSphere(density, dim.x);
 		} else if( type == BrShapeType.CYLINDER ) {
 			m.setSphere(density, dim.x);
+		} else if( type == BrShapeType.MESH ) {
+			m.setSphere(density, 1 );
 		}
 		return m;
 	}
 	
-	/*public static int createVBOID() {
+	/*
+	 * VBO code, currently nonfunctional
+	 * 
+	  public static int createVBOID() {
 		  if (GLContext.getCapabilities().GL_ARB_vertex_buffer_object) {
 		    IntBuffer buffer = BufferUtils.createIntBuffer(1);
 		    ARBVertexBufferObject.glGenBuffersARB(buffer);
@@ -176,11 +186,26 @@ public class BrShape {
 		}
 		filename = objDir + filename;
 		
+		System.out.println( "createMesh " + filename + " " + type );
+		loadMesh( filename, true );
+	}
+	
+	public void loadMesh( String filename, boolean isResource ) {
 		try {
-			//FileReader fr = new FileReader(filename);
-			BufferedReader br = new BufferedReader( new InputStreamReader( ClassLoader.getSystemResource( filename ).openStream() ) );
-			//System.out.println( "Loading object: " + filename );
-			mesh = new BrMesh( br, false );
+			System.out.println( "Loading object: " + filename );			
+			
+			if( isResource ) {			
+			//FileReader fr = new FileReader(filename);		
+				BufferedReader br = new BufferedReader( new InputStreamReader( ClassLoader.getSystemResource( filename ).openStream() ) );
+				//mesh = new BrMesh( br, false );
+				mesh = new BrMesh( br, true );
+			} else {				
+				BufferedReader br = new BufferedReader( new FileReader( filename ) );
+				//mesh = new BrMesh( br, false );
+				mesh = new BrMesh( br, true );
+			}
+						
+			dim = new Vector3d( mesh.getXWidth(), mesh.getYHeight(), mesh.getZDepth() );
 			//mesh.opengldrawtolist();
 		} catch( Exception e ) {
 			e.printStackTrace();
@@ -193,7 +218,7 @@ public class BrShape {
 			return OdeHelper.createBox( space, dim.x, dim.y, dim.z );			
 		default:
 		case SPHERE:
-			return OdeHelper.createSphere( space, dim.x );			
+			return OdeHelper.createSphere( space, 1 );			
 		}		
 	}
 	
@@ -203,6 +228,11 @@ public class BrShape {
 	
 	public Vector3d getDimension() {
 		return dim;
+	}
+	
+	public static BrShape createMeshFromFile( String filename ) {
+		//System.out.println( filename );
+		return ( new BrShape( filename ) );
 	}
 	
 	public static BrShape createSphere( double r ) {

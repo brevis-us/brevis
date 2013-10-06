@@ -77,7 +77,7 @@ Copyright 2012, 2013 Kyle Harrington"
     (.makeReal brobj @*java-engine*)    
     brobj))
 
-(defn orient-object
+#_(defn orient-object
   "Orient an object by changing its rotation such that its vertex points towards a target vector."
   [obj obj-vec target-vec]
   (if (or (zero? (length obj-vec)) 
@@ -94,6 +94,15 @@ Copyright 2012, 2013 Kyle Harrington"
              (if (zero? (length dir))
                (vec4 (.x obj-vec) (.y obj-vec) (.z obj-vec) 0.001)
                (vec4 (.x dir) (.y dir) (.z dir) angle))))))
+
+(defn orient-object
+  "Orient an object by changing its rotation such that its vertex points towards a target vector."
+  [obj obj-vec target-vec]
+  (if (or (zero? (length obj-vec)) 
+                (zero? (length target-vec)))
+    obj
+    (do (.orient obj obj-vec target-vec)
+      obj)))
 
 (defn sort-by-proximity
   "Return a list of objects sorted by proximity."
