@@ -345,6 +345,14 @@ public class Engine {
 		}
 	}
 	
+	public boolean getCollisionsEnabled() {
+		return collisionsEnabled;		
+	}
+	
+	public void setCollisionsEnabled( boolean newCE ) {
+		collisionsEnabled = newCE;
+	}
+	
 	public DWorld getWorld() {
 		return physics.getWorld();
 	}

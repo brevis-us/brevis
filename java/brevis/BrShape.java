@@ -40,7 +40,9 @@ import brevis.graphics.BrMesh;
 
 public class BrShape {
 	public enum BrShapeType {
-		BOX, SPHERE, CONE, CYLINDER, MESH
+		BOX, SPHERE, CONE, CYLINDER, MESH,
+		// Unit meshes for optimized rendering
+		UNIT_CONE //FLOOR
 	};
 	
 	static public String objDir = "obj/";
@@ -53,17 +55,43 @@ public class BrShape {
 	public int numIdx = 0;
 	public BrMesh mesh = null;
 	
+	// Make final?
+	public static BrMesh unitCone = null;	
+	
 	BrShape( BrShapeType t, Vector3d d ) {
 		//type = BrShapeType.SPHERE;
 		//dim = new Vector3d(1,1,1);
 		type = t;
 		dim = d;
-		createMesh();
+		
+		if( type == BrShapeType.UNIT_CONE ) {
+			if( unitCone == null ) {
+				initUnitCone();				
+			}
+			mesh = unitCone;
+			//dim = new Vector3d( mesh.getXWidth(), mesh.getYHeight(), mesh.getZDepth() );
+			dim = new Vector3d( 1, 1, 1 );
+			//System.out.println( dim );
+		} else {
+			createMesh();
+		}
+				
 	}
 	
 	BrShape( String filename ) {
 		type = BrShapeType.MESH;
 		loadMesh( filename, false );
+	}
+	
+	public void initUnitCone() {		
+		String filename = objDir + "cone.obj";
+	
+		try {		
+			BufferedReader br = new BufferedReader( new InputStreamReader( ClassLoader.getSystemResource( filename ).openStream() ) );
+			unitCone = new BrMesh( br, true );
+		} catch( Exception e ) {
+			e.printStackTrace();
+		}	
 	}
 	
 	public void draw() {
@@ -75,7 +103,7 @@ public class BrShape {
 			return "box";
 		} else if( type == BrShapeType.SPHERE ) {
 			return "sphere";
-		} else if( type == BrShapeType.CONE ) {
+		} else if( type == BrShapeType.CONE || type == BrShapeType.UNIT_CONE ) {
 			return "cone";			
 		} else if( type == BrShapeType.CYLINDER ) {
 			return "cylinder";
@@ -95,7 +123,7 @@ public class BrShape {
 			m.setBox(density, dim.x, dim.y, dim.z );
 		} else if( type == BrShapeType.SPHERE ) {
 			m.setSphere( density, dim.x );
-		} else if( type == BrShapeType.CONE ) {
+		} else if( type == BrShapeType.CONE || type == BrShapeType.UNIT_CONE ) {
 			m.setSphere(density, dim.x);
 		} else if( type == BrShapeType.CYLINDER ) {
 			m.setSphere(density, dim.x);
@@ -170,10 +198,32 @@ public class BrShape {
 		}
 */
 	
-	public void createMesh() {		
+	/*public void createMesh() {		
 		String filename  = "";
 		if( type == BrShapeType.BOX ) {
 			//mesh.initBox( dim );
+			filename = "box.obj";
+		} else if( type == BrShapeType.SPHERE ) {
+			//mesh.initSphere( dim );
+			filename = "sphere.obj";
+		} else if( type == BrShapeType.CONE ) {
+			//mesh.initCone( dim );
+			filename = "cone.obj";
+		} else if( type == BrShapeType.CYLINDER ) {
+			//mesh.initCylinder( dim );
+			filename = "cylinder.obj";
+		}
+		filename = objDir + filename;
+		
+		//System.out.println( "createMesh " + filename + " " + type );
+		loadMesh( filename, true );
+	}*/
+	
+	
+	public void createMesh() {		
+		String filename  = "";
+		if( type == BrShapeType.BOX ) {
+			//initBox( dim );
 			filename = "box.obj";
 		} else if( type == BrShapeType.SPHERE ) {
 			//mesh.initSphere( dim );
@@ -206,7 +256,11 @@ public class BrShape {
 				mesh = new BrMesh( br, true );
 			}
 						
-			dim = new Vector3d( mesh.getXWidth(), mesh.getYHeight(), mesh.getZDepth() );
+			// this is actually size
+			//dim = new Vector3d( mesh.getXWidth(), mesh.getYHeight(), mesh.getZDepth() );
+			
+			// this is being used for scale
+			dim = new Vector3d( 1, 1, 1 );
 			
 			//mesh.opengldrawtolist();
 		} catch( Exception e ) {
@@ -246,7 +300,8 @@ public class BrShape {
 	}
 	
 	public static BrShape createCone( double length, double base ) {
-		return ( new BrShape( BrShapeType.CONE, new Vector3d( length, base, 25 )));	// last element of vector is # of sides or stacks (depending on renderer)
+		//return ( new BrShape( BrShapeType.CONE, new Vector3d( length, base, 25 )));	// last element of vector is # of sides or stacks (depending on renderer)
+		return ( new BrShape( BrShapeType.UNIT_CONE, new Vector3d( length, base, 25 )));	// last element of vector is # of sides or stacks (depending on renderer)
 	}
 	
 	public static BrShape createCylinder( double length, double radius ) {

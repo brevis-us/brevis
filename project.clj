@@ -3,7 +3,7 @@
   :url "https://github.com/kephale/brevis"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :jvm-opts ["-Xmx1g"]
+  :jvm-opts ["-Xmx2g"]
   :resource-paths ["resources"]
   :plugins [[lein-marginalia "0.7.1"]]
   :java-source-paths ["java"]

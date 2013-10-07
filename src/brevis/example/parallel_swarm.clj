@@ -40,12 +40,12 @@ Copyright 2012, 2013 Kyle Harrington"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds 500)
+(def num-birds 2000)
 
 (def avoidance-distance (atom 5))
 
 (def speed 25)
-(def max-acceleration 100)
+(def max-acceleration 10)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Birds
@@ -111,9 +111,10 @@ Copyright 2012, 2013 Kyle Harrington"
     (set-acceleration
       (if (> (length (get-position bird)) 500)
         (move bird (vec3 0 25 0))
+        #_(move bird (mul (get-position bird) -1))
         bird)
-      (add (mul (get-acceleration bird) 0.5)
-           (mul new-acceleration speed)))))
+      (bound-acceleration (add (mul (get-acceleration bird) 0.5)
+                               (mul new-acceleration speed))))))
 
 (defn global-fly
   "Parallel fly over all birds."
@@ -168,7 +169,8 @@ so we only modify bird1."
   (set-dt 0.1)
   (set-neighborhood-radius 25)
   (default-display-text)
-  (add-object (make-floor 500 500))
+  (disable-collisions)
+  #_(add-object (make-floor 500 500))
   (dotimes [_ num-birds]
     (add-object (random-bird))))
 

@@ -93,7 +93,7 @@ public class BrObject implements clojure.lang.IPersistentMap {
 		acceleration = new Vector3d( 0, 0, 0 );
 		velocity = new Vector3d( 0, 0, 0 );
 		position = new Vector3d( 0, 0, 0 );
-		shape = BrShape.createSphere( 1 );
+		shape = null;//BrShape.createSphere( 1 ); too expensive
 		color = new Vector4d( 1, 1, 1, 1 );
 		rotation = new Vector4d( 1, 0, 0, 0 );
 		data = null;
@@ -217,6 +217,8 @@ public class BrObject implements clojure.lang.IPersistentMap {
 	
 	public void makeReal( Engine e ) {
 		mass = shape.createMass( density );
+		
+		//System.out.println( "makeReal " + shape.getDimension() + " " + density + " " + mass );
 		
 		body = OdeHelper.createBody( e.getWorld() );
 		body.setMass( mass );

@@ -349,6 +349,7 @@ public class Basic3D {
         GL11.glTranslatef(objPos[0], objPos[1], objPos[2]);      // Position The Object
                 
         if( ! ( obj.getShape().type == BrShape.BrShapeType.CONE ||
+        		obj.getShape().type == BrShape.BrShapeType.UNIT_CONE ||
         		obj.getShape().type == BrShape.BrShapeType.SPHERE ||
         		obj.getShape().type == BrShape.BrShapeType.CYLINDER ||
         		obj.getShape().type == BrShape.BrShapeType.MESH ) ) {         	 
@@ -367,6 +368,7 @@ public class Basic3D {
         
         // Render primitives directly with vertex commands       
         if( obj.getShape().mesh == null ) {
+        	//System.out.println( "NO MESH " + obj.type );
 	        if( obj.getShape().getType() == "box" )
 	        	drawBox( 1, 1, 1 );
 	        else if( obj.getShape().getType() == "cone" )

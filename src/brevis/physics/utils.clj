@@ -200,7 +200,6 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn set-object
   "Set the object at UID to a new version."
   [uid new-obj]
-  ;(.setObject @*java-engine* uid new-obj))
   (.addObject @*java-engine* uid new-obj))
 
 (defn get-neighbor-objects
@@ -279,4 +278,14 @@ Copyright 2012, 2013 Kyle Harrington"
   [obj new-tex-img]
   (.setTextureImage obj new-tex-img)
   obj)
+
+(defn enable-collisions
+  "Enable collision handling"
+  []
+  (.setCollisionsEnabled @*java-engine* true))
+
+(defn disable-collisions
+  "Enable collision handling"
+  []
+  (.setCollisionsEnabled @*java-engine* false))
 
