@@ -125,6 +125,16 @@ Copyright 2012, 2013 Kyle Harrington"
   [obj]
   (.getVelocity obj))
 
+(defn all-objects
+  "Return the collection of all objects."
+  []
+  (seq (.allObjects @*java-engine*)))
+
+(defn all-object-uids
+  "Return the collection of all UIDs."
+  []
+  (seq (.allObjectUIDs @*java-engine*)))
+
 (defn get-acceleration
   "Return the acceleration of an object."
   [obj]
@@ -190,7 +200,8 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn set-object
   "Set the object at UID to a new version."
   [uid new-obj]
-  (.setObject @*java-engine* uid new-obj))
+  ;(.setObject @*java-engine* uid new-obj))
+  (.addObject @*java-engine* uid new-obj))
 
 (defn get-neighbor-objects
   "Return the objects of a neighborhood."

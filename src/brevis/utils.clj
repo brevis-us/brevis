@@ -46,7 +46,7 @@ Copyright 2012, 2013 Kyle Harrington"
    will not be lazy, 3) calls to f may occur in any order, to maximize
    multicore processor utilization, and 4) takes only one coll so far."
   [f coll]
-  (if @*brevis-parallel*
+  (if false;@*brevis-parallel*
     (map f coll)
     (let [agents (map #(agent % :error-handler (fn [agnt except] (println except))) coll)]
       (dorun (map #(send % f) agents))

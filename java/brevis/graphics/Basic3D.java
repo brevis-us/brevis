@@ -202,6 +202,91 @@ public class Basic3D {
             GL11.glMultMatrix (matrixSST);
     }    
     
+    // http://lwjgl.org/forum/index.php?topic=2407.0;wap2
+    static private void castShadow( BrMesh o, double lp[] ){
+        int i;
+        float side;
+
+        //set visual parameter
+        /*for (i=0;i<o.numpolygons();i++){
+            // chech to see if light is in front or behind the plane (face plane)
+            side =  o.planes[i].planeEq.a*lp[0]+
+                    o.planes[i].planeEq.b*lp[1]+
+                    o.planes[i].planeEq.c*lp[2]+
+                    o.planes[i].planeEq.d;
+            if (side >0) o.planes[i].visible = true;
+                    else o.planes[i].visible = false;
+        }*/
+
+        GL11.glPushAttrib(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT
+                | GL11.GL_ENABLE_BIT | GL11.GL_POLYGON_BIT | GL11.GL_STENCIL_BUFFER_BIT);
+        GL11.glDisable(GL11.GL_LIGHTING);
+        GL11.glDepthMask(false);
+        GL11.glDepthFunc(GL11.GL_LEQUAL);
+        GL11.glEnable(GL11.GL_STENCIL_TEST);
+        GL11.glColorMask(false, false, false, false);
+        GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xffffffff);
+
+        // first pass, stencil operation increases stencil value
+        GL11.glFrontFace(GL11.GL_CCW);
+        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_INCR);
+        doShadowPass(o, lp);
+
+        // second pass, stencil operation decreases stencil value
+        GL11.glFrontFace(GL11.GL_CW);
+        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_DECR);
+        doShadowPass(o, lp);
+
+        GL11.glFrontFace(GL11.GL_CCW);
+        GL11.glColorMask(true, true, true, true);
+
+        //draw a shadowing rectangle covering the entire screen
+        GL11.glColor4f(0.0f, 0.0f, 0.0f, 0.4f);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glStencilFunc(GL11.GL_NOTEQUAL, 0, 0xffffffff);
+        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
+        GL11.glPushMatrix();
+        GL11.glLoadIdentity();
+        GL11.glBegin(GL11.GL_TRIANGLE_STRIP);
+        GL11.glVertex3f(-0.1f, 0.1f,-0.10f);
+        GL11.glVertex3f(-0.1f,-0.1f,-0.10f);
+        GL11.glVertex3f( 0.1f, 0.1f,-0.10f);
+        GL11.glVertex3f( 0.1f,-0.1f,-0.10f);
+        GL11.glEnd();
+        GL11.glPopMatrix();
+        GL11.glPopAttrib();
+    }    
+    
+    static private void doShadowPass( BrMesh o, double[] lp ){
+        int i, j, k, jj;
+        Vector3d v3 = new Vector3d();
+        Vector3d v4 = new Vector3d();
+        float[] p1, p2, p3;
+        
+        System.out.println( o.faces.size() + " " + o.vertexsets.size() );
+        
+        for (i=0; i<o.numpolygons();i++){
+        	System.out.println( i + " " + o.faces.get(i) );
+        	int[] face = (int[])( o.faces.get(i) );        
+            // could check to see if a face is visible before proceeding
+        	
+        	GL11.glBegin( GL11.GL_POLYGON );
+        	
+            for ( j=0; j<face.length; j++ ){                
+            	k = face[j];
+                if ( k != 0 ){
+                    // here we have an edge, we must draw a polygon
+                	float[] point = (float[])( o.vertexsets.get(k) );
+                	GL11.glVertex3f( point[0], point[1], point[2] );
+                }
+            }
+            
+            GL11.glEnd();
+        }
+        
+    }    
+    
 	// some from nehe lesson 27    
 	//static public void drawShape( BrObject obj, double xrot, double yrot, double zrot, double xoff, double yoff, double zoff, double[] lp, Vector3d dim ) {
     static public void drawShape( BrObject obj, double[] lp, Vector3d dim ) {
@@ -268,7 +353,7 @@ public class Basic3D {
         		obj.getShape().type == BrShape.BrShapeType.CYLINDER ||
         		obj.getShape().type == BrShape.BrShapeType.MESH ) ) {         	 
         	GL11.glScaled( dim.x, dim.y, dim.z );
-        	System.out.println( "drawShape " + dim );
+        	//System.out.println( "drawShape " + dim );
         }
         Vector4d rot = obj.getRotation();
         GL11.glRotatef( (float)rot.w, (float)rot.x, (float)rot.y, (float)rot.z);
@@ -286,7 +371,7 @@ public class Basic3D {
 	        	drawBox( 1, 1, 1 );
 	        else if( obj.getShape().getType() == "cone" )
 	        	drawCylinder( (float)dim.x, (float)0.01, (float)dim.y, (int)dim.z, 25 );
-	        else if( obj.getShape().getType() == "cone" )
+	        else if( obj.getShape().getType() == "cylinder" )
 	        	drawCylinder( (float)dim.x, (float)dim.y, (float)dim.y, (int)dim.z, 25 );
 	        else
 	        	drawSphere( (float)dim.x, (int)dim.y, 20);
@@ -297,7 +382,10 @@ public class Basic3D {
         
         GL11.glPopMatrix();
 
-        //castShadow(obj, lp);                               // Procedure For Casting The Shadow Based On The Silhouette
+        if( obj.getShape().mesh == null ) {
+        	castShadow( obj.getShape().mesh, lp);                               // Procedure For Casting The Shadow Based On The Silhouette
+        	System.out.println( "castShadow" );
+        }
                             
 		
 	}

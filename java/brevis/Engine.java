@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DWorld;
@@ -91,7 +92,8 @@ public class Engine {
 	public BrPhysics physics;
 	
 	// objects
-	protected HashMap<Long,BrObject> objects;	
+	//protected HashMap<Long,BrObject> objects;	
+	protected ConcurrentHashMap<Long,BrObject> objects;	
 	// addedObjects
 	protected HashMap<Long,BrObject> addedObjects;
 	// deletedObjects	
@@ -129,7 +131,8 @@ public class Engine {
 		updateHandlers = new HashMap<String,UpdateHandler>();		
 		updateKinematics = new HashMap<String,Boolean>();		
 		physics = new BrPhysics();
-		objects = new HashMap<Long,BrObject>();
+		//objects = new HashMap<Long,BrObject>();
+		objects = new ConcurrentHashMap<Long,BrObject>();
 		addedObjects = new HashMap<Long,BrObject>();
 		deletedObjects = new HashSet<Long>();
 		
@@ -194,13 +197,14 @@ public class Engine {
 	 * Call individual update functions
 	 */
 	public void updateObjects( double dt ) {
-		HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
+		//HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
+		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();
 		
-		// Call the 0 update handler once
-		if( updateHandlers.containsKey( 0 ) ) {
+		// Call the 0 update handler once (eliminating this implementation)
+		/*if( updateHandlers.containsKey( 0 ) ) {
 			UpdateHandler global_uh = updateHandlers.get( 0 );
 			BrObject placeholder = global_uh.update( this, null, dt );
-		}		
+		}*/		
 		
 		//System.out.println( "updateObjects " + objects.keySet() );
 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
@@ -244,7 +248,9 @@ public class Engine {
 	public void handleCollisions( double dt ) {
 		collisions = globalCollisions;
 		
-		HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
+		//HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
+		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();		
+		
 		// Because we may collide with an object multiple times, we first duplicate all objects and use
 		// these.
 		for( Entry<Long, BrObject> entry : objects.entrySet() ) {
@@ -277,7 +283,9 @@ public class Engine {
 	 * LAZY PAIRWISE IMPLEMENTATION
 	 */
 	public void updateNeighborhoods() {
-		HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
+		//HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
+		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();
+		
 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
 			BrObject obj = entry.getValue();
 			Vector<Long> nbrs = new Vector<Long>();
@@ -348,7 +356,7 @@ public class Engine {
 	/* addObject
 	 * Add an object to the simulation
 	 */
-	public void addObject( Long UID, BrObject obj ) {
+	synchronized public void addObject( Long UID, BrObject obj ) {
 		addedObjects.put( UID, obj );
 		//System.out.println( "addObject " + UID + " " + obj );
 	}

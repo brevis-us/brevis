@@ -290,6 +290,7 @@ Copyright 2012, 2013 Kyle Harrington"
 ;    (start-gui initialize update-world))
   ([initialize update]
     #_(reset-core)
+    (reset! *gui-message-board* (sorted-map))
     (when (.contains (System/getProperty "os.name") "indows")
       (reset! enable-display-text false))
 	  (reset! *app-thread*

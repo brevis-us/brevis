@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import org.lwjgl.opengl.GL11;
 
 /**
+ * derived from code by:
  * @author Jeremy Adams (elias4444)
  *
  * Use these lines if reading from a file
@@ -43,12 +44,12 @@ import org.lwjgl.opengl.GL11;
 public class BrMesh {
 	
 	
-	private ArrayList vertexsets = new ArrayList(); // Vertex Coordinates
-	private ArrayList vertexsetsnorms = new ArrayList(); // Vertex Coordinates Normals
-	private ArrayList vertexsetstexs = new ArrayList(); // Vertex Coordinates Textures
-	private ArrayList faces = new ArrayList(); // Array of Faces (vertex sets)
-	private ArrayList facestexs = new ArrayList(); // Array of of Faces textures
-	private ArrayList facesnorms = new ArrayList(); // Array of Faces normals
+	public ArrayList vertexsets = new ArrayList(); // Vertex Coordinates
+	public ArrayList vertexsetsnorms = new ArrayList(); // Vertex Coordinates Normals
+	public ArrayList vertexsetstexs = new ArrayList(); // Vertex Coordinates Textures
+	public ArrayList faces = new ArrayList(); // Array of Faces (vertex sets)
+	public ArrayList facestexs = new ArrayList(); // Array of of Faces textures
+	public ArrayList facesnorms = new ArrayList(); // Array of Faces normals
 	
 	private int objectlist;
 	private int numpolys = 0;
