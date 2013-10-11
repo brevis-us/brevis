@@ -91,6 +91,11 @@ public class Engine {
 	// physics
 	public BrPhysics physics;
 	
+	protected long simulationStart = -1;
+	protected long numSteps = 0;
+	
+	public double startWallTime = 0;
+	
 	// objects
 	//protected HashMap<Long,BrObject> objects;	
 	protected ConcurrentHashMap<Long,BrObject> objects;	
@@ -142,6 +147,8 @@ public class Engine {
 		
 		globalUpdateHandlers = 
 				new PriorityQueue<GlobalUpdateHandler>(1, (Comparator<GlobalUpdateHandler>) new GUHComparator() );
+		
+		simulationStart = System.nanoTime();
 	}
 	
 	public static class BrevisCollision implements DGeom.DNearCallback {
@@ -309,6 +316,7 @@ public class Engine {
 	 */
 	public void initWorld( ) {
 		physics.time = 0;		
+		startWallTime = System.nanoTime();
 		objects.clear();
 		synchronizeObjects();		
 	}
@@ -343,6 +351,13 @@ public class Engine {
 			updateNeighborhoods();
 			synchronizeObjects();
 		}
+		
+		numSteps++;
+	}
+	
+	public double getCurrentSimulationRate( ) {
+		//System.out.println( "(" + simulationStart + " - " + System.nanoTime() + " ) / " + numSteps );
+		return numSteps / ( (double) ( System.nanoTime() - simulationStart ) ) * 1000000.0;
 	}
 	
 	public boolean getCollisionsEnabled() {
@@ -355,6 +370,10 @@ public class Engine {
 	
 	public DWorld getWorld() {
 		return physics.getWorld();
+	}
+	
+	public double getWallTime() {
+		return (System.nanoTime() - startWallTime) / 1000000000.0;
 	}
 	
 	public double getTime() {

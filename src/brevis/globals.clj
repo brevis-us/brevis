@@ -28,3 +28,4 @@ Copyright 2012, 2013 Kyle Harrington"
 (def #^:dynamic *gui-message-board* (atom (sorted-map))) 
 (def #^:dynamic *app-thread* (atom nil))
 (def #^:dynamic *screenshot-filename* (atom nil))
+(def #^:dynamic *simulation-state* (atom {}))

@@ -35,6 +35,11 @@ Copyright 2012, 2013 Kyle Harrington"
   []
   (.getTime @*java-engine*))
 
+(defn get-wall-time
+  "Return the elapsed wall-clock time."
+  []
+  (.getWallTime @*java-engine*))
+
 (defn get-uid
   "Return the UID of an object."
   [obj]
@@ -289,3 +294,7 @@ Copyright 2012, 2013 Kyle Harrington"
   []
   (.setCollisionsEnabled @*java-engine* false))
 
+(defn get-current-simulation-rate
+  "Return the current rate of simulation."
+  []  
+  (.getCurrentSimulationRate @*java-engine*))
