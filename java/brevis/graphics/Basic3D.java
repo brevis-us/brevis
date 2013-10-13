@@ -29,6 +29,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.util.glu.Cylinder;
+import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.glu.Sphere;
 
 import brevis.BrObject;
@@ -38,6 +39,92 @@ public class Basic3D {
     private static final float LIGHTX = 1.0f;
     private static final float LIGHTY = 0.4f;
     private static final float SHADOW_INTENSITY = 0.65f;
+    
+    static float lightPos[] = { 0.0f, 5.0f,-4.0f, 1.0f};           // Light Position                                                                               
+    static float lightAmb[] = { 0.2f, 0.2f, 0.2f, 1.0f};           // Ambient Light Values                                                                         
+    static float lightDif[] = { 0.6f, 0.6f, 0.6f, 1.0f};           // Diffuse Light Values                                                                         
+    static float lightSpc[] = {-0.2f, -0.2f, -0.2f, 1.0f};         // Specular Light Values                                                                        
+    static ByteBuffer byteBuffer;
+    static ByteBuffer floatBuffer;
+    static float matAmb[] = {0.4f, 0.4f, 0.4f, 1.0f};              // Material - Ambient Values                                                                    
+    static float matDif[] = {0.2f, 0.6f, 0.9f, 1.0f};              // Material - Diffuse Values                                                                    
+    static float matSpc[] = {0.0f, 0.0f, 0.0f, 1.0f};              // Material - Specular Values                                                                   
+    static float matShn[] = {0.0f, 0.0f, 0.0f, 0.0f};                                // Material - Shininess                                                       
+
+
+    
+    static public void initGL() {
+        
+        int width = 640;
+        int height = 480;
+        GL11.glShadeModel(GL11.GL_SMOOTH);                            // Enable Smooth Shading
+        GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.5f);               // Black Background
+        GL11.glClearDepth(1.0f);                                 // Depth Buffer Setup
+        GL11.glClearStencil(0);                                  // Stencil Buffer Setup
+        GL11.glEnable(GL11.GL_DEPTH_TEST);                            // Enables Depth Testing
+        GL11.glDepthFunc(GL11.GL_LEQUAL);                             // The Type Of Depth Testing To Do
+        GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST);  // Really Nice Perspective Calculations
+
+        //floatBuffer = ByteBuffer.allocateDirect(64).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        //byteBuffer = ByteBuffer.allocateDirect(16).order(ByteOrder.nativeOrder());
+        
+        floatBuffer = ByteBuffer.allocateDirect(64);
+        floatBuffer.order(ByteOrder.nativeOrder());
+        byteBuffer = ByteBuffer.allocateDirect(16);
+        byteBuffer.order(ByteOrder.nativeOrder());
+        /*
+        GL11.glLight(GL11.GL_LIGHT1, GL11.GL_POSITION, (FloatBuffer)floatBuffer.put(lightPos).flip());        // Set Light1 Position
+        GL11.glLight(GL11.GL_LIGHT1, GL11.GL_AMBIENT, (FloatBuffer)floatBuffer.put(lightAmb).flip());         // Set Light1 Ambience
+        GL11.glLight(GL11.GL_LIGHT1, GL11.GL_DIFFUSE, (FloatBuffer)floatBuffer.put(lightDif).flip());         // Set Light1 Diffuse
+        GL11.glLight(GL11.GL_LIGHT1, GL11.GL_SPECULAR, (FloatBuffer)floatBuffer.put(lightSpc).flip());        // Set Light1 Specular
+        GL11.glEnable(GL11.GL_LIGHT1);                                // Enable Light1
+        GL11.glEnable(GL11.GL_LIGHTING);                              // Enable Lighting
+
+        GL11.glMaterial(GL11.GL_FRONT, GL11.GL_AMBIENT, (FloatBuffer)floatBuffer.put(matAmb).flip());         // Set Material Ambience
+        GL11.glMaterial(GL11.GL_FRONT, GL11.GL_DIFFUSE, (FloatBuffer)floatBuffer.put(matDif).flip());         // Set Material Diffuse
+        GL11.glMaterial(GL11.GL_FRONT, GL11.GL_SPECULAR, (FloatBuffer)floatBuffer.put(matSpc).flip());        // Set Material Specular
+        GL11.glMaterial(GL11.GL_FRONT, GL11.GL_SHININESS, (FloatBuffer)floatBuffer.put(matShn).flip());       // Set Material Shininess
+*/
+        
+        GL11.glLight(GL11.GL_LIGHT1, GL11.GL_POSITION, (FloatBuffer)byteBuffer.asFloatBuffer().put(lightPos).flip());        // Set Light1 Position         
+        GL11.glLight(GL11.GL_LIGHT1, GL11.GL_AMBIENT, (FloatBuffer)byteBuffer.asFloatBuffer().put(lightAmb).flip());         // Set Light1 Ambience         
+        GL11.glLight(GL11.GL_LIGHT1, GL11.GL_DIFFUSE, (FloatBuffer)byteBuffer.asFloatBuffer().put(lightDif).flip());         // Set Light1 Diffuse          
+        GL11.glLight(GL11.GL_LIGHT1, GL11.GL_SPECULAR, (FloatBuffer)byteBuffer.asFloatBuffer().put(lightSpc).flip());        // Set Light1 Specular         
+        GL11.glEnable(GL11.GL_LIGHT1);                                // Enable Light1                                                                      
+        GL11.glEnable(GL11.GL_LIGHTING);                              // Enable Lighting                                                                    
+
+        GL11.glMaterial(GL11.GL_FRONT, GL11.GL_AMBIENT, (FloatBuffer)byteBuffer.asFloatBuffer().put(matAmb).flip());         // Set Material Ambience       
+        GL11.glMaterial(GL11.GL_FRONT, GL11.GL_DIFFUSE, (FloatBuffer)byteBuffer.asFloatBuffer().put(matDif).flip());         // Set Material Diffuse        
+        GL11.glMaterial(GL11.GL_FRONT, GL11.GL_SPECULAR, (FloatBuffer)byteBuffer.asFloatBuffer().put(matSpc).flip());        // Set Material Specular       
+        GL11.glMaterial(GL11.GL_FRONT, GL11.GL_SHININESS, (FloatBuffer)byteBuffer.asFloatBuffer().put(matShn).flip());       // Set Material Shininess      
+
+        
+        
+        GL11.glCullFace(GL11.GL_BACK);                                // Set Culling Face To Back Face
+        GL11.glEnable(GL11.GL_CULL_FACE);                             // Enable Culling
+        GL11.glClearColor(0.1f, 1.0f, 0.5f, 1.0f);               // Set Clear Color (Greenish Color)
+
+/*        q = new Sphere();                               // Initialize Quadratic
+        q.setNormals(GL11.GL_SMOOTH);                   // Enable Smooth Normal Generation
+        q.setTextureFlag(false);                        // Disable Auto Texture Coords
+*/
+        GL11.glViewport(0,0,width,height);                           // Reset The Current Viewport
+
+        GL11.glMatrixMode(GL11.GL_PROJECTION);                            // Select The Projection Matrix
+        GL11.glLoadIdentity();                                       // Reset The Projection Matrix
+
+        // Calculate The Aspect Ratio Of The Window
+        /*GLU.gluPerspective(45.0f,
+                (float) displayMode.getWidth() / (float) displayMode.getHeight(),
+                0.05f,100.0f);*/
+        
+        GLU.gluPerspective(45.0f,
+                (float) 640 / (float) 480,
+                0.05f, 100.0f);
+
+        GL11.glMatrixMode(GL11.GL_MODELVIEW);                             // Select The Modelview Matrix
+        GL11.glLoadIdentity();                                       // Reset The Modelview Matrix    	
+    }
 	
 	static public void drawBox(float w, float h, float d) {
 		GL11.glBegin(GL11.GL_QUADS);
@@ -203,7 +290,7 @@ public class Basic3D {
     }    
     
     // http://lwjgl.org/forum/index.php?topic=2407.0;wap2
-    static private void castShadow( BrMesh o, double lp[] ){
+    static public void castShadow( BrMesh o, double lp[] ){
         int i;
         float side;
 
@@ -230,6 +317,7 @@ public class Basic3D {
         // first pass, stencil operation increases stencil value
         GL11.glFrontFace(GL11.GL_CCW);
         GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_INCR);
+        //System.out.println( "castShadow " + o );
         doShadowPass(o, lp);
 
         // second pass, stencil operation decreases stencil value
@@ -263,29 +351,61 @@ public class Basic3D {
         Vector3d v3 = new Vector3d();
         Vector3d v4 = new Vector3d();
         float[] p1, p2, p3;
+        int[] f1;
         
-        System.out.println( o.faces.size() + " " + o.vertexsets.size() );
+        //System.out.println( o.numpolygons() + " " + o.faces.size() + " " + o.vertexsets.size() );
         
         for (i=0; i<o.numpolygons();i++){
-        	System.out.println( i + " " + o.faces.get(i) );
+        	//System.out.println( i + " " + o.faces.get(i) );
         	int[] face = (int[])( o.faces.get(i) );        
             // could check to see if a face is visible before proceeding
         	
-        	GL11.glBegin( GL11.GL_POLYGON );
+        	//GL11.glBegin( GL11.GL_POLYGON );
         	
             for ( j=0; j<face.length; j++ ){                
             	k = face[j];
                 if ( k != 0 ){
                     // here we have an edge, we must draw a polygon
-                	float[] point = (float[])( o.vertexsets.get(k) );
+                	float[] point = (float[])( o.vertexsets.get(k-1) );
                 	GL11.glVertex3f( point[0], point[1], point[2] );
+                	
+                	f1 = (int[])(o.faces.get(i));//.p[j];
+                    jj = (j+1)%3;
+                    
+                    p1 = o.vertexsets.get(f1[j] - 1);
+                    p2 = o.vertexsets.get(f1[jj] - 1);
+
+                    //calculate the length of the vector
+                    v3.x = (p1[0] - lp[0])*100;
+                    v3.y = (p1[1] - lp[1])*100;
+                    v3.z = (p1[2] - lp[2])*100;
+
+                    v4.x = (p2[0] - lp[0])*100;
+                    v4.y = (p2[1] - lp[1])*100;
+                    v4.z = (p2[2] - lp[2])*100;
+
+                    //draw the polygon
+                    GL11.glBegin(GL11.GL_TRIANGLE_STRIP);
+                        GL11.glVertex3f(p1[0],
+                                    	p1[1],
+                                    	p1[2]);
+                        GL11.glVertex3f((float) (p1[0] + v3.x),
+                                    	(float) (p1[1] + v3.y),
+                                    	(float) (p1[2] + v3.z));
+
+                        GL11.glVertex3f(p2[0],p2[1],p2[2]);
+                        GL11.glVertex3f((float) (p2[0] + v4.x),
+                        				(float) (p2[1] + v4.y),
+                        				(float) (p2[2] + v4.z));
+
+                    GL11.glEnd();
                 }
             }
             
-            GL11.glEnd();
+            //GL11.glEnd();
         }
         
-    }    
+    }   
     
 	// some from nehe lesson 27    
 	//static public void drawShape( BrObject obj, double xrot, double yrot, double zrot, double xoff, double yoff, double zoff, double[] lp, Vector3d dim ) {
@@ -384,13 +504,17 @@ public class Basic3D {
         
         GL11.glPopMatrix();
 
-        if( obj.getShape().mesh != null ) {
+        /*if( obj.getShape().mesh != null ) {
+        	//System.out.println( "drawShape " + obj.type + " " + obj.getShape() );
         	castShadow( obj.getShape().mesh, lp);                               // Procedure For Casting The Shadow Based On The Silhouette
-        	System.out.println( "castShadow" );
-        }
+        	//System.out.println( "castShadow" );
+        }*/
                             
 		
 	}
+    
+    
+        
     
     
 }

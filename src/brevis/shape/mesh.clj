@@ -23,8 +23,8 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (defn create-mesh
   "Create a mesh object."
-  [filename]
+  [filename is-resource?]
   #_(println "create-mesh" filename)
-  (BrShape/createMeshFromFile filename)
+  (BrShape/createMeshFromFile filename is-resource?)
   #_(BrShape. filename)
   #_(BrShape/loadMesh (BrShape.) filename))

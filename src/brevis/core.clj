@@ -28,7 +28,8 @@ Copyright 2012, 2013 Kyle Harrington"
             [penumbra.data :as data]
             [penumbra.opengl.frame-buffer :as fb]
             [penumbra.opengl.effects :as glfx])
-  (:import (java.awt AWTException Robot Rectangle Toolkit)
+  (:import (brevis.graphics Basic3D) 
+           (java.awt AWTException Robot Rectangle Toolkit)
            (java.awt.geom AffineTransform)
            (java.awt.image AffineTransformOp BufferedImage)
            (java.nio ByteBuffer)
@@ -48,10 +49,13 @@ Copyright 2012, 2013 Kyle Harrington"
   [state]
   (app/title! "brevis")
   (app/vsync! true)
+  
+  #_(Basic3D/initGL)
+  
   ;(app/key-repeat! false)
   (enable :blend)
   (enable :depth-test)
-  ;(clear-color [0 0 0 1])
+  #_(clear-color [0 0 0 0.5])  
   (init-box-graphic)
   #_(init-sphere)
   #_(init-cone)
@@ -76,7 +80,7 @@ Copyright 2012, 2013 Kyle Harrington"
   ;(enable :polygon-smooth)  
   (blend-func :src-alpha :one-minus-src-alpha)  
   (enable :normalize)
-  #_(init-shader)  
+  #_(init-shader)    
   (java-init-world)
   #_(glfx/enable-high-quality-rendering)
   state
@@ -268,6 +272,10 @@ Copyright 2012, 2013 Kyle Harrington"
 	  (doseq [obj (get-objects)]
      (when (drawable? obj)
        (draw-shape obj)))
+   
+   #_(doseq [obj (get-objects)]
+     (when (drawable? obj)
+       (draw-shape-shadow obj)))
    
    (when @enable-display-text
      (update-display-text [dt t] state))

@@ -138,3 +138,8 @@ Copyright 2012, 2013 Kyle Harrington"
     (with-disabled :texture-2d
       (do-draw-shape obj))))
 	  
+(defn draw-shape-shadow
+  "Draw a shape. Call this after translating, scaling, and setting color."
+  [obj]
+  (Basic3D/castShadow (.getMesh (.getShape obj)) (double-array [0 1 0 0]))
+  )

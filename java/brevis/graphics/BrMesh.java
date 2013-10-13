@@ -22,6 +22,8 @@ import javax.vecmath.Vector3d;
 
 }*/
 
+
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,12 +46,12 @@ import org.lwjgl.opengl.GL11;
 public class BrMesh {
 	
 	
-	public ArrayList vertexsets = new ArrayList(); // Vertex Coordinates
-	public ArrayList vertexsetsnorms = new ArrayList(); // Vertex Coordinates Normals
-	public ArrayList vertexsetstexs = new ArrayList(); // Vertex Coordinates Textures
-	public ArrayList faces = new ArrayList(); // Array of Faces (vertex sets)
-	public ArrayList facestexs = new ArrayList(); // Array of of Faces textures
-	public ArrayList facesnorms = new ArrayList(); // Array of Faces normals
+	public ArrayList<float[]> vertexsets = new ArrayList<float[]>(); // Vertex Coordinates
+	public ArrayList<float[]> vertexsetsnorms = new ArrayList<float[]>(); // Vertex Coordinates Normals
+	public ArrayList<float[]> vertexsetstexs = new ArrayList<float[]>(); // Vertex Coordinates Textures
+	public ArrayList<int[]> faces = new ArrayList<int[]>(); // Array of Faces (vertex sets)
+	public ArrayList<int[]> facestexs = new ArrayList<int[]>(); // Array of of Faces textures
+	public ArrayList<int[]> facesnorms = new ArrayList<int[]>(); // Array of Faces normals
 	
 	private int objectlist;
 	private int numpolys = 0;
@@ -62,6 +64,15 @@ public class BrMesh {
 	public float farpoint = 0;		// z-
 	public float nearpoint = 0;		// z+
 	
+	public String toString() {
+		String s = "#BrMesh{ :numpolys " + numpolys + ", :toppoint " + toppoint +
+				", :bottompoint " + bottompoint + ", :leftpoint " + leftpoint +
+				", :rightpoint " + rightpoint + ", :farpoint " + farpoint +
+				", :nearpoint " + nearpoint + 
+				"}";		 				 				
+		return s;
+	}
+	
 	public BrMesh(BufferedReader ref, boolean centerit) {
 		loadobject(ref);
 		if (centerit) {
@@ -69,9 +80,11 @@ public class BrMesh {
 		}
 		opengldrawtolist();
 		numpolys = faces.size();
-		cleanup();
+		// We don't actually want to cleanup
+		//cleanup();
 	}
 	
+	@SuppressWarnings("unused")
 	private void cleanup() {
 		vertexsets.clear();
 		vertexsetsnorms.clear();

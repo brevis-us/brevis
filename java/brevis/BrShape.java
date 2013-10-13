@@ -58,6 +58,16 @@ public class BrShape {
 	// Make final?
 	public static BrMesh unitCone = null;	
 	
+	public BrMesh getMesh() {
+		return mesh;
+	}
+	
+	public String toString() {
+		String s = "#BrShape{ :type " + type + ", :dim" + dim +
+				", :mesh " + mesh + "}";		 				
+		return s;
+	}
+	
 	BrShape( BrShapeType t, Vector3d d ) {
 		//type = BrShapeType.SPHERE;
 		//dim = new Vector3d(1,1,1);
@@ -78,9 +88,9 @@ public class BrShape {
 				
 	}
 	
-	BrShape( String filename ) {
+	BrShape( String filename, boolean isResource ) {
 		type = BrShapeType.MESH;
-		loadMesh( filename, false );
+		loadMesh( filename, isResource );
 	}
 	
 	public void initUnitCone() {		
@@ -286,9 +296,9 @@ public class BrShape {
 		return dim;
 	}
 	
-	public static BrShape createMeshFromFile( String filename ) {
+	public static BrShape createMeshFromFile( String filename, boolean isResource ) {
 		//System.out.println( filename );
-		return ( new BrShape( filename ) );
+		return ( new BrShape( filename, isResource ) );
 	}
 	
 	public static BrShape createSphere( double r ) {
