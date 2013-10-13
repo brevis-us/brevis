@@ -384,11 +384,13 @@ public class Basic3D {
         
         GL11.glPopMatrix();
 
-        if( obj.getShape().mesh == null ) {
+        if( obj.getShape().mesh != null ) {
         	castShadow( obj.getShape().mesh, lp);                               // Procedure For Casting The Shadow Based On The Silhouette
         	System.out.println( "castShadow" );
         }
                             
 		
 	}
+    
+    
 }

@@ -15,84 +15,74 @@
                                                                                                                                                                                      
 Copyright 2012, 2013 Kyle Harrington"
 
-(ns brevis.vector
-  #_(:import [org.lwjgl.util.vector Vector3f Vector4f])
-  (:import [javax.vecmath Vector3d Vector4d]))
-;; Temporary way of making Java's Vector3d's look like Cantor's vec3's
 
-(defn sub
-  "Wrap's Vector3d sub."
-  [v1 v2]
-  (let [v (Vector3d.)]    
-    (.sub v v1 v2)
-    v))
+(ns brevis.matrix
+  (:use [brevis vector])
+  (:import [javax.vecmath Vector3d Vector4d Matrix4d]))
 
-(defn vec3
-  "Make a Vector3d"
-  [x y z]
-  (Vector3d. x y z))
+(defonce x-axis (vec3 1 0 0))
+(defonce y-axis (vec3 0 1 0))
+(defonce z-axis (vec3 0 0 1))
+(defonce origin (vec4 0 0 0 1))
 
-(defn vec4
-  "Make a Vector4d"
-  [x y z w]
-  (Vector4d. x y z w))
+(defn mat4
+  "Create a 4x4 matrix."  
+  ([ v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 v12 v13 v14 v15 ]
+    (Matrix4d.  v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 v12 v13 v14 v15))
+  ([]
+    (mat4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)))
 
-(defn vec4-to-vec3
-  "convert a vec4 to a vec3"
-  [v]
-  (vec3 (.x v) (.y v) (.z v)))
+#_(defonce identity4 (.setIdentity (mat4)))
 
-(defn div
-  "Divide a Vector3d by a scalar."
-  [v s]
-  (Vector3d. (double (/ (.x v) s))
-             (double (/ (.y v) s))
-             (double (/ (.z v) s))))
+(defn position
+  "Return the position of xform."
+  [xform]
+  (let [position (.transform xform origin (vec4 0 0 0 0))]
+    position))
+
+(defn translate
+  "Translate xform by vector"
+  [xform v]
+  (println xform v (position xform)) 
+  (.setTranslation xform (add v (position xform)))
+  xform)
+
+(defn rotate
+  "Rotate xform about axis by angle."
+  [xform axis angle]
+  (.rotate xform angle axis)
+  xform) 
     
-(defn add
-  "Add Vector3d's"
-  ([v1 v2]
-    (let [v (Vector3d.)]      
-      (.add v v1 v2)
-      v))
-  ([v1 v2 & vs]
-    (loop [vs vs
-           v (add v1 v2)]
-      (if (empty? vs)
-        v
-        (recur (rest vs)
-               (add v (first vs)))))))
+(defn rotate-x
+  "Rotate xform about x-axis by angle."
+  [xform angle]
+  #_(rotate xform x-axis angle)
+  (.rotX xform angle)
+  xform)
 
-(defn mul
-  "Multiply a Vector3d by a scalar."
-  [v s]
-  (Vector3d. (double (* s (.x v)))
-             (double (* s (.y v)))
-             (double (* s (.z v)))))
+(defn rotate-y
+  "rotate xform about y-axis by angle."
+  [xform angle]
+  #_(rotate xform y-axis angle)
+  (.rotY xform angle)
+  xform)
 
-(defn elmul
-  "Multiply a Vector3d by a scalar."
-  [v w]
-  (Vector3d. (double (* (.x w) (.x v)))
-             (double (* (.y w) (.y v)))
-             (double (* (.z w) (.z v)))))
+(defn rotate-z
+  "Rotate xform about z-axis by angle."
+  [xform angle]
+  #_(rotate xform z-axis angle)
+  (.rotZ xform angle)
+  xform)
+  
+(defn transform
+  "Transform a vector."
+  [xform v]
+  (let [outv (vec4 0 0 0 0)]
+    (.transform xform v outv)
+    outv))
 
-(defn dot
-  "Dot product of 2 vectors."
-  [v1 v2]
-  (+ (* (.x v1) (.x v2)) 
-     (* (.y v1) (.y v2)) 
-     (* (.z v1) (.z v2)))) 
-
-(defn length
-  "Return the length of a vector."
-  [v]
-  (.length v))
-
-(defn cross
-  "Cross product of vectors."
-  [v1 v2]
-  (let [v (Vector3d.)]
-    (.cross v v1 v2)))
-
-
+(defn identity-mat
+  "Convert a matrix to an identity matrix."
+  [m]
+  (.setIdentity m)
+  m)

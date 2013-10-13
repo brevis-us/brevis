@@ -19,7 +19,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (:import [brevis BrShape])
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
-        [brevis.physics.vector]
+        [brevis vector]
         [brevis.shape.core])) 
 
 (defn create-cylinder
