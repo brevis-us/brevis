@@ -1,9 +1,9 @@
-(defproject brevis "0.5.0-SNAPSHOT"
+(defproject brevis "0.5.0"
   :description "A Second-Generation Artificial Life Simulator"
   :url "https://github.com/kephale/brevis"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :jvm-opts ["-Xmx4g"]  
+  :jvm-opts ["-Xmx2g"]  
   :resource-paths ["resources"]
   :plugins [[lein-marginalia "0.7.1"]]
   :java-source-paths ["java"]
