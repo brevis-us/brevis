@@ -39,6 +39,7 @@ import org.newdawn.slick.opengl.InternalTextureLoader;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureImpl;
 import org.newdawn.slick.opengl.TextureLoader;
+import org.newdawn.slick.opengl.renderer.SGL;
 import org.newdawn.slick.util.ClasspathLocation;
 import org.newdawn.slick.util.ResourceLoader;
 import org.ode4j.ode.DBody;
@@ -55,6 +56,8 @@ import brevis.BrShape.BrShapeType;
 //public class BrObject {
 //public class BrObject implements clojure.lang.IRecord {
 public class BrObject implements clojure.lang.IPersistentMap {
+	private int dstPixelFormat = SGL.GL_RGBA8;
+	
 	public Long uid;
 	public String type;
 	public Vector3d acceleration;
@@ -273,6 +276,21 @@ public class BrObject implements clojure.lang.IPersistentMap {
 		return texture;
 	}*/
 	
+	/**
+	 * fromhttps://bitbucket.org/kevglass/slick/src/9d7443ec33af80e3cd1d249d99087437d39d5f48/trunk/Slick/src/org/newdawn/slick/opengl/InternalTextureLoader.java?at=default
+     * Get the closest greater power of 2 to the fold number
+     * 
+     * @param fold The target number
+     * @return The power of 2
+     */
+    public static int get2Fold(int fold) {
+        int ret = 2;
+        while (ret < fold) {
+            ret *= 2;
+        }
+        return ret;
+    } 
+	
 	public void setTextureImage(BufferedImage newTexture) {
 		//texture = newTexture;
 		int textureID = InternalTextureLoader.createTextureID();
@@ -280,7 +298,7 @@ public class BrObject implements clojure.lang.IPersistentMap {
 		
 		ImageIOImageData iiid = new ImageIOImageData();
 				
-        ByteBuffer buffer = iiid.imageToByteBuffer( newTexture, false, false, null );
+        ByteBuffer buffer = iiid.imageToByteBuffer( newTexture, false, false, null );        
 
         int width;
         int height;
@@ -293,8 +311,11 @@ public class BrObject implements clojure.lang.IPersistentMap {
         height = newTexture.getHeight();
         hasAlpha = newTexture.getColorModel().hasAlpha();
 
-        texWidth = (int) Math.pow( 2, Math.ceil( Math.log( texture.getTextureWidth() ) / Math.log( 2 ) ) );
-        texHeight = (int) Math.pow( 2, Math.ceil( Math.log( texture.getTextureHeight() ) / Math.log( 2 ) ) );
+        /*texWidth = (int) Math.pow( 2, Math.ceil( Math.log( texture.getTextureWidth() ) / Math.log( 2 ) ) );
+        texHeight = (int) Math.pow( 2, Math.ceil( Math.log( texture.getTextureHeight() ) / Math.log( 2 ) ) );*/
+               
+        texWidth = (int) Math.pow( 2, Math.ceil( Math.log( width ) / Math.log( 2 ) ) );
+        texHeight = (int) Math.pow( 2, Math.ceil( Math.log( height ) / Math.log( 2 ) ) );
               
         int srcPixelFormat = hasAlpha ? GL11.GL_RGBA : GL11.GL_RGB;
         int componentCount = hasAlpha ? 4 : 3;
@@ -311,7 +332,60 @@ public class BrObject implements clojure.lang.IPersistentMap {
         
         System.out.println( "setTextureimage " + width + " " + height + " " + hasAlpha + " " + texWidth + " " + texHeight );
         
-        timp.setTextureData(srcPixelFormat, componentCount, minFilter, magFilter, buffer);
+        timp.setTextureData(srcPixelFormat, componentCount, minFilter, magFilter, buffer);        
+        
+        GL13.glActiveTexture( GL13.GL_TEXTURE0 );
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureID); 
+        
+        GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
+        
+        /*IntBuffer temp = BufferUtils.createIntBuffer(16);
+        GL11.glGetInteger(SGL.GL_MAX_TEXTURE_SIZE, temp);
+        int max = temp.get(0);
+        if ((texWidth > max) || (texHeight > max)) {
+                try {
+					throw new IOException("Attempt to allocate a texture to big for the current hardware");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+        }*/
+        
+        IntBuffer temp = BufferUtils.createIntBuffer(16);
+        GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE, temp);
+        int max = temp.get(0);
+        if ((texWidth > max) || (texHeight > max)) {
+                try {
+					throw new IOException("Attempt to allocate a texture to big for the current hardware");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+        }
+        
+        //}
+        /*
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, minFilter); 
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, magFilter); */
+        
+        
+        // produce a texture from the byte buffer
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 
+                      0, 
+                      dstPixelFormat, 
+                      get2Fold(width), 
+                      get2Fold(height), 
+                      0, 
+                      srcPixelFormat, 
+                      GL11.GL_UNSIGNED_BYTE, 
+                      buffer);   
+        GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
+                
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
+        
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
         
         //System.out.println( texture );
         //System.out.println( timp );
