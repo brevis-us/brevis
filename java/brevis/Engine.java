@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
@@ -29,11 +30,16 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.vecmath.Vector3d;
+
 import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DWorld;
 import org.ode4j.ode.OdeHelper;
 
+import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
 import clojure.lang.PersistentVector;
+import duyn.algorithm.nearestneighbours.FastKdTree;
+import duyn.algorithm.nearestneighbours.PrioNode;
 
 public class Engine {	
 	
@@ -121,6 +127,8 @@ public class Engine {
 	// enableParallel
 	public boolean brevisParallel = true;
 	
+	public BrKDTree<BrKDNode> spaceTree = null;
+	
 	/* Methods: */	
 	
 	class GUHComparator implements Comparator<GlobalUpdateHandler> {
@@ -149,6 +157,8 @@ public class Engine {
 				new PriorityQueue<GlobalUpdateHandler>(1, (Comparator<GlobalUpdateHandler>) new GUHComparator() );
 		
 		simulationStart = System.nanoTime();
+		
+		spaceTree = new BrKDTree<BrKDNode>();
 	}
 	
 	public static class BrevisCollision implements DGeom.DNearCallback {
@@ -289,9 +299,9 @@ public class Engine {
 	 * Update the neighborhoods of all objects
 	 * LAZY PAIRWISE IMPLEMENTATION
 	 */
-	public void updateNeighborhoods() {
+	/*public void updateNeighborhoods() {
 		//HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
-		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();
+		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();			
 		
 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
 			BrObject obj = entry.getValue();
@@ -304,6 +314,47 @@ public class Engine {
 					//System.out.println( "Adding neighbor " + obj.getType() );
 				}
 			}
+			//System.out.println( "Neighbors of " + obj + " " + nbrs.size() );
+			obj.nbrs = nbrs;
+			updatedObjects.put( entry.getKey(), obj );
+		}
+		objects = updatedObjects;
+	}*/
+	
+	/* updateNeighborhoods
+	 * Update the neighborhoods of all objects
+	 * KD tree implementation
+	 */
+	public void updateNeighborhoods() {
+		//HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
+		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();
+		
+		spaceTree = new BrKDTree<BrKDNode>();//lazy
+		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
+			BrObject obj = entry.getValue();
+			Vector3d pos = obj.getPosition();
+			double[] arryloc = { pos.x, pos.y, pos.z };
+			BrKDNode n = new BrKDNode( arryloc, entry.getKey() );
+			spaceTree.add( n );
+		}		
+		
+		int nResults = 10;
+		
+		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
+			BrObject obj = entry.getValue();
+			Vector<Long> nbrs = new Vector<Long>();
+			
+			Vector3d pos = obj.getPosition();
+			double[] arryloc = { pos.x, pos.y, pos.z };
+			
+			Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.search( arryloc, nResults);
+			Iterator<PrioNode<BrKDNode>> itr = itNbrs.iterator();
+			
+			while( itr.hasNext() ) {
+				PrioNode<BrKDNode> nbr = itr.next();
+				nbrs.add( nbr.data.UID );
+			}
+			
 			//System.out.println( "Neighbors of " + obj + " " + nbrs.size() );
 			obj.nbrs = nbrs;
 			updatedObjects.put( entry.getKey(), obj );

@@ -86,6 +86,41 @@ Copyright 2012, 2013 Kyle Harrington"
   state
   #_(glfx/enable-high-quality-rendering))
 
+#_(defn init
+  "Initialize the brevis window and the graphical environment."
+  [state]
+  (app/title! "brevis")
+  (app/vsync! true)
+  
+  (Basic3D/initGL)
+  
+  #_(init-checkers)
+  #_(init-sky)
+  (enable :lighting)
+  (enable :light0)
+  (light 0 
+         :specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
+         :position [0 -1 0 0];;directional can be enabled after the penumbra update         
+         ;:position [250 250 -100 1]         
+         :diffuse [1 1 1 1])
+  (enable :light1)
+  (light 1
+         :specular [0.2 0.2 0.2 1.0]
+         :position [0 -1 0 0]
+         ;:position [250 250 -100 1]
+         :diffuse [1 1 1 1])
+  (glfx/light-model :light-model-ambient [0.5 0.5 0.5 1.0])
+  ;(glfx/gl-enable :point-smooth)
+  ;(glfx/gl-enable :line-smooth)
+  ;(enable :polygon-smooth)  
+  (blend-func :src-alpha :one-minus-src-alpha)  
+  (enable :normalize)
+  #_(init-shader)    
+  (java-init-world)
+  #_(glfx/enable-high-quality-rendering)
+  state
+  #_(glfx/enable-high-quality-rendering))
+
 (defn make-init
   "Make an initialize function based upon a user-customized init function."
   [user-init]
@@ -216,7 +251,7 @@ Copyright 2012, 2013 Kyle Harrington"
   "Display the world."
   [[dt t] state]
   (let [state (if (:auto-camera state) (auto-camera state) state)]      
-    (clear)    
+    #_(clear)    
     (enable :lighting)
     (enable :light0)
     #_(enable :light1)
@@ -245,7 +280,7 @@ Copyright 2012, 2013 Kyle Harrington"
          :diffuse [1 1 1 1])
     (color 1 1 1)
     (clear-color 0.5 0.5 0.5 0)
-    (clear)
+    #_(clear)
     (gl-matrix-mode :modelview)
     ;(GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST)
     (gl-load-identity-matrix)

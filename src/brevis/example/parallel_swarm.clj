@@ -40,7 +40,7 @@ Copyright 2012, 2013 Kyle Harrington"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds 2000)
+(def num-birds 6000)
 
 (def avoidance-distance (atom 5))
 

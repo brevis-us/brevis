@@ -31,7 +31,7 @@
   (default-display-text)
   #_(disable-collisions)
   (add-object (make-floor 500 500))  
-  (add-object (make-bunny (vec3 0 80 0))))
+  (add-object (make-bunny (vec3 0 40 0))))
 
 ;; Start zee macheen
 (defn -main [& args]

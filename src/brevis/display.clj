@@ -27,7 +27,7 @@ Copyright 2012, 2013 Kyle Harrington"
            (org.lwjgl.opengl Display GL11)
            (org.lwjgl BufferUtils)))
 
-(defn screenshot
+#_(defn screenshot
   "Take a screenshot."
   [filename state]
   (let [pixels (int-array (* (:window-width state) (:window-height state))); Creating an rbg array of total pixels
@@ -42,6 +42,29 @@ Copyright 2012, 2013 Kyle Harrington"
                    (bit-shift-left (.get fb (inc bidx)) 8) 
                    (bit-shift-left (.get fb (inc (inc bidx))) 0))))) 
      (.setRGB imageIn 0 0 (:window-width state) (:window-height state) pixels 0 (:window-width state)); Allocate colored pixel to buffered Image
+     (let [at (AffineTransform/getScaleInstance 1 -1)]; Creating the transformation direction (horizontal)
+       (.translate at 0 (- (.getHeight imageIn)))
+       (let [opRotated (AffineTransformOp. at AffineTransformOp/TYPE_BILINEAR);//Applying transformation
+             imageOut (. opRotated filter imageIn nil)
+             file (File. filename)]
+         ;; probably should use try-catch
+         (ImageIO/write imageOut img-type file))))))
+
+(defn screenshot
+  "Take a screenshot."
+  [filename]
+  (let [pixels (int-array (* (:window-width @*gui-state*) (:window-height @*gui-state*))); Creating an rbg array of total pixels
+        fb (ByteBuffer/allocateDirect (* 3 (:window-width @*gui-state*) (:window-height @*gui-state*))); allocate space for RBG pixels
+        img-type (second (re-find (re-matcher #"\.(\w+)$" filename)))]        
+    (fb/gl-read-pixels (int 0) (int 0) (int (:window-width @*gui-state*)) (int (:window-height @*gui-state*)) :rgb :unsigned-byte fb)
+    (let [imageIn (BufferedImage. (:window-width @*gui-state*) (:window-height @*gui-state*) BufferedImage/TYPE_INT_RGB)]
+      (dotimes [i (alength pixels)]
+        (let [bidx (* 3 i)]
+          (aset pixels i 
+                (+ (bit-shift-left (.get fb bidx) 16) 
+                   (bit-shift-left (.get fb (inc bidx)) 8) 
+                   (bit-shift-left (.get fb (inc (inc bidx))) 0))))) 
+     (.setRGB imageIn 0 0 (:window-width @*gui-state*) (:window-height @*gui-state*) pixels 0 (:window-width @*gui-state*)); Allocate colored pixel to buffered Image
      (let [at (AffineTransform/getScaleInstance 1 -1)]; Creating the transformation direction (horizontal)
        (.translate at 0 (- (.getHeight imageIn)))
        (let [opRotated (AffineTransformOp. at AffineTransformOp/TYPE_BILINEAR);//Applying transformation
