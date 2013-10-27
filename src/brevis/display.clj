@@ -72,3 +72,5 @@ Copyright 2012, 2013 Kyle Harrington"
              file (File. filename)]
          ;; probably should use try-catch
          (ImageIO/write imageOut img-type file))))))
+
+  

@@ -42,7 +42,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (def num-birds 500)
 
-(def avoidance-distance (atom 5))
+(def avoidance-distance (atom 10))
 
 (def speed 25)
 (def max-acceleration 100)

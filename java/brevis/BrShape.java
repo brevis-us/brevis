@@ -58,6 +58,10 @@ public class BrShape {
 	// Make final?
 	public static BrMesh unitCone = null;	
 	
+	public void resize( Vector3d newDim ) {
+		dim = newDim;
+	}
+	
 	public BrMesh getMesh() {
 		return mesh;
 	}

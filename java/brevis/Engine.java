@@ -18,6 +18,7 @@
 package brevis;
 
 import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -347,12 +348,14 @@ public class Engine {
 			Vector3d pos = obj.getPosition();
 			double[] arryloc = { pos.x, pos.y, pos.z };
 			
-			Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.search( arryloc, nResults);
-			Iterator<PrioNode<BrKDNode>> itr = itNbrs.iterator();
+			//Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.search( arryloc, nResults);
+			//Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.searchByDistance( arryloc, neighborhoodRadius );
+			ArrayList<BrKDNode> searchNbrs = spaceTree.searchByDistance( arryloc, neighborhoodRadius );
+			Iterator<BrKDNode> itr = searchNbrs.iterator();
 			
 			while( itr.hasNext() ) {
-				PrioNode<BrKDNode> nbr = itr.next();
-				nbrs.add( nbr.data.UID );
+				BrKDNode nbr = itr.next();
+				nbrs.add( nbr.UID );
 			}
 			
 			//System.out.println( "Neighbors of " + obj + " " + nbrs.size() );

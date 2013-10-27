@@ -68,10 +68,21 @@ Copyright 2012, 2013 Kyle Harrington"
     (= :quads poly-type) (define-quads-display-list polys)
     (= :triangles poly-type) (define-triangles-display-list polys)))    
 
-(defn resize-shape
+#_(defn resize-shape
   "Change the dimension of an object's shape."
   [obj new-dim]
   (assoc-in obj [:shape :dim] new-dim))
+
+(defn get-shape 
+  "Return the shape of an object."
+  [obj]
+  (.getShape obj))
+
+(defn resize-shape
+  "Change the dimension of an object's shape."
+  [obj new-dim]
+  (.resize (.getShape obj) new-dim)
+  obj)
 
 (defn textured-quad []
   (push-matrix

@@ -1,6 +1,6 @@
 /* 
  * brevis KDTree
- * basded on Duy Nguyen's duyn.algorithm.nearestneighbours.BrKDTree 
+ * basded on Duy Nguyen's duyn.algorithm.nearestneighbours 
  */
 
 package brevis;
@@ -121,6 +121,14 @@ public final class BrKDTree<X extends BrKDNode> {
 		return search(this, query, nResults);
 	}
 
+	//public Iterable<PrioNode<X>>
+	public ArrayList<X>
+	searchByDistance(double[] query, double distance) {
+		// Forward to a static method to avoid accidental reference to
+		// instance variables while descending the tree
+		return searchByDistance(this, query, distance);
+	}
+	
 	//
 	// IMPLEMENTATION DETAILS
 	//
@@ -289,6 +297,60 @@ public final class BrKDTree<X extends BrKDNode> {
 
 	// Searching
 
+	// ---------------   Search by distance
+	//private static <X extends BrKDNode> Iterable<PrioNode<X>>
+	private static <X extends BrKDNode> ArrayList<X>
+	searchByDistance(BrKDTree<X> tree, double[] query, double distance) {
+		int nResults = tree.data.size();
+		//final SearchState<X> state = new SearchState<X>(nResults);
+		//final FastBinaryHeap<X> results = new FastBinaryHeap<X>(
+		//		nResults, 4, FastBinaryHeap.MAX);
+		//final ArrayList<X> results = new ArrayList<X>(nResults);
+		ArrayList<X> results = new ArrayList<X>();
+		
+		final Deque<SearchStackEntry<X>> stack =
+			new ArrayDeque<SearchStackEntry<X>>();
+		if (tree.contentMin != null)
+			stack.addLast(new SearchStackEntry<X>(false, tree));
+//TREE_WALK:
+		while (!stack.isEmpty()) {
+			final SearchStackEntry<X> entry = stack.removeLast();
+			final BrKDTree<X> cur = entry.tree;
+
+			/*if (entry.needBoundsCheck && state.results.size() >= nResults) {
+				/*final double d = minDistanceSqFrom(query,
+					cur.contentMin, cur.contentMax);*
+				if ( distance > state.results.peek().priority )
+					continue TREE_WALK;
+			}*/
+
+			if (cur.isTree()) {
+				searchTree(query, cur, stack);
+			} else {
+				searchLeafByDistance(query, cur, results, distance);
+			}
+		}		
+
+		return results;
+	}
+	
+	private static <X extends BrKDNode> void
+	searchLeafByDistance(double[] query, BrKDTree<X> leaf, ArrayList<X> results, double distance) {
+		double exD = Double.NaN;
+		for(X ex : leaf.data) {
+			exD = Double.NaN;
+			if (!leaf.singularity || Double.isNaN(exD)) {
+				exD = distanceSqFrom(query, ex.domain);
+			}
+
+			if ( exD < distance ) {
+				results.add(ex);
+			}
+		}
+	}
+	
+	// ----------- Search by number of results
+	
 	// May return more results than requested if multiple data have
 	// same distance from target.
 	//
@@ -323,6 +385,7 @@ TREE_WALK:
 		return state.results;
 	}
 
+	
 	private static <X extends BrKDNode> void
 	searchTree(double[] query, BrKDTree<X> tree,
 		Deque<SearchStackEntry<X>> stack)
@@ -353,6 +416,7 @@ TREE_WALK:
 	searchLeaf(double[] query, BrKDTree<X> leaf, SearchState<X> state) {
 		double exD = Double.NaN;
 		for(X ex : leaf.data) {
+			exD = Double.NaN;
 			if (!leaf.singularity || Double.isNaN(exD)) {
 				exD = distanceSqFrom(query, ex.domain);
 			}

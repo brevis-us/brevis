@@ -277,7 +277,7 @@ public class BrObject implements clojure.lang.IPersistentMap {
 	}*/
 	
 	/**
-	 * fromhttps://bitbucket.org/kevglass/slick/src/9d7443ec33af80e3cd1d249d99087437d39d5f48/trunk/Slick/src/org/newdawn/slick/opengl/InternalTextureLoader.java?at=default
+	 * from https://bitbucket.org/kevglass/slick/src/9d7443ec33af80e3cd1d249d99087437d39d5f48/trunk/Slick/src/org/newdawn/slick/opengl/InternalTextureLoader.java?at=default
      * Get the closest greater power of 2 to the fold number
      * 
      * @param fold The target number
@@ -330,7 +330,7 @@ public class BrObject implements clojure.lang.IPersistentMap {
         timp.setTextureHeight( texHeight );
         timp.setTextureWidth( texWidth );                       
         
-        System.out.println( "setTextureimage " + width + " " + height + " " + hasAlpha + " " + texWidth + " " + texHeight );
+        //System.out.println( "setTextureimage " + width + " " + height + " " + hasAlpha + " " + texWidth + " " + texHeight );
         
         timp.setTextureData(srcPixelFormat, componentCount, minFilter, magFilter, buffer);        
         
@@ -417,8 +417,6 @@ public class BrObject implements clojure.lang.IPersistentMap {
 		}		
 		
 	}
-
-	
 	
 	/*
 	 * Update the orientation of an object
