@@ -19,11 +19,14 @@ Copyright 2012, 2013 Kyle Harrington"
   (:import [brevis BrShape])
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
-        [brevis.shape.core])) 
+        [brevis.shape.core]
+        [brevis vector])) 
 
 (defn create-sphere
   "Create a sphere object."
   ([]
      (create-sphere 1))
   ([radius]
-    (BrShape/createSphere radius)))
+    (let [sphere (BrShape/createSphere radius)]
+      (.setDimension sphere (vec3 radius radius radius))
+      sphere)))

@@ -234,6 +234,7 @@ public class Engine {
 				//System.out.println( "--" + getTime() + " updating object " + entry.getKey() );
 				newObj = uh.update( this, entry.getKey(), dt );				
 			} 
+			//else System.out.println( "--" + getTime() + " not updating object " + entry.getKey() + " " + entry.getValue().type );
 			
 			Boolean kh = updateKinematics.get( obj.type );
 			//System.out.println( obj.type + " " + kh );
@@ -252,10 +253,15 @@ public class Engine {
 	public void globalUpdateObjects( boolean preIndividual ) {
 		
 		for( GlobalUpdateHandler gh : globalUpdateHandlers ) {
+			//System.out.println( "guh " + gh );
 			if( preIndividual && gh.getPriority() < 0 ) {
+//				System.out.println( "globalUpdate " + gh );
 				gh.update( this );
+				synchronizeObjects();
 			} else if ( !preIndividual && gh.getPriority() >= 0 ) {
+				//System.out.println( "globalUpdate " + gh );
 				gh.update( this );
+				synchronizeObjects();
 			}
 		}
 	}
@@ -386,15 +392,19 @@ public class Engine {
 		}
 		
 		// Global update handlers < 0 run before individual object updates
+		//System.out.println( " pre globalupdate ");
 		globalUpdateObjects( true );
 		synchronizeObjects();
 		
+		//System.out.println( " normal update " + globalUpdateHandlers.size() );
 		updateObjects( dt );
 		synchronizeObjects();
 		
+		//System.out.println( " post globalupdate ");
 		// Global update handlers >= 0 run after individual object updates
 		globalUpdateObjects( false );
 		synchronizeObjects();
+		
 		
 		if( collisionsEnabled ) {
 			handleCollisions( dt );
@@ -447,10 +457,12 @@ public class Engine {
 	}
 	
 	public void addUpdateHandler( String type, UpdateHandler uh ) {
+		System.out.println( "Adding update handler for type: " + type );
 		updateHandlers.put( type,  uh );
 	}
 	
 	public void addGlobalUpdateHandler( Long priority, GlobalUpdateHandler gh ) {
+		System.out.println( "Adding global update handler " + gh + " with priority " + priority );
 		gh.setPriority( priority );
 		globalUpdateHandlers.add( gh );
 	}

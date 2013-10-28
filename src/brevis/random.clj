@@ -1,4 +1,5 @@
 (ns brevis.random
+  (:use [brevis vector])
   (:import [java.security.SecureRandom]))
 
 (def #^:dynamic *RNG-num-seed-bytes* 20)
@@ -27,7 +28,10 @@
   ([]
     (lrand 1.0))
   ([n]
-    (.nextDouble *RNG*)))
+    (* n (.nextDouble *RNG*)))
+  ([min max]
+    (let [w (- max min)]
+      (+ (* w (.nextDouble *RNG*)) min))))
 
 (defn lrand-int
   "A local random int (actually a long) in [0,n]."
@@ -43,6 +47,15 @@
   "Return a random element of a sequence."
   [coll]
   (nth coll (lrand-int (count coll))))
+
+(defn lrand-vec3
+  "Return a random vec3."
+  ([]
+    (lrand-vec3 0 1 0 1 0 1))
+  ([x y z]
+    (vec3 (lrand x) (lrand y) (lrand z)))
+  ([xmn xmx ymn ymx zmn zmx]
+    (vec3 (lrand xmn xmx) (lrand ymn ymx) (lrand zmn zmx)))) 
 
 (defn lrand-shuffle
   "Return a random permutation of coll (Adapted from clojure.core)"

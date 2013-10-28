@@ -328,5 +328,25 @@ public class BrMesh {
 		return Indices;
 	}
 	
-	
+	public void rescaleMesh( float w, float h, float d ) {		
+		
+		for( int k = 0; k < vertexsets.size(); k++ ) {
+			float[] v = vertexsets.get(k);
+			v[ 0 ] = w * v[0];
+			v[ 1 ] = h * v[1];
+			v[ 2 ] = d * v[2];
+			vertexsets.set(k, v);
+		}
+		//System.out.println( "trimeshVertices " + Vertices.length );
+		
+		toppoint *= h;		// y+
+		bottompoint *= h;	// y-
+		leftpoint *= w;		// x-
+		rightpoint *= w;	// x+
+		farpoint *= d;		// z-
+		nearpoint *= d;		// z+
+		
+		opengldrawtolist();
+		// Regen display list
+	}
 }

@@ -26,6 +26,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
@@ -86,10 +87,19 @@ public class BrObject implements clojure.lang.IPersistentMap {
 	public DGeom geom;
 	
 	public String toString() {
-		String s = "#BrObject{ :UID " + uid + ", :type " + type + ", :acceleration " + acceleration +
+		/*String s = "#BrObject{ :UID " + uid + ", :type " + type + ", :acceleration " + acceleration +
 				", :velocity " + velocity + ", :position " + position + ", :density " + density +
 				", :rotation " + rotation + ", : color " + color + ", :shape " + shape +
-				"}";		
+				"}";*/
+		String s = "#BrObject{ :UID " + uid + ", :type " + type + ", :acceleration " + acceleration +
+				", :velocity " + velocity + ", :position " + position + ", :density " + density +
+				", :rotation " + rotation + ", : color " + color + ", :shape " + shape + ", [";
+		/*Iterator itr = this.iterator();
+		while( itr.hasNext() ) {
+			Object o = itr.next();
+			s += o + ", ";
+		}*/
+		s += "]}";
 		return s;
 	}
 	
@@ -105,6 +115,10 @@ public class BrObject implements clojure.lang.IPersistentMap {
 		data = null;
 		myMap = new HashMap<Object,Object>();
 		texture = null;
+	}
+	
+	public void setDrawable( boolean newDrawable ) {
+		drawable = newDrawable;
 	}
 	
 	public boolean isDrawable() {
@@ -471,7 +485,8 @@ public class BrObject implements clojure.lang.IPersistentMap {
 	@Override
 	public Iterator iterator() {
 		// TODO Auto-generated method stub
-		return null;
+		return myMap.keySet().iterator();
+		//return null;
 	}
 
 	@Override
@@ -483,6 +498,7 @@ public class BrObject implements clojure.lang.IPersistentMap {
 	@Override
 	public IMapEntry entryAt(Object arg0) {
 		// TODO Auto-generated method stub
+		//return myMap.
 		return null;
 	}
 
@@ -515,7 +531,12 @@ public class BrObject implements clojure.lang.IPersistentMap {
 	public ISeq seq() {
 		// TODO Auto-generated method stub		
 		return null;
-		//return ISeq( myMap.keySet() );
+		//List l = new List();
+		//l.addAll( myMap.keySet() );
+		//ISeq s = (ISeq) PersistentList.create( l );
+		//return s;
+		//s.addAll( myMap.keySet() );
+		//return s;
 	}
 
 	@Override

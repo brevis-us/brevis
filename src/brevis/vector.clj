@@ -51,6 +51,8 @@ Copyright 2012, 2013 Kyle Harrington"
     
 (defn add
   "Add Vector3d's"
+  ([v]
+    v)
   ([v1 v2]
     (let [v (Vector3d.)]      
       (.add v v1 v2)

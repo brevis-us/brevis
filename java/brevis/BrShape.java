@@ -99,6 +99,9 @@ public class BrShape {
 			//System.out.println( dim );
 		} else {
 			createMesh();
+			if( mesh != null ) {
+				mesh.rescaleMesh( (float)dim.x, (float)dim.y, (float)dim.z );
+			}
 		}
 				
 	}
@@ -332,6 +335,10 @@ public class BrShape {
 	
 	public void setDimension( Vector3d newd ) {
 		dim = newd;
+		if( mesh != null ) {
+			mesh.rescaleMesh( (float)newd.x, (float)newd.y, (float)newd.z );
+			//System.out.println( "rescaling " + newd );
+		}
 	}
 	
 	public Vector3d getDimension() {
@@ -344,8 +351,8 @@ public class BrShape {
 	}
 	
 	public static BrShape createSphere( double r ) {
-		//return ( new BrShape( BrShapeType.SPHERE, new Vector3d( r, 25, r ) ) );
-		return ( new BrShape( BrShapeType.UNIT_SPHERE, new Vector3d( r, r, 25 )));	
+		return ( new BrShape( BrShapeType.SPHERE, new Vector3d( r, r, r ) ) );
+		//return ( new BrShape( BrShapeType.UNIT_SPHERE, new Vector3d( r, r, r )));	
 	}
 	
 	public static BrShape createBox( double x, double y, double z ) {

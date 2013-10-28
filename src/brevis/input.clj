@@ -39,6 +39,10 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn default-input-handlers
   "Define the default input handlers."
   []
+  
+  (add-input-handler :key-press
+                     #(= "i" %)
+                     #(app/fullscreen! true))
   (add-input-handler :key-press
                      #(= "w" %)
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 true false false false false false))

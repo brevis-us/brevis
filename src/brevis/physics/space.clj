@@ -241,7 +241,9 @@ are removed from the simulation. (deprecated)"
   []
   (when-not @*java-engine*
       (reset! *java-engine*
-              (Engine.)))
+              (Engine.)));; resetting loses handler class  instances
+  #_(reset! *java-engine*
+              (Engine.))
   (.initWorld @*java-engine*))
 
 (defn update-world
