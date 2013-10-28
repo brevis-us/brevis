@@ -269,7 +269,7 @@ public class Engine {
 		//HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
 		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();		
 		
-		// Because we may collide with an object multiple times, we first duplicate all objects and use
+		// An object may be involved in multiple computations, therefore we first duplicate all objects and use
 		// these.
 		for( Entry<Long, BrObject> entry : objects.entrySet() ) {
 			updatedObjects.put( entry.getKey(), entry.getValue() );

@@ -284,7 +284,8 @@ Copyright 2012, 2013 Kyle Harrington"
     (gl-matrix-mode :modelview)
     ;(GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST)
     (gl-load-identity-matrix)
-    (set-camera
+    (use-camera (:camera @*gui-state*))
+    #_(set-camera
       (:shift-x @*gui-state*) (:shift-y @*gui-state*) (:shift-z @*gui-state*)
       (:rot-x @*gui-state*) (:rot-y @*gui-state*) (:rot-z @*gui-state*))
     #_(light 0 

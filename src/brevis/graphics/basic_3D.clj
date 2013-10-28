@@ -117,10 +117,19 @@ Copyright 2012, 2013 Kyle Harrington"
     (with-disabled :texture-2d
       (do-draw-shape obj))))
 
-(defn set-camera
+#_(defn set-camera
   "Set the camera parameters."
   [x y z h p r]
   (Basic3D/setCamera x y z h p r))
+
+(defn use-camera
+  "Set the camera parameters."
+  [cam]
+  #_(.lookThrough cam)
+  (.orthographicMatrix cam)
+  (.perspectiveMatrix cam)
+  (.translate cam)
+  #_(Basic3D/setCamera cam))
 
 (defn draw-shape
   "Draw a shape. Call this after translating, scaling, and setting color."

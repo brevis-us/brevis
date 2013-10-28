@@ -295,4 +295,38 @@ public class BrMesh {
 		GL11.glCallList(objectlist);
 	}
 	
+	public float[] trimeshVertices( ) {
+		return trimeshVertices( new float[]{ 1.0f, 1.0f,1.0f } );
+	}
+	
+	// These just go ahead and assume data is setup as triangles. 
+	public float[] trimeshVertices( float[] scale ) {
+		float[] Vertices = new float[vertexsets.size()*3];
+		
+		for( int k = 0; k < vertexsets.size(); k++ ) {
+			final float[] v = vertexsets.get(k);
+			Vertices[ k * 3 + 0 ] = scale[0] * v[0];
+			Vertices[ k * 3 + 1 ] = scale[1] * v[1];
+			Vertices[ k * 3 + 2 ] = scale[2] * v[2];
+		}
+		//System.out.println( "trimeshVertices " + Vertices.length );
+		return Vertices;
+	}
+	
+	public int[] trimeshIndices() {		
+	    int[] Indices = new int[faces.size()*3];
+	    
+	    for( int k = 0; k < faces.size(); k++ ) {
+			final int[] f = faces.get(k);
+			// index system is rooted at 1
+			Indices[ k * 3 + 0 ] = f[0] - 1;
+			Indices[ k * 3 + 1 ] = f[1] - 1;
+			Indices[ k * 3 + 2 ] = f[2] - 1;
+		}
+		
+	    //System.out.println( "trimeshIndices " + Indices.length );
+		return Indices;
+	}
+	
+	
 }

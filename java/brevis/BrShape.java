@@ -34,6 +34,7 @@ import org.lwjgl.opengl.GLContext;
 import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DMass;
 import org.ode4j.ode.DSpace;
+import org.ode4j.ode.DTriMeshData;
 import org.ode4j.ode.OdeHelper;
 
 import brevis.graphics.BrMesh;
@@ -42,7 +43,7 @@ public class BrShape {
 	public enum BrShapeType {
 		BOX, SPHERE, CONE, CYLINDER, MESH,
 		// Unit meshes for optimized rendering
-		UNIT_CONE //FLOOR
+		UNIT_CONE, UNIT_SPHERE //FLOOR
 	};
 	
 	static public String objDir = "obj/";
@@ -57,9 +58,11 @@ public class BrShape {
 	
 	// Make final?
 	public static BrMesh unitCone = null;	
+	public static BrMesh unitSphere = null;	
 	
 	public void resize( Vector3d newDim ) {
 		dim = newDim;
+		// should reload shoul
 	}
 	
 	public BrMesh getMesh() {
@@ -86,6 +89,14 @@ public class BrShape {
 			//dim = new Vector3d( mesh.getXWidth(), mesh.getYHeight(), mesh.getZDepth() );
 			dim = new Vector3d( 1, 1, 1 );
 			//System.out.println( dim );
+		} else if( type == BrShapeType.UNIT_SPHERE) {
+			if( unitSphere== null ) {
+				initUnitSphere();				
+			}
+			mesh = unitSphere;
+			//dim = new Vector3d( mesh.getXWidth(), mesh.getYHeight(), mesh.getZDepth() );
+			dim = new Vector3d( 1, 1, 1 );
+			//System.out.println( dim );
 		} else {
 			createMesh();
 		}
@@ -108,6 +119,17 @@ public class BrShape {
 		}	
 	}
 	
+	public void initUnitSphere() {		
+		String filename = objDir + "sphere.obj";
+	
+		try {		
+			BufferedReader br = new BufferedReader( new InputStreamReader( ClassLoader.getSystemResource( filename ).openStream() ) );
+			unitSphere = new BrMesh( br, true );
+		} catch( Exception e ) {
+			e.printStackTrace();
+		}	
+	}
+	
 	public void draw() {
 		
 	}
@@ -115,7 +137,7 @@ public class BrShape {
 	public String getType() {
 		if( type == BrShapeType.BOX ) {
 			return "box";
-		} else if( type == BrShapeType.SPHERE ) {
+		} else if( type == BrShapeType.SPHERE  ||  type == BrShapeType.UNIT_SPHERE ) {
 			return "sphere";
 		} else if( type == BrShapeType.CONE || type == BrShapeType.UNIT_CONE ) {
 			return "cone";			
@@ -135,7 +157,7 @@ public class BrShape {
 		DMass m = OdeHelper.createMass();
 		if( type == BrShapeType.BOX ) {
 			m.setBox(density, dim.x, dim.y, dim.z );
-		} else if( type == BrShapeType.SPHERE ) {
+		} else if( type == BrShapeType.SPHERE || type == BrShapeType.UNIT_SPHERE ) {
 			m.setSphere( density, dim.x );
 		} else if( type == BrShapeType.CONE || type == BrShapeType.UNIT_CONE ) {
 			m.setSphere(density, dim.x);
@@ -283,9 +305,25 @@ public class BrShape {
 	}		
 	
 	public DGeom createGeom( DSpace space ) {
+		DGeom g;
+		
+		if( mesh != null ) {
+			DTriMeshData new_tmdata = OdeHelper.createTriMeshData();
+			//System.out.println( "createGeom " + type );
+			new_tmdata.build( mesh.trimeshVertices( new float[]{ (float) dim.x, (float) dim.y, (float) dim.z } ), mesh.trimeshIndices() );
+			
+			g = OdeHelper.createTriMesh(space, new_tmdata, null, null, null);
+			
+			
+			//g.getBody().
+			
+			return g;
+		} 
+		
+		// Should be where primitive shapes are
 		switch( type ) {
 		case BOX:
-			return OdeHelper.createBox( space, dim.x, dim.y, dim.z );			
+			return OdeHelper.createBox( space, dim.x, dim.y, dim.z );		
 		default:
 		case SPHERE:
 			return OdeHelper.createSphere( space, 1 );			
@@ -306,7 +344,8 @@ public class BrShape {
 	}
 	
 	public static BrShape createSphere( double r ) {
-		return ( new BrShape( BrShapeType.SPHERE, new Vector3d( r, 25, r ) ) );
+		//return ( new BrShape( BrShapeType.SPHERE, new Vector3d( r, 25, r ) ) );
+		return ( new BrShape( BrShapeType.UNIT_SPHERE, new Vector3d( r, r, 25 )));	
 	}
 	
 	public static BrShape createBox( double x, double y, double z ) {

@@ -95,4 +95,10 @@ Copyright 2012, 2013 Kyle Harrington"
   (let [v (Vector3d.)]
     (.cross v v1 v2)))
 
-
+(defn normalize
+  "Normalize a vector."
+  [v]
+  (let [nv (Vector3d.)]
+    (.normalize nv v)
+    nv
+  #_(div v (length v))))

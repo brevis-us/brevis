@@ -17,7 +17,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.input
   (:require [penumbra.app :as app])
-  (:use [brevis globals display utils osd]
+  (:use [brevis globals display utils osd vector]
         [brevis.physics utils]))
 
 (def #^:dynamic *input-handlers* (atom {:key-press {}
@@ -34,9 +34,29 @@ Copyright 2012, 2013 Kyle Harrington"
           (assoc-in @*input-handlers*
                     [:key-press input-predicate] behavior)))
 
+(def keyspeed 10000)
+
 (defn default-input-handlers
   "Define the default input handlers."
   []
+  (add-input-handler :key-press
+                     #(= "w" %)
+                     #(.processKeyboard (:camera @*gui-state*) keyspeed 1 true false false false false false))
+  (add-input-handler :key-press
+                     #(= "a" %)
+                     #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false true false false false))
+  (add-input-handler :key-press
+                     #(= "s" %)
+                     #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false true false false false false))
+  (add-input-handler :key-press
+                     #(= "d" %)
+                     #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false false true false false))
+  (add-input-handler :key-press
+                     #(= "c" %)
+                     #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false false false true false))
+  (add-input-handler :key-press
+                     #(= :lshift %)
+                     #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false false false false true))
   (add-input-handler :key-press
                      #(= "p" %)
                      #(app/pause!))
@@ -105,18 +125,76 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn mouse-drag
   "Rotate the world."
   [[dx dy] _ button state]
-  (let [rads (/ (Math/PI) 180)
-        thetaY (*(:rot-y state) rads)
-        sY (sin thetaY)
-        cY (cos thetaY)
-        thetaX (* (:rot-x state) rads)
-        sX (sin thetaX)
-        cX (cos thetaX)
-        t (get-time)
+  (let [cam (:camera @*gui-state*)
+        ;rot-axis (normalize (vec3 (.pitch cam) (.yaw cam) (.roll cam))#_(vec3 (:rot-x @*gui-state*) (:rot-y @*gui-state*) (:rot-z @*gui-state*)))
+        ;cam-position (.position cam) #_(vec3 (:shift-x @*gui-state*) (:shift-y @*gui-state*) (:shift-z @*gui-state*))
+        ;temp (do (println rot-axis cam-position (vec3 (.pitch cam) (.yaw cam) (.roll cam))))
+        ;mouse-x-axis (cross rot-axis (vec3 0 1 0))
+        ;mouse-y-axis (cross mouse-x-axis rot-axis)
         
-        side (* 0.01 dx)
-        fwd (if (= :right button) (* 0.01 dy) 0)]
-    (swap! *gui-state* assoc
+;        rads (/ (Math/PI) 180)
+;        thetaY (*(:rot-y @*gui-state*) rads)
+;        sY (sin thetaY)
+;        cY (cos thetaY)
+;        thetaX (* (:rot-x @*gui-state*) rads)
+;        sX (sin thetaX)
+;        cX (cos thetaX)
+        t (get-time)
+;        
+;        side (* 0.01 dx)
+;        fwd (if (= :right button) (* 0.01 dy) 0)
+        ]
+    (.processMouse cam dx dy (/ (+ (if (pos? dx) (- dx) dx) 
+                                   (if (pos? dy) (- dy) dy))
+                                5))
+    #_(cond 
+	      ; Rotate
+	      (= :left button)       
+       (do (.yaw (:camera @*gui-state*) dy)
+         (.pitch (:camera @*gui-state*) dx))       
+                       
+       ; Translate
+	      (= :right button)       
+       (do (if (pos? dx)              
+             (.strafeRight (:camera @*gui-state*) dx)
+             (.strafeLeft (:camera @*gui-state*) (- dx)))
+         (if (pos? dy)
+           (.walkForward (:camera @*gui-state*) dy)
+           (.walkBackward (:camera @*gui-state*) (- dy))))
+	      ; Zoom
+	      (= :center button)
+	      (swap! *gui-state* assoc
+	             :shift-x (+ (:shift-x @*gui-state*) (* dy (.x rot-axis)))
+	             :shift-y (+ (:shift-y @*gui-state*) (* dy (.y rot-axis))
+	             :shift-z (+ (:shift-z @*gui-state*) (* dy (.z rot-axis)))
+	             )))
+    
+    #_(cond 
+	      ; Rotate
+	      (= :left button)
+       (let [new-rot-axis (mul (normalize (add rot-axis (mul mouse-x-axis dx) (mul mouse-y-axis dy)))
+                               360.0)]
+	      (swap! *gui-state* assoc
+              :rot-x (.x new-rot-axis)
+              :rot-y (.y new-rot-axis)
+              :rot-z (.z new-rot-axis)))
+                       
+       ; Translate
+	      (= :right button)
+       (let [new-pos (add cam-position (mul mouse-x-axis dx) (mul mouse-y-axis dy))]
+         (swap! *gui-state* assoc
+                :shift-x (.x new-pos)
+                :shift-y (.y new-pos)
+                :shift-z (.z new-pos)))
+	      ; Zoom
+	      (= :center button)
+	      (swap! *gui-state* assoc
+	             :shift-x (+ (:shift-x @*gui-state*) (* dy (.x rot-axis)))
+	             :shift-y (+ (:shift-y @*gui-state*) (* dy (.y rot-axis))
+	             :shift-z (+ (:shift-z @*gui-state*) (* dy (.z rot-axis)))
+	             )))
+    
+    #_(swap! *gui-state* assoc
            ;:rot-x (+ (:rot-x @*gui-state*) dy)
            :rot-z (+ (:rot-z @*gui-state*) dy)
            :rot-y (+ (:rot-y @*gui-state*) dx)
