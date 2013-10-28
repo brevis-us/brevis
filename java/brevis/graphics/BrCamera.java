@@ -66,7 +66,9 @@ public class BrCamera {
 		float mouseDY = dy * mouseSpeed * 0.16f;
 		if (yaw + mouseDX >= 360) {
 			yaw = yaw + mouseDX - 360;
-		} else if (yaw + mouseDX < 0) {
+		//} else if (yaw + mouseDX < 0) {
+		//	yaw = 360 - yaw + mouseDX;
+		} else if ( yaw + mouseDX < - 360 ) {
 			yaw = 360 - yaw + mouseDX;
 		} else {
 			yaw += mouseDX;

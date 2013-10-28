@@ -121,6 +121,8 @@ Copyright 2012, 2013 Kyle Harrington"
   (swap! *gui-state* assoc
          :shift-z (+ (:shift-z @*gui-state*) delta)))
 
+(def mouse-translate-speed 100)
+
 ;; ## Input handling
 (defn mouse-drag
   "Rotate the world."
@@ -143,8 +145,32 @@ Copyright 2012, 2013 Kyle Harrington"
 ;        
 ;        side (* 0.01 dx)
 ;        fwd (if (= :right button) (* 0.01 dy) 0)
-        ]
-    (.processMouse cam dx dy (/ (+ (if (pos? dx) (- dx) dx) 
+]
+    (cond 
+      ; Rotate
+      (= :left button)       
+      (.processMouse cam dx dy (/ (+ (if (pos? dx) (- dx) dx) 
+                                     (if (pos? dy) (- dy) dy))
+                                  5) 180 -180)      
+      ; Translate
+      (= :right button)
+      (do (cond
+            (pos? dx) (.processKeyboard (:camera @*gui-state*) dx mouse-translate-speed false false false true false false)            
+            (neg? dx) (.processKeyboard (:camera @*gui-state*) (- dx) mouse-translate-speed false false true false false false))
+        (cond 
+          (pos? dy) (.processKeyboard (:camera @*gui-state*) dy mouse-translate-speed false false false false true false)
+          (neg? dy) (.processKeyboard (:camera @*gui-state*) (- dy) mouse-translate-speed false false false false false true)))      
+      ; Zoom
+      (= :center button)
+      (cond 
+          (pos? dy) (.processKeyboard (:camera @*gui-state*) dx mouse-translate-speed true false false false false false)
+          (neg? dy) (.processKeyboard (:camera @*gui-state*) (- dx) mouse-translate-speed false true false false false false)))
+
+    #_(.processMouse cam dx dy (/ (+ (if (pos? dx) (- dx) dx) 
+                                   (if (pos? dy) (- dy) dy))
+                                5) 180 -180)
+    
+    #_(.processMouse cam dx dy (/ (+ (if (pos? dx) (- dx) dx) 
                                    (if (pos? dy) (- dy) dy))
                                 5))
     #_(cond 
