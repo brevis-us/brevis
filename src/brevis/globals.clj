@@ -22,6 +22,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (def default-gui-state {:rotate-mode :none :translate-mode :none
                         ;:camera (BrCamera. 300 300 -50)
+                        :fullscreen false
                         :camera (BrCamera. 300 300 -50 90 -70 45 60 (/ 4 3) 0.1 4000)
                         :rot-x 90 :rot-y -90 :rot-z -45
                         :shift-x 300 :shift-y 300 :shift-z -50;-30                                   

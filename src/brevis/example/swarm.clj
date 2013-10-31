@@ -88,10 +88,12 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn fly
   "Change the acceleration of a bird."
   [bird dt nbrs]
-  (let [nbrs (filter bird? (get-neighbor-objects bird))        
+  (let [nbrs (filter bird? (get-neighbor-objects bird))      
+        ;tmp (println (count nbrs))
+        ;tmp (do (doseq [nbr nbrs] (print (get-position nbr))) (println)) 
         closest-bird (when-not (empty? nbrs)
-                       (first nbrs)
-                       #_(rand-nth nbrs))
+                       #_(first nbrs)
+                       (rand-nth nbrs))
         new-acceleration (if-not closest-bird
                            ;; No neighbor, move randomly
                            (elmul (vec3 (- (rand) 0.5) (- (rand) 0.5) (- (rand) 0.5))
@@ -149,7 +151,7 @@ so we only modify bird1."
   (init-world)
   (init-view)
   (set-dt 0.1)
-  (set-neighborhood-radius 25)
+  (set-neighborhood-radius 1000)
   (default-display-text)
   (add-object (make-floor 500 500))
   (dotimes [_ num-birds]

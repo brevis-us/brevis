@@ -1,9 +1,43 @@
 (ns brevis.random
   (:use [brevis vector])
-  (:import [java.security.SecureRandom]))
+  (:import [java.security.SecureRandom]
+           [ec.util.MersenneTwisterFast]))
 
 (def #^:dynamic *RNG-num-seed-bytes* 20)
 (def #^:dynamic *RNG* (java.security.SecureRandom. (.generateSeed (java.security.SecureRandom.) *RNG-num-seed-bytes*)))
+#_(def #^:dynamic *RNG* (ec.util.MersenneTwisterFast. java.security.SecureRandom. (.generateSeed (java.security.SecureRandom.) *RNG-num-seed-bytes*)))
+
+;; Hacky speed test
+#_(let [mtf-rng (ec.util.MersenneTwisterFast. (System/nanoTime))
+      sr-rng (java.security.SecureRandom. (.generateSeed (java.security.SecureRandom.) *RNG-num-seed-bytes*))
+      j-rng (java.util.Random. (System/nanoTime))      
+      num-reps 1000000]
+  (println "long test")
+  (let [start (System/nanoTime)]
+    (dotimes [_ num-reps]
+      (.nextLong j-rng))
+    (println "Java random" (float (/ (- (System/nanoTime) start) 1000000000))))
+  (let [start (System/nanoTime)]
+    (dotimes [_ num-reps]
+      (.nextLong sr-rng))
+    (println "Secure random" (float (/ (- (System/nanoTime) start) 1000000000))))
+  (let [start (System/nanoTime)]
+    (dotimes [_ num-reps]
+      (.nextLong mtf-rng))
+    (println "Mersenne" (float (/ (- (System/nanoTime) start) 1000000000))))
+  (println "double test")
+  (let [start (System/nanoTime)]
+    (dotimes [_ num-reps]
+      (.nextDouble j-rng))
+    (println "Java random" (float (/ (- (System/nanoTime) start) 1000000000))))
+  (let [start (System/nanoTime)]
+    (dotimes [_ num-reps]
+      (.nextDouble sr-rng))
+    (println "Secure random" (float (/ (- (System/nanoTime) start) 1000000000))))
+  (let [start (System/nanoTime)]
+    (dotimes [_ num-reps]
+      (.nextDouble mtf-rng))
+    (println "Mersenne" (float (/ (- (System/nanoTime) start) 1000000000)))))
 
 (defn make-rng-seed
   "Generate a random number seed."

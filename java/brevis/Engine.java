@@ -495,6 +495,10 @@ public class Engine {
 		neighborhoodRadius = r;
 	}
 	
+	public double getNeighborhoodRadius() {
+		return neighborhoodRadius;
+	}
+	
 	public Collection<BrObject> getObjects() {
 		return objects.values();
 	}

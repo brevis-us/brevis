@@ -220,6 +220,11 @@ Copyright 2012, 2013 Kyle Harrington"
   [new-radius]
   (.setNeighborhoodRadius @*java-engine* (double new-radius)))
 
+(defn get-neighborhood-radius
+  "Get the neighborhood radius."
+  []
+  (.getNeighborhoodRadius @*java-engine*))
+
 ;; the following 2 functions from ztellman's cantor (see github)
 (defn radians
   "Transforms degrees to radians."

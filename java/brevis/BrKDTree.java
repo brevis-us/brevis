@@ -344,8 +344,9 @@ public final class BrKDTree<X extends BrKDNode> {
 			}
 
 			if ( exD < distance ) {
+				//System.out.println( "Within distance " + distance + " " + exD );
 				results.add(ex);
-			}
+			} 
 		}
 	}
 	
