@@ -33,6 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.vecmath.Vector3d;
 
+import org.lwjgl.util.vector.Vector3f;
 import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DWorld;
 import org.ode4j.ode.OdeHelper;
@@ -339,7 +340,7 @@ public class Engine {
 		spaceTree = new BrKDTree<BrKDNode>();//lazy
 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
 			BrObject obj = entry.getValue();
-			Vector3d pos = obj.getPosition();
+			Vector3f pos = obj.getPosition();
 			double[] arryloc = { pos.x, pos.y, pos.z };
 			BrKDNode n = new BrKDNode( arryloc, entry.getKey() );
 			spaceTree.add( n );
@@ -351,7 +352,7 @@ public class Engine {
 			BrObject obj = entry.getValue();
 			Vector<Long> nbrs = new Vector<Long>();
 			
-			Vector3d pos = obj.getPosition();
+			Vector3f pos = obj.getPosition();
 			double[] arryloc = { pos.x, pos.y, pos.z };
 			
 			//Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.search( arryloc, nResults);

@@ -17,4 +17,5 @@
                  [org.l33tlabs.twl/pngdecoder "1.0"]
                  [com.nitayjoffe.thirdparty.net.robowiki.knn/knn-benchmark "0.1"]
                  [clj-random "0.1.5"]
+                 ;[com.googlecode.efficient-java-matrix-library/ejml "0.23"]
                  ])

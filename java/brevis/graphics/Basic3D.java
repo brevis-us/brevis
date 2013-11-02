@@ -20,17 +20,14 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
-import javax.vecmath.Vector3d;
-import javax.vecmath.Vector3f;
-import javax.vecmath.Vector4d;
-import javax.vecmath.Vector4f;
-
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.util.glu.Cylinder;
 import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.glu.Sphere;
+import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import brevis.BrObject;
 import brevis.BrShape;
@@ -348,8 +345,8 @@ public class Basic3D {
     
     static private void doShadowPass( BrMesh o, double[] lp ){
         int i, j, k, jj;
-        Vector3d v3 = new Vector3d();
-        Vector3d v4 = new Vector3d();
+        Vector3f v3 = new Vector3f();
+        Vector3f v4 = new Vector3f();
         float[] p1, p2, p3;
         int[] f1;
         
@@ -376,13 +373,13 @@ public class Basic3D {
                     p2 = o.vertexsets.get(f1[jj] - 1);
 
                     //calculate the length of the vector
-                    v3.x = (p1[0] - lp[0])*100;
-                    v3.y = (p1[1] - lp[1])*100;
-                    v3.z = (p1[2] - lp[2])*100;
+                    v3.x = (float) ((p1[0] - lp[0])*100);
+                    v3.y = (float) ((p1[1] - lp[1])*100);
+                    v3.z = (float) ((p1[2] - lp[2])*100);
 
-                    v4.x = (p2[0] - lp[0])*100;
-                    v4.y = (p2[1] - lp[1])*100;
-                    v4.z = (p2[2] - lp[2])*100;
+                    v4.x = (float) ((p2[0] - lp[0])*100);
+                    v4.y = (float) ((p2[1] - lp[1])*100);
+                    v4.z = (float) ((p2[2] - lp[2])*100);
 
                     //draw the polygon
                     GL11.glBegin(GL11.GL_TRIANGLE_STRIP);
@@ -409,7 +406,7 @@ public class Basic3D {
     
 	// some from nehe lesson 27    
 	//static public void drawShape( BrObject obj, double xrot, double yrot, double zrot, double xoff, double yoff, double zoff, double[] lp, Vector3d dim ) {
-    static public void drawShape( BrObject obj, double[] lp, Vector3d dim ) {
+    static public void drawShape( BrObject obj, double[] lp, Vector3f dim ) {
 		float Minv[] = new float[16];
         float wlp[] = new float[4];        
 		
@@ -443,7 +440,7 @@ public class Basic3D {
         
         vMatMult(Minv, lp);                                 // We Store Rotated Light Vector In 'lp' Array
         
-        Vector3d vObjPos = obj.getPosition();        
+        Vector3f vObjPos = obj.getPosition();        
         float[] objPos = { (float) vObjPos.x, (float) vObjPos.y, (float) vObjPos.z, 0 };
         
         /*GL11.glTranslatef(-objPos[0], -objPos[1], -objPos[2]);   // Move Negative On All Axis Based On ObjPos[] Values (X, Y, Z)
@@ -477,7 +474,7 @@ public class Basic3D {
         	GL11.glScaled( dim.x, dim.y, dim.z );
         	//System.out.println( "drawShape " + dim );
         }
-        Vector4d rot = obj.getRotation();
+        Vector4f rot = obj.getRotation();
         GL11.glRotatef( (float)rot.w, (float)rot.x, (float)rot.y, (float)rot.z);
                 
         if( obj.getTextureId() != -1 ) {

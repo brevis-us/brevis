@@ -31,6 +31,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GLContext;
+import org.lwjgl.util.vector.Vector3f;
 import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DMass;
 import org.ode4j.ode.DSpace;
@@ -49,7 +50,8 @@ public class BrShape {
 	static public String objDir = "obj/";
 	
 	public BrShapeType type;
-	public Vector3d dim;
+	//public Vector3d dim;
+	public Vector3f dim;
 	public int vertBID = -1;
 	public int colBID = -1;
 	public int idxBID = -1;
@@ -60,7 +62,7 @@ public class BrShape {
 	public static BrMesh unitCone = null;	
 	public static BrMesh unitSphere = null;	
 	
-	public void resize( Vector3d newDim ) {
+	public void resize( Vector3f newDim ) {
 		dim = newDim;
 		// should reload shoul
 	}
@@ -75,7 +77,7 @@ public class BrShape {
 		return s;
 	}
 	
-	BrShape( BrShapeType t, Vector3d d ) {
+	BrShape( BrShapeType t, Vector3f d ) {
 		//type = BrShapeType.SPHERE;
 		//dim = new Vector3d(1,1,1);
 		type = t;
@@ -87,7 +89,7 @@ public class BrShape {
 			}
 			mesh = unitCone;
 			//dim = new Vector3d( mesh.getXWidth(), mesh.getYHeight(), mesh.getZDepth() );
-			dim = new Vector3d( 1, 1, 1 );
+			dim = new Vector3f( 1, 1, 1 );
 			//System.out.println( dim );
 		} else if( type == BrShapeType.UNIT_SPHERE) {
 			if( unitSphere== null ) {
@@ -95,7 +97,7 @@ public class BrShape {
 			}
 			mesh = unitSphere;
 			//dim = new Vector3d( mesh.getXWidth(), mesh.getYHeight(), mesh.getZDepth() );
-			dim = new Vector3d( 1, 1, 1 );
+			dim = new Vector3f( 1, 1, 1 );
 			//System.out.println( dim );
 		} else {
 			createMesh();
@@ -299,7 +301,7 @@ public class BrShape {
 			//dim = new Vector3d( mesh.getXWidth(), mesh.getYHeight(), mesh.getZDepth() );
 			
 			// this is being used for scale
-			dim = new Vector3d( 1, 1, 1 );
+			dim = new Vector3f( 1, 1, 1 );
 			
 			//mesh.opengldrawtolist();
 		} catch( Exception e ) {
@@ -333,7 +335,7 @@ public class BrShape {
 		}		
 	}
 	
-	public void setDimension( Vector3d newd ) {
+	public void setDimension( Vector3f newd ) {
 		dim = newd;
 		if( mesh != null ) {
 			mesh.rescaleMesh( (float)newd.x, (float)newd.y, (float)newd.z );
@@ -341,7 +343,7 @@ public class BrShape {
 		}
 	}
 	
-	public Vector3d getDimension() {
+	public Vector3f getDimension() {
 		return dim;
 	}
 	
@@ -351,20 +353,20 @@ public class BrShape {
 	}
 	
 	public static BrShape createSphere( double r ) {
-		return ( new BrShape( BrShapeType.SPHERE, new Vector3d( r, r, r ) ) );
+		return ( new BrShape( BrShapeType.SPHERE, new Vector3f( (float)r, (float)r, (float)r ) ) );
 		//return ( new BrShape( BrShapeType.UNIT_SPHERE, new Vector3d( r, r, r )));	
 	}
 	
 	public static BrShape createBox( double x, double y, double z ) {
-		return ( new BrShape( BrShapeType.BOX, new Vector3d( x, y, z ) ) );
+		return ( new BrShape( BrShapeType.BOX, new Vector3f( (float)x, (float)y, (float)z ) ) );
 	}
 	
 	public static BrShape createCone( double length, double base ) {
 		//return ( new BrShape( BrShapeType.CONE, new Vector3d( length, base, 25 )));	// last element of vector is # of sides or stacks (depending on renderer)
-		return ( new BrShape( BrShapeType.UNIT_CONE, new Vector3d( length, base, 25 )));	// last element of vector is # of sides or stacks (depending on renderer)
+		return ( new BrShape( BrShapeType.UNIT_CONE, new Vector3f( (float)length, (float)base, (float)25 )));	// last element of vector is # of sides or stacks (depending on renderer)
 	}
 	
 	public static BrShape createCylinder( double length, double radius ) {
-		return ( new BrShape( BrShapeType.CYLINDER, new Vector3d( length, radius, 25 )));	// last element of vector is # of sides or stacks (depending on renderer)
+		return ( new BrShape( BrShapeType.CYLINDER, new Vector3f( (float)length, (float)radius, (float)25 )));	// last element of vector is # of sides or stacks (depending on renderer)
 	}
 }

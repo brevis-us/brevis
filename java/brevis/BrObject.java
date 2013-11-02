@@ -31,10 +31,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
 
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
-import javax.vecmath.Vector4d;
-
 import org.newdawn.slick.opengl.ImageIOImageData;
 import org.newdawn.slick.opengl.InternalTextureLoader;
 import org.newdawn.slick.opengl.Texture;
@@ -49,6 +45,8 @@ import org.ode4j.ode.DMass;
 import org.ode4j.ode.OdeHelper;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.*;
+import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import clojure.lang.*;
 import brevis.Utils;
@@ -61,19 +59,19 @@ public class BrObject implements clojure.lang.IPersistentMap {
 	
 	public Long uid;
 	public String type;
-	public Vector3d acceleration;
-	public Vector3d velocity;
-	public Vector3d position;
+	public Vector3f acceleration;
+	public Vector3f velocity;
+	public Vector3f position;
 	public double density = 1;
 	public BrShape shape;
 	public DMass mass;
-	public Vector4d rotation;
-	public Vector4d color;
+	public Vector4f rotation;
+	public Vector4f color;
 	//public BufferedImage texture;	
 	public Texture texture;	
 	public Object data;
 	
-	public Matrix4d transform;
+	//public Matrix4d transform;
 	
 	public HashMap<Object,Object> myMap;
 	
@@ -106,12 +104,12 @@ public class BrObject implements clojure.lang.IPersistentMap {
 	public BrObject() {
 		uid = (long)-1;
 		type = "Unassigned";
-		acceleration = new Vector3d( 0, 0, 0 );
-		velocity = new Vector3d( 0, 0, 0 );
-		position = new Vector3d( 0, 0, 0 );
+		acceleration = new Vector3f( 0, 0, 0 );
+		velocity = new Vector3f( 0, 0, 0 );
+		position = new Vector3f( 0, 0, 0 );
 		shape = null;//BrShape.createSphere( 1 ); too expensive
-		color = new Vector4d( 1, 1, 1, 1 );
-		rotation = new Vector4d( 1, 0, 0, 0 );
+		color = new Vector4f( 1, 1, 1, 1 );
+		rotation = new Vector4f( 1, 0, 0, 0 );
 		data = null;
 		myMap = new HashMap<Object,Object>();
 		texture = null;
@@ -142,11 +140,12 @@ public class BrObject implements clojure.lang.IPersistentMap {
 	}
 	
 	public double distanceTo( BrObject other ) {
-		/*Vector3d delta = (Vector3d) position.clone();
+		/*Vector3f delta = (Vector3f) position.clone();
 		delta.sub( other.position );
 		System.out.println( "distanceTo " + position + " " + other.position + " " + delta );*/
-		Vector3d delta = getPosition();
-		delta.sub( other.getPosition() );		
+		Vector3f delta = getPosition();
+		//delta.sub( other.getPosition() );
+		Vector3f.sub( other.getPosition(), getPosition(), delta );
 		return delta.length();
 	}
 	
@@ -178,37 +177,37 @@ public class BrObject implements clojure.lang.IPersistentMap {
 		nbrs.add( UID );
 	}
 	
-	public Vector3d getPosition() {
+	public Vector3f getPosition() {
 		//return position;
-		return brevis.Utils.DVector3CToVector3d( body.getPosition() );
+		return brevis.Utils.DVector3CToVector3f( body.getPosition() );
 	}
 	
-	public Vector3d getVelocity() {
-		return brevis.Utils.DVector3CToVector3d( body.getLinearVel() );
+	public Vector3f getVelocity() {
+		return brevis.Utils.DVector3CToVector3f( body.getLinearVel() );
 		//return velocity;
 	}
 	
-	public Vector3d getForce() {
-		return brevis.Utils.DVector3CToVector3d( body.getForce() );
+	public Vector3f getForce() {
+		return brevis.Utils.DVector3CToVector3f( body.getForce() );
 		//return velocity;
 	}
 	
-	public Vector3d getAcceleration() {
+	public Vector3f getAcceleration() {
 		return acceleration;
 	}
 	
-	public void setAcceleration( Vector3d v ) {
+	public void setAcceleration( Vector3f v ) {
 		acceleration = v;
 	}
 	
-	public void setVelocity( Vector3d v ) {
+	public void setVelocity( Vector3f v ) {
 		//velocity = v;
-		body.setLinearVel( brevis.Utils.Vector3dToDVector3( v ) );
+		body.setLinearVel( brevis.Utils.Vector3fToDVector3( v ) );
 	}
 	
-	public void setPosition( Vector3d v ) {
+	public void setPosition( Vector3f v ) {
 		//position = v;
-		body.setPosition( brevis.Utils.Vector3dToDVector3( v ) );
+		body.setPosition( brevis.Utils.Vector3fToDVector3( v ) );
 	}
 	
 	public DBody getBody( ) {
@@ -257,23 +256,23 @@ public class BrObject implements clojure.lang.IPersistentMap {
 		//shape.createVBOFromMesh();
 	}
 	
-	public void setColor( Vector4d c ) {
+	public void setColor( Vector4f c ) {
 		color = c;
 	}
 	
-	public Vector4d getColor() {
+	public Vector4f getColor() {
 		return color;
 	}
 	
-	public void setDimension( Vector3d newDim ) {
+	public void setDimension( Vector3f newDim ) {
 		shape.setDimension( newDim );
 	}
 	
-	public Vector3d getDimension() {
+	public Vector3f getDimension() {
 		return shape.getDimension();
 	}
 	
-	public Vector4d getRotation() {
+	public Vector4f getRotation() {
 		
 		return rotation;
 	}
@@ -435,26 +434,26 @@ public class BrObject implements clojure.lang.IPersistentMap {
 	/*
 	 * Update the orientation of an object
 	 */
-	public void orient( Vector3d objVec, Vector3d targetVec ) {
+	public void orient( Vector3f objVec, Vector3f targetVec ) {
 		if( objVec.length() != 0 && targetVec.length() != 0 ) {
-			Vector3d dir = new Vector3d();
-			dir.cross( objVec, targetVec );
+			Vector3f dir = new Vector3f();
+			Vector3f.cross( objVec, targetVec, dir );
 			//dir.cross( targetVec, objVec );
 			//System.out.println( "orient cross " + dir );
 			dir.set( ( objVec.y * targetVec.z - objVec.z * targetVec.y ), 
 					 ( objVec.z * targetVec.x - objVec.x * targetVec.z ), 
 					 ( objVec.x * targetVec.y - objVec.y * targetVec.x ) );
-			dir.normalize();
+			dir.normalise();
 			//dir.scale( 1.0 / dir.length() );
-			double vdot = objVec.dot( targetVec );
+			double vdot = Vector3f.dot( targetVec, objVec );
 			vdot = Math.max( Math.min( vdot / ( objVec.length() * targetVec.length() ), 
 									   1.0), -1.0 );
 			//double angle = ( Math.acos( vdot ) * ( Math.PI / 180.0 ) );
 			double angle = ( Math.acos( vdot ) * ( 180.0 / Math.PI ) );
 			if( dir.length() == 0 ) 
-				rotation.set( objVec.x, objVec.y, objVec.z, 0.001 );
+				rotation.set( objVec.x, objVec.y, objVec.z, (float)0.001 );
 			else
-				rotation.set( dir.x, dir.y, dir.z, angle );
+				rotation.set( dir.x, dir.y, dir.z, (float)angle );
 			//System.out.println( "orient " + objVec + " " + targetVec + " " + dir + " " + vdot + " " + rotation );
 			
 		}
@@ -465,12 +464,12 @@ public class BrObject implements clojure.lang.IPersistentMap {
 	//		  "Update the kinematics of an object by applying acceleration and velocity for an infinitesimal amount of time."
 		//System.out.print( this );
 		
-		Vector3d f = (Vector3d) acceleration.clone();
-		f.scale( getDoubleMass() );
+		Vector3f f = new Vector3f( acceleration );
+		f.scale( (float) getDoubleMass() );
 		getBody().addForce( f.x, f.y, f.z );
-		//orient( new Vector3d(0,0,1), getVelocity() );
-		orient( new Vector3d(0,1,0), getVelocity() );
-		//orient( new Vector3d(1,0,0), getForce() );
+		//orient( new Vector3f(0,0,1), getVelocity() );
+		orient( new Vector3f(0,1,0), getVelocity() );
+		//orient( new Vector3f(1,0,0), getForce() );
 		//System.out.println( "Object " + uid + " force " + f );
 	}
 	
