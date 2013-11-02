@@ -363,7 +363,8 @@ public class BrShape {
 	
 	public static BrShape createCone( double length, double base ) {
 		//return ( new BrShape( BrShapeType.CONE, new Vector3d( length, base, 25 )));	// last element of vector is # of sides or stacks (depending on renderer)
-		return ( new BrShape( BrShapeType.UNIT_CONE, new Vector3f( (float)length, (float)base, (float)25 )));	// last element of vector is # of sides or stacks (depending on renderer)
+		//return ( new BrShape( BrShapeType.UNIT_CONE, new Vector3f( (float)length, (float)base, (float)25 )));	// last element of vector is # of sides or stacks (depending on renderer)
+		return ( new BrShape( BrShapeType.CONE, new Vector3f( (float)length, (float)base, (float)25 )));	// last element of vector is # of sides or stacks (depending on renderer)
 	}
 	
 	public static BrShape createCylinder( double length, double radius ) {

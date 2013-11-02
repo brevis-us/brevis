@@ -337,7 +337,9 @@ public class Engine {
 		//HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
 		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();
 		
-		spaceTree = new BrKDTree<BrKDNode>();//lazy
+		//spaceTree = new BrKDTree<BrKDNode>();//lazy
+		spaceTree.clear();
+		
 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
 			BrObject obj = entry.getValue();
 			Vector3f pos = obj.getPosition();
@@ -379,6 +381,11 @@ public class Engine {
 		physics.time = 0;		
 		startWallTime = System.nanoTime();
 		objects.clear();
+		addedObjects.clear();
+		deletedObjects.clear();
+		collisions.clear();
+		globalCollisions.clear();
+		spaceTree.clear();
 		synchronizeObjects();		
 	}
 	

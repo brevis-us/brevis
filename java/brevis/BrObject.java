@@ -443,7 +443,8 @@ public class BrObject implements clojure.lang.IPersistentMap {
 			dir.set( ( objVec.y * targetVec.z - objVec.z * targetVec.y ), 
 					 ( objVec.z * targetVec.x - objVec.x * targetVec.z ), 
 					 ( objVec.x * targetVec.y - objVec.y * targetVec.x ) );
-			dir.normalise();
+			if( dir.length() != 0 )
+				dir.normalise();
 			//dir.scale( 1.0 / dir.length() );
 			double vdot = Vector3f.dot( targetVec, objVec );
 			vdot = Math.max( Math.min( vdot / ( objVec.length() * targetVec.length() ), 

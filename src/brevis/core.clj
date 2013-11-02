@@ -306,7 +306,7 @@ Copyright 2012, 2013 Kyle Harrington"
    (color 1 1 1)
     #_(println "display drawing n objects:" (count (get-objects)))
 	  (doseq [obj (get-objects)]
-     (when (drawable? obj)
+     (when (drawable? obj) ;; add a check to see if the object is in view
        (draw-shape obj)))
    
    #_(doseq [obj (get-objects)]

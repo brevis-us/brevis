@@ -85,6 +85,17 @@ public final class BrKDTree<X extends BrKDNode> {
 		this.data = new ArrayDeque<X>();
 	}
 
+	public void clear() {
+		data.clear();
+		left = null; right = null;
+		exMean = null; exSumSqDev = null;
+		singularity = true;
+		splitDim = 0;
+		split = Double.NaN;
+		contentMax = null;
+		contentMin = null;
+	}
+	
 	//
 	// PUBLIC METHODS
 	//
