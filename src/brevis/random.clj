@@ -1,106 +1,19 @@
 (ns brevis.random
+  (:require [clj-random.core :as random])
   (:use [brevis vector])
   (:import [java.security.SecureRandom]
            [ec.util.MersenneTwisterFast]))
 
-(def #^:dynamic *RNG-num-seed-bytes* 20)
-(def #^:dynamic *RNG* (java.security.SecureRandom. (.generateSeed (java.security.SecureRandom.) *RNG-num-seed-bytes*)))
-#_(def #^:dynamic *RNG* (ec.util.MersenneTwisterFast. java.security.SecureRandom. (.generateSeed (java.security.SecureRandom.) *RNG-num-seed-bytes*)))
-
-;; Hacky speed test
-#_(let [mtf-rng (ec.util.MersenneTwisterFast. (System/nanoTime))
-      sr-rng (java.security.SecureRandom. (.generateSeed (java.security.SecureRandom.) *RNG-num-seed-bytes*))
-      j-rng (java.util.Random. (System/nanoTime))      
-      num-reps 1000000]
-  (println "long test")
-  (let [start (System/nanoTime)]
-    (dotimes [_ num-reps]
-      (.nextLong j-rng))
-    (println "Java random" (float (/ (- (System/nanoTime) start) 1000000000))))
-  (let [start (System/nanoTime)]
-    (dotimes [_ num-reps]
-      (.nextLong sr-rng))
-    (println "Secure random" (float (/ (- (System/nanoTime) start) 1000000000))))
-  (let [start (System/nanoTime)]
-    (dotimes [_ num-reps]
-      (.nextLong mtf-rng))
-    (println "Mersenne" (float (/ (- (System/nanoTime) start) 1000000000))))
-  (println "double test")
-  (let [start (System/nanoTime)]
-    (dotimes [_ num-reps]
-      (.nextDouble j-rng))
-    (println "Java random" (float (/ (- (System/nanoTime) start) 1000000000))))
-  (let [start (System/nanoTime)]
-    (dotimes [_ num-reps]
-      (.nextDouble sr-rng))
-    (println "Secure random" (float (/ (- (System/nanoTime) start) 1000000000))))
-  (let [start (System/nanoTime)]
-    (dotimes [_ num-reps]
-      (.nextDouble mtf-rng))
-    (println "Mersenne" (float (/ (- (System/nanoTime) start) 1000000000)))))
-
-(defn make-rng-seed
-  "Generate a random number seed."
-  []
-  (.generateSeed *RNG* *RNG-num-seed-bytes*))
-
-(defn seed-to-string
-  "Convert a byte-array seed into a string."
-  [seed]
-  (reduce #(str %1 " " %2)
-          (map str (seq seed))))      
-
-(defn make-rng
-  "Make a random number generator with a given seed (if none specified, one will be generated)."
-  ([]
-    (make-rng (make-rng-seed)))
-  ([seed]
-    (java.security.SecureRandom. seed)))
-
-(defn lrand
-  "A local random double in [0,n], where n is 1 if no arguments are specified."
-  ([]
-    (lrand 1.0))
-  ([n]
-    (* n (.nextDouble *RNG*)))
-  ([min max]
-    (let [w (- max min)]
-      (+ (* w (.nextDouble *RNG*)) min))))
-
-(defn lrand-int
-  "A local random int (actually a long) in [0,n]."
-  [n]
-  (.nextLong *RNG*))
-
-(defn lrand-gaussian
-  "A local random gaussian."
-  []
-  (.nextGaussian *RNG*))
-
-(defn lrand-nth
-  "Return a random element of a sequence."
-  [coll]
-  (nth coll (lrand-int (count coll))))
+(def lrand random/lrand)
+(def lrand-int random/lrand-int)
+(def lrand-nth random/lrand-nth)
+(def lshuffle random/lshuffle)
 
 (defn lrand-vec3
   "Return a random vec3."
   ([]
-    (lrand-vec3 0 1 0 1 0 1))
+    (lrand-vec3 1 1 1))
   ([x y z]
     (vec3 (lrand x) (lrand y) (lrand z)))
   ([xmn xmx ymn ymx zmn zmx]
     (vec3 (lrand xmn xmx) (lrand ymn ymx) (lrand zmn zmx)))) 
-
-(defn lrand-shuffle
-  "Return a random permutation of coll (Adapted from clojure.core)"
-  {:static true}
-  [^java.util.Collection coll]
-  (let [al (java.util.ArrayList. coll)]
-    (java.util.Collections/shuffle al *RNG*)
-    (clojure.lang.RT/vector (.toArray al))))
-
-(defmacro with-rng
-  [my-rng & body]
-  `(binding [*RNG* my-rng#]
-     ~@body))
-
