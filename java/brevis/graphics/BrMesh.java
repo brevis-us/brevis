@@ -272,13 +272,16 @@ public class BrMesh {
 					float textempx = ((float[])vertexsetstexs.get(tempfacestexs[w] - 1))[0];
 					float textempy = ((float[])vertexsetstexs.get(tempfacestexs[w] - 1))[1];
 					float textempz = ((float[])vertexsetstexs.get(tempfacestexs[w] - 1))[2];
-					GL11.glTexCoord3f(textempx,1f-textempy,textempz);
+					//GL11.glTexCoord3f(textempx,1f-textempy,textempz);
+					//System.out.println( "tx: " + textempx + " " + ( 1f-textempy ) + " " + textempz);
+					GL11.glTexCoord2f(textempx,1f-textempy);
 				}
 				
 				float tempx = ((float[])vertexsets.get(tempfaces[w] - 1))[0];
 				float tempy = ((float[])vertexsets.get(tempfaces[w] - 1))[1];
 				float tempz = ((float[])vertexsets.get(tempfaces[w] - 1))[2];
 				GL11.glVertex3f(tempx,tempy,tempz);
+				//System.out.println( "v: " + tempx + " " + tempy + " " + tempz );
 			}
 			
 			

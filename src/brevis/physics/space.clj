@@ -36,6 +36,7 @@ Copyright 2012, 2013 Kyle Harrington"
         obj (assoc obj        
 			         :uid uid
 			         :real true
+               :hasShadow (or (:hasShadow obj) true)
 			         :acceleration (or (:acceleration obj) (vec3 0 0 0))
                :density (or (:density obj) 1)
 			         :shape (or (:shape obj) (create-box)))
@@ -43,6 +44,7 @@ Copyright 2012, 2013 Kyle Harrington"
         brobj (BrObject.)]
     (when (:color obj)
       (.setColor brobj (:color obj)))
+    (.setShadow brobj (:hasShadow obj))
     (.setUID brobj uid)
     (.setType brobj (str (name (:type obj))))
     (.setShape brobj (:shape obj))    
@@ -179,6 +181,7 @@ Copyright 2012, 2013 Kyle Harrington"
                                  :shininess 80
                                  :type :floor
                                  :density 8050
+                                 :hasShadow false
                                  ;                    :texture *checkers*
                                  :shape (create-box w 0.1 h)})
                      (vec3 0 -3 0))

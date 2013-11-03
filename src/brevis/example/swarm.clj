@@ -21,6 +21,7 @@ Copyright 2012, 2013 Kyle Harrington"
         [brevis.shape box sphere cone]
         [brevis core osd vector]))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Swarm
 ;;
 ;; ![](img/brevis_example_swarm.png?raw=true)
@@ -31,10 +32,8 @@ Copyright 2012, 2013 Kyle Harrington"
 ;;
 ;;   Reynolds, Craig W. "Flocks, herds and schools: A distributed behavioral model." ACM SIGGRAPH Computer Graphics. Vol. 21. No. 4. ACM, 1987.
 ;;
-;;
 ;; Todo:
 ;; - auto-centering of camera (and skybox?)
-;; - Voronoi neighborhoods (or some other acceleration)
 ;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -92,8 +91,8 @@ Copyright 2012, 2013 Kyle Harrington"
         ;tmp (println (count nbrs))
         ;tmp (do (doseq [nbr nbrs] (print (get-position nbr))) (println)) 
         closest-bird (when-not (empty? nbrs)
-                       #_(first nbrs)
-                       (rand-nth nbrs))
+                       (first nbrs)
+                       #_(rand-nth nbrs))
         new-acceleration (if-not closest-bird
                            ;; No neighbor, move randomly
                            (elmul (vec3 (- (rand) 0.5) (- (rand) 0.5) (- (rand) 0.5))

@@ -503,12 +503,11 @@ public class Basic3D {
         
         GL11.glPopMatrix();
 
-        /*if( obj.getShape().mesh != null ) {
+        /*if( obj.getShape().mesh != null && obj.enabledShadow() ) {
         	//System.out.println( "drawShape " + obj.type + " " + obj.getShape() );
         	castShadow( obj.getShape().mesh, lp);                               // Procedure For Casting The Shadow Based On The Silhouette
         	//System.out.println( "castShadow" );
-        }*/
-                            
+        } */                           
 		
 	}
     

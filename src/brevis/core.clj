@@ -77,7 +77,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (glfx/light-model :light-model-ambient [0.5 0.5 0.5 1.0])
   ;(glfx/gl-enable :point-smooth)
   ;(glfx/gl-enable :line-smooth)
-  ;(enable :polygon-smooth)  
+  #_(enable :polygon-smooth)  
   (blend-func :src-alpha :one-minus-src-alpha)  
   (enable :normalize)
   #_(init-shader)    

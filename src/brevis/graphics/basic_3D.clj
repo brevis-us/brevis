@@ -134,7 +134,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn draw-shape
   "Draw a shape. Call this after translating, scaling, and setting color."
   [obj]
-  (Basic3D/drawShape obj (double-array [0 1 0 0]) (.getDimension (.getShape obj)))                     
+  (Basic3D/drawShape obj (double-array [0 1 0 0]) (.getDimension (.getShape obj)))                       
   #_(Basic3D/drawShape obj (:rot-x @*gui-state*) (:rot-y @*gui-state*) (:rot-z @*gui-state*) 
                      (:shift-x @*gui-state*) (:shift-y @*gui-state*) (:shift-z @*gui-state*)                      
                      (double-array [0 0 1 0])

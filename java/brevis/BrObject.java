@@ -79,10 +79,19 @@ public class BrObject implements clojure.lang.IPersistentMap {
 	protected int texId = -1;
 	
 	public boolean drawable = true;
+	public boolean hasShadow = true;
 	
 	// Physics
 	public DBody body;
 	public DGeom geom;
+	
+	public boolean enabledShadow() {
+		return hasShadow;
+	}
+	
+	public void setShadow( boolean newHasShadow ) {
+		hasShadow = newHasShadow;
+	}
 	
 	public String toString() {
 		/*String s = "#BrObject{ :UID " + uid + ", :type " + type + ", :acceleration " + acceleration +

@@ -14,7 +14,7 @@ import org.lwjgl.util.glu.GLU;
 import static org.lwjgl.opengl.ARBDepthClamp.GL_DEPTH_CLAMP;
 import static org.lwjgl.opengl.GL11.*;
 
-// Currently based on http://www.lloydgoodall.com/tutorials/first-person-camera-control-with-lwjgl/
+// was based on http://www.lloydgoodall.com/tutorials/first-person-camera-control-with-lwjgl/
 // now based on https://gist.github.com/DziNeIT/4206709
 
 public class BrCamera {
