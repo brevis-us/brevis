@@ -485,7 +485,7 @@ public class Basic3D {
         }        
         
         // Render primitives directly with vertex commands       
-        if( obj.getShape().mesh == null ) {
+        if( obj.getShape().mesh == null || ( obj.getShape().getType() == "box" ) ) {
         	//System.out.println( "NO MESH " + obj.type );
 	        if( obj.getShape().getType() == "box" )
 	        	drawBox( 1, 1, 1 );
@@ -499,16 +499,15 @@ public class Basic3D {
         	//System.out.println( "Rendering from mesh " + dim );
         	//GL11.glScaled( dim.x, dim.y, dim.z );
         	obj.getShape().mesh.opengldraw();
-    	}
+    	}        
         
         GL11.glPopMatrix();
-
+                                 
         /*if( obj.getShape().mesh != null && obj.enabledShadow() ) {
         	//System.out.println( "drawShape " + obj.type + " " + obj.getShape() );
         	castShadow( obj.getShape().mesh, lp);                               // Procedure For Casting The Shadow Based On The Silhouette
         	//System.out.println( "castShadow" );
-        } */                           
-		
+        } */
 	}
     
     
