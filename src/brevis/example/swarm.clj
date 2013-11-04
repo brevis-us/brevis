@@ -67,9 +67,8 @@ Copyright 2012, 2013 Kyle Harrington"
   "Make a new bird with the specified program. At the specified location."
   [position]  
   (move (make-real {:type :bird
-              :color (vec4 1 0 0 1)
-              ;:shape (create-sphere)})
-              :shape (create-cone 2.2 1.5)})
+                    :color (vec4 1 0 0 1)
+                    :shape (create-cone 2.2 1.5)})
         position))
   
 (defn random-bird

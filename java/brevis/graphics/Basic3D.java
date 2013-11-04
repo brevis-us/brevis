@@ -37,7 +37,8 @@ public class Basic3D {
     private static final float LIGHTY = 0.4f;
     private static final float SHADOW_INTENSITY = 0.65f;
     
-    static float lightPos[] = { 0.0f, 5.0f,-4.0f, 1.0f};           // Light Position                                                                               
+    //static float lightPos[] = { 0.0f, 5.0f,-4.0f, 1.0f};           // Light Position                                                                               
+    static float lightPos[] = { 0.0f, 1.0f, 0.0f, 1.0f};           // Light Position                                                                               
     static float lightAmb[] = { 0.2f, 0.2f, 0.2f, 1.0f};           // Ambient Light Values                                                                         
     static float lightDif[] = { 0.6f, 0.6f, 0.6f, 1.0f};           // Diffuse Light Values                                                                         
     static float lightSpc[] = {-0.2f, -0.2f, -0.2f, 1.0f};         // Specular Light Values                                                                        
@@ -47,8 +48,6 @@ public class Basic3D {
     static float matDif[] = {0.2f, 0.6f, 0.9f, 1.0f};              // Material - Diffuse Values                                                                    
     static float matSpc[] = {0.0f, 0.0f, 0.0f, 1.0f};              // Material - Specular Values                                                                   
     static float matShn[] = {0.0f, 0.0f, 0.0f, 0.0f};                                // Material - Shininess                                                       
-
-
     
     static public void initGL() {
         
@@ -60,8 +59,13 @@ public class Basic3D {
         GL11.glClearStencil(0);                                  // Stencil Buffer Setup
         GL11.glEnable(GL11.GL_DEPTH_TEST);                            // Enables Depth Testing
         GL11.glDepthFunc(GL11.GL_LEQUAL);                             // The Type Of Depth Testing To Do
-        GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST);  // Really Nice Perspective Calculations
-
+        //GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST);  // Really Nice Perspective Calculations
+        
+        GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_FASTEST);
+        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+        GL11.glHint(GL11.GL_POLYGON_SMOOTH_HINT, GL11.GL_FASTEST);
+        GL11.glEnable(GL11.GL_POLYGON_SMOOTH);
+        
         //floatBuffer = ByteBuffer.allocateDirect(64).order(ByteOrder.nativeOrder()).asFloatBuffer();
         //byteBuffer = ByteBuffer.allocateDirect(16).order(ByteOrder.nativeOrder());
         
@@ -93,12 +97,10 @@ public class Basic3D {
         GL11.glMaterial(GL11.GL_FRONT, GL11.GL_AMBIENT, (FloatBuffer)byteBuffer.asFloatBuffer().put(matAmb).flip());         // Set Material Ambience       
         GL11.glMaterial(GL11.GL_FRONT, GL11.GL_DIFFUSE, (FloatBuffer)byteBuffer.asFloatBuffer().put(matDif).flip());         // Set Material Diffuse        
         GL11.glMaterial(GL11.GL_FRONT, GL11.GL_SPECULAR, (FloatBuffer)byteBuffer.asFloatBuffer().put(matSpc).flip());        // Set Material Specular       
-        GL11.glMaterial(GL11.GL_FRONT, GL11.GL_SHININESS, (FloatBuffer)byteBuffer.asFloatBuffer().put(matShn).flip());       // Set Material Shininess      
-
+        GL11.glMaterial(GL11.GL_FRONT, GL11.GL_SHININESS, (FloatBuffer)byteBuffer.asFloatBuffer().put(matShn).flip());       // Set Material Shininess        
         
-        
-        GL11.glCullFace(GL11.GL_BACK);                                // Set Culling Face To Back Face
-        GL11.glEnable(GL11.GL_CULL_FACE);                             // Enable Culling
+        //GL11.glCullFace(GL11.GL_BACK);                                // Set Culling Face To Back Face
+        //GL11.glEnable(GL11.GL_CULL_FACE);                             // Enable Culling
         GL11.glClearColor(0.1f, 1.0f, 0.5f, 1.0f);               // Set Clear Color (Greenish Color)
 
 /*        q = new Sphere();                               // Initialize Quadratic
@@ -116,7 +118,7 @@ public class Basic3D {
                 0.05f,100.0f);*/
         
         GLU.gluPerspective(45.0f,
-                (float) 640 / (float) 480,
+                (float) width / (float) height,
                 0.05f, 100.0f);
 
         GL11.glMatrixMode(GL11.GL_MODELVIEW);                             // Select The Modelview Matrix
@@ -508,10 +510,7 @@ public class Basic3D {
         	castShadow( obj.getShape().mesh, lp);                               // Procedure For Casting The Shadow Based On The Silhouette
         	//System.out.println( "castShadow" );
         } */
-	}
-    
-    
-        
+	}    
     
     
 }

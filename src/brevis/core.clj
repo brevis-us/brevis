@@ -48,17 +48,10 @@ Copyright 2012, 2013 Kyle Harrington"
   "Initialize the brevis window and the graphical environment."
   [state]
   (app/title! "brevis")
-  (app/vsync! true)
-  
-  #_(Basic3D/initGL)
-  
-  ;(app/key-repeat! false)
+  (app/vsync! true)   
   (enable :blend)
   (enable :depth-test)
-  #_(clear-color [0 0 0 0.5])  
   (init-box-graphic)
-  #_(init-sphere)
-  #_(init-cone)
   (init-checkers)
   (init-sky)
   (enable :lighting)
@@ -66,65 +59,22 @@ Copyright 2012, 2013 Kyle Harrington"
   (light 0 
          :specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
          :position [0 -1 0 0];;directional can be enabled after the penumbra update         
-         ;:position [250 250 -100 1]         
          :diffuse [1 1 1 1])
   (enable :light1)
   (light 1
          :specular [0.2 0.2 0.2 1.0]
          :position [0 -1 0 0]
-         ;:position [250 250 -100 1]
          :diffuse [1 1 1 1])
   (glfx/light-model :light-model-ambient [0.5 0.5 0.5 1.0])
-  ;(glfx/gl-enable :point-smooth)
-  ;(glfx/gl-enable :line-smooth)
-  #_(enable :polygon-smooth)  
   (blend-func :src-alpha :one-minus-src-alpha)  
   (enable :normalize)
-  #_(init-shader)    
   (java-init-world)
-  #_(glfx/enable-high-quality-rendering)
-  state
-  #_(glfx/enable-high-quality-rendering))
-
-#_(defn init
-  "Initialize the brevis window and the graphical environment."
-  [state]
-  (app/title! "brevis")
-  (app/vsync! true)
-  
-  (Basic3D/initGL)
-  
-  #_(init-checkers)
-  #_(init-sky)
-  (enable :lighting)
-  (enable :light0)
-  (light 0 
-         :specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
-         :position [0 -1 0 0];;directional can be enabled after the penumbra update         
-         ;:position [250 250 -100 1]         
-         :diffuse [1 1 1 1])
-  (enable :light1)
-  (light 1
-         :specular [0.2 0.2 0.2 1.0]
-         :position [0 -1 0 0]
-         ;:position [250 250 -100 1]
-         :diffuse [1 1 1 1])
-  (glfx/light-model :light-model-ambient [0.5 0.5 0.5 1.0])
-  ;(glfx/gl-enable :point-smooth)
-  ;(glfx/gl-enable :line-smooth)
-  ;(enable :polygon-smooth)  
-  (blend-func :src-alpha :one-minus-src-alpha)  
-  (enable :normalize)
-  #_(init-shader)    
-  (java-init-world)
-  #_(glfx/enable-high-quality-rendering)
-  state
-  #_(glfx/enable-high-quality-rendering))
+  (init-sky)
+  state)
 
 (defn make-init
   "Make an initialize function based upon a user-customized init function."
   [user-init]
-  #_(println "make-init")
   (fn [state]
     (init state)
     (user-init)
@@ -135,27 +85,13 @@ Copyright 2012, 2013 Kyle Harrington"
   [[x y w h] state]
   (frustum-view  45 (/ w h) 0.1 2000)
   (load-identity)
-  #_(translate 0 0 -40)
-  (light 0 
-         ;:specular [1 1 1 1]
-         :position [1 100 10 1]
-         :diffuse [1 1 1 1])
-  #_(light 1
-         :ambient [1 1 1 1]
-         :specular [1 1 1 1]
-         :position [100 -100 10 0]
-         :diffuse [1 1 1 1])
   (reset! *gui-state*
           (assoc @*gui-state*
                  :window-x x
                  :window-y y
                  :window-width w
                  :window-height h))
-  (assoc state
-    :window-x x
-    :window-y y
-    :window-width w
-    :window-height h))
+  state)
 
 (defn draw-sky
   "Draw a skybox"
@@ -163,30 +99,18 @@ Copyright 2012, 2013 Kyle Harrington"
   (let [w 2000
         h 2000
         d 2000
-        pos [0 0 0] ;(vec3 (- (/ w 2)) (- (/ h 2)) (- (/ d 2)))
+        pos [0 0 0]
         ]
     (when *sky*
-      ;(with-enabled :texture-cube-map-seamless
       (with-disabled :lighting      
         (with-enabled :depth-test
           (with-enabled :texture-2d
             (with-texture *sky*
               (depth-test :lequal)
-              #_(depth-range 1 1)
-              ;GL11.glShadeModel (GL11.GL_FLAT);
-               ; GL11.glDepthRange (1,1);
               (push-matrix
-	            #_(color 0 0 1)
-	            #_(material :front-and-back
-	                      :ambient-and-diffuse [1 1 1 1]
-	                      :specular [0 0 0 0];[1 1 1 1]
-	;                      :shininess           80
-	                      )
 	            (material :front-and-back
 	                      :shininess 0
-	;                      :specular [0 0 0 1]
 	                      :ambient-and-diffuse [0 0 1 0.5])
-	            ;          :ambient-and-diffuse [1 1 1 1])
 	            (translate pos)
 	            (apply scale [w h d])
 	            (draw-textured-cube)))))))))
@@ -251,7 +175,6 @@ Copyright 2012, 2013 Kyle Harrington"
   "Display the world."
   [[dt t] state]
   (let [state (if (:auto-camera state) (auto-camera state) state)]      
-    #_(clear)    
     (enable :lighting)
     (enable :light0)
     #_(enable :light1)
@@ -304,14 +227,9 @@ Copyright 2012, 2013 Kyle Harrington"
    ;(enable :depth-test)
    ;(depth-test :less)
    (color 1 1 1)
-    #_(println "display drawing n objects:" (count (get-objects)))
 	  (doseq [obj (get-objects)]
      (when (drawable? obj) ;; add a check to see if the object is in view
        (draw-shape obj)))
-   
-   #_(doseq [obj (get-objects)]
-     (when (drawable? obj)
-       (draw-shape-shadow obj)))
    
    (when @enable-display-text
      (update-display-text [dt t] state))
@@ -325,20 +243,20 @@ Copyright 2012, 2013 Kyle Harrington"
      ;(screenshot (str (:video-name @*gui-state*) "_" (get-time) ".png") state))
    ))
 
+
 ;; ## Start a brevis instance
 
 (defn start-gui 
   "Start the simulation with a GUI."
   ([initialize]
     (start-gui initialize java-update-world))    
-;    (start-gui initialize update-world))
   ([initialize update]
-    #_(reset-core)
     (reset! *gui-message-board* (sorted-map))
     (when (.contains (System/getProperty "os.name") "indows")
       (reset! enable-display-text false))
 	  (reset! *app-thread*
-           (Thread. (fn [] (app/start
+           (Thread. (fn [] 
+                      (app/start
                              {:reshape reshape, :init (make-init initialize), :mouse-drag mouse-drag, :key-press key-press :mouse-wheel mouse-wheel, :update update, :display display
                               :key-release key-release
                               ;:mouse-move    (fn [[[dx dy] [x y]] state] (println )
@@ -379,6 +297,5 @@ Copyright 2012, 2013 Kyle Harrington"
   ([initialize]
     (start-nogui initialize update-world))
   ([initialize update]
-    #_(reset-core)
 	  (simulation-loop
 	   {:init initialize, :update update})))      
