@@ -13,6 +13,7 @@
 ;                 [kephale/ode4j "0.12.0-j1.4"]
                  ;[kephale/ode4j "20130414_001"]
                  [org.ode4j/core "0.2.7"]
+                 [org.ode4j/demo "0.2.7"]
                  [kephale/penumbra "0.6.7"]
                  [kephale/slick-util "1.0.1"]
                  [org.l33tlabs.twl/pngdecoder "1.0"]

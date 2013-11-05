@@ -87,11 +87,12 @@ public class BrCamera {
 	}*/
 	
 	public void processMouse( float dx, float dy, float mouseSpeed, float maxLookUp, float maxLookDown) {
-		float side = 0.01f * dx;
-		float s = (float) Math.sin (yaw*DEG_TO_RAD);
-		float c = (float) Math.cos (yaw*DEG_TO_RAD);
+		//float side = 0.01f * dx;
+		//float s = (float) Math.sin (yaw*DEG_TO_RAD);
+		//float c = (float) Math.cos (yaw*DEG_TO_RAD);
 
-		roll += dx * 0.5f;
+		//roll += dx * 0.5f;
+		yaw += dx * 0.5f;
 		pitch += dy * 0.5f;
 
 		while (roll > 180) roll -= 360;

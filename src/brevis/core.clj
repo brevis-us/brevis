@@ -171,10 +171,10 @@ Copyright 2012, 2013 Kyle Harrington"
   [obj]
   (.isDrawable obj))
 
-(defn display
+#_(defn display
   "Display the world."
   [[dt t] state]
-  (let [state (if (:auto-camera state) (auto-camera state) state)]      
+  (let [state (if (:auto-camera state) (auto-camera state) state)]
     (enable :lighting)
     (enable :light0)
     #_(enable :light1)
@@ -208,19 +208,14 @@ Copyright 2012, 2013 Kyle Harrington"
     ;(GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST)
     (gl-load-identity-matrix)
     (use-camera (:camera @*gui-state*))
-    #_(set-camera
-      (:shift-x @*gui-state*) (:shift-y @*gui-state*) (:shift-z @*gui-state*)
-      (:rot-x @*gui-state*) (:rot-y @*gui-state*) (:rot-z @*gui-state*))
-    #_(light 0 
-           :position [0 1 0 0])
     (light 0
            :ambient [0 0 0 1]
-         ;:specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
-         :position [1 1 1 0];;directional can be enabled after the penumbra update         
-         ;:position [250 250 -100 1]         
-         ;:diffuse [1 1 1 1]
-         )    
-	  (draw-sky)
+           ;:specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
+           :position [1 1 1 0];;directional can be enabled after the penumbra update         
+           ;:position [250 250 -100 1]         
+           ;:diffuse [1 1 1 1]
+           )    
+    (draw-sky)
    (enable :lighting)
    (disable :texture-2D)
    ;(shade-model :flat)
@@ -230,7 +225,6 @@ Copyright 2012, 2013 Kyle Harrington"
 	  (doseq [obj (get-objects)]
      (when (drawable? obj) ;; add a check to see if the object is in view
        (draw-shape obj)))
-   
    (when @enable-display-text
      (update-display-text [dt t] state))
 	  (app/repaint!)
@@ -243,6 +237,72 @@ Copyright 2012, 2013 Kyle Harrington"
      ;(screenshot (str (:video-name @*gui-state*) "_" (get-time) ".png") state))
    ))
 
+(defn display
+  "Display the world."
+  [[dt t] state]
+  (let [state (if (:auto-camera state) (auto-camera state) state)]
+    (enable :lighting)
+    (enable :light0)
+    #_(enable :light1)
+    (enable :texture-2D)
+    (disable :texture-gen-s)
+		(disable :texture-gen-t)
+    (shade-model :smooth)
+    (enable :blend)
+    (blend-func :src-alpha :one-minus-src-alpha)  
+    (enable :normalize)
+    (enable :depth-test)
+    (depth-test :lequal)
+    #_(enable :cull-face)
+    #_(cull-face :black)
+    ;GL11.glFrontFace (GL11.GL_CCW);
+    (viewport 0 0 (:window-width @*gui-state*) (:window-height @*gui-state*))
+    (gl-matrix-mode :projection)
+    (gl-load-identity-matrix)
+    ;should if on width>height
+    ;(frustum-view 60.0 (/ (double (:window-width @*gui-state*)) (:window-height @*gui-state*)) 1.0 1000.0)
+    (frustum-view 60.0 (/ (double (:window-width @*gui-state*)) (:window-height @*gui-state*)) 0.1 3000)
+    #_(light 0 
+         :specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
+         :position [0 1 0 0];;directional can be enabled after the penumbra update         
+         ;:position [250 250 -100 1]         
+         :diffuse [1 1 1 1])
+    (color 1 1 1)
+    (clear-color 0.5 0.5 0.5 0)
+    #_(Basic3D/initGL)    
+    #_(clear)
+    (gl-matrix-mode :modelview)
+    ;(GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST)
+    (gl-load-identity-matrix)
+    (use-camera (:camera @*gui-state*))
+    (light 0
+           :ambient [0 0 0 1]
+           ;:specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
+           :position [1 1 1 0];;directional can be enabled after the penumbra update         
+           ;:position [250 250 -100 1]         
+           ;:diffuse [1 1 1 1]
+           )    
+    (draw-sky)
+   (enable :lighting)
+   (disable :texture-2D)
+   ;(shade-model :flat)
+   ;(enable :depth-test)
+   ;(depth-test :less)
+   (color 1 1 1)
+	  (doseq [obj (get-objects)]
+     (when (drawable? obj) ;; add a check to see if the object is in view
+       (draw-shape obj)))
+   (when @enable-display-text
+     (update-display-text [dt t] state))
+	  (app/repaint!)
+   (when @*screenshot-filename*
+     (screenshot @*screenshot-filename* state)
+     (reset! *screenshot-filename* nil))
+   (when (:record-video @*gui-state*)
+     (screenshot (str (:video-name @*gui-state*) "_" @video-counter ".png") state)
+     (swap! video-counter inc))   
+     ;(screenshot (str (:video-name @*gui-state*) "_" (get-time) ".png") state))
+   ))
 
 ;; ## Start a brevis instance
 
