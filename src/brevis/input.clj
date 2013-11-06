@@ -50,35 +50,35 @@ input-class: indicates the class of input. Currently supports (:key-press, :mous
   "Define the default input handlers."
   []
   (add-input-handler :key-press
-                     {:key-id "i"}
+                     {:key-id "I"}
                      #(do (swap! *gui-state* assoc :fullscreen (not (:fullscreen @*gui-state*)))
                           (app/fullscreen! (:fullscreen @*gui-state*))))
   (add-input-handler :key-press
-                     {:key-id "w"}
+                     {:key-id "W"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 true false false false false false))
   (add-input-handler :key-press
-                     {:key-id "a"}
+                     {:key-id "A"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false true false false false))
   (add-input-handler :key-press
-                     {:key-id "s"}
+                     {:key-id "S"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false true false false false false))
   (add-input-handler :key-press
-                     {:key-id "d"}
+                     {:key-id "D"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false false true false false))
   (add-input-handler :key-press
-                     {:key-id "c"}
+                     {:key-id "C"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false false false true false))
   (add-input-handler :key-press
-                     {:key-id "lshift"}
+                     {:key-id "LSHIFT"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false false false false true))
   (add-input-handler :key-press
-                     {:key-id "p"}
+                     {:key-id "P"}
                      #(app/pause!))
   (add-input-handler :key-press
-                     {:key-id "o"}
+                     {:key-id "O"}
                      #(screenshot (str "brevis_screenshot_" (System/currentTimeMillis) ".png")))
   (add-input-handler :key-press
-                     {:key-id "escape"}
+                     {:key-id "ESCAPE"}
                      #(app/stop!)))
 ;; Currently forcing default input handlers to be enabled
 #_(default-input-handlers)

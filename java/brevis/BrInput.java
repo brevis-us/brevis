@@ -8,26 +8,57 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
-public class BrInput {
+public class BrInput {	
+	
 	public static class InputType {
 		public boolean mouseType = false;
 		public boolean keyboardType = false;
 		public String id = "";
+		public int mouseButton = -1;
+		public int keyIndex = -1;
+		
+		public void setKey( String keyName ) {
+			id = keyName;
+			keyIndex = Keyboard.getKeyIndex( keyName );
+			keyboardType = true;
+		}
+		
+		public void setButton( String buttonName ) {
+			id = buttonName;
+			mouseType = true;
+			if( buttonName.contains("LEFT") ) {
+				mouseButton = 0;
+			} else if( buttonName.contains("MIDDLE") ) {
+				mouseButton = 1;
+			} else if( buttonName.contains("RIGHT") ) {
+				mouseButton = 2;
+			}
+		}
 		
 		/**
 		 * Test if this input is active
 		 * @return true if this input is activated
 		 */
 		public boolean test() {
-			return false;
+			boolean ret = false;
+			if( mouseType ) {				
+				return Mouse.isButtonDown( mouseButton );
+			} else if( keyboardType ) {
+				return Keyboard.isKeyDown( keyIndex );
+			}
+			return ret;
 		}
 	}
 	
 	static public InputType makeInputType( String inputClass, ArrayList<String> parms ) {
 		InputType it = new InputType();
-		if( inputClass.contains("mouse") ) it.mouseType = true;
-		if( inputClass.contains("keyboard") ) it.keyboardType = true;
-		it.id = parms.get(0);
+		if( inputClass.contains("mouse") ) {
+			it.mouseType = true;
+			it.setButton( parms.get(0) );
+		} else if( inputClass.contains("key") ) {
+			it.keyboardType = true;
+			it.setKey( parms.get(0) );
+		}
 		return it;
 	}
 	
