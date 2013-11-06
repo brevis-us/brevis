@@ -29,6 +29,7 @@ Copyright 2012, 2013 Kyle Harrington"
             [penumbra.opengl.frame-buffer :as fb]
             [penumbra.opengl.effects :as glfx])
   (:import (brevis.graphics Basic3D) 
+           (brevis BrInput)
            (java.awt AWTException Robot Rectangle Toolkit)
            (java.awt.geom AffineTransform)
            (java.awt.image AffineTransformOp BufferedImage)
@@ -45,7 +46,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 ;; ## Window and Graphical Environment
 
-(defn init
+#_(defn init
   "Initialize the brevis window and the graphical environment."
   [state]
   (app/title! "brevis")
@@ -73,7 +74,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (init-sky)
   state)
 
-(defn make-init
+#_(defn make-init
   "Make an initialize function based upon a user-customized init function."
   [user-init]
   (fn [state]
@@ -81,7 +82,7 @@ Copyright 2012, 2013 Kyle Harrington"
     (user-init)
     state))
 
-(defn reshape
+#_(defn reshape
   "Reshape after the window is resized."
   [[x y w h] state]
   (frustum-view  45 (/ w h) 0.1 2000)
@@ -94,7 +95,7 @@ Copyright 2012, 2013 Kyle Harrington"
                  :window-height h))
   state)
 
-(defn draw-sky
+#_(defn draw-sky
   "Draw a skybox"
   []
   (let [w 2000
@@ -116,26 +117,26 @@ Copyright 2012, 2013 Kyle Harrington"
 	            (apply scale [w h d])
 	            (draw-textured-cube)))))))))
 
-(defn get-min-vec
+#_(defn get-min-vec
   "Return the minimum vec3 of a collection, component-wise."
   [vectors]
   (reduce #(vec3 (Math/min (.x %1) (.x %2)) (Math/min (.y %1) (.y %2)) (Math/min (.z %1) (.z %2))) 
           (vec3 java.lang.Double/POSITIVE_INFINITY java.lang.Double/POSITIVE_INFINITY java.lang.Double/POSITIVE_INFINITY)
           vectors))
 
-(defn get-max-vec
+#_(defn get-max-vec
   "Return the maximum vec3 of a collection, component-wise."
   [vectors]
   (reduce #(vec3 (Math/max (.x %) (.x %2)) (Math/max (.y %1) (.y %2)) (Math/max (.z %1) (.z %2))) 
           (vec3 java.lang.Double/NEGATIVE_INFINITY java.lang.Double/NEGATIVE_INFINITY java.lang.Double/NEGATIVE_INFINITY)
           vectors))
 
-(defn camera-score
+#_(defn camera-score
   "What is the score of a current camera position relative to the world."
   [state]
   0)
 
-(defn auto-camera
+#_(defn auto-camera
   "Automatically focus the camera to maximize the number of objects in view."
   [state]
   (let [obj-vecs (map get-position @*objects*)
@@ -172,163 +173,7 @@ Copyright 2012, 2013 Kyle Harrington"
   [obj]
   (.isDrawable obj))
 
-#_(defn display
-  "Display the world."
-  [[dt t] state]
-  (let [state (if (:auto-camera state) (auto-camera state) state)]
-    (enable :lighting)
-    (enable :light0)
-    #_(enable :light1)
-    (enable :texture-2D)
-    (disable :texture-gen-s)
-		(disable :texture-gen-t)
-    (shade-model :smooth)
-    (enable :blend)
-    (blend-func :src-alpha :one-minus-src-alpha)  
-    (enable :normalize)
-    (enable :depth-test)
-    (depth-test :lequal)
-    #_(enable :cull-face)
-    #_(cull-face :black)
-    ;GL11.glFrontFace (GL11.GL_CCW);
-    (viewport 0 0 (:window-width @*gui-state*) (:window-height @*gui-state*))
-    (gl-matrix-mode :projection)
-    (gl-load-identity-matrix)
-    ;should if on width>height
-    ;(frustum-view 60.0 (/ (double (:window-width @*gui-state*)) (:window-height @*gui-state*)) 1.0 1000.0)
-    (frustum-view 60.0 (/ (double (:window-width @*gui-state*)) (:window-height @*gui-state*)) 0.1 3000)
-    #_(light 0 
-         :specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
-         :position [0 1 0 0];;directional can be enabled after the penumbra update         
-         ;:position [250 250 -100 1]         
-         :diffuse [1 1 1 1])
-    (color 1 1 1)
-    (clear-color 0.5 0.5 0.5 0)
-    #_(clear)
-    (gl-matrix-mode :modelview)
-    ;(GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST)
-    (gl-load-identity-matrix)
-    (use-camera (:camera @*gui-state*))
-    (light 0
-           :ambient [0 0 0 1]
-           ;:specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
-           :position [1 1 1 0];;directional can be enabled after the penumbra update         
-           ;:position [250 250 -100 1]         
-           ;:diffuse [1 1 1 1]
-           )    
-    (draw-sky)
-   (enable :lighting)
-   (disable :texture-2D)
-   ;(shade-model :flat)
-   ;(enable :depth-test)
-   ;(depth-test :less)
-   (color 1 1 1)
-	  (doseq [obj (get-objects)]
-     (when (drawable? obj) ;; add a check to see if the object is in view
-       (draw-shape obj)))
-   (when @enable-display-text
-     (update-display-text [dt t] state))
-	  (app/repaint!)
-   (when @*screenshot-filename*
-     (screenshot @*screenshot-filename* state)
-     (reset! *screenshot-filename* nil))
-   (when (:record-video @*gui-state*)
-     (screenshot (str (:video-name @*gui-state*) "_" @video-counter ".png") state)
-     (swap! video-counter inc))   
-     ;(screenshot (str (:video-name @*gui-state*) "_" (get-time) ".png") state))
-   ))
-
-(defn display
-  "Display the world."
-  [[dt t] state]
-  (let [state (if (:auto-camera state) (auto-camera state) state)]
-    (enable :lighting)
-    (enable :light0)
-    #_(enable :light1)
-    (enable :texture-2D)
-    (disable :texture-gen-s)
-		(disable :texture-gen-t)
-    (shade-model :smooth)
-    (enable :blend)
-    (blend-func :src-alpha :one-minus-src-alpha)  
-    (enable :normalize)
-    (enable :depth-test)
-    (depth-test :lequal)
-    #_(enable :cull-face)
-    #_(cull-face :black)
-    ;GL11.glFrontFace (GL11.GL_CCW);
-    #_(viewport 0 0 (:window-width @*gui-state*) (:window-height @*gui-state*))
-    (viewport 0 0 (.width (:camera @*gui-state*)) (.height (:camera @*gui-state*)))
-    (gl-matrix-mode :projection)
-    (gl-load-identity-matrix)
-    ;should if on width>height
-    ;(frustum-view 60.0 (/ (double (:window-width @*gui-state*)) (:window-height @*gui-state*)) 1.0 1000.0)
-    (frustum-view 60.0 (/ (.width (:camera @*gui-state*)) (.height (:camera @*gui-state*))) 0.1 3000)
-    #_(light 0 
-         :specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
-         :position [0 1 0 0];;directional can be enabled after the penumbra update         
-         ;:position [250 250 -100 1]         
-         :diffuse [1 1 1 1])
-    (color 1 1 1)
-    (clear-color 0.5 0.5 0.5 0)
-    #_(Basic3D/initGL)    
-    #_(clear)
-    (gl-matrix-mode :modelview)
-    ;(GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST)
-    (gl-load-identity-matrix)
-    (use-camera (:camera @*gui-state*))
-    (light 0
-           :ambient [0 0 0 1]
-           ;:specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
-           :position [1 1 1 0];;directional can be enabled after the penumbra update         
-           ;:position [250 250 -100 1]         
-           ;:diffuse [1 1 1 1]
-           )    
-    (draw-sky)
-   (enable :lighting)
-   (disable :texture-2D)
-   ;(shade-model :flat)
-   ;(enable :depth-test)
-   ;(depth-test :less)
-   (color 1 1 1)
-	  (doseq [obj (get-objects)]
-     (when (drawable? obj) ;; add a check to see if the object is in view
-       (draw-shape obj)))
-   (when @enable-display-text
-     (update-display-text [dt t] state))
-	  (app/repaint!)
-   (when @*screenshot-filename*
-     (screenshot @*screenshot-filename* state)
-     (reset! *screenshot-filename* nil))
-   (when (:record-video @*gui-state*)
-     (screenshot (str (:video-name @*gui-state*) "_" @video-counter ".png") state)
-     (swap! video-counter inc))   
-     ;(screenshot (str (:video-name @*gui-state*) "_" (get-time) ".png") state))
-   ))
-
 ;; ## Start a brevis instance
-
-(defn start-gui 
-  "Start the simulation with a GUI."
-  ([initialize]
-    (start-gui initialize java-update-world))    
-  ([initialize update]
-    (reset! *gui-message-board* (sorted-map))
-    (when (.contains (System/getProperty "os.name") "indows")
-      (reset! enable-display-text false))
-	  (reset! *app-thread*
-           (Thread. (fn [] 
-                      (app/start
-                             {:reshape reshape, :init (make-init initialize), :mouse-drag mouse-drag, :key-press key-press :mouse-wheel mouse-wheel, :update update, :display display
-                              :key-release key-release
-                              ;:mouse-move    (fn [[[dx dy] [x y]] state] (println )
-                              ;:mouse-up       (fn [[x y] button state] (println button) state)
-                              ;:mouse-click   (fn [[x y] button state] (println button) state)
-                              ;:mouse-down    (fn [[x y] button state] (println button) state)
-                              ;:mouse-wheel   (fn [dw state] (println dw) state)
-                              }        
-                             @*gui-state*))))
-   (.start @*app-thread*)))
 
 (defn display
   "Render all objects."
@@ -358,9 +203,13 @@ Copyright 2012, 2013 Kyle Harrington"
       (Display/create)
       (catch LWJGLException e
         (.printStackTrace e)))
-    (try 
+    #_(try 
       (Keyboard/create)
       (Mouse/create)
+      (catch LWJGLException e
+        (.printStackTrace e)))
+    (try 
+      (reset! *gui-state* (assoc @*gui-state* :input (BrInput.)))
       (catch LWJGLException e
         (.printStackTrace e)))
     (Basic3D/initGL)            

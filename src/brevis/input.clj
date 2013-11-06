@@ -89,42 +89,6 @@ Copyright 2012, 2013 Kyle Harrington"
       (behavior)))
   state)
 
-(defn rotate-x
-  "Rotate about the X-axis"
-  [delta]
-  (swap! *gui-state* assoc
-         :rot-x (+ (:rot-x @*gui-state*) delta)))
-
-(defn rotate-y
-  "Rotate about the Y-axis"
-  [delta]
-  (swap! *gui-state* assoc
-         :rot-y (+ (:rot-y @*gui-state*) delta)))
-
-(defn rotate-z
-  "Rotate about the Z-axis"
-  [delta]
-  (swap! *gui-state* assoc
-         :rot-z (+ (:rot-z @*gui-state*) delta)))
-
-(defn shift-x
-  "Shift along the X-axis"
-  [delta]
-  (swap! *gui-state* assoc
-         :shift-x (+ (:shift-x @*gui-state*) delta)))
-
-(defn shift-y
-  "Shift along the Y-axis"
-  [delta]
-  (swap! *gui-state* assoc
-         :shift-y (+ (:shift-y @*gui-state*) delta)))
-
-(defn shift-z
-  "Shift along the Z-axis"
-  [delta]
-  (swap! *gui-state* assoc
-         :shift-z (+ (:shift-z @*gui-state*) delta)))
-
 (def mouse-translate-speed 100)
 
 (defn osd-view-transformation
