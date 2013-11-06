@@ -49,10 +49,33 @@ public class Basic3D {
     static float matSpc[] = {0.0f, 0.0f, 0.0f, 1.0f};              // Material - Specular Values                                                                   
     static float matShn[] = {0.0f, 0.0f, 0.0f, 0.0f};                                // Material - Shininess                                                       
     
+    static public int width = 640;
+    static public int height = 480;        
+    
+    private static final FloatBuffer light_position =  BufferUtils.createFloatBuffer(4);
+	private static final FloatBuffer light_ambient = BufferUtils.createFloatBuffer(4);
+	private static final FloatBuffer light_diffuse = BufferUtils.createFloatBuffer(4);
+	private static final FloatBuffer light_specular = BufferUtils.createFloatBuffer(4);
+	static {
+		light_position.put(new float[] { LIGHTX, LIGHTY, 1.0f, 0.0f }).flip();
+		light_ambient.put(new float[]{ 0.5f, 0.5f, 0.5f, 1.0f }).flip();
+		light_diffuse.put(new float[] { 1.0f, 1.0f, 1.0f, 1.0f }).flip();
+		light_specular.put(new float[] { 1.0f, 1.0f, 1.0f, 1.0f }).flip();
+	}
+    
+    static private float[] view_xyz = new float[3];	// position x,y,z
+	static private float[] view_hpr = new float[3];	// heading, pitch, roll (degrees)
+    
+	// a good bit from ode4j
     static public void initGL() {
         
-        int width = 640;
-        int height = 480;
+    	view_xyz[0] = 2;
+		view_xyz[1] = 0;
+		view_xyz[2] = 1;
+		view_hpr[0] = 180;
+		view_hpr[1] = 0;
+		view_hpr[2] = 0;
+        
         GL11.glShadeModel(GL11.GL_SMOOTH);                            // Enable Smooth Shading
         GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.5f);               // Black Background
         GL11.glClearDepth(1.0f);                                 // Depth Buffer Setup
@@ -125,6 +148,70 @@ public class Basic3D {
         GL11.glLoadIdentity();                                       // Reset The Modelview Matrix    	
     }
 	
+    static public void initFrame() {
+    	GL11.glClear( GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT );
+    	
+    	GL11.glEnable( GL11.GL_LIGHTING );
+    	GL11.glEnable( GL11.GL_LIGHT0 );
+    	GL11.glDisable (GL11.GL_TEXTURE_2D);
+		GL11.glDisable (GL11.GL_TEXTURE_GEN_S);
+		GL11.glDisable (GL11.GL_TEXTURE_GEN_T);
+		GL11.glShadeModel (GL11.GL_FLAT);
+		GL11.glEnable (GL11.GL_DEPTH_TEST);
+		GL11.glDepthFunc (GL11.GL_LESS);
+		GL11.glEnable (GL11.GL_CULL_FACE);
+		GL11.glCullFace (GL11.GL_BACK);
+		GL11.glFrontFace (GL11.GL_CCW);
+
+		// setup viewport
+		GL11.glViewport (0,0,width,height);
+		GL11.glMatrixMode (GL11.GL_PROJECTION);
+		GL11.glLoadIdentity();
+		final float vnear = 0.1f;
+		final float vfar = 100.0f;
+		final float k = 0.8f;     // view scale, 1 = +/- 45 degrees
+		if (width >= height) {
+			float k2 = (float)height/(float)width;
+			GL11.glFrustum (-vnear*k,vnear*k,-vnear*k*k2,vnear*k*k2,vnear,vfar);
+		}
+		else {
+			float k2 = (float)width/(float)height;
+			GL11.glFrustum (-vnear*k*k2,vnear*k*k2,-vnear*k,vnear*k,vnear,vfar);
+		}
+		
+		// setup lights. it makes a difference whether this is done in the
+		// GL_PROJECTION matrix mode (lights are scene relative) or the
+		// GL_MODELVIEW matrix mode (lights are camera relative, bad!).
+//				static GLfloat light_ambient[] = { 0.5, 0.5, 0.5, 1.0 };
+//				static GLfloat light_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
+//				static GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+		GL11.glLight (GL11.GL_LIGHT0, GL11.GL_AMBIENT, light_ambient);
+		GL11.glLight (GL11.GL_LIGHT0, GL11.GL_DIFFUSE, light_diffuse);
+		GL11.glLight (GL11.GL_LIGHT0, GL11.GL_SPECULAR, light_specular);
+		GL11.glColor3f (1.0f, 1.0f, 1.0f);
+
+		// clear the window
+		GL11.glClearColor (0.5f ,0.5f ,0.5f ,0);
+		GL11.glClear (GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+
+		// snapshot camera position (in MS Windows it is changed by the GUI thread)
+		float[] view2_xyz=view_xyz.clone();
+		float[] view2_hpr=view_hpr.clone();
+//				memcpy (view2_xyz,view_xyz);//,sizeof(float)*3);
+//				memcpy (view2_hpr,view_hpr);//,sizeof(float)*3);
+
+		// go to GL_MODELVIEW matrix mode and set the camera
+		GL11.glMatrixMode (GL11.GL_MODELVIEW);
+		GL11.glLoadIdentity();
+		setCamera (view2_xyz[0],view2_xyz[1],view2_xyz[2],
+				view2_hpr[0],view2_hpr[1],view2_hpr[2]);
+
+		// set the light position (for some reason we have to do this in model view.
+//				static GLfloat light_position[] = { LIGHTX, LIGHTY, 1.0, 0.0 };
+		GL11.glLight (GL11.GL_LIGHT0, GL11.GL_POSITION, light_position);
+    	
+    }
+    
 	static public void drawBox(float w, float h, float d) {
 		GL11.glBegin(GL11.GL_QUADS);
 			// Front

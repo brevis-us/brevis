@@ -220,13 +220,14 @@ so we only modify bird1."
   "Render all objects."
   []
   (let [objs (all-objects)]
-    (Basic3D/initGL)        
+    (Basic3D/initFrame)
     #_(gl-matrix-mode :modelview)
     #_(gl-load-identity-matrix)
     (use-camera (:camera @*gui-state*))
     (doseq [obj objs]
       (when (drawable? obj) ;; add a check to see if the object is in view
        (draw-shape obj)))
+    (Display/update)    
     ))
 
 (defn simulate
@@ -243,17 +244,27 @@ so we only modify bird1."
       (Display/create)
       (catch LWJGLException e
         (.printStackTrace e)))
-
     (try 
       (Keyboard/create)
       (Mouse/create)
       (catch LWJGLException e
         (.printStackTrace e)))
-    
-    (initialize)
-    (dotimes [_ 100]
-      (update [1 1] {})
-      (display))
+    (Basic3D/initGL)            
+    (initialize)    
+    (let [startTime (ref (java.lang.System/nanoTime))
+          fps (ref 0)]
+      (dotimes [k 10000]
+        (update [1 1] {})
+        (dosync (ref-set fps (inc @fps)))
+        (when (> (java.lang.System/nanoTime) @startTime)
+          (println "Update" k "FPS:" (double (/ @fps (/ (- (+ 1000000000 (java.lang.System/nanoTime)) @startTime) 1000000000))))
+          (dosync 
+            (ref-set startTime (+ (java.lang.System/nanoTime) 1000000000))
+            (ref-set fps 0)))
+        (display)))
+    (Keyboard/destroy)
+    (Mouse/destroy)
+    (Display/destroy)
     ))
 
 (defn start-gui 
