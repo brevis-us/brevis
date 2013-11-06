@@ -66,6 +66,10 @@ public class Basic3D {
     static private float[] view_xyz = new float[3];	// position x,y,z
 	static private float[] view_hpr = new float[3];	// heading, pitch, roll (degrees)
     
+	static BrLight light1 = new BrLight();// should probably have a light array
+	
+	static BrCamera displayCamera;// This is the BrCamera that gets the main GL context
+	
 	// a good bit from ode4j
     static public void initGL() {
         
@@ -75,6 +79,11 @@ public class Basic3D {
 		view_hpr[0] = 180;
 		view_hpr[1] = 0;
 		view_hpr[2] = 0;
+		
+		float fov = 45;
+		float near = 0.1f;
+		float far = 3000;
+		displayCamera = new BrCamera( view_xyz[0], view_xyz[1], view_xyz[2], view_hpr[0], view_hpr[1], view_hpr[2], fov, width, height, near, far );
         
         GL11.glShadeModel(GL11.GL_SMOOTH);                            // Enable Smooth Shading
         GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.5f);               // Black Background
@@ -92,10 +101,10 @@ public class Basic3D {
         //floatBuffer = ByteBuffer.allocateDirect(64).order(ByteOrder.nativeOrder()).asFloatBuffer();
         //byteBuffer = ByteBuffer.allocateDirect(16).order(ByteOrder.nativeOrder());
         
-        floatBuffer = ByteBuffer.allocateDirect(64);
+        /*floatBuffer = ByteBuffer.allocateDirect(64);
         floatBuffer.order(ByteOrder.nativeOrder());
         byteBuffer = ByteBuffer.allocateDirect(16);
-        byteBuffer.order(ByteOrder.nativeOrder());
+        byteBuffer.order(ByteOrder.nativeOrder());*/
         /*
         GL11.glLight(GL11.GL_LIGHT1, GL11.GL_POSITION, (FloatBuffer)floatBuffer.put(lightPos).flip());        // Set Light1 Position
         GL11.glLight(GL11.GL_LIGHT1, GL11.GL_AMBIENT, (FloatBuffer)floatBuffer.put(lightAmb).flip());         // Set Light1 Ambience
@@ -109,7 +118,7 @@ public class Basic3D {
         GL11.glMaterial(GL11.GL_FRONT, GL11.GL_SPECULAR, (FloatBuffer)floatBuffer.put(matSpc).flip());        // Set Material Specular
         GL11.glMaterial(GL11.GL_FRONT, GL11.GL_SHININESS, (FloatBuffer)floatBuffer.put(matShn).flip());       // Set Material Shininess
 */
-        
+        /*
         GL11.glLight(GL11.GL_LIGHT1, GL11.GL_POSITION, (FloatBuffer)byteBuffer.asFloatBuffer().put(lightPos).flip());        // Set Light1 Position         
         GL11.glLight(GL11.GL_LIGHT1, GL11.GL_AMBIENT, (FloatBuffer)byteBuffer.asFloatBuffer().put(lightAmb).flip());         // Set Light1 Ambience         
         GL11.glLight(GL11.GL_LIGHT1, GL11.GL_DIFFUSE, (FloatBuffer)byteBuffer.asFloatBuffer().put(lightDif).flip());         // Set Light1 Diffuse          
@@ -121,9 +130,12 @@ public class Basic3D {
         GL11.glMaterial(GL11.GL_FRONT, GL11.GL_DIFFUSE, (FloatBuffer)byteBuffer.asFloatBuffer().put(matDif).flip());         // Set Material Diffuse        
         GL11.glMaterial(GL11.GL_FRONT, GL11.GL_SPECULAR, (FloatBuffer)byteBuffer.asFloatBuffer().put(matSpc).flip());        // Set Material Specular       
         GL11.glMaterial(GL11.GL_FRONT, GL11.GL_SHININESS, (FloatBuffer)byteBuffer.asFloatBuffer().put(matShn).flip());       // Set Material Shininess        
-        
+        */
         //GL11.glCullFace(GL11.GL_BACK);                                // Set Culling Face To Back Face
         //GL11.glEnable(GL11.GL_CULL_FACE);                             // Enable Culling
+        
+        light1.enable();
+        
         GL11.glClearColor(0.1f, 1.0f, 0.5f, 1.0f);               // Set Clear Color (Greenish Color)
 
 /*        q = new Sphere();                               // Initialize Quadratic
@@ -151,8 +163,11 @@ public class Basic3D {
     static public void initFrame() {
     	GL11.glClear( GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT );
     	
-    	GL11.glEnable( GL11.GL_LIGHTING );
-    	GL11.glEnable( GL11.GL_LIGHT0 );
+    	//GL11.glEnable( GL11.GL_LIGHTING );
+    	//GL11.glEnable( GL11.GL_LIGHT0 );
+    	
+    	light1.enable();
+    	
     	GL11.glDisable (GL11.GL_TEXTURE_2D);
 		GL11.glDisable (GL11.GL_TEXTURE_GEN_S);
 		GL11.glDisable (GL11.GL_TEXTURE_GEN_T);
@@ -185,9 +200,13 @@ public class Basic3D {
 //				static GLfloat light_ambient[] = { 0.5, 0.5, 0.5, 1.0 };
 //				static GLfloat light_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
 //				static GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-		GL11.glLight (GL11.GL_LIGHT0, GL11.GL_AMBIENT, light_ambient);
+
+		/*GL11.glLight (GL11.GL_LIGHT0, GL11.GL_AMBIENT, light_ambient);
 		GL11.glLight (GL11.GL_LIGHT0, GL11.GL_DIFFUSE, light_diffuse);
-		GL11.glLight (GL11.GL_LIGHT0, GL11.GL_SPECULAR, light_specular);
+		GL11.glLight (GL11.GL_LIGHT0, GL11.GL_SPECULAR, light_specular);*/
+		
+		light1.enable();
+		
 		GL11.glColor3f (1.0f, 1.0f, 1.0f);
 
 		// clear the window

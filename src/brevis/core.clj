@@ -35,8 +35,9 @@ Copyright 2012, 2013 Kyle Harrington"
            (java.nio ByteBuffer)
            (java.io File IOException)
            (javax.imageio ImageIO)
-           (org.lwjgl.opengl Display GL11)
-           (org.lwjgl BufferUtils)))
+           (org.lwjgl.input Keyboard Mouse)
+           (org.lwjgl.opengl Display GL11 DisplayMode GLContext)
+           (org.lwjgl BufferUtils LWJGLException Sys)))
 
 ;; ## Todo:
 ;;
@@ -256,12 +257,13 @@ Copyright 2012, 2013 Kyle Harrington"
     #_(enable :cull-face)
     #_(cull-face :black)
     ;GL11.glFrontFace (GL11.GL_CCW);
-    (viewport 0 0 (:window-width @*gui-state*) (:window-height @*gui-state*))
+    #_(viewport 0 0 (:window-width @*gui-state*) (:window-height @*gui-state*))
+    (viewport 0 0 (.width (:camera @*gui-state*)) (.height (:camera @*gui-state*)))
     (gl-matrix-mode :projection)
     (gl-load-identity-matrix)
     ;should if on width>height
     ;(frustum-view 60.0 (/ (double (:window-width @*gui-state*)) (:window-height @*gui-state*)) 1.0 1000.0)
-    (frustum-view 60.0 (/ (double (:window-width @*gui-state*)) (:window-height @*gui-state*)) 0.1 3000)
+    (frustum-view 60.0 (/ (.width (:camera @*gui-state*)) (.height (:camera @*gui-state*))) 0.1 3000)
     #_(light 0 
          :specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
          :position [0 1 0 0];;directional can be enabled after the penumbra update         
@@ -317,6 +319,80 @@ Copyright 2012, 2013 Kyle Harrington"
 	  (reset! *app-thread*
            (Thread. (fn [] 
                       (app/start
+                             {:reshape reshape, :init (make-init initialize), :mouse-drag mouse-drag, :key-press key-press :mouse-wheel mouse-wheel, :update update, :display display
+                              :key-release key-release
+                              ;:mouse-move    (fn [[[dx dy] [x y]] state] (println )
+                              ;:mouse-up       (fn [[x y] button state] (println button) state)
+                              ;:mouse-click   (fn [[x y] button state] (println button) state)
+                              ;:mouse-down    (fn [[x y] button state] (println button) state)
+                              ;:mouse-wheel   (fn [dw state] (println dw) state)
+                              }        
+                             @*gui-state*))))
+   (.start @*app-thread*)))
+
+(defn display
+  "Render all objects."
+  []
+  (let [objs (all-objects)]
+    (Basic3D/initFrame)
+    #_(gl-matrix-mode :modelview)
+    #_(gl-load-identity-matrix)
+    (use-camera (:camera @*gui-state*))
+    (doseq [obj objs]
+      (when (drawable? obj) ;; add a check to see if the object is in view
+       (draw-shape obj)))
+    (Display/update)    
+    ))
+
+(defn simulate
+  "Simulation loop."
+  [initialize update]
+  (let [width (.width (:camera @*gui-state*))
+        height (.height (:camera @*gui-state*))]
+    (Display/setLocation (/ (- (.getWidth (Display/getDisplayMode)) width) 2)
+                         (/ (- (.getHeight (Display/getDisplayMode)) height) 2))
+    (try 
+      (Display/setDisplayMode (DisplayMode. width height))
+      (Display/setTitle "Brevis")
+      (Display/setVSyncEnabled true)
+      (Display/create)
+      (catch LWJGLException e
+        (.printStackTrace e)))
+    (try 
+      (Keyboard/create)
+      (Mouse/create)
+      (catch LWJGLException e
+        (.printStackTrace e)))
+    (Basic3D/initGL)            
+    (initialize)    
+    (let [startTime (ref (java.lang.System/nanoTime))
+          fps (ref 0)]
+      (dotimes [k 10000]
+        (update [1 1] {})
+        (dosync (ref-set fps (inc @fps)))
+        (when (> (java.lang.System/nanoTime) @startTime)
+          (println "Update" k "FPS:" (double (/ @fps (/ (- (+ 1000000000 (java.lang.System/nanoTime)) @startTime) 1000000000))))
+          (dosync 
+            (ref-set startTime (+ (java.lang.System/nanoTime) 1000000000))
+            (ref-set fps 0)))
+        (display)))
+    (Keyboard/destroy)
+    (Mouse/destroy)
+    (Display/destroy)
+    ))
+
+(defn start-gui 
+  "Start the simulation with a GUI."
+  ([initialize]
+    (start-gui initialize java-update-world))    
+  ([initialize update]
+    (reset! *gui-message-board* (sorted-map))
+    (when (.contains (System/getProperty "os.name") "indows")
+      (reset! enable-display-text false))
+	  (reset! *app-thread*
+           (Thread. (fn []
+                      (simulate initialize update)
+                      #_(app/start
                              {:reshape reshape, :init (make-init initialize), :mouse-drag mouse-drag, :key-press key-press :mouse-wheel mouse-wheel, :update update, :display display
                               :key-release key-release
                               ;:mouse-move    (fn [[[dx dy] [x y]] state] (println )

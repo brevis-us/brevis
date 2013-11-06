@@ -25,7 +25,8 @@ Copyright 2012, 2013 Kyle Harrington"
                         :fullscreen false
                         ;:resizeable true;; this cannot be changed during runtime
                         ;:camera (BrCamera. 300 300 -50 90 -70 45 60 (/ 4 3) 0.1 4000)
-                        :camera (BrCamera. 300 300 -50 162 -56 0 60 (/ 4 3) 0.1 4000)
+                        ;:camera (BrCamera. 300 300 -50 162 -56 0 60 (/ 4 3) 0.1 4000)
+                        :camera (BrCamera. 300 100 -50 0 -180 90 60 640 480 0.1 4000)
                         ;:rot-x 90 :rot-y -90 :rot-z -45
                         ;:shift-x 300 :shift-y 300 :shift-z -50;-30                                   
                         :last-report-time 0 :simulation-time 0})

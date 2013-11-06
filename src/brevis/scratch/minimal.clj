@@ -1,8 +1,4 @@
-(ns brevis.scratch.minimal
-  (:import (org.lwjgl LWJGLException Sys)
-           (org.lwjgl.input Keyboard Mouse)
-           (org.lwjgl.opengl Display DisplayMode GLContext)
-           (brevis.graphics Basic3D))
+(ns brevis.scratch.minimal  
   (:require [penumbra.app :as app]            
             [clojure.math.numeric-tower :as math]
             [penumbra.text :as text]
@@ -13,7 +9,7 @@
         [brevis.physics collision core space utils]
         [brevis.shape box sphere cone]
         [brevis osd vector globals input utils]
-        [brevis.core :exclude [start-gui display]]))
+        [brevis.core]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Swarm
@@ -148,147 +144,6 @@ so we only modify bird1."
   (add-object (make-floor 500 500))
   (dotimes [_ num-birds]
     (add-object (random-bird))))
-
-#_(defn display
-  "Display the world."
-  [[dt t] state]
-  (let [state (if (:auto-camera state) (auto-camera state) state)]
-    (enable :lighting)
-    (enable :light0)
-    #_(enable :light1)
-    (enable :texture-2D)
-    (disable :texture-gen-s)
-		(disable :texture-gen-t)
-    (shade-model :smooth)
-    (enable :blend)
-    (blend-func :src-alpha :one-minus-src-alpha)  
-    (enable :normalize)
-    (enable :depth-test)
-    (depth-test :lequal)
-    #_(enable :cull-face)
-    #_(cull-face :black)
-    ;GL11.glFrontFace (GL11.GL_CCW);
-    (viewport 0 0 (:window-width @*gui-state*) (:window-height @*gui-state*))
-    (gl-matrix-mode :projection)
-    (gl-load-identity-matrix)
-    ;should if on width>height
-    ;(frustum-view 60.0 (/ (double (:window-width @*gui-state*)) (:window-height @*gui-state*)) 1.0 1000.0)
-    (frustum-view 60.0 (/ (double (:window-width @*gui-state*)) (:window-height @*gui-state*)) 0.1 3000)
-    #_(light 0 
-         :specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
-         :position [0 1 0 0];;directional can be enabled after the penumbra update         
-         ;:position [250 250 -100 1]         
-         :diffuse [1 1 1 1])
-    (color 1 1 1)
-    (clear-color 0.5 0.5 0.5 0)
-    #_(Basic3D/initGL)    
-    #_(clear)
-    (gl-matrix-mode :modelview)
-    ;(GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST)
-    (gl-load-identity-matrix)
-    (use-camera (:camera @*gui-state*))
-    (light 0
-           :ambient [0 0 0 1]
-           ;:specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
-           :position [1 1 1 0];;directional can be enabled after the penumbra update         
-           ;:position [250 250 -100 1]         
-           ;:diffuse [1 1 1 1]
-           )    
-    (draw-sky)
-   (enable :lighting)
-   (disable :texture-2D)
-   ;(shade-model :flat)
-   ;(enable :depth-test)
-   ;(depth-test :less)
-   (color 1 1 1)
-	  (doseq [obj (get-objects)]
-     (when (drawable? obj) ;; add a check to see if the object is in view
-       (draw-shape obj)))
-   (when @enable-display-text
-     (update-display-text [dt t] state))
-	  (app/repaint!)
-   (when @*screenshot-filename*
-     (screenshot @*screenshot-filename* state)
-     (reset! *screenshot-filename* nil))
-   (when (:record-video @*gui-state*)
-     (screenshot (str (:video-name @*gui-state*) "_" @video-counter ".png") state)
-     (swap! video-counter inc))   
-     ;(screenshot (str (:video-name @*gui-state*) "_" (get-time) ".png") state))
-   ))
-
-(defn display
-  "Render all objects."
-  []
-  (let [objs (all-objects)]
-    (Basic3D/initFrame)
-    #_(gl-matrix-mode :modelview)
-    #_(gl-load-identity-matrix)
-    (use-camera (:camera @*gui-state*))
-    (doseq [obj objs]
-      (when (drawable? obj) ;; add a check to see if the object is in view
-       (draw-shape obj)))
-    (Display/update)    
-    ))
-
-(defn simulate
-  "Simulation loop."
-  [initialize update]
-  (let [width 800
-        height 600]
-    (Display/setLocation (/ (- (.getWidth (Display/getDisplayMode)) width) 2)
-                         (/ (- (.getHeight (Display/getDisplayMode)) height) 2))
-    (try 
-      (Display/setDisplayMode (DisplayMode. width height))
-      (Display/setTitle "Brevis")
-      (Display/setVSyncEnabled true)
-      (Display/create)
-      (catch LWJGLException e
-        (.printStackTrace e)))
-    (try 
-      (Keyboard/create)
-      (Mouse/create)
-      (catch LWJGLException e
-        (.printStackTrace e)))
-    (Basic3D/initGL)            
-    (initialize)    
-    (let [startTime (ref (java.lang.System/nanoTime))
-          fps (ref 0)]
-      (dotimes [k 10000]
-        (update [1 1] {})
-        (dosync (ref-set fps (inc @fps)))
-        (when (> (java.lang.System/nanoTime) @startTime)
-          (println "Update" k "FPS:" (double (/ @fps (/ (- (+ 1000000000 (java.lang.System/nanoTime)) @startTime) 1000000000))))
-          (dosync 
-            (ref-set startTime (+ (java.lang.System/nanoTime) 1000000000))
-            (ref-set fps 0)))
-        (display)))
-    (Keyboard/destroy)
-    (Mouse/destroy)
-    (Display/destroy)
-    ))
-
-(defn start-gui 
-  "Start the simulation with a GUI."
-  ([initialize]
-    (start-gui initialize java-update-world))    
-  ([initialize update]
-    (reset! *gui-message-board* (sorted-map))
-    (when (.contains (System/getProperty "os.name") "indows")
-      (reset! enable-display-text false))
-	  (reset! *app-thread*
-           (Thread. (fn []
-                      (simulate initialize update)
-                      #_(app/start
-                             {:reshape reshape, :init (make-init initialize), :mouse-drag mouse-drag, :key-press key-press :mouse-wheel mouse-wheel, :update update, :display display
-                              :key-release key-release
-                              ;:mouse-move    (fn [[[dx dy] [x y]] state] (println )
-                              ;:mouse-up       (fn [[x y] button state] (println button) state)
-                              ;:mouse-click   (fn [[x y] button state] (println button) state)
-                              ;:mouse-down    (fn [[x y] button state] (println button) state)
-                              ;:mouse-wheel   (fn [dw state] (println dw) state)
-                              }        
-                             @*gui-state*))))
-   (.start @*app-thread*)))
 
 ;; Start zee macheen
 (defn -main [& args]

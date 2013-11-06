@@ -34,12 +34,14 @@ public class BrCamera {
 	private final float nearClippingPlane;
 	// farClippingPlane = Render distance from the camera
 	private final float farClippingPlane;
+	public float width;
+	public float height;
 	
 	private static final double DEG_TO_RAD = Math.PI/180.0; 
 
 	public BrCamera(float x, float y, float z, 
 			float pitch, float yaw, float roll, 
-			float fov, float aspectRatio, float zNear, float zFar) {
+			float fov, float width, float height, float zNear, float zFar) {
 		super();
 
 		this.x = x;
@@ -49,7 +51,9 @@ public class BrCamera {
 		this.yaw = yaw;
 		this.roll = roll;
 		this.fov = fov;
-		this.aspectRatio = aspectRatio;
+		this.aspectRatio = ( width/height > 1 ? width/height : height/width );
+		this.width = width;
+		this.height = height;
 		this.nearClippingPlane = zNear;
 		this.farClippingPlane = zFar;
 	}
