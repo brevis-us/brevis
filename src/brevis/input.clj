@@ -41,7 +41,7 @@ input-class: indicates the class of input. Currently supports (:key-press, :mous
         input-type (make-input-type input-class input-specs)
         input-handler (proxy [brevis.BrInput$InputHandler] []
                         (trigger [#^brevis.Engine engine]
-                          (println "clojure input trigger.")))]
+                          (behavior)))]
     (.addInputHandler (:input @*gui-state*) input-type input-handler)))
 
 (def keyspeed 10000)
@@ -51,8 +51,7 @@ input-class: indicates the class of input. Currently supports (:key-press, :mous
   []
   (add-input-handler :key-press
                      {:key-id "I"}
-                     #(do (swap! *gui-state* assoc :fullscreen (not (:fullscreen @*gui-state*)))
-                          (app/fullscreen! (:fullscreen @*gui-state*))))
+                     #(swap! *gui-state* assoc :fullscreen (not (:fullscreen @*gui-state*))))
   (add-input-handler :key-press
                      {:key-id "W"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 true false false false false false))
@@ -73,13 +72,13 @@ input-class: indicates the class of input. Currently supports (:key-press, :mous
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false false false false true))
   (add-input-handler :key-press
                      {:key-id "P"}
-                     #(app/pause!))
+                     #(swap! *gui-state* assoc :pause (not (:pause @*gui-state*))))
   (add-input-handler :key-press
                      {:key-id "O"}
                      #(screenshot (str "brevis_screenshot_" (System/currentTimeMillis) ".png")))
   (add-input-handler :key-press
                      {:key-id "ESCAPE"}
-                     #(app/stop!)))
+                     #(swap! *gui-state* assoc :close-requested true)))
 ;; Currently forcing default input handlers to be enabled
 #_(default-input-handlers)
 

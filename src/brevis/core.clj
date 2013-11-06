@@ -217,16 +217,20 @@ Copyright 2012, 2013 Kyle Harrington"
     (default-input-handlers)
     (let [startTime (ref (java.lang.System/nanoTime))
           fps (ref 0)]
-      (dotimes [k 10000]
-        (.pollInput (:input @*gui-state*) @*java-engine*)
-        (update [1 1] {})
-        (dosync (ref-set fps (inc @fps)))
-        (when (> (java.lang.System/nanoTime) @startTime)
-          (println "Update" k "FPS:" (double (/ @fps (/ (- (+ 1000000000 (java.lang.System/nanoTime)) @startTime) 1000000000))))
-          (dosync 
-            (ref-set startTime (+ (java.lang.System/nanoTime) 1000000000))
-            (ref-set fps 0)))
-        (display)))
+      (loop [step 0]             
+        (if (:close-requested @*gui-state*)
+          (println "Closing application.")
+          (do
+            (.pollInput (:input @*gui-state*) @*java-engine*)
+            (update [1 1] {})
+            (dosync (ref-set fps (inc @fps)))
+            (when (> (java.lang.System/nanoTime) @startTime)
+              (println "Update" step "FPS:" (double (/ @fps (/ (- (+ 1000000000 (java.lang.System/nanoTime)) @startTime) 1000000000))))
+              (dosync 
+                (ref-set startTime (+ (java.lang.System/nanoTime) 1000000000))
+                (ref-set fps 0)))
+            (display)
+            (recur (inc step))))))
     (Keyboard/destroy)
     (Mouse/destroy)
     (Display/destroy)
