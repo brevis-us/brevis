@@ -1,5 +1,6 @@
 package brevis;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +21,14 @@ public class BrInput {
 		public boolean test() {
 			return false;
 		}
+	}
+	
+	static public InputType makeInputType( String inputClass, ArrayList<String> parms ) {
+		InputType it = new InputType();
+		if( inputClass.contains("mouse") ) it.mouseType = true;
+		if( inputClass.contains("keyboard") ) it.keyboardType = true;
+		it.id = parms.get(0);
+		return it;
 	}
 	
 	public static class InputHandler {
@@ -46,5 +55,9 @@ public class BrInput {
 				entry.getValue().trigger( engine );
 			}
 		}
+	}
+	
+	public void addInputHandler( InputType it, InputHandler ih ) {
+		inputHandlers.put( it, ih );
 	}
 }

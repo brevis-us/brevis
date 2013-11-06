@@ -193,7 +193,7 @@ Copyright 2012, 2013 Kyle Harrington"
   "Simulation loop."
   [initialize update]
   (let [width (.width (:camera @*gui-state*))
-        height (.height (:camera @*gui-state*))]
+        height (.height (:camera @*gui-state*))]    
     (Display/setLocation (/ (- (.getWidth (Display/getDisplayMode)) width) 2)
                          (/ (- (.getHeight (Display/getDisplayMode)) height) 2))
     (try 
@@ -207,16 +207,18 @@ Copyright 2012, 2013 Kyle Harrington"
       (Keyboard/create)
       (Mouse/create)
       (catch LWJGLException e
-        (.printStackTrace e)))
+        (.printStackTrace e)))    
+    (Basic3D/initGL)            
+    (initialize)
     (try 
       (reset! *gui-state* (assoc @*gui-state* :input (BrInput.)))
       (catch LWJGLException e
         (.printStackTrace e)))
-    (Basic3D/initGL)            
-    (initialize)    
+    (default-input-handlers)
     (let [startTime (ref (java.lang.System/nanoTime))
           fps (ref 0)]
       (dotimes [k 10000]
+        (.pollInput (:input @*gui-state*) @*java-engine*)
         (update [1 1] {})
         (dosync (ref-set fps (inc @fps)))
         (when (> (java.lang.System/nanoTime) @startTime)

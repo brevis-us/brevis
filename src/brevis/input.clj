@@ -16,6 +16,7 @@
 Copyright 2012, 2013 Kyle Harrington"     
 
 (ns brevis.input
+  (:import (brevis BrInput))
   (:require [penumbra.app :as app])
   (:use [brevis globals display utils osd vector]
         [brevis.physics utils]))
@@ -27,12 +28,21 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn sin [n] (float (Math/sin n)))
 (defn cos [n] (float (Math/cos n)))
 
+(defn make-input-type
+  "Make an input type for input class based upon the input specifications."
+  [input-class input-specs]
+  (BrInput/makeInputType input-class (java.util.ArrayList. (vals input-specs))))
+
 (defn add-input-handler
-  "Add an input handler."
-  [input-type input-predicate behavior]
-  (reset! *input-handlers*
-          (assoc-in @*input-handlers*
-                    [:key-press input-predicate] behavior)))
+  "Add an input handler.
+input-class: indicates the class of input. Currently supports (:key-press, :mouse-drag, :mouse-click)"
+  [input-class input-specs behavior]
+  (let [input-class (if (keyword? input-class) (str (name input-class)) input-class)
+        input-type (make-input-type input-class input-specs)
+        input-handler (proxy [brevis.BrInput$InputHandler] []
+                        (trigger [#^brevis.Engine engine]
+                          (println "clojure input trigger.")))]
+    (.addInputHandler (:input @*gui-state*) input-type input-handler)))
 
 (def keyspeed 10000)
 
@@ -40,38 +50,38 @@ Copyright 2012, 2013 Kyle Harrington"
   "Define the default input handlers."
   []
   (add-input-handler :key-press
-                     #(= "i" %)
+                     {:key-id "i"}
                      #(do (swap! *gui-state* assoc :fullscreen (not (:fullscreen @*gui-state*)))
                           (app/fullscreen! (:fullscreen @*gui-state*))))
   (add-input-handler :key-press
-                     #(= "w" %)
+                     {:key-id "w"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 true false false false false false))
   (add-input-handler :key-press
-                     #(= "a" %)
+                     {:key-id "a"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false true false false false))
   (add-input-handler :key-press
-                     #(= "s" %)
+                     {:key-id "s"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false true false false false false))
   (add-input-handler :key-press
-                     #(= "d" %)
+                     {:key-id "d"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false false true false false))
   (add-input-handler :key-press
-                     #(= "c" %)
+                     {:key-id "c"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false false false true false))
   (add-input-handler :key-press
-                     #(= :lshift %)
+                     {:key-id "lshift"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false false false false true))
   (add-input-handler :key-press
-                     #(= "p" %)
+                     {:key-id "p"}
                      #(app/pause!))
   (add-input-handler :key-press
-                     #(= "o" %)
+                     {:key-id "o"}
                      #(screenshot (str "brevis_screenshot_" (System/currentTimeMillis) ".png")))
   (add-input-handler :key-press
-                     #(= :escape %)
+                     {:key-id "escape"}
                      #(app/stop!)))
 ;; Currently forcing default input handlers to be enabled
-(default-input-handlers)
+#_(default-input-handlers)
 
 (defn key-press
   "Update the state in response to a keypress."
