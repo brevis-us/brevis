@@ -109,7 +109,7 @@ Copyright 2012, 2013 Kyle Harrington"
                            new-acceleration
                            (mul new-acceleration (/ 1 (length new-acceleration))))]
     (set-acceleration
-      (if (> (length (get-position bird)) 500)
+      (if (> (length (get-position bird)) 700)
         (move bird (vec3 0 25 0))
         bird)
       (bound-acceleration
@@ -136,7 +136,7 @@ so we only modify bird1."
 (defn land
   "Collision between a bird and the floor."
   [bird floor]
-  [(set-velocity (set-acceleration bird (vec3 0 10.5 0)) (vec3 0 0 0));; maybe move as well       
+  [(set-velocity (set-acceleration bird (vec3 0 10.5 0)) (vec3 0 10.0 0));; maybe move as well       
    floor])
 
 (add-collision-handler :bird :bird bump)
@@ -151,7 +151,7 @@ so we only modify bird1."
   (init-world)
   (init-view)
   (set-dt 0.1)
-  (set-neighborhood-radius 1000)
+  (set-neighborhood-radius 500)
   (default-display-text)
   (add-object (make-floor 500 500))
   (dotimes [_ num-birds]

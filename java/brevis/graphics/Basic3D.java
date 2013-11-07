@@ -85,6 +85,8 @@ public class Basic3D {
 		float far = 3000;
 		//displayCamera = new BrCamera( view_xyz[0], view_xyz[1], view_xyz[2], view_hpr[0], view_hpr[1], view_hpr[2], fov, width, height, near, far );
         
+		light1.setPosition( new float[]{ 1.0f, 0.4f, 1.0f, 0.0f } );
+		
         GL11.glShadeModel(GL11.GL_SMOOTH);                            // Enable Smooth Shading
         GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.5f);               // Black Background
         GL11.glClearDepth(1.0f);                                 // Depth Buffer Setup
@@ -166,7 +168,7 @@ public class Basic3D {
     	//GL11.glEnable( GL11.GL_LIGHTING );
     	//GL11.glEnable( GL11.GL_LIGHT0 );
     	
-    	light1.enable();
+    	//light1.enable();
     	
     	GL11.glDisable (GL11.GL_TEXTURE_2D);
 		GL11.glDisable (GL11.GL_TEXTURE_GEN_S);

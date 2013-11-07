@@ -21,8 +21,8 @@ public class BrLight {
     //static ByteBuffer byteBuffer;
     //static ByteBuffer floatBuffer;
     
-    static float lightPos[] = { 0.0f, 1.0f, 0.0f, 1.0f};           // Light Position                                                                               
-    static float lightAmb[] = { 0.2f, 0.2f, 0.2f, 1.0f};           // Ambient Light Values                                                                         
+    static float lightPos[] = { 0.0f, 1.0f, 0.0f, 0.0f};           // Light Position                                                                               
+    static float lightAmb[] = { 0.75f, 0.75f, 0.75f, 1.0f};           // Ambient Light Values                                                                         
     static float lightDif[] = { 0.6f, 0.6f, 0.6f, 1.0f};           // Diffuse Light Values                                                                         
     static float lightSpc[] = {-0.2f, -0.2f, -0.2f, 1.0f};         // Specular Light Values    
 	
