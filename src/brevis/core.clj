@@ -44,6 +44,18 @@ Copyright 2012, 2013 Kyle Harrington"
 ;;
 ;; - Picking algorithm for choosing 3D objects with mouse
 
+;; ## Camera
+
+(defn move-from-look
+  "Move a camera according to some dX, dY, dZ."
+  [cam dx dy dz]
+  (.moveFromLook cam dx dy dz))
+
+(defn rotate-from-look
+  "Rotate a camera according to some dR (roll), dP (pitch), dW (yaw)."
+  [cam dr dp dw]
+  (.rotateFromLook cam dr dp dw))
+
 ;; ## Window and Graphical Environment
 
 #_(defn init
@@ -179,10 +191,10 @@ Copyright 2012, 2013 Kyle Harrington"
   "Render all objects."
   []
   (let [objs (all-objects)]
-    (Basic3D/initFrame)
+    (Basic3D/initFrame (:camera @*gui-state*))
     #_(gl-matrix-mode :modelview)
     #_(gl-load-identity-matrix)
-    (use-camera (:camera @*gui-state*))
+    #_(use-camera (:camera @*gui-state*))
     (doseq [obj objs]
       (when (drawable? obj) ;; add a check to see if the object is in view
        (draw-shape obj)))
@@ -192,49 +204,50 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn simulate
   "Simulation loop."
   [initialize update]
-  (let [width (.width (:camera @*gui-state*))
-        height (.height (:camera @*gui-state*))]    
-    (Display/setLocation (/ (- (.getWidth (Display/getDisplayMode)) width) 2)
-                         (/ (- (.getHeight (Display/getDisplayMode)) height) 2))
-    (try 
-      (Display/setDisplayMode (DisplayMode. width height))
-      (Display/setTitle "Brevis")
-      (Display/setVSyncEnabled true)
-      (Display/create)
-      (catch LWJGLException e
+  (Display/setLocation (/ (- (.getWidth (Display/getDisplayMode)) (.width (:camera @*gui-state*))) 2)
+                       (/ (- (.getHeight (Display/getDisplayMode)) (.height (:camera @*gui-state*))) 2))
+  (try 
+    (Display/setDisplayMode (DisplayMode. (.width (:camera @*gui-state*)) (.height (:camera @*gui-state*))))
+    (Display/setTitle "Brevis")
+    (Display/setVSyncEnabled true)
+    (Display/setResizable true)
+    (Display/create)
+    (catch LWJGLException e
         (.printStackTrace e)))
-    #_(try 
-      (Keyboard/create)
-      (Mouse/create)
-      (catch LWJGLException e
-        (.printStackTrace e)))    
-    (Basic3D/initGL)            
-    (initialize)
-    (try 
-      (reset! *gui-state* (assoc @*gui-state* :input (BrInput.)))
-      (catch LWJGLException e
-        (.printStackTrace e)))
-    (default-input-handlers)
-    (let [startTime (ref (java.lang.System/nanoTime))
-          fps (ref 0)]
-      (loop [step 0]             
-        (if (:close-requested @*gui-state*)
-          (println "Closing application.")
-          (do
-            (.pollInput (:input @*gui-state*) @*java-engine*)
-            (update [1 1] {})
-            (dosync (ref-set fps (inc @fps)))
-            (when (> (java.lang.System/nanoTime) @startTime)
-              (println "Update" step "FPS:" (double (/ @fps (/ (- (+ 1000000000 (java.lang.System/nanoTime)) @startTime) 1000000000))))
-              (dosync 
-                (ref-set startTime (+ (java.lang.System/nanoTime) 1000000000))
-                (ref-set fps 0)))
+  (Basic3D/initGL)            
+  (initialize)
+  (try 
+    (reset! *gui-state* (assoc @*gui-state* :input (BrInput.)))
+    (catch LWJGLException e
+      (.printStackTrace e)))
+  (default-input-handlers)
+  (let [startTime (ref (java.lang.System/nanoTime))
+        fps (ref 0)
+        display? true]
+    (loop [step 0]             
+      (if (:close-requested @*gui-state*)
+        (println "Closing application.")
+        (do
+          (.pollInput (:input @*gui-state*) @*java-engine*)
+          (update [1 1] {})
+          (dosync (ref-set fps (inc @fps)))
+          (when (> (java.lang.System/nanoTime) @startTime)
+            #_(println "Update" step "FPS:" (double (/ @fps (/ (- (+ 1000000000 (java.lang.System/nanoTime)) @startTime) 1000000000))))
+            (dosync 
+              (ref-set startTime (+ (java.lang.System/nanoTime) 1000000000))
+              (ref-set fps 0)))
+          (when display?            
+            (when (Display/wasResized) (.setDimensions (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
+            #_(println "fullscreen" (:fullscreen @*gui-state*) (not (Display/isFullscreen)))
+            #_(when (and (:fullscreen @*gui-state*) (not (Display/isFullscreen))) (println "going fullscreen") (Display/setFullscreen true))
+            #_(when (and (not (:fullscreen @*gui-state*)) (Display/isFullscreen)) (println "disable fullscreen") (Display/setFullscreen false))
             (display)
-            (recur (inc step))))))
-    (Keyboard/destroy)
-    (Mouse/destroy)
-    (Display/destroy)
-    ))
+              )
+          (recur (inc step))))))
+  (Keyboard/destroy)
+  (Mouse/destroy)
+  (Display/destroy)
+  )
 
 (defn start-gui 
   "Start the simulation with a GUI."

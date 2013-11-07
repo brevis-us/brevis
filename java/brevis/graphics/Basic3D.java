@@ -68,7 +68,7 @@ public class Basic3D {
     
 	static BrLight light1 = new BrLight();// should probably have a light array
 	
-	static BrCamera displayCamera;// This is the BrCamera that gets the main GL context
+	//static BrCamera displayCamera;// This is the BrCamera that gets the main GL context
 	
 	// a good bit from ode4j
     static public void initGL() {
@@ -83,7 +83,7 @@ public class Basic3D {
 		float fov = 45;
 		float near = 0.1f;
 		float far = 3000;
-		displayCamera = new BrCamera( view_xyz[0], view_xyz[1], view_xyz[2], view_hpr[0], view_hpr[1], view_hpr[2], fov, width, height, near, far );
+		//displayCamera = new BrCamera( view_xyz[0], view_xyz[1], view_xyz[2], view_hpr[0], view_hpr[1], view_hpr[2], fov, width, height, near, far );
         
         GL11.glShadeModel(GL11.GL_SMOOTH);                            // Enable Smooth Shading
         GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.5f);               // Black Background
@@ -160,7 +160,7 @@ public class Basic3D {
         GL11.glLoadIdentity();                                       // Reset The Modelview Matrix    	
     }
 	
-    static public void initFrame() {
+    static public void initFrame( BrCamera displayCamera ) {
     	GL11.glClear( GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT );
     	
     	//GL11.glEnable( GL11.GL_LIGHTING );
@@ -179,7 +179,9 @@ public class Basic3D {
 		GL11.glFrontFace (GL11.GL_CCW);
 
 		// setup viewport
-		GL11.glViewport (0,0,width,height);
+		//displayCamera.setupFrame();		
+		
+		/*GL11.glViewport (0,0,width,height);
 		GL11.glMatrixMode (GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 		final float vnear = 0.1f;
@@ -192,7 +194,7 @@ public class Basic3D {
 		else {
 			float k2 = (float)width/(float)height;
 			GL11.glFrustum (-vnear*k*k2,vnear*k*k2,-vnear*k,vnear*k,vnear,vfar);
-		}
+		}*/
 		
 		// setup lights. it makes a difference whether this is done in the
 		// GL_PROJECTION matrix mode (lights are scene relative) or the
@@ -214,20 +216,21 @@ public class Basic3D {
 		GL11.glClear (GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
 		// snapshot camera position (in MS Windows it is changed by the GUI thread)
-		float[] view2_xyz=view_xyz.clone();
-		float[] view2_hpr=view_hpr.clone();
+		//float[] view2_xyz=view_xyz.clone();
+		//float[] view2_hpr=view_hpr.clone();
 //				memcpy (view2_xyz,view_xyz);//,sizeof(float)*3);
 //				memcpy (view2_hpr,view_hpr);//,sizeof(float)*3);
 
 		// go to GL_MODELVIEW matrix mode and set the camera
 		GL11.glMatrixMode (GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
-		setCamera (view2_xyz[0],view2_xyz[1],view2_xyz[2],
-				view2_hpr[0],view2_hpr[1],view2_hpr[2]);
+		displayCamera.setupFrame();		
+		//setCamera (view2_xyz[0],view2_xyz[1],view2_xyz[2],
+		//		view2_hpr[0],view2_hpr[1],view2_hpr[2]);
 
 		// set the light position (for some reason we have to do this in model view.
 //				static GLfloat light_position[] = { LIGHTX, LIGHTY, 1.0, 0.0 };
-		GL11.glLight (GL11.GL_LIGHT0, GL11.GL_POSITION, light_position);
+		//GL11.glLight (GL11.GL_LIGHT0, GL11.GL_POSITION, light_position);
     	
     }
     

@@ -20,6 +20,7 @@ public class BrInput {
 		public void setKey( String keyName ) {
 			id = keyName;
 			keyIndex = Keyboard.getKeyIndex( keyName );
+			if( keyName.contains( "LSHIFT" ) ) keyIndex = 42;
 			keyboardType = true;
 		}
 		
@@ -60,6 +61,14 @@ public class BrInput {
 			it.setKey( parms.get(0) );
 		}
 		return it;
+	}
+	
+	static public int getMouseDX() {
+		return Mouse.getDX();
+	}
+	
+	static public int getMouseDY() {
+		return Mouse.getDY();
 	}
 	
 	public static class InputHandler {

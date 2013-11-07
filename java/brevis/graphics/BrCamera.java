@@ -37,6 +37,13 @@ public class BrCamera {
 	public float width;
 	public float height;
 	
+	public String toString() {
+		return "{x " + x + ", y " + y +  ", z " + z +
+				", roll " + roll + ", pitch " + pitch + ", yaw " + yaw + 
+				", fov " + fov + ", width " + width + ", height " + height + 
+				", aspectRatio " + aspectRatio + ", nearClippingPlane " + nearClippingPlane + ", farClippingPlane " + farClippingPlane + "}";
+	}
+	
 	private static final double DEG_TO_RAD = Math.PI/180.0; 
 
 	public BrCamera(float x, float y, float z, 
@@ -56,6 +63,17 @@ public class BrCamera {
 		this.height = height;
 		this.nearClippingPlane = zNear;
 		this.farClippingPlane = zFar;
+	}
+	
+	public void setDimensions( float width, float height ) {
+		this.width = width;
+		this.height = height;
+		this.aspectRatio = ( width/height > 1 ? width/height : height/width );
+		GL11.glViewport(0,0,(int)width,(int)height);                           // Reset The Current Viewport
+		
+		GLU.gluPerspective(fov,
+                (float) width / (float) height,
+                nearClippingPlane, farClippingPlane);
 	}
 
 	public void processMouse( float dx, float dy, float mouseSpeed) {
@@ -106,6 +124,19 @@ public class BrCamera {
 		while (yaw > 180) yaw -= 360;
 		while (yaw < -180) yaw += 360;
 		
+	}
+	
+	public void rotateFromLook( float dr, float dp, float dw ) {
+		roll += dr;
+		pitch += dp;
+		yaw += dw;
+		
+		while (roll > 180) roll -= 360;
+		while (roll < -180) roll += 360;
+		while (pitch > 180) pitch -= 360;
+		while (pitch < -180) pitch += 360;
+		while (yaw > 180) yaw -= 360;
+		while (yaw < -180) yaw += 360;
 	}
 
 	public void processKeyboard(float delta,  boolean up, boolean down, boolean left, boolean right, boolean rise, boolean sink) {
@@ -212,6 +243,30 @@ public class BrCamera {
 		GLU.gluPerspective(fov, aspectRatio, nearClippingPlane, farClippingPlane);
 		glPopAttrib();
 	}
+	
+	public void setupFrame() {
+		GL11.glViewport(0,0,(int)width,(int)height);                           // Reset The Current Viewport		
+		//GLU.gluPerspective(fov, (float) width / (float) height, nearClippingPlane, farClippingPlane);
+		
+		GL11.glMatrixMode( GL11.GL_PROJECTION );
+		GL11.glLoadIdentity();
+		final float vnear = nearClippingPlane;
+		final float vfar = farClippingPlane;
+		//final float k = aspectRatio;     // view scale, 1 = +/- 45 degrees
+		final float k = 0.8f;     // view scale, 1 = +/- 45 degrees
+		if (width >= height) {
+			float k2 = (float)height/(float)width;
+			GL11.glFrustum (-vnear*k,vnear*k,-vnear*k*k2,vnear*k*k2,vnear,vfar);
+		}
+		else {
+			float k2 = (float)width/(float)height;
+			GL11.glFrustum (-vnear*k*k2,vnear*k*k2,-vnear*k,vnear*k,vnear,vfar);
+		}
+		
+		GL11.glMatrixMode( GL11.GL_MODELVIEW );
+		translate();
+		//GLU.gluPerspective(fov, (float) width / (float) height, nearClippingPlane, farClippingPlane);
+	}
 
 	/**
 	 * Translates camera position to OpenGL position
@@ -219,8 +274,8 @@ public class BrCamera {
 	public void translate() {
 		//glPushAttrib(GL_TRANSFORM_BIT);
 		glMatrixMode(GL_MODELVIEW);
-		glRotatef (90, 0,0,1);
-		glRotatef (90, 0,1,0);		
+		//glRotatef (90, 0,0,1);
+		//glRotatef (90, 0,1,0);		
 		glRotatef(roll, 1, 0, 0);
 		glRotatef(pitch, 0, 1, 0);
 		glRotatef(yaw, 0, 0, 1);

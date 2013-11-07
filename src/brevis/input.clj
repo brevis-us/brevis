@@ -21,12 +21,12 @@ Copyright 2012, 2013 Kyle Harrington"
   (:use [brevis globals display utils osd vector]
         [brevis.physics utils]))
 
-(def #^:dynamic *input-handlers* (atom {:key-press {}
+#_(def #^:dynamic *input-handlers* (atom {:key-press {}
                                         :key-release {}}));; no mouse yet
 
 #_(def shift-key-down (atom false))
-(defn sin [n] (float (Math/sin n)))
-(defn cos [n] (float (Math/cos n)))
+#_(defn sin [n] (float (Math/sin n)))
+#_(defn cos [n] (float (Math/cos n)))
 
 (defn make-input-type
   "Make an input type for input class based upon the input specifications."
@@ -45,6 +45,16 @@ input-class: indicates the class of input. Currently supports (:key-press, :mous
     (.addInputHandler (:input @*gui-state*) input-type input-handler)))
 
 (def keyspeed 10000)
+
+(defn get-mouse-dx
+  "Return the current mouse DX."
+  []
+  (BrInput/getMouseDX))
+
+(defn get-mouse-dy
+  "Return the current mouse DY."
+  []
+  (BrInput/getMouseDY))
 
 (defn default-input-handlers
   "Define the default input handlers."
@@ -78,11 +88,14 @@ input-class: indicates the class of input. Currently supports (:key-press, :mous
                      #(screenshot (str "brevis_screenshot_" (System/currentTimeMillis) ".png")))
   (add-input-handler :key-press
                      {:key-id "ESCAPE"}
-                     #(swap! *gui-state* assoc :close-requested true)))
+                     #(swap! *gui-state* assoc :close-requested true))
+  (add-input-handler :mouse-click
+                     {:mouse-button "LEFT"}
+                     #(.rotateFromLook (:camera @*gui-state*) (get-mouse-dx) (get-mouse-dy) 0)))
 ;; Currently forcing default input handlers to be enabled
 #_(default-input-handlers)
 
-(defn key-press
+#_(defn key-press
   "Update the state in response to a keypress."
   [key state]
   (doseq [[predicate behavior] (:key-press @*input-handlers*)]
@@ -90,7 +103,7 @@ input-class: indicates the class of input. Currently supports (:key-press, :mous
       (behavior)))
   state)
 
-(defn key-release
+#_(defn key-release
   "Update the state in response to the release of a key"
   [key state]
   (doseq [[predicate behavior] (:key-release @*input-handlers*)]
