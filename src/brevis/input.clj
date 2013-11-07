@@ -44,7 +44,7 @@ input-class: indicates the class of input. Currently supports (:key-press, :mous
                           (behavior)))]
     (.addInputHandler (:input @*gui-state*) input-type input-handler)))
 
-(def keyspeed 10000)
+#_(def keyspeed 10000)
 
 (defn get-mouse-dx
   "Return the current mouse DX."
@@ -56,30 +56,49 @@ input-class: indicates the class of input. Currently supports (:key-press, :mous
   []
   (BrInput/getMouseDY))
 
+(def keyspeed 10)
 (defn default-input-handlers
   "Define the default input handlers."
   []
   (add-input-handler :key-press
                      {:key-id "I"}
                      #(swap! *gui-state* assoc :fullscreen (not (:fullscreen @*gui-state*))))
-  (add-input-handler :key-press
+  #_(add-input-handler :key-press
                      {:key-id "W"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 true false false false false false))
   (add-input-handler :key-press
+                     {:key-id "W"}
+                     #(.moveFromLook (:camera @*gui-state*) 0 0 keyspeed))                     
+  #_(add-input-handler :key-press
                      {:key-id "A"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false true false false false))
   (add-input-handler :key-press
+                     {:key-id "A"}
+                     #(.moveFromLook (:camera @*gui-state*) (- keyspeed) 0 0))                     
+  #_(add-input-handler :key-press
                      {:key-id "S"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false true false false false false))
   (add-input-handler :key-press
+                     {:key-id "S"}
+                     #(.moveFromLook (:camera @*gui-state*) 0 0 (- keyspeed)))                     
+  #_(add-input-handler :key-press
                      {:key-id "D"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false false true false false))
   (add-input-handler :key-press
+                     {:key-id "D"}
+                     #(.moveFromLook (:camera @*gui-state*) keyspeed 0 0))                     
+  #_(add-input-handler :key-press
                      {:key-id "C"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false false false true false))
   (add-input-handler :key-press
+                     {:key-id "C"}
+                     #(.moveFromLook (:camera @*gui-state*) 0 keyspeed 0))
+  #_(add-input-handler :key-press
                      {:key-id "LSHIFT"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false false false false true))
+  (add-input-handler :key-press
+                     {:key-id "LSHIFT"}
+                     #(.moveFromLook (:camera @*gui-state*) 0 (- keyspeed) 0))
   (add-input-handler :key-press
                      {:key-id "P"}
                      #(swap! *gui-state* assoc :pause (not (:pause @*gui-state*))))
