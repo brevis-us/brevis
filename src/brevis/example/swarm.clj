@@ -112,8 +112,10 @@ Copyright 2012, 2013 Kyle Harrington"
       (if (> (length (get-position bird)) 500)
         (move bird (vec3 0 25 0))
         bird)
-      (add (mul (get-acceleration bird) 0.5)
-           (mul new-acceleration speed)))))
+      (bound-acceleration
+        new-acceleration
+        #_(add (mul (get-acceleration bird) 0.5)
+             (mul new-acceleration speed))))))
 
 (enable-kinematics-update :bird); This tells the simulator to move our objects
 (add-update-handler :bird fly); This tells the simulator how to update these objects

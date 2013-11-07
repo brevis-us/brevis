@@ -231,6 +231,7 @@ public class Basic3D {
 		// set the light position (for some reason we have to do this in model view.
 //				static GLfloat light_position[] = { LIGHTX, LIGHTY, 1.0, 0.0 };
 		//GL11.glLight (GL11.GL_LIGHT0, GL11.GL_POSITION, light_position);
+		GL11.glLight (GL11.GL_LIGHT0, GL11.GL_POSITION, light_position);
     	
     }
     
