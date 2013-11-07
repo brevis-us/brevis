@@ -273,12 +273,12 @@ public class BrCamera {
 	 */
 	public void translate() {
 		//glPushAttrib(GL_TRANSFORM_BIT);
-		glMatrixMode(GL_MODELVIEW);
+		//glMatrixMode(GL_MODELVIEW);
 		//glRotatef (90, 0,0,1);
 		//glRotatef (90, 0,1,0);		
 		glRotatef(roll, 1, 0, 0);
 		glRotatef(pitch, 0, 1, 0);
-		glRotatef(yaw, 0, 0, 1);
+		//glRotatef(yaw, 0, 0, 1);
 		glTranslatef(-x, -y, -z);
 		//glPopAttrib();
 	}

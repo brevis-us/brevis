@@ -91,7 +91,7 @@ input-class: indicates the class of input. Currently supports (:key-press, :mous
                      #(swap! *gui-state* assoc :close-requested true))
   (add-input-handler :mouse-click
                      {:mouse-button "LEFT"}
-                     #(.rotateFromLook (:camera @*gui-state*) (get-mouse-dx) (get-mouse-dy) 0)))
+                     #(.rotateFromLook (:camera @*gui-state*) (- (get-mouse-dy)) (get-mouse-dx) 0)))
 ;; Currently forcing default input handlers to be enabled
 #_(default-input-handlers)
 
