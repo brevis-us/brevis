@@ -31,9 +31,9 @@ Copyright 2012, 2013 Kyle Harrington"
             [penumbra.data :as data]
             ;[cantor.range]
             [clojure.java.io]
-            [penumbra.opengl.frame-buffer :as fb]))  
+            [penumbra.opengl.frame-buffer :as fb])) 
 
-(defn init-sky
+#_(defn init-sky
   []
   (def #^:dynamic *sky*
     (load-texture-from-file (clojure.java.io/resource "img/sky.jpg"))))

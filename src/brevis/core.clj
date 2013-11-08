@@ -192,6 +192,7 @@ Copyright 2012, 2013 Kyle Harrington"
   []
   (let [objs (all-objects)]
     (Basic3D/initFrame (:camera @*gui-state*))
+    #_(draw-sky)
     #_(gl-matrix-mode :modelview)
     #_(gl-load-identity-matrix)
     #_(use-camera (:camera @*gui-state*))
@@ -214,7 +215,8 @@ Copyright 2012, 2013 Kyle Harrington"
     (Display/create)
     (catch LWJGLException e
         (.printStackTrace e)))
-  (Basic3D/initGL)            
+  (Basic3D/initGL)     
+  #_(init-sky)
   (initialize)
   (try 
     (reset! *gui-state* (assoc @*gui-state* :input (BrInput.)))
