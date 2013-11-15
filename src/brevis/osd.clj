@@ -46,7 +46,8 @@ stop-t = -1 means do not automatically erase"
   #_(osd :msg-type :penumbra :fn (fn [[dt t] state] (str (int (/ 1 dt)) " fps " (double (get-current-simulation-rate)) " sim/s")) :start-t 0 :stop-t -1)
   (osd :msg-type :penumbra :fn (fn [[dt t] state] (str (float (get-time)) " sim time")) :start-t 0 :stop-t -1)
   (osd :msg-type :penumbra :fn (fn [[dt t] state] (str (float (get-wall-time)) " wall time")) :start-t 0 :stop-t -1)
-  (osd :msg-type :penumbra :fn (fn [[dt t] state] "Keys: Esc - quit / w - forward / s - backward / a - left / d - right / c - up / leftshift - down ") :start-t 0 :stop-t 10)
+  #_(osd :msg-type :penumbra :fn (fn [[dt t] state] "Keys: Esc - quit / w - forward / s - backward / a - left / d - right / c - up / leftshift - down ") :start-t 0 :stop-t 10)
+  (println "Keys: Esc - quit / w - forward / s - backward / a - left / d - right / c - up / leftshift - down ")
   #_(osd :msg-type :brevis :fn #(str (int (count @*objects*)) " objs") :start-t 0 :stop-t 5))
 
 (defn update-display-text

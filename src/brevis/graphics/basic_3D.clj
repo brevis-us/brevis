@@ -31,31 +31,13 @@ Copyright 2012, 2013 Kyle Harrington"
             [penumbra.data :as data]
             ;[cantor.range]
             [clojure.java.io]
-            [penumbra.opengl.frame-buffer :as fb]))  
+            [penumbra.opengl.frame-buffer :as fb])) 
 
-(defn init-sky
+#_(defn init-sky
   []
   (def #^:dynamic *sky*
-    (load-texture-from-file (clojure.java.io/resource "img/sky.jpg"))
-    #_(load-texture-from-file "resources/img/sky.jpg")))
-;    (load-texture-from-file "resources/img/sky.jpg")))
+    (load-texture-from-file (clojure.java.io/resource "img/sky.jpg"))))
 
-(defn init-shader
-  []
-  #_(defpipeline shader-program
-    :attributes {alpha float}
-    :vertex {pixel-alpha alpha
-             :position (* :model-view-projection-matrix :vertex)}
-    :fragment (float4 tint pixel-alpha))
-  (def shader-program
-    (create-program
-      :declarations '[(uniform float3 tint)
-                      (attribute float alpha)
-                      (varying float pixel-alpha)]
-      :vertex '(do
-                 (<- pixel-alpha alpha)
-                 (<- :position (* :model-view-projection-matrix :vertex)))
-      :fragment '(<- :frag-color (float4 tint pixel-alpha)))))
 
 ;; ## Shape handling code
 ;;
@@ -70,82 +52,17 @@ Copyright 2012, 2013 Kyle Harrington"
   "Return a seq that contains the vector3d's data"
   [(.x v) (.y v) (.z v) (.w v)])
 
-(defn- do-draw-shape
-  "Actually draw a primitive shape."
-  [obj]
-  (let [posvec (get-position obj)
-        pos (vector3d-to-seq posvec)
-        colvec (get-color obj)
-        col (vector4d-to-seq colvec)
-        dim (vector3d-to-seq (get-dimension obj))        
-        rot (vector4d-to-seq (get-rotation obj))
-        shin 80]
-    #_(println "do-draw-shape" pos rot (get-velocity obj))
-		  (push-matrix
-       (shade-model :smooth)
-       (depth-test :less)
-		   #_(apply color (:color obj))
-       (apply color col)
-		   (material :front;-and-back
-               :ambient-and-diffuse (into [] (conj col 1)); [1 1 1 1]
-               :specular [1 1 1 1]
-               :shininess shin)       
-		   (translate pos)       		   
-       (apply scale dim)
-       (apply rotate rot)
-       #_(println "Rotation: " rot)
-       #_(when (pos? (.getTextureId obj))
-         (GL11/glBindTexture GL11/GL_TEXTURE_2D (.getTextureId obj)))
-		   (cond
-        ;#_(= (:type (:shape obj)) :box)  (draw-box)
-        ;(= (:type (:shape obj)) :box)  (Basic3D/drawBox 1.0 1.0 1.0)
-        (= (.getType (.getShape obj)) "box")  (Basic3D/drawBox 1.0 1.0 1.0)        
-        ;#_(= (:type (:shape obj)) :cone) (draw-cone)
-        (= (.getType (.getShape obj)) "cone")  (Basic3D/drawCylinder 0.8 0.01 1.2 25 25)
-        ;:else                          (draw-sphere);(= (:type (:shape obj)) :sphere) 
-        :else                          (Basic3D/drawSphere 2.0 20 20))
-     #_(GL11/glBindTexture GL11/GL_TEXTURE_2D 0)
-     )))
-
-#_(defn draw-shape
-  "Draw a shape. Call this after translating, scaling, and setting color."
-  [obj]
-  (if (:texture obj)
-    (with-enabled :texture-2d
-      (with-texture (:texture obj)      
-        (do-draw-shape obj)))
-    (with-disabled :texture-2d
-      (do-draw-shape obj))))
-
-#_(defn set-camera
-  "Set the camera parameters."
-  [x y z h p r]
-  (Basic3D/setCamera x y z h p r))
-
 (defn use-camera
   "Set the camera parameters."
   [cam]
-  #_(.lookThrough cam)
   (.orthographicMatrix cam)
   (.perspectiveMatrix cam)
-  (.translate cam)
-  #_(Basic3D/setCamera cam))
+  (.translate cam))
 
 (defn draw-shape
   "Draw a shape. Call this after translating, scaling, and setting color."
   [obj]
-  (Basic3D/drawShape obj (double-array [0 1 0 0]) (.getDimension (.getShape obj)))                       
-  #_(Basic3D/drawShape obj (:rot-x @*gui-state*) (:rot-y @*gui-state*) (:rot-z @*gui-state*) 
-                     (:shift-x @*gui-state*) (:shift-y @*gui-state*) (:shift-z @*gui-state*)                      
-                     (double-array [0 0 1 0])
-                     (.getDimension (.getShape obj)))
-  #_(do-draw-shape obj)
-  #_(if (get-texture obj)
-    (with-enabled :texture-2d
-      (with-texture (get-texture obj)      
-        (do-draw-shape obj)))
-    (with-disabled :texture-2d
-      (do-draw-shape obj))))
+  (Basic3D/drawShape obj (double-array [0 1 0 0]) (.getDimension (.getShape obj))))
 	  
 (defn draw-shape-shadow
   "Draw a shape. Call this after translating, scaling, and setting color."

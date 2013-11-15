@@ -16,64 +16,105 @@
 Copyright 2012, 2013 Kyle Harrington"     
 
 (ns brevis.input
+  (:import (brevis BrInput))
   (:require [penumbra.app :as app])
   (:use [brevis globals display utils osd vector]
         [brevis.physics utils]))
 
-(def #^:dynamic *input-handlers* (atom {:key-press {}
+#_(def #^:dynamic *input-handlers* (atom {:key-press {}
                                         :key-release {}}));; no mouse yet
 
 #_(def shift-key-down (atom false))
-(defn sin [n] (float (Math/sin n)))
-(defn cos [n] (float (Math/cos n)))
+#_(defn sin [n] (float (Math/sin n)))
+#_(defn cos [n] (float (Math/cos n)))
+
+(defn make-input-type
+  "Make an input type for input class based upon the input specifications."
+  [input-class input-specs]
+  (BrInput/makeInputType input-class (java.util.ArrayList. (vals input-specs))))
 
 (defn add-input-handler
-  "Add an input handler."
-  [input-type input-predicate behavior]
-  (reset! *input-handlers*
-          (assoc-in @*input-handlers*
-                    [:key-press input-predicate] behavior)))
+  "Add an input handler.
+input-class: indicates the class of input. Currently supports (:key-press, :mouse-drag, :mouse-click)"
+  [input-class input-specs behavior]
+  (let [input-class (if (keyword? input-class) (str (name input-class)) input-class)
+        input-type (make-input-type input-class input-specs)
+        input-handler (proxy [brevis.BrInput$InputHandler] []
+                        (trigger [#^brevis.Engine engine]
+                          (behavior)))]
+    (.addInputHandler (:input @*gui-state*) input-type input-handler)))
 
-(def keyspeed 10000)
+#_(def keyspeed 10000)
 
+(defn get-mouse-dx
+  "Return the current mouse DX."
+  []
+  (BrInput/getMouseDX))
+
+(defn get-mouse-dy
+  "Return the current mouse DY."
+  []
+  (BrInput/getMouseDY))
+
+(def keyspeed 10)
 (defn default-input-handlers
   "Define the default input handlers."
   []
   (add-input-handler :key-press
-                     #(= "i" %)
-                     #(do (swap! *gui-state* assoc :fullscreen (not (:fullscreen @*gui-state*)))
-                          (app/fullscreen! (:fullscreen @*gui-state*))))
-  (add-input-handler :key-press
-                     #(= "w" %)
+                     {:key-id "I"}
+                     #(swap! *gui-state* assoc :fullscreen (not (:fullscreen @*gui-state*))))
+  #_(add-input-handler :key-press
+                     {:key-id "W"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 true false false false false false))
   (add-input-handler :key-press
-                     #(= "a" %)
+                     {:key-id "W"}
+                     #(.moveFromLook (:camera @*gui-state*) keyspeed 0 0 ))                     
+  #_(add-input-handler :key-press
+                     {:key-id "A"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false true false false false))
   (add-input-handler :key-press
-                     #(= "s" %)
+                     {:key-id "A"}
+                     #(.moveFromLook (:camera @*gui-state*) 0 0 (- keyspeed)))                     
+  #_(add-input-handler :key-press
+                     {:key-id "S"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false true false false false false))
   (add-input-handler :key-press
-                     #(= "d" %)
+                     {:key-id "S"}
+                     #(.moveFromLook (:camera @*gui-state*) (- keyspeed) 0 0))                     
+  #_(add-input-handler :key-press
+                     {:key-id "D"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false false true false false))
   (add-input-handler :key-press
-                     #(= "c" %)
+                     {:key-id "D"}
+                     #(.moveFromLook (:camera @*gui-state*) 0 0 keyspeed))                     
+  #_(add-input-handler :key-press
+                     {:key-id "C"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false false false true false))
   (add-input-handler :key-press
-                     #(= :lshift %)
+                     {:key-id "C"}
+                     #(.moveFromLook (:camera @*gui-state*) 0 keyspeed 0))
+  #_(add-input-handler :key-press
+                     {:key-id "LSHIFT"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false false false false true))
   (add-input-handler :key-press
-                     #(= "p" %)
-                     #(app/pause!))
+                     {:key-id "LSHIFT"}
+                     #(.moveFromLook (:camera @*gui-state*) 0 (- keyspeed) 0))
   (add-input-handler :key-press
-                     #(= "o" %)
+                     {:key-id "P"}
+                     #(swap! *gui-state* assoc :pause (not (:pause @*gui-state*))))
+  (add-input-handler :key-press
+                     {:key-id "O"}
                      #(screenshot (str "brevis_screenshot_" (System/currentTimeMillis) ".png")))
   (add-input-handler :key-press
-                     #(= :escape %)
-                     #(app/stop!)))
+                     {:key-id "ESCAPE"}
+                     #(swap! *gui-state* assoc :close-requested true))
+  (add-input-handler :mouse-click
+                     {:mouse-button "LEFT"}
+                     #(.rotateFromLook (:camera @*gui-state*) (- (get-mouse-dy)) (get-mouse-dx) 0)))
 ;; Currently forcing default input handlers to be enabled
-(default-input-handlers)
+#_(default-input-handlers)
 
-(defn key-press
+#_(defn key-press
   "Update the state in response to a keypress."
   [key state]
   (doseq [[predicate behavior] (:key-press @*input-handlers*)]
@@ -81,7 +122,7 @@ Copyright 2012, 2013 Kyle Harrington"
       (behavior)))
   state)
 
-(defn key-release
+#_(defn key-release
   "Update the state in response to the release of a key"
   [key state]
   (doseq [[predicate behavior] (:key-release @*input-handlers*)]
@@ -89,43 +130,21 @@ Copyright 2012, 2013 Kyle Harrington"
       (behavior)))
   state)
 
-(defn rotate-x
-  "Rotate about the X-axis"
-  [delta]
-  (swap! *gui-state* assoc
-         :rot-x (+ (:rot-x @*gui-state*) delta)))
-
-(defn rotate-y
-  "Rotate about the Y-axis"
-  [delta]
-  (swap! *gui-state* assoc
-         :rot-y (+ (:rot-y @*gui-state*) delta)))
-
-(defn rotate-z
-  "Rotate about the Z-axis"
-  [delta]
-  (swap! *gui-state* assoc
-         :rot-z (+ (:rot-z @*gui-state*) delta)))
-
-(defn shift-x
-  "Shift along the X-axis"
-  [delta]
-  (swap! *gui-state* assoc
-         :shift-x (+ (:shift-x @*gui-state*) delta)))
-
-(defn shift-y
-  "Shift along the Y-axis"
-  [delta]
-  (swap! *gui-state* assoc
-         :shift-y (+ (:shift-y @*gui-state*) delta)))
-
-(defn shift-z
-  "Shift along the Z-axis"
-  [delta]
-  (swap! *gui-state* assoc
-         :shift-z (+ (:shift-z @*gui-state*) delta)))
-
 (def mouse-translate-speed 100)
+
+(defn osd-view-transformation
+  "Display the current view transformation as an OSD message."
+  []
+  (let [cam (:camera @*gui-state*)
+        t (get-time)]
+    (osd :msg-type :penumbra-rotate 
+         :fn (fn [[dt t] state] (str "Rotation: (" 
+                                     (.roll cam) "," (.pitch cam) "," (.yaw cam) ")")) 
+         :start-t t :stop-t (+ t 1))
+    (osd :msg-type :penumbra-translate 
+         :fn (fn [[dt t] state] (str "Translation: (" 
+                                     (.x cam) "," (.y cam) "," (.z cam) ")"))                                      
+         :start-t t :stop-t (+ t 1))))
 
 ;; ## Input handling
 (defn mouse-drag
@@ -169,110 +188,28 @@ Copyright 2012, 2013 Kyle Harrington"
       (cond 
           (pos? dy) (.processKeyboard (:camera @*gui-state*) dx mouse-translate-speed true false false false false false)
           (neg? dy) (.processKeyboard (:camera @*gui-state*) (- dx) mouse-translate-speed false true false false false false)))
-
-    #_(.processMouse cam dx dy (/ (+ (if (pos? dx) (- dx) dx) 
-                                   (if (pos? dy) (- dy) dy))
-                                5) 180 -180)
-    
-    #_(.processMouse cam dx dy (/ (+ (if (pos? dx) (- dx) dx) 
-                                   (if (pos? dy) (- dy) dy))
-                                5))
-    #_(cond 
-	      ; Rotate
-	      (= :left button)       
-       (do (.yaw (:camera @*gui-state*) dy)
-         (.pitch (:camera @*gui-state*) dx))       
-                       
-       ; Translate
-	      (= :right button)       
-       (do (if (pos? dx)              
-             (.strafeRight (:camera @*gui-state*) dx)
-             (.strafeLeft (:camera @*gui-state*) (- dx)))
-         (if (pos? dy)
-           (.walkForward (:camera @*gui-state*) dy)
-           (.walkBackward (:camera @*gui-state*) (- dy))))
-	      ; Zoom
-	      (= :center button)
-	      (swap! *gui-state* assoc
-	             :shift-x (+ (:shift-x @*gui-state*) (* dy (.x rot-axis)))
-	             :shift-y (+ (:shift-y @*gui-state*) (* dy (.y rot-axis))
-	             :shift-z (+ (:shift-z @*gui-state*) (* dy (.z rot-axis)))
-	             )))
-    
-    #_(cond 
-	      ; Rotate
-	      (= :left button)
-       (let [new-rot-axis (mul (normalize (add rot-axis (mul mouse-x-axis dx) (mul mouse-y-axis dy)))
-                               360.0)]
-	      (swap! *gui-state* assoc
-              :rot-x (.x new-rot-axis)
-              :rot-y (.y new-rot-axis)
-              :rot-z (.z new-rot-axis)))
-                       
-       ; Translate
-	      (= :right button)
-       (let [new-pos (add cam-position (mul mouse-x-axis dx) (mul mouse-y-axis dy))]
-         (swap! *gui-state* assoc
-                :shift-x (.x new-pos)
-                :shift-y (.y new-pos)
-                :shift-z (.z new-pos)))
-	      ; Zoom
-	      (= :center button)
-	      (swap! *gui-state* assoc
-	             :shift-x (+ (:shift-x @*gui-state*) (* dy (.x rot-axis)))
-	             :shift-y (+ (:shift-y @*gui-state*) (* dy (.y rot-axis))
-	             :shift-z (+ (:shift-z @*gui-state*) (* dy (.z rot-axis)))
-	             )))
-    
-    #_(swap! *gui-state* assoc
-           ;:rot-x (+ (:rot-x @*gui-state*) dy)
-           :rot-z (+ (:rot-z @*gui-state*) dy)
-           :rot-y (+ (:rot-y @*gui-state*) dx)
-           :shift-x (+ (:shift-x @*gui-state*) (* (- sX) side) (* cX fwd))
-           :shift-y (+ (:shift-y @*gui-state*) (* cX side) (* sX fwd))
-           :shift-z (if (= :middle button)
-                           (+ (:shift-z @*gui-state*) (* 0.01 dy))
-                           (:shift-z @*gui-state*)))
-
-	    #_(cond 
-	      ; Rotate
-	      (= :left button)
-	      (swap! *gui-state* assoc
-	             :rot-x (loop [ang (+ (:rot-x @*gui-state*) dy)]
-                       (cond
-                         (> ang 180) (recur (- ang 360))
-                         (< ang -180) (recur (+ ang 360))
-                         :else ang))                       
-	             :rot-y (loop [ang (+ (:rot-y @*gui-state*) dy)]
-                       (cond
-                         (> ang 180) (recur (- ang 360))
-                         (< ang -180) (recur (+ ang 360))
-                         :else ang)))                       
-       ; Translate
-	      (= :right button)
-	      (swap! *gui-state* assoc
-	             :shift-x (+ (:shift-x @*gui-state*) (* dx cY))
-	             :shift-y (- (:shift-y @*gui-state*) (* dy cX))
-	             :shift-z (+ (:shift-z @*gui-state*) (* dx sY))
-	             )
-	      ; Zoom
-	      (= :center button)
-	      (swap! *gui-state* assoc
-	             :shift-x (+ (:shift-x @*gui-state*) (* (/ dy 6) (* sY -1)))
-	             :shift-y (+ (:shift-y @*gui-state*) (* (/ dy 6) sX))
-	             :shift-z (+ (:shift-z @*gui-state*) (* (/ dy 6) cY))           
-	             ))
-   (osd :msg-type :penumbra-rotate 
-        :fn (fn [[dt t] state] (str "Rotation: (" 
-                                    (:rot-x @*gui-state*) "," (:rot-y @*gui-state*) "," (:rot-z @*gui-state*) ")")) 
-        :start-t t :stop-t (+ t 1))
-   (osd :msg-type :penumbra-translate 
-        :fn (fn [[dt t] state] (str "Translation: (" 
-                                    (int (:shift-x @*gui-state*)) "," (int (:shift-y @*gui-state*)) "," (int (:shift-z @*gui-state*)) ")")) 
-        :start-t t :stop-t (+ t 1)))
-  state)
+   (osd-view-transformation)
+  state))
 
 (defn mouse-wheel
+  "Respond to a mousewheel movement. dw is +/- depending on scroll-up or down."
+  [dw state]
+  (let [t (get-time)]
+    (cond 
+      (pos? dw) (.processKeyboard (:camera @*gui-state*) dw mouse-translate-speed true false false false false false)
+      (neg? dw) (.processKeyboard (:camera @*gui-state*) (- dw) mouse-translate-speed false true false false false false))
+    (osd-view-transformation)
+    #_(osd :msg-type :penumbra-rotate 
+         :fn (fn [[dt t] state] (str "Rotation: (" 
+                                     (:rot-x @*gui-state*) "," (:rot-y @*gui-state*) "," (:rot-z @*gui-state*) ")")) 
+         :start-t t :stop-t (+ t 1))
+    #_(osd :msg-type :penumbra-translate 
+         :fn (fn [[dt t] state] (str "Translation: (" 
+                                     (int (:shift-x @*gui-state*)) "," (int (:shift-y @*gui-state*)) "," (int (:shift-z @*gui-state*)) ")")) 
+         :start-t t :stop-t (+ t 1))
+    state))
+
+#_(defn mouse-wheel
   "Respond to a mousewheel movement. dw is +/- depending on scroll-up or down."
   [dw state]
   (let [rads (/ (Math/PI) 180)
