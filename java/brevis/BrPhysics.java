@@ -19,11 +19,15 @@ package brevis;
 
 import java.util.Vector;
 
-import javax.vecmath.Vector3d;
-import javax.vecmath.Vector3f;
+//import javax.vecmath.Vector3d;
+//import javax.vecmath.Vector3f;
 
+
+
+import org.lwjgl.util.vector.Vector3f;
 import org.ode4j.math.DVector3;
 import org.ode4j.ode.DHinge2Joint;
+import org.ode4j.ode.DHingeJoint;
 import org.ode4j.ode.DJoint;
 import org.ode4j.ode.DJointGroup;
 import org.ode4j.ode.DSpace;
@@ -57,6 +61,9 @@ public class BrPhysics {
 		public void setType( String s ) {
 			type = s;
 		}
+		/*
+		 * Set velocity and other joint params
+		 */
 	}
 	
 	BrPhysics() {
@@ -70,10 +77,14 @@ public class BrPhysics {
 		time = 0;
 	}
 	
-	public BrJoint joinHinge2( BrObject objA, BrObject objB, Vector3d locationOnA ) {
-		DHinge2Joint joint = OdeHelper.createHinge2Joint(world);
+	public BrJoint jointHinge( BrObject objA, BrObject objB, Vector3f locationOnA, Vector3f axis ) {
+		DHingeJoint joint = OdeHelper.createHingeJoint(world);
 		joint.attach( objA.getBody(), objB.getBody() );
 		joint.setAnchor( locationOnA.x, locationOnA.y, locationOnA.z );
+		joint.setAxis( (double)axis.x, (double)axis.y, (double)axis.z );
+		joint.setParamHiStop( Math.PI/ 2 );
+        joint.setParamLoStop( Math.PI / 2 ); 
+		joint.enable();
 		joints.add( joint );
 		
 		BrJoint brj = new BrJoint( joint, "hinge2" );

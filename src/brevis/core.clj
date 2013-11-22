@@ -107,6 +107,12 @@ Copyright 2012, 2013 Kyle Harrington"
                  :window-height h))
   state)
 
+(defn draw-sky
+  "Draw a skybox"
+  []
+  (when *sky*
+    (.draw *sky*)))
+
 #_(defn draw-sky
   "Draw a skybox"
   []
@@ -249,6 +255,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (Keyboard/destroy)
   (Mouse/destroy)
   (Display/destroy)
+  (System/exit 0)
   )
 
 (defn start-gui 

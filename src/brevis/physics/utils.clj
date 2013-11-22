@@ -92,6 +92,18 @@ Copyright 2012, 2013 Kyle Harrington"
   (let [param-fn (cond (= :hinge2 (:joint-type joint)) .dJointSetHinge2Param)]
     (param-fn (param-label param-name) value)))
 
+;; # Joints
+
+(defn make-joint-hinge
+  "Make a joint that connects 2 real objects. 
+o1 is the first object, o2 the second
+pos-o1 is the location on the first object to connect to
+axis is the axis about which the joint rotates"
+  [o1 o2 pos-o1 axis]
+  #_(println (class o1) (class o2) (class pos-o1))
+  (.jointHinge (.getPhysics @*java-engine*)
+    o1 o2 pos-o1 axis))
+
 (defn set-joint-vel
   "Set the velocity of a joint."
   [joint value] 

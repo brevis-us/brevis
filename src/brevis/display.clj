@@ -53,18 +53,20 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn screenshot
   "Take a screenshot."
   [filename]
-  (let [pixels (int-array (* (:window-width @*gui-state*) (:window-height @*gui-state*))); Creating an rbg array of total pixels
-        fb (ByteBuffer/allocateDirect (* 3 (:window-width @*gui-state*) (:window-height @*gui-state*))); allocate space for RBG pixels
+  (let [window-width (float (Display/getWidth)) 
+        window-height (float (Display/getHeight))
+        pixels (int-array (* window-width window-height)); Creating an rbg array of total pixels
+        fb (ByteBuffer/allocateDirect (* 3 window-width window-height)); allocate space for RBG pixels
         img-type (second (re-find (re-matcher #"\.(\w+)$" filename)))]        
-    (fb/gl-read-pixels (int 0) (int 0) (int (:window-width @*gui-state*)) (int (:window-height @*gui-state*)) :rgb :unsigned-byte fb)
-    (let [imageIn (BufferedImage. (:window-width @*gui-state*) (:window-height @*gui-state*) BufferedImage/TYPE_INT_RGB)]
+    (fb/gl-read-pixels (int 0) (int 0) (int window-width) (int window-height) :rgb :unsigned-byte fb)
+    (let [imageIn (BufferedImage. window-width window-height BufferedImage/TYPE_INT_RGB)]
       (dotimes [i (alength pixels)]
         (let [bidx (* 3 i)]
           (aset pixels i 
                 (+ (bit-shift-left (.get fb bidx) 16) 
                    (bit-shift-left (.get fb (inc bidx)) 8) 
                    (bit-shift-left (.get fb (inc (inc bidx))) 0))))) 
-     (.setRGB imageIn 0 0 (:window-width @*gui-state*) (:window-height @*gui-state*) pixels 0 (:window-width @*gui-state*)); Allocate colored pixel to buffered Image
+     (.setRGB imageIn 0 0 window-width window-height pixels 0 window-width); Allocate colored pixel to buffered Image
      (let [at (AffineTransform/getScaleInstance 1 -1)]; Creating the transformation direction (horizontal)
        (.translate at 0 (- (.getHeight imageIn)))
        (let [opRotated (AffineTransformOp. at AffineTransformOp/TYPE_BILINEAR);//Applying transformation

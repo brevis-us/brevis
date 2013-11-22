@@ -137,7 +137,7 @@ public class Basic3D {
         //GL11.glEnable(GL11.GL_CULL_FACE);                             // Enable Culling
         
         light1.enable();
-        //sky = new BrSky();
+        sky = new BrSky();
         
         GL11.glClearColor(0.1f, 1.0f, 0.5f, 1.0f);               // Set Clear Color (Greenish Color)
 
@@ -236,7 +236,7 @@ public class Basic3D {
 		//GL11.glLight (GL11.GL_LIGHT0, GL11.GL_POSITION, light_position);
 		GL11.glLight (GL11.GL_LIGHT0, GL11.GL_POSITION, light_position);
     	
-		//sky.draw();
+		sky.draw();
 		
     }
     

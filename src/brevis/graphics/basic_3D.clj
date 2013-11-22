@@ -19,7 +19,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (:import [java.lang.Math]
            [java.nio ByteBuffer ByteOrder]
            [org.lwjgl.opengl GL11]
-           [brevis.graphics Basic3D])
+           [brevis.graphics Basic3D BrSky])
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
         ;[cantor]
@@ -33,9 +33,11 @@ Copyright 2012, 2013 Kyle Harrington"
             [clojure.java.io]
             [penumbra.opengl.frame-buffer :as fb])) 
 
-#_(defn init-sky
-  []
-  (def #^:dynamic *sky*
+(defn init-sky
+ []
+ (def #^:dynamic *sky*
+   (BrSky.))
+ #_(def #^:dynamic *sky*
     (load-texture-from-file (clojure.java.io/resource "img/sky.jpg"))))
 
 
