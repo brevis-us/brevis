@@ -8,6 +8,7 @@
            (java.io ByteArrayInputStream)
            java.awt.Font)
   (:require  
+    [clojure.tools.nrepl.server :as nrepl.server]
     [clojure.tools.nrepl :as nrepl]
     [clojure.tools.nrepl.misc :as nrepl.misc]
     [leiningen.repl :as repl]
@@ -15,6 +16,7 @@
     [leiningen.core.eval :as eval]
     [leiningen.core.main :as lein-main])
   (:use [clojure.java.io :only [file]] 
+        [clojure.pprint]
         [seesaw core font color graphics]))
 
 ;; ## Globals
@@ -174,14 +176,21 @@
             (when (= (.getKeyCode e) java.awt.event.KeyEvent/VK_ENTER)
               (.append textArea "\n")
               ;; This shouldn't be here:
-              (text! (:text-area @repl-output-window) (.toString (get-repl-outputstream)))
+              #_(text! (:text-area @repl-output-window) (.toString (get-repl-outputstream)))
               (try 
                 (let [startPosition 0
                       line (.getText textArea startPosition (- (.getLength (.getDocument textArea)) startPosition 1))
-                      session-sender (nrepl/client-session @reply.eval-modes.nrepl/current-connection :session @reply.eval-modes.nrepl/current-session)]
+                      response-vals (nrepl/message (:client @repl) {:op "eval" :code line})
+                      #_session-sender #_(nrepl/client-session @reply.eval-modes.nrepl/current-connection :session @reply.eval-modes.nrepl/current-session)]
                   (.setText textArea "")
-                  (println "Sending to repl:" line)
-                  (session-sender {:op "eval" :code line :id (nrepl.misc/uuid)})
+                  (println "Sending to repl:" line)                  
+                  (text! (:text-area @repl-output-window)
+                         (with-out-str (doseq [resp response-vals]
+                                         (when (:out resp) (println (:out resp)))
+                                         (when (:value resp) (println (:value resp))))
+                                       #_(with-out-str (pprint (doall response-vals)))))
+                  #_(text! (:text-area @repl-output-window) (with-out-str (pprint (doall response-vals))))
+                  #_(session-sender {:op "eval" :code line :id (nrepl.misc/uuid)})
                   #_(reply.eval-modes.nrepl/execute-with-client (:client @repl) #_@reply.eval-modes.nrepl/current-connection
                              (assoc {}
                                     :read-input-line-fn (partial reply.reader.simple-jline/safe-read-line {:no-jline true :prompt-string ""})                                                          
@@ -238,8 +247,11 @@
                :repl-options {:input-stream r-is :output-stream r-os})
         repl-cfg {:host (repl/repl-host project)
                   :port (repl/repl-port project)}
-        repl-server-port (repl/server project repl-cfg false)
-        repl-client-thread (Thread. (fn [] (repl/client project repl-server-port) ))          
+        ;repl-server-port (repl/server project repl-cfg false)
+        repl-server (nrepl.server/start-server :port 59258)
+        ;repl-client-thread (Thread. (fn [] (repl/client project repl-server-port) ))
+        repl-connection (nrepl/connect :port 59258)
+        repl-client (nrepl/client repl-connection Long/MAX_VALUE)
         #_(lein-main/apply-task "repl" project [])
         #_(apply eval/eval-in-project project
                            (server-forms project cfg (ack-port project)
@@ -247,11 +259,13 @@
         #_(apply eval/eval-in-project project
                               (server-forms project cfg (ack-port project)
                                             true))]
-    (.start repl-client-thread)
-    (reset! repl {:server repl-server-port :client-thread repl-client-thread
+    #_(.start repl-client-thread)
+    (reset! repl {:server repl-server ;:client-thread repl-client-thread
                   ;:repl-inputstream r-is :repl-outputstream r-os})
-                  :client (nrepl/client @reply.eval-modes.nrepl/current-connection Long/MAX_VALUE)
-                  :repl-inputstream r-is :repl-outputstream r-os})
+                  ;:client (nrepl/client @reply.eval-modes.nrepl/current-connection Long/MAX_VALUE)
+                  :connection repl-connection
+                  :client repl-client})
+                  ;:repl-inputstream r-is :repl-outputstream r-os})
     (reset! repl-inputstream r-is)
     (reset! repl-outputstream r-os)
     (reset! editor-window ew)
