@@ -9,6 +9,7 @@
            java.awt.Font)
   (:require  
     [clojure.tools.nrepl :as nrepl]
+    [clojure.tools.nrepl.misc :as nrepl.misc]
     [leiningen.repl :as repl]
     [leiningen.core.project :as project]
     [leiningen.core.eval :as eval]
@@ -176,14 +177,16 @@
               (text! (:text-area @repl-output-window) (.toString (get-repl-outputstream)))
               (try 
                 (let [startPosition 0
-                      line (.getText textArea startPosition (- (.getLength (.getDocument textArea)) startPosition 1))]
+                      line (.getText textArea startPosition (- (.getLength (.getDocument textArea)) startPosition 1))
+                      session-sender (nrepl/client-session @reply.eval-modes.nrepl/current-connection :session @reply.eval-modes.nrepl/current-session)]
                   (.setText textArea "")
-                  (println "Sending to repl:" line)      
-                  (reply.eval-modes.nrepl/execute-with-client (:client @repl) #_@reply.eval-modes.nrepl/current-connection
-                            (assoc {}
-                                   :read-input-line-fn (partial reply.reader.simple-jline/safe-read-line {:no-jline true :prompt-string ""})                                                          
-                                   :interactive true)
-                            line)
+                  (println "Sending to repl:" line)
+                  (session-sender {:op "eval" :code line :id (nrepl.misc/uuid)})
+                  #_(reply.eval-modes.nrepl/execute-with-client (:client @repl) #_@reply.eval-modes.nrepl/current-connection
+                             (assoc {}
+                                    :read-input-line-fn (partial reply.reader.simple-jline/safe-read-line {:no-jline true :prompt-string ""})                                                          
+                                    :interactive true)
+                             line)
                   #_(java.io.ByteArrayInputStream.
                      (.getBytes "(println 'foobar)\nexit\n(println 'foobar)\n"))
                   #_(System/setIn (ByteArrayInputStream. (.getBytes (str line "\n") "UTF-8")))                    
@@ -205,41 +208,6 @@
        :text-area textArea
        :scroll-pane sp
        :menus menus}))
-
-#_(defn repl-output-window
-     "Make a REPL output window."
-     [params]
-     (let [
-           textArea (RSyntaxTextArea. 25 115)
-           ;textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
-           ;textArea.setCodeFoldingEnabled(true);      
-           sp (RTextScrollPane. textArea)
-          
-           a-new (action :handler a-new :name "New" :tip "Create a new file.")
-           a-open (action :handler a-open :name "Open" :tip "Open a file")
-           a-save (action :handler a-save :name "Save" :tip "Save the current file.")
-           a-exit (action :handler a-exit :name "Exit" :tip "Exit the editor.")
-           a-copy (action :handler a-copy :name "Copy" :tip "Copy selected text to the clipboard.")
-           a-paste (action :handler a-paste :name "Paste" :tip "Paste text from the clipboard.")
-           a-cut (action :handler a-cut :name "Cut" :tip "Cut text to the clipboard.")
-           a-save-as (action :handler a-save-as :name "Save As" :tip "Save the current file.")
-           menus (menubar
-                   :items [(menu :text "File" :items [a-save a-save-as a-exit])
-                           (menu :text "Edit" :items [a-copy a-cut a-paste])])
-           f (frame :title "Brevis - REPL Output" :menubar menus)]
-       (.setSyntaxEditingStyle textArea (cond (= (:language params) :java) 
-                                              (SyntaxConstants/SYNTAX_STYLE_JAVA)
-                                              :else
-                                              (SyntaxConstants/SYNTAX_STYLE_CLOJURE)))
-       (.setCodeFoldingEnabled textArea true)      
-       (display f sp)
-       (-> f pack! show!)
-       #_(println (.getLocation f))
-       (.setLocation f 850 680)      
-       {:frame f
-        :text-area textArea
-        :scroll-pane sp
-        :menus menus}))
 
 (defn make-repl-output-window
    "Make an editor window."
