@@ -1,4 +1,4 @@
-(defproject brevis "0.6.1"
+(defproject brevis "0.7.0"
   :description "A Second-Generation Artificial Life Simulator"
   :url "https://github.com/kephale/brevis"
   :license {:name "Eclipse Public License"
