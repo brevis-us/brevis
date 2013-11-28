@@ -17,7 +17,7 @@
     [leiningen.core.main :as lein-main])
   (:use [clojure.java.io :only [file]] 
         [clojure.pprint]
-        [seesaw core font color graphics]
+        [seesaw core font color graphics chooser]
         [brevis.ui.profile]))
 
 ;; ## Globals
@@ -62,7 +62,6 @@
   (config! f :content content)
   content)
 
-
 (defn select-file []
   (let [chooser (JFileChooser.)]
     (.showDialog chooser nil "Select")
@@ -78,17 +77,17 @@
 
 (defn a-open [e]
   (let [selected (select-file)] #_(set-current-file selected))
-  (.setText (get-editor) (slurp filename))
+  (.setText (:text-area (get-editor)) (slurp filename))
   #_(set-status "Opened " filename "."))
 
 (defn a-save [e]
-  (spit filename (.getText (get-editor)))
+  (spit filename (.getText (:text-area (get-editor))))
   #_(set-status "Wrote " filename "."))
 
 (defn a-save-as [e]
   (when-let [selected (select-file)]
     #_(set-current-file selected)
-    (spit filename (.getText (get-editor)))
+    (spit filename (.getText (:text-area (get-editor))))
     #_(set-status "Wrote " filename ".")))
 
 (defn a-exit  [e] (System/exit 0))
@@ -119,12 +118,33 @@
                                           (when (:value resp) (println (:value resp))))
                                         #_(with-out-str (pprint (doall response-vals)))))))
 
+(defn make-project-window
+  "Make a project window for a given project."
+  [proj]
+  (let [f (frame :title (str "Brevis - " (:name proj)) :width 600 :height 200 :minimum-size [800 :by 360])
+         text-area (text :multi-line? true :font "MONOSPACED-PLAIN-14"
+                                          :text (with-out-str (pprint proj)))
+         area (scrollable text-area)
+         dialog (choose-file nil
+                             :type :open
+                             :dir (:directory proj)
+                             :selection-mode :files-only
+                             :remember-directory? false
+                             :success-fn (fn [fc file] (.setText (:text-area (get-editor)) (slurp file))))]
+    (display f area)
+    (-> f pack! show!)
+    (.setLocation f 850 0)      
+    {:frame f
+     :scrollable area
+     :text-area text-area}))
+
 (defn make-a-active-project
   "Make an action function for switching between projects."
   [proj]
   (fn [e]
-    (:menus @editor-window)
-    (println "Switching project:" proj)))
+    #_(:menus @editor-window)
+    (make-project-window proj)
+    #_(println "Switching project:" proj)))
 
 (defn make-editor-window
     "Make an editor window."
@@ -143,7 +163,7 @@
           a-cut (action :handler a-cut :name "Cut" :tip "Cut text to the clipboard.")
           a-save-as (action :handler a-save-as :name "Save As" :tip "Save the current file.")
           a-eval-file (action :handler a-eval-file :name "Evaluate" :tip "Evaluate the current file.")
-          a-projects (map #(action :handler (make-a-active-project (:name %))
+          a-projects (map #(action :handler (make-a-active-project %)
                                    :name (str (:group %) "/" (:name %))
                                    :tip (str (:group %) "/" (:name %)))
                           (:projects @current-profile))

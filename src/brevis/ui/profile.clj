@@ -17,7 +17,9 @@
 (defn read-profile
   "Read a brevis profile."
   []
-  (read-string (slurp @current-profile-filename)))
+  (if (.exists (io/file @current-profile-filename))    
+    (read-string (slurp @current-profile-filename))
+    default-profile))
 
 (defn write-profile
   "Write the profile."
@@ -34,6 +36,7 @@
     (when (.exists (io/file filename))
       (let [p (project/read filename)]
         {:project-file filename
+         :directory (if (string? d) d (.toString d))
          :group (:group p)
          :name (:name p)}
         #_(project/read filename)))))
