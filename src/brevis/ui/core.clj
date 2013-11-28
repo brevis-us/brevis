@@ -17,7 +17,8 @@
     [leiningen.core.main :as lein-main])
   (:use [clojure.java.io :only [file]] 
         [clojure.pprint]
-        [seesaw core font color graphics]))
+        [seesaw core font color graphics]
+        [brevis.ui.profile]))
 
 ;; ## Globals
 
@@ -42,12 +43,8 @@
 
 ;;
 
-;https://encrypted.google.com/url?sa=t&rct=j&q=swing%20inputstream%20outputstream&source=web&cd=7&cad=rja&ved=0CGYQFjAG&url=http%3A%2F%2Fzcu.arcao.com%2Fkiv%2Fos%2Fsemestralka%2Fspravce-virtualnich-stroju%2Fodevzdani%2Fsrc%2Fcz%2Fzcu%2Fkiv%2Fos%2Fconsole%2FConsoleWindow.java&ei=xLWUUv3MO4SgyAG1toGwCw&usg=AFQjCNG9ep9O6ku06YyWEmyXCR3pJULixQ&sig2=vf_-K5aeDpaffIK-fgFp9A&bvm=bv.57155469,d.aWc
-
 (def project-filename "/Users/kyle/git/brevis/project.clj")
 (def filename "/Users/kyle/git/brevis/src/brevis/example/swarm.clj")
-
-;(def screen-resolution 
 
 (defn get-editor
   "return the first editor window."
@@ -99,11 +96,35 @@
 (defn a-cut   [e] (.cut (get-editor)))
 (defn a-paste [e] (.paste (get-editor)))
 
+(defn eval-and-print
+  "Evaluate something, print all outputs, and print the final returned value."
+  [thing]
+  (let [response-vals (nrepl/message (:client @repl) {:op "eval" :code thing})]
+    (text! (:text-area @repl-output-window)
+           (with-out-str
+             (doseq [resp response-vals]
+               (when (:out resp) (println (:out resp)))
+               #_(when (:value resp) (println (:value resp))))
+             (println (:value (last response-vals)))
+             #_(with-out-str (pprint (doall response-vals)))))))
+
 (defn a-eval-file
   "Evaluate a file."
   [e]
-  (eval/eval-in (project/read project-filename)
-                (.getText (get-editor))))
+  (eval-and-print (.getText (:text-area (get-editor))))
+  #_(let [response-vals (nrepl/message (:client @repl) {:op "eval" :code (.getText (:text-area (get-editor)))})]
+     (text! (:text-area @repl-output-window)
+                          (with-out-str (doseq [resp response-vals]
+                                          (when (:out resp) (println (:out resp)))
+                                          (when (:value resp) (println (:value resp))))
+                                        #_(with-out-str (pprint (doall response-vals)))))))
+
+(defn make-a-active-project
+  "Make an action function for switching between projects."
+  [proj]
+  (fn [e]
+    (:menus @editor-window)
+    (println "Switching project:" proj)))
 
 (defn make-editor-window
     "Make an editor window."
@@ -113,7 +134,6 @@
           ;textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
           ;textArea.setCodeFoldingEnabled(true);      
           sp (RTextScrollPane. textArea)
-          
           a-new (action :handler a-new :name "New" :tip "Create a new file.")
           a-open (action :handler a-open :name "Open" :tip "Open a file")
           a-save (action :handler a-save :name "Save" :tip "Save the current file.")
@@ -123,10 +143,18 @@
           a-cut (action :handler a-cut :name "Cut" :tip "Cut text to the clipboard.")
           a-save-as (action :handler a-save-as :name "Save As" :tip "Save the current file.")
           a-eval-file (action :handler a-eval-file :name "Evaluate" :tip "Evaluate the current file.")
+          a-projects (map #(action :handler (make-a-active-project (:name %))
+                                   :name (str (:group %) "/" (:name %))
+                                   :tip (str (:group %) "/" (:name %)))
+                          (:projects @current-profile))
           menus (menubar
                   :items [(menu :text "File" :items [a-new a-open a-save a-save-as a-exit])
                           (menu :text "Edit" :items [a-copy a-cut a-paste])
-                          (menu :text "Run" :items [a-eval-file])])
+                          (menu :text "Run" :items [a-eval-file])
+                          (menu :text "Projects" :items (into [] a-projects))
+                          #_(menu :text "My Project" :items [(action :handler (fn [e] nil) :name "Open a project")
+                                                            (action :handler (fn [e] nil) :name "in")
+                                                            (action :handler (fn [e] nil) :name "projects menu")])])
           f (frame :title "Brevis - Editor Window" :menubar menus)]
       (.setSyntaxEditingStyle textArea (cond (= (:language params) :java) 
                                              (SyntaxConstants/SYNTAX_STYLE_JAVA)
@@ -180,15 +208,16 @@
               (try 
                 (let [startPosition 0
                       line (.getText textArea startPosition (- (.getLength (.getDocument textArea)) startPosition 1))
-                      response-vals (nrepl/message (:client @repl) {:op "eval" :code line})
+                      ;response-vals (nrepl/message (:client @repl) {:op "eval" :code line})
                       #_session-sender #_(nrepl/client-session @reply.eval-modes.nrepl/current-connection :session @reply.eval-modes.nrepl/current-session)]
                   (.setText textArea "")
-                  (println "Sending to repl:" line)                  
-                  (text! (:text-area @repl-output-window)
-                         (with-out-str (doseq [resp response-vals]
-                                         (when (:out resp) (println (:out resp)))
-                                         (when (:value resp) (println (:value resp))))
-                                       #_(with-out-str (pprint (doall response-vals)))))
+                  (eval-and-print line)
+                  #_(println "Sending to repl:" line)                  
+                  #_(text! (:text-area @repl-output-window)
+                          (with-out-str (doseq [resp response-vals]
+                                          (when (:out resp) (println (:out resp)))
+                                          (when (:value resp) (println (:value resp))))
+                                        #_(with-out-str (pprint (doall response-vals)))))
                   #_(text! (:text-area @repl-output-window) (with-out-str (pprint (doall response-vals))))
                   #_(session-sender {:op "eval" :code line :id (nrepl.misc/uuid)})
                   #_(reply.eval-modes.nrepl/execute-with-client (:client @repl) #_@reply.eval-modes.nrepl/current-connection

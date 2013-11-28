@@ -255,7 +255,8 @@ Copyright 2012, 2013 Kyle Harrington"
   (Keyboard/destroy)
   (Mouse/destroy)
   (Display/destroy)
-  (System/exit 0)
+  ;; Should call system/exit if not using UI
+  #_(System/exit 0)
   )
 
 (defn start-gui 
