@@ -9,6 +9,7 @@
            java.awt.Font)
   (:require  
     [clojure.string :as string]
+    [clojure.tools.nrepl.transport :as nrepl.transport]
     [clojure.tools.nrepl.server :as nrepl.server]
     [clojure.tools.nrepl :as nrepl]
     [clojure.tools.nrepl.misc :as nrepl.misc]
@@ -96,22 +97,46 @@
 (defn a-cut   [e] (.cut (get-editor)))
 (defn a-paste [e] (.paste (get-editor)))
 
+(def repl-output (atom []))
+
+(defn update-repl-output
+  "Update the REPL output window."
+  []
+  (println "count repl-output" (count @repl-output))
+  (doseq [line @repl-output]
+    (println line))
+  (text! (:text-area @repl-output-window)
+         (with-out-str
+           (doseq [line @repl-output]
+             (println line)))))
+
+(defn write-stdout-repl
+  "Write a stdout message for to the REPL output."
+  [s]
+  (swap! repl-output conj s)
+  (update-repl-output))
+
+(def write-value-repl write-stdout-repl)
+(def write-form-repl write-stdout-repl)
+
 (defn eval-and-print
   "Evaluate something, print all outputs, and print the final returned value."
-  [thing]
+  [thing echo?]
+  (when echo?
+    (write-form-repl (str "> " thing)))
   (let [response-vals (nrepl/message (:client @repl) {:op "eval" :code thing})]
-    (text! (:text-area @repl-output-window)
-           (with-out-str
-             (doseq [resp response-vals]
-               (when (:out resp) (println (:out resp)))
-               #_(when (:value resp) (println (:value resp))))
-             (println (:value (last response-vals)))
-             #_(with-out-str (pprint (doall response-vals)))))))
+    (doseq [resp response-vals]
+      (when (:out resp) (write-stdout-repl (:out resp))#_(println (:out resp)))
+      (when (:value resp) (write-value-repl (:value resp)))
+      #_(when (:value resp) (println (:value resp))))
+    #_(write-value-repl (:value (last response-vals)))
+    #_(println (:value (last response-vals)))
+    #_(with-out-str (pprint (doall response-vals)))))
 
 (defn a-eval-file
   "Evaluate a file."
   [e]
-  (eval-and-print (.getText (:text-area (get-editor))))
+  (eval-and-print (.getText (:text-area (get-editor))) false)
   #_(let [response-vals (nrepl/message (:client @repl) {:op "eval" :code (.getText (:text-area (get-editor)))})]
      (text! (:text-area @repl-output-window)
                           (with-out-str (doseq [resp response-vals]
@@ -247,24 +272,7 @@
                       ;response-vals (nrepl/message (:client @repl) {:op "eval" :code line})
                       #_session-sender #_(nrepl/client-session @reply.eval-modes.nrepl/current-connection :session @reply.eval-modes.nrepl/current-session)]
                   (.setText textArea "")
-                  (eval-and-print line)
-                  #_(println "Sending to repl:" line)                  
-                  #_(text! (:text-area @repl-output-window)
-                          (with-out-str (doseq [resp response-vals]
-                                          (when (:out resp) (println (:out resp)))
-                                          (when (:value resp) (println (:value resp))))
-                                        #_(with-out-str (pprint (doall response-vals)))))
-                  #_(text! (:text-area @repl-output-window) (with-out-str (pprint (doall response-vals))))
-                  #_(session-sender {:op "eval" :code line :id (nrepl.misc/uuid)})
-                  #_(reply.eval-modes.nrepl/execute-with-client (:client @repl) #_@reply.eval-modes.nrepl/current-connection
-                             (assoc {}
-                                    :read-input-line-fn (partial reply.reader.simple-jline/safe-read-line {:no-jline true :prompt-string ""})                                                          
-                                    :interactive true)
-                             line)
-                  #_(java.io.ByteArrayInputStream.
-                     (.getBytes "(println 'foobar)\nexit\n(println 'foobar)\n"))
-                  #_(System/setIn (ByteArrayInputStream. (.getBytes (str line "\n") "UTF-8")))                    
-                  #_(.add (get-repl-inputstream) (str line "\n"))                  
+                  (eval-and-print line true)           
                   ;; Add to a console history
                   )
                 (catch Exception e (println (.getMessage e))))
@@ -289,12 +297,20 @@
    (let [f (frame :title "Brevis - REPL Output" :width 800 :height 200 :minimum-size [800 :by 360])
          text-area (text :multi-line? true :font "MONOSPACED-PLAIN-14"
                                           :text "> ")
-         area (scrollable text-area)]
+         area (scrollable text-area)
+         listener-thread (Thread. (fn []  
+                                    (loop []
+                                      (let [resp (nrepl.transport/recv (:client @repl) 20)]
+                                        (when resp
+                                          (when (:out resp) (write-stdout-repl (:out resp)))
+                                          (when (:value resp) (write-value-repl (:value resp)))))
+                                      (recur))))]
     (display f area)
     (-> f pack! show!)
     (.setLocation f 850 650)      
     {:frame f
      :scrollable area
+     :listener-thread listener-thread
      :text-area text-area}))
 
 (defn -main 
