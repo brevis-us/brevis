@@ -98,13 +98,15 @@
 (defn a-paste [e] (.paste (get-editor)))
 
 (def repl-output (atom []))
+(def repl-input (atom []))
+(def repl-input-index (atom 0));; 0 is most recent, then go backwards, this is used with (- (count @repl-input) index)
 
 (defn update-repl-output
   "Update the REPL output window."
   []
-  (println "count repl-output" (count @repl-output))
-  (doseq [line @repl-output]
-    (println line))
+  #_(println "count repl-output" (count @repl-output))
+  #_(doseq [line @repl-output]
+     (println line))
   (text! (:text-area @repl-output-window)
          (with-out-str
            (doseq [line @repl-output]
@@ -113,7 +115,7 @@
 (defn write-stdout-repl
   "Write a stdout message for to the REPL output."
   [s]
-  (swap! repl-output conj s)
+  (swap! repl-output conj s);; probably should limit history
   (update-repl-output))
 
 (def write-value-repl write-stdout-repl)
@@ -123,6 +125,7 @@
   "Evaluate something, print all outputs, and print the final returned value."
   [thing echo?]
   (when echo?
+    (swap! repl-input conj thing);; probably should limit history
     (write-form-repl (str "> " thing)))
   (let [response-vals (nrepl/message (:client @repl) {:op "eval" :code thing})]
     (doseq [resp response-vals]
@@ -262,6 +265,24 @@
       (.addKeyListener textArea 
         (proxy [java.awt.event.KeyAdapter] []          
           (keyPressed [#^java.awt.event.KeyEvent e]
+            (when (= (.getKeyCode e) java.awt.event.KeyEvent/VK_UP)
+              (try 
+                (let [startPosition 0]
+                  (.remove (.getDocument textArea) startPosition (- (.getLength (.getDocument textArea)) startPosition 1))                  
+                  (.setText textArea (nth @repl-input (- (dec (count @repl-input)) @repl-input-index)))
+                  (reset! repl-input-index (min (inc @repl-input-index) (dec (count @repl-input))))
+                  #_(.setText textArea (last @repl-input)))
+                (catch Exception e (println (.getMessage e))))
+              (.consume e))
+            (when (= (.getKeyCode e) java.awt.event.KeyEvent/VK_DOWN)
+              (try 
+                (let [startPosition 0]
+                  (.remove (.getDocument textArea) startPosition (- (.getLength (.getDocument textArea)) startPosition 1))                  
+                  (.setText textArea (nth @repl-input (- (dec (count @repl-input)) @repl-input-index)))
+                  (reset! repl-input-index (max (dec @repl-input-index) 0))
+                  #_(.setText textArea (last @repl-input)))
+                (catch Exception e (println (.getMessage e))))
+              (.consume e))
             (when (= (.getKeyCode e) java.awt.event.KeyEvent/VK_ENTER)
               (.append textArea "\n")
               ;; This shouldn't be here:
@@ -271,6 +292,7 @@
                       line (.getText textArea startPosition (- (.getLength (.getDocument textArea)) startPosition 1))
                       ;response-vals (nrepl/message (:client @repl) {:op "eval" :code line})
                       #_session-sender #_(nrepl/client-session @reply.eval-modes.nrepl/current-connection :session @reply.eval-modes.nrepl/current-session)]
+                  (reset! repl-input-index 0)
                   (.setText textArea "")
                   (eval-and-print line true)           
                   ;; Add to a console history
