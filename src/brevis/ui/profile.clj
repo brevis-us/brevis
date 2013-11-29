@@ -3,15 +3,15 @@
             [leiningen.core.project :as project])
   (:use [clojure.pprint]))
 
-(def brevis-directory "/Users/kyle/.brevis/")
-(def current-profile-filename (atom (str brevis-directory "default")))
+(def brevis-directory (str (io/file (System/getProperty "user.home")) "/.brevis"))
+(def current-profile-filename (atom (str brevis-directory "/default")))
 
 (def current-profile (atom {}))
 
 (def default-profile
-  {:author "Kyle Harrington"
-   :current-project "/Users/kyle/git/brevis"
-   :current-filename "/Users/kyle/git/brevis/src/brevis/example/swarm.clj"
+  {:author "Brevis h4x3r"
+   :current-project (str (io/file (System/getProperty "user.home")) "/git/brevis")
+   :current-filename (str (io/file (System/getProperty "user.home")) "/git/brevis/src/brevis/example/swarm.clj")
    :projects []})
 
 (defn read-profile

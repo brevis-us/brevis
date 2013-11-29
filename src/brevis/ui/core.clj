@@ -45,8 +45,7 @@
 
 ;;
 
-(def project-filename "/Users/kyle/git/brevis/project.clj")
-(def filename "/Users/kyle/git/brevis/src/brevis/example/swarm.clj")
+(def current-filename (atom nil))
 
 (defn get-editor
   "return the first editor window."
@@ -71,25 +70,25 @@
 
 (defn a-new [e]
   (let [selected (select-file)] 
-    (if (.exists (file filename))
+    (if (.exists (file selected))
       (alert "File already exists.")
       (do #_(set-current-file selected)
-          (.setText (get-editor) "")
+          (.setText (:text-area (get-editor)) "")
           #_(set-status "Created a new file.")))))
 
 (defn a-open [e]
-  (let [selected (select-file)] #_(set-current-file selected))
-  (.setText (:text-area (get-editor)) (slurp filename))
-  #_(set-status "Opened " filename "."))
+  (let [selected (select-file)] #_(set-current-file selected)
+    (.setText (:text-area (get-editor)) (slurp selected))
+    #_(set-status "Opened " filename ".")))
 
 (defn a-save [e]
-  (spit filename (.getText (:text-area (get-editor))))
+  (spit @current-filename (.getText (:text-area (get-editor))))
   #_(set-status "Wrote " filename "."))
 
 (defn a-save-as [e]
   (when-let [selected (select-file)]
     #_(set-current-file selected)
-    (spit filename (.getText (:text-area (get-editor))))
+    (spit selected (.getText (:text-area (get-editor))))
     #_(set-status "Wrote " filename ".")))
 
 (defn a-exit  [e] (System/exit 0))
@@ -346,9 +345,10 @@
         r-is System/in #_(java.io.ByteArrayInputStream.
                           #_(.getBytes "(println 'foobar)\nexit\n(println 'foobar)\n"))
         r-os (java.io.ByteArrayOutputStream.)
-        project #_(project/read project-filename)
-        (assoc (project/read project-filename)
-               :repl-options {:input-stream r-is :output-stream r-os})
+        project (project/read (str (:current-project @current-profile) "/project.clj"))
+        #_(project/read project-filename)
+        #_(assoc (project/read (str (:current-project @current-profile) "/project.clj") #_project-filename)
+                :repl-options {:input-stream r-is :output-stream r-os})
         repl-cfg {:host (repl/repl-host project)
                   :port (repl/repl-port project)}
         ;repl-server-port (repl/server project repl-cfg false)
@@ -375,7 +375,8 @@
     (reset! editor-window ew)
     (reset! repl-input-window ri)
     (reset! repl-output-window ro)
-    (.setText (:text-area ew) (slurp filename))))
+    (reset! current-filename (:current-filename @current-profile))
+    (.setText (:text-area ew) (slurp @current-filename))))
 
 (when (find-ns 'ccw.complete)
   (-main))
