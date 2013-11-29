@@ -51,7 +51,7 @@
     ))
 
 (reset! current-profile (assoc (read-profile)
-                               :projects (import-project-directory "/Users/kyle/git")))
+                               :projects (import-project-directory (io/file (System/getProperty "user.home") "git") #_"/Users/kyle/git")))
 (write-profile @current-profile)
 
 #_(import-project-directory "/Users/kyle/git")

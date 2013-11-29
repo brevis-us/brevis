@@ -161,19 +161,19 @@
   "Make a project window for a given project."
   [proj]
   (let [f (frame :title (str "Brevis - " (:name proj)) :width 600 :height 200 :minimum-size [800 :by 360])
-         text-area (text :multi-line? true :font "MONOSPACED-PLAIN-14"
-                                          :text (with-out-str (pprint proj)))
-         area (scrollable text-area)
-         dialog (choose-file nil
-                             :type :open
-                             :dir (:directory proj)
-                             :selection-mode :files-only
-                             :remember-directory? false
-                             :success-fn (fn [fc file]
-                                           (.setSyntaxEditingStyle
-                                             (:text-area (get-editor)) 
-                                             (filename-to-syntaxtype (.toString file)))
-                                           (.setText (:text-area (get-editor)) (slurp file))))]
+        text-area (text :multi-line? true :font "MONOSPACED-PLAIN-14"
+                        :text (with-out-str (pprint proj)))
+        area (scrollable text-area)
+        dialog (choose-file nil
+                            :type :open
+                            :dir (:directory proj)
+                            :selection-mode :files-only
+                            :remember-directory? false
+                            :success-fn (fn [fc file]
+                                          (.setSyntaxEditingStyle
+                                            (:text-area (get-editor)) 
+                                            (filename-to-syntaxtype (.toString file)))
+                                          (.setText (:text-area (get-editor)) (slurp file))))]
     (display f area)
     (-> f pack! show!)
     (.setLocation f 850 0)      
