@@ -8,6 +8,7 @@
            (java.io ByteArrayInputStream)
            java.awt.Font)
   (:require  
+    [clojure.string :as string]
     [clojure.tools.nrepl.server :as nrepl.server]
     [clojure.tools.nrepl :as nrepl]
     [clojure.tools.nrepl.misc :as nrepl.misc]
@@ -118,6 +119,17 @@
                                           (when (:value resp) (println (:value resp))))
                                         #_(with-out-str (pprint (doall response-vals)))))))
 
+(defn filename-to-syntaxtype
+ "Figure out the syntax type for a given file."
+ [filename]
+ #_(println "filename-to-syntaxtype" filename)
+ (let [extension (string/split filename #"\.")]       
+   (cond
+     (= (last extension) "java") SyntaxConstants/SYNTAX_STYLE_JAVA 
+     (= (last extension) "clj") SyntaxConstants/SYNTAX_STYLE_CLOJURE 
+     :else SyntaxConstants/SYNTAX_STYLE_CLOJURE)))
+ 
+
 (defn make-project-window
   "Make a project window for a given project."
   [proj]
@@ -130,7 +142,11 @@
                              :dir (:directory proj)
                              :selection-mode :files-only
                              :remember-directory? false
-                             :success-fn (fn [fc file] (.setText (:text-area (get-editor)) (slurp file))))]
+                             :success-fn (fn [fc file]
+                                           (.setSyntaxEditingStyle
+                                             (:text-area (get-editor)) 
+                                             (filename-to-syntaxtype (.toString file)))
+                                           (.setText (:text-area (get-editor)) (slurp file))))]
     (display f area)
     (-> f pack! show!)
     (.setLocation f 850 0)      

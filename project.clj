@@ -29,7 +29,7 @@
                  [com.nitayjoffe.thirdparty.net.robowiki.knn/knn-benchmark "0.1"]                 
                  
                  ;; Math packages
-                 [java3d/vecmath "1.3.1"]
+                 ;[java3d/vecmath "1.3.1"]
                  ;[com.googlecode.efficient-java-matrix-library/ejml "0.23"]
                  
                  ;; UI packages
