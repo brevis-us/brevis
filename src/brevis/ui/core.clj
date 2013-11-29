@@ -93,9 +93,9 @@
     #_(set-status "Wrote " filename ".")))
 
 (defn a-exit  [e] (System/exit 0))
-(defn a-copy  [e] (.copy (get-editor)))
-(defn a-cut   [e] (.cut (get-editor)))
-(defn a-paste [e] (.paste (get-editor)))
+(defn a-copy  [e] (.copy (:text-area (get-editor))))
+(defn a-cut   [e] (.cut (:text-area (get-editor))))
+(defn a-paste [e] (.paste (:text-area (get-editor))))
 
 (def repl-output (atom []))
 (def repl-input (atom []))
@@ -216,6 +216,7 @@
                           (menu :text "Edit" :items [a-copy a-cut a-paste])
                           (menu :text "Run" :items [a-eval-file])
                           (menu :text "Projects" :items (into [] a-projects))
+                          (menu :text "Git" :items [])
                           #_(menu :text "My Project" :items [(action :handler (fn [e] nil) :name "Open a project")
                                                             (action :handler (fn [e] nil) :name "in")
                                                             (action :handler (fn [e] nil) :name "projects menu")])])
