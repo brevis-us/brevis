@@ -294,14 +294,14 @@ public class BrCamera {
 		//glPopAttrib();
 	}
 	
-	public void makeFramebuffer() {
+	public void makeFBO() {
 		if (!GLContext.getCapabilities().GL_EXT_framebuffer_object) {
 			System.out.println("FBO not supported!!!");
 			System.exit(0);
 		}
 		else {
 			
-			System.out.println("FBO is supported!!!");
+			//System.out.println("FBO is supported!!!");
 			
 			// init our fbo
 	
@@ -315,12 +315,13 @@ public class BrCamera {
 			glBindTexture(GL_TEXTURE_2D, colorTextureID);									// Bind the colorbuffer texture
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);				// make it linear filterd
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, (int)width, (int)height, 0,GL_RGBA, GL_INT, (java.nio.ByteBuffer) null);	// Create the texture data
+			//glTexImage2D(GL_TEXTURE_2D, 1, GL_RGBA8, (int)width, (int)height, 0,GL_RGBA, GL_INT, (java.nio.ByteBuffer) null);	// Create the texture data
 			glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D, colorTextureID, 0); // attach it to the framebuffer
 	
 	
 			// initialize depth renderbuffer
 			glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depthRenderBufferID);				// bind the depth renderbuffer
-			glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL14.GL_DEPTH_COMPONENT24, 512, 512);	// get the data space for it
+			glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL14.GL_DEPTH_COMPONENT24, (int)width, (int)height);	// get the data space for it
 			glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,GL_DEPTH_ATTACHMENT_EXT,GL_RENDERBUFFER_EXT, depthRenderBufferID); // bind it to the renderbuffer
 	
 			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);									// Swithch back to normal framebuffer rendering
@@ -332,18 +333,24 @@ public class BrCamera {
 		
 		// FBO render pass
 
-		glViewport (0, 0, (int)width, (int)height);									// set The Current Viewport to the fbo size
-
-		glBindTexture(GL_TEXTURE_2D, 0);								// unlink textures because if we dont it all is gonna fail
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, framebufferID);		// switch to rendering on our FBO
+		//glViewport (0, 0, (int)width, (int)height);									// set The Current Viewport to the fbo size
 
 		setupFrame();
+		
+		glBindTexture(GL_TEXTURE_2D, 0);								// unlink textures because if we dont it all is gonna fail
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, framebufferID);		// switch to rendering on our FBO
+		
 
 		//glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);					// switch to rendering on the display framebuffer
 
 		//glFlush ();		
 	}	
 	
+	public void finishRenderToFBO() {
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);					// switch to rendering on the display framebuffer
+
+		glFlush ();
+	}
 	
 	public BufferedImage getImageFromFBO() {
 		BufferedImage img = new BufferedImage((int)width, (int)height, BufferedImage.TYPE_INT_ARGB);
