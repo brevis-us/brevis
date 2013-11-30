@@ -5,6 +5,7 @@ import java.awt.image.DataBufferInt;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 
 import javax.vecmath.Vector3f;
 
@@ -18,6 +19,8 @@ import org.lwjgl.opengl.GLContext;
 import org.lwjgl.opengl.GL14;
 import org.lwjgl.util.glu.GLU;
 
+import brevis.BrObject;
+import brevis.Engine;
 import static org.lwjgl.opengl.ARBDepthClamp.GL_DEPTH_CLAMP;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.EXTFramebufferObject.*;
@@ -280,10 +283,9 @@ public class BrCamera {
 			float k2 = (float)width/(float)height;
 			GL11.glFrustum (-vnear*k*k2,vnear*k*k2,-vnear*k,vnear*k,vnear,vfar);
 		}
-		
-		GL11.glMatrixMode( GL11.GL_MODELVIEW );
-		translate();
 		//GLU.gluPerspective(fov, (float) width / (float) height, nearClippingPlane, farClippingPlane);
+		GL11.glMatrixMode( GL11.GL_MODELVIEW );
+		translate();		
 	}
 
 	/**
@@ -334,7 +336,7 @@ public class BrCamera {
 			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);									// Swithch back to normal framebuffer rendering
 			
 		}
-	}
+	}		
 	
 	public void initRenderToFBO() {
 		
@@ -347,7 +349,20 @@ public class BrCamera {
 		glBindTexture(GL_TEXTURE_2D, 0);								// unlink textures because if we dont it all is gonna fail
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, framebufferID);		// switch to rendering on our FBO
 		
-
+		GL11.glShadeModel(GL11.GL_SMOOTH);                            // Enable Smooth Shading
+        GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.5f);               // Black Background
+        GL11.glClearDepth(1.0f);                                 // Depth Buffer Setup
+        GL11.glClearStencil(0);                                  // Stencil Buffer Setup
+        GL11.glEnable(GL11.GL_DEPTH_TEST);                            // Enables Depth Testing
+        GL11.glDepthFunc(GL11.GL_LEQUAL);                             // The Type Of Depth Testing To Do
+        //GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST);  // Really Nice Perspective Calculations
+        
+        GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_FASTEST);
+        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+        GL11.glHint(GL11.GL_POLYGON_SMOOTH_HINT, GL11.GL_FASTEST);
+        GL11.glEnable(GL11.GL_POLYGON_SMOOTH);
+        
+		
 		//glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);					// switch to rendering on the display framebuffer
 
 		//glFlush ();		
@@ -357,6 +372,22 @@ public class BrCamera {
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);					// switch to rendering on the display framebuffer
 
 		glFlush ();
+	}
+	
+	public void renderToFBO( Engine e ) {
+		
+		GL11.glClear( GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT );
+		
+		initRenderToFBO();
+		
+		ArrayList<BrObject> objects = new ArrayList<BrObject>( e.getObjects() );
+		
+		for( BrObject obj : objects ) {
+			Basic3D.drawShape( obj, obj.getShape().getDimension());
+		}
+		
+		finishRenderToFBO();		
+		
 	}
 	
 	public BufferedImage getImageFromFBO() {

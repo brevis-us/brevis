@@ -140,6 +140,15 @@ public final class BrKDTree<X extends BrKDNode> {
 		return searchByDistance(this, query, distance);
 	}
 	
+	public ArrayList<X>
+	searchAlongLine(double[] queryStart, double[] queryStop, double distance) {
+		// This essentially searches along a cylinder with half-sphere caps
+		//
+		// Forward to a static method to avoid accidental reference to
+		// instance variables while descending the tree
+		return searchAlongLine(this, queryStart, queryStop, distance);
+	}
+	
 	//
 	// IMPLEMENTATION DETAILS
 	//
@@ -307,6 +316,86 @@ public final class BrKDTree<X extends BrKDNode> {
 	}
 
 	// Searching
+	
+	// ---------------   Search along line
+	
+	private static <X extends BrKDNode> ArrayList<X>
+	searchAlongLine(BrKDTree<X> tree, double[] queryStart, double[] queryDir, double distance) {
+		int nResults = tree.data.size();
+		//final SearchState<X> state = new SearchState<X>(nResults);
+		//final FastBinaryHeap<X> results = new FastBinaryHeap<X>(
+		//		nResults, 4, FastBinaryHeap.MAX);
+		//final ArrayList<X> results = new ArrayList<X>(nResults);
+		ArrayList<X> results = new ArrayList<X>();
+		
+		final Deque<SearchStackEntry<X>> stack =
+			new ArrayDeque<SearchStackEntry<X>>();
+		if (tree.contentMin != null)
+			stack.addLast(new SearchStackEntry<X>(false, tree));
+//TREE_WALK:
+		while (!stack.isEmpty()) {
+			final SearchStackEntry<X> entry = stack.removeLast();
+			final BrKDTree<X> cur = entry.tree;
+
+			/*if (entry.needBoundsCheck && state.results.size() >= nResults) {
+				/*final double d = minDistanceSqFrom(query,
+					cur.contentMin, cur.contentMax);*
+				if ( distance > state.results.peek().priority )
+					continue TREE_WALK;
+			}*/
+
+			if (cur.isTree()) {
+				searchTreeAlongLine(queryStart, queryDir, cur, stack);
+			} else {
+				searchLeafAlongLine(queryStart, queryDir, cur, results, distance);
+			}
+		}		
+
+		return results;
+	}
+	
+	private static <X extends BrKDNode> void
+	searchTreeAlongLine(double[] queryStart, double[] queryDir, BrKDTree<X> tree,
+		Deque<SearchStackEntry<X>> stack)
+	{
+		// The near/far stuff in this function is expected to not affect search in a significant way 
+		BrKDTree<X> nearTree = tree.left, farTree = tree.right;
+		if (queryStart[tree.splitDim] > tree.split) {
+			nearTree = tree.right;
+			farTree = tree.left;
+		}
+
+		// These variables let us skip empty sub-trees
+		boolean nearEmpty = nearTree.contentMin == null;
+		boolean farEmpty = farTree.contentMin == null;
+
+		// Add nearest sub-tree to stack later so we descend it
+		// first. This is likely to constrict our max distance
+		// sooner, resulting in less visited nodes
+		if (!farEmpty) {
+			stack.addLast(new SearchStackEntry<X>(true, farTree));
+		}
+
+		if (!nearEmpty) {
+			stack.addLast(new SearchStackEntry<X>(true, nearTree));
+		}
+	}
+	
+	private static <X extends BrKDNode> void
+	searchLeafAlongLine(double[] queryStart, double[] queryDir, BrKDTree<X> leaf, ArrayList<X> results, double distance) {
+		double exD = Double.NaN;
+		for(X ex : leaf.data) {
+			exD = Double.NaN;
+			if (!leaf.singularity || Double.isNaN(exD)) {
+				exD = distanceSqFromLine(queryStart, queryDir, ex.domain);
+			}
+
+			if ( exD < distance ) {
+				//System.out.println( "Within distance " + distance + " " + exD );
+				results.add(ex);
+			} 
+		}
+	}
 
 	// ---------------   Search by distance
 	//private static <X extends BrKDNode> Iterable<PrioNode<X>>
@@ -477,6 +566,32 @@ TREE_WALK:
 				dSq += dst*dst;
 		}
 		return dSq;
+	}
+	
+	private static double[] cross( double[] v1, double[] v2 ) {
+		return ( new double[]{ ( v1[1]*v2[2] - v1[2]*v2[1] ), ( v1[2]*v2[0] - v1[0]*v2[2] ), ( v1[0]*v2[1] - v1[1]*v2[0] ) } );
+	}
+		
+	private static double length( double[] v ) {
+		return ( v[0]*v[0] + v[1]*v[1] + v[2]*v[2] );
+	}
+	
+	private static double
+	distanceSqFromLine(double[] c, double[] v, double[] p) {
+		// call with c, the base of the line, and v, the direction vector from c
+		// p is the point in question
+		//
+		// Note: profiling shows this is called lots of times, so it pays
+		// to be well optimised
+		double dSq = 0;
+		
+		double[] a = new double[]{ p[0] - c[0], p[1] - c[1], p[2] - c[2] };
+		
+		double[] aXv = cross(a,v);
+		double la = length( a );
+		double sinTheta = length( aXv ) / ( la * length( v ) );
+		
+		return la * sinTheta;
 	}
 
 	//

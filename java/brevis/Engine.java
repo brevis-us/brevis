@@ -374,6 +374,48 @@ public class Engine {
 		objects = updatedObjects;
 	}
 	
+	/* 
+	 * Return all objects along a line with start point, start, and direction vector, direction
+	 * within distance, radius 
+	 * NOTE: currently only centers of objects are considered, so radius should account for the largest dimension of the largest object to be considered
+	 */
+	public ArrayList<BrObject> objectsAlongLine( double[] start, double[] direction, double radius ) {
+		ArrayList<BrObject> objs = new ArrayList<BrObject>();
+		
+		spaceTree.clear();
+		
+		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
+			BrObject obj = entry.getValue();
+			Vector3f pos = obj.getPosition();
+			double[] arryloc = { pos.x, pos.y, pos.z };
+			BrKDNode n = new BrKDNode( arryloc, entry.getKey() );
+			spaceTree.add( n );
+		}				
+		
+		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
+			BrObject obj = entry.getValue();
+			Vector<Long> nbrs = new Vector<Long>();
+			
+			Vector3f pos = obj.getPosition();
+			double[] arryloc = { pos.x, pos.y, pos.z };
+			
+			//Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.search( arryloc, nResults);
+			//Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.searchByDistance( arryloc, neighborhoodRadius );
+			ArrayList<BrKDNode> searchNbrs = spaceTree.searchAlongLine( start, direction, radius);
+			Iterator<BrKDNode> itr = searchNbrs.iterator();
+			
+			while( itr.hasNext() ) {
+				BrKDNode nbr = itr.next();
+				nbrs.add( nbr.UID );
+			}
+			
+			//System.out.println( "Neighbors of " + obj + " " + nbrs.size() );
+			obj.nbrs = nbrs;
+			objs.add( obj );
+		}
+		return objs;
+	}
+	
 	/* initWorld
 	 * Initialization functions
 	 */

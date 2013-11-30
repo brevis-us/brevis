@@ -523,16 +523,17 @@ public class Basic3D {
     
 	// some from nehe lesson 27    
 	//static public void drawShape( BrObject obj, double xrot, double yrot, double zrot, double xoff, double yoff, double zoff, double[] lp, Vector3d dim ) {
-    static public void drawShape( BrObject obj, double[] lp, Vector3f dim ) {
-		float Minv[] = new float[16];
-        float wlp[] = new float[4];        
+    //static public void drawShape( BrObject obj, double[] lp, Vector3f dim ) {
+    static public void drawShape( BrObject obj, Vector3f dim ) {
+		//float Minv[] = new float[16];
+        //float wlp[] = new float[4];        
 		
-		ByteBuffer byteBuffer;
+		/*ByteBuffer byteBuffer;
 		ByteBuffer floatBuffer;
 		floatBuffer = ByteBuffer.allocateDirect(64);
         floatBuffer.order(ByteOrder.nativeOrder());
         byteBuffer = ByteBuffer.allocateDirect(16);
-        byteBuffer.order(ByteOrder.nativeOrder());
+        byteBuffer.order(ByteOrder.nativeOrder());*/
 		
         // Clear Color Buffer, Depth Buffer, Stencil Buffer
         //GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_STENCIL_BUFFER_BIT);
@@ -555,7 +556,7 @@ public class Basic3D {
         lp[2] = lightPos[2];                                // Store Light Position Z In lp[2]
         lp[3] = lightPos[3];                                // Store Light Direction In lp[3]*/
         
-        vMatMult(Minv, lp);                                 // We Store Rotated Light Vector In 'lp' Array
+        //vMatMult(Minv, lp);                                 // We Store Rotated Light Vector In 'lp' Array
         
         Vector3f vObjPos = obj.getPosition();        
         float[] objPos = { (float) vObjPos.x, (float) vObjPos.y, (float) vObjPos.z, 0 };

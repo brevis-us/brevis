@@ -64,7 +64,8 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn draw-shape
   "Draw a shape. Call this after translating, scaling, and setting color."
   [obj]
-  (Basic3D/drawShape obj (double-array [0 1 0 0]) (.getDimension (.getShape obj))))
+  (Basic3D/drawShape obj (.getDimension (.getShape obj)))
+  #_(Basic3D/drawShape obj (double-array [0 1 0 0]) (.getDimension (.getShape obj))))
 	  
 (defn draw-shape-shadow
   "Draw a shape. Call this after translating, scaling, and setting color."
