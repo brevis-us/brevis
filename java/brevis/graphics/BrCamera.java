@@ -3,6 +3,8 @@ package brevis.graphics;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
 
 import javax.vecmath.Vector3f;
 
@@ -219,9 +221,14 @@ public class BrCamera {
 	 * @param dz Mouse z movement
 	 */
 	public void moveFromLook(float dx, float dy, float dz) {
+		// Orig
+		/*this.z += dx * (float) cos(toRadians(yaw - 90)) + dz * cos(toRadians(yaw));
+		this.x -= dx * (float) sin(toRadians(yaw - 90)) + dz * sin(toRadians(yaw));
+		this.y += dy * (float) sin(toRadians(pitch - 90)) + dz * sin(toRadians(pitch));*/
+		
 		this.z += dx * (float) cos(toRadians(yaw - 90)) + dz * cos(toRadians(yaw));
 		this.x -= dx * (float) sin(toRadians(yaw - 90)) + dz * sin(toRadians(yaw));
-		this.y += dy * (float) sin(toRadians(pitch - 90)) + dz * sin(toRadians(pitch));
+		this.y += dy * (float) sin(toRadians(roll - 90)) + dz * sin(toRadians(roll));
 	}
 
 	/**
@@ -304,8 +311,8 @@ public class BrCamera {
 			//System.out.println("FBO is supported!!!");
 			
 			// init our fbo
-	
-			framebufferID = glGenFramebuffersEXT();											// create a new framebuffer
+				
+			framebufferID = glGenFramebuffersEXT();											// create a new framebuffer					
 			colorTextureID = glGenTextures();												// and a new texture used as a color buffer
 			depthRenderBufferID = glGenRenderbuffersEXT();									// And finally a new depthbuffer
 	
