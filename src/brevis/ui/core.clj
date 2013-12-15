@@ -1,5 +1,4 @@
-(ns brevis.ui.core
-  (:gen-class)
+(ns brevis.ui.core  
   (:import (org.fife.ui.rsyntaxtextarea RSyntaxTextArea SyntaxConstants
                                         TokenMakerFactory)	
            (org.fife.ui.rtextarea RTextScrollPane)
@@ -22,7 +21,8 @@
   (:use [clojure.java.io :only [file]] 
         [clojure.pprint]
         [seesaw core font color graphics chooser mig tree]
-        [brevis.ui.profile]))
+        [brevis.ui.profile])
+  (:gen-class))
 
 ;; ## Globals
 
