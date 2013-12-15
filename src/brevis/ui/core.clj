@@ -6,6 +6,8 @@
            [javax.swing JFileChooser JEditorPane JScrollPane BorderFactory]
            (java.awt.event KeyAdapter)
            (java.io ByteArrayInputStream)
+           [java.io File]
+           [javax.swing.filechooser FileSystemView]
            java.awt.Font)
   (:require  
     [clojure.string :as string]
@@ -19,10 +21,12 @@
     [leiningen.core.main :as lein-main])
   (:use [clojure.java.io :only [file]] 
         [clojure.pprint]
-        [seesaw core font color graphics chooser mig]
+        [seesaw core font color graphics chooser mig tree]
         [brevis.ui.profile]))
 
 ;; ## Globals
+
+(def workspace-directory (atom "/Users/kyle/git"))
 
 (def editor-window
   "Keeping track of the open editor window." (atom nil))
@@ -39,6 +43,9 @@
 
 (def repl-output-window   
   "Keeping track of the open REPL output window."(atom nil))
+
+(def project-browser
+  (atom nil))
 
 (def repl-outputstream
   (atom nil))
@@ -476,6 +483,29 @@
       :listener-thread listener-thread
       :text-area text-area}))
 
+
+;; Some of the project browser code from https://github.com/daveray/seesaw/blob/develop/test/seesaw/test/examples/explorer.clj
+(def tree-project-model
+  (simple-tree-model
+    #(.isDirectory %) 
+    (fn [f] (filter #(.isDirectory %) (.listFiles f)))
+    #_(fn [f] (filter #(or (.isDirectory %) (.isFile %)) (.listFiles f)))
+    (File. @workspace-directory)
+    #_(File. ".")))
+
+#_(def chooser (javax.swing.JFileChooser.)) ; FileChooser hack to get system icons
+
+(defn render-file-item
+  [renderer {:keys [value]}]
+  (config! renderer :text (.getName value)
+           #_:icon #_(.getIcon chooser value)))
+
+(defn make-project-browser
+  "Make a widget for browsing projects."
+  [params]
+  (let [browser (scrollable (tree    :id :tree :model tree-project-model :renderer render-file-item))]
+    {:scrollable browser}))
+
 (defn make-ui
   "Make a multi-widget UI."
   []
@@ -488,6 +518,11 @@
         a-cut (action :handler a-cut :name "Cut" :tip "Cut text to the clipboard.")
         a-save-as (action :handler a-save-as :name "Save As" :tip "Save the current file.")
         a-eval-file (action :handler a-eval-file :name "Evaluate" :tip "Evaluate the current file.")
+        a-restart-brevis
+        (action :handler (fn [e]
+                           (System/exit 1))
+                :name "Restart Brevis"
+                :tip "Completely restarts the application")
         a-projects (map #(action :handler (make-a-active-project %)
                                  :name (str (:group %) "/" (:name %))
                                  :tip (str (:group %) "/" (:name %)))
@@ -498,14 +533,29 @@
                         (menu :text "Run" :items [a-eval-file])
                         (menu :text "Projects" :items (into [] a-projects))
                         (menu :text "Git" :items [])
+                        (menu :text "Brevis" :items [a-restart-brevis]) 
                         #_(menu :text "My Project" :items [(action :handler (fn [e] nil) :name "Open a project")
                                                           (action :handler (fn [e] nil) :name "in")
                                                           (action :handler (fn [e] nil) :name "projects menu")])])
         panel (mig-panel :constraints [#_"wrap 2"]
-                         :items [[(:scroll-pane (get-editor)) "wrap, span 2, w 100%, h 75%"]
+                         :items [[(:scroll-pane (get-editor))
+                                  #_(left-right-split
+                                     (:scrollable @project-browser)
+                                     (:scroll-pane (get-editor))
+                                     :divider-location 0.2) "wrap, span 2, w 100%, h 75%"]                                 
                                  [(:scroll-pane @repl-input-window) "w 50%, h 25%"]
-                                 [(:scrollable @repl-output-window) "w 50%, h 25%"]])
+                                 [(:scrollable @repl-output-window) "w 50%, h 25%"]]
+                         #_[[(:scroll-pane (get-editor)) "wrap, span 2, w 100%, h 75%"]
+                           [(:scroll-pane @repl-input-window) "w 50%, h 25%"]
+                           [(:scrollable @repl-output-window) "w 50%, h 25%"]])
         f (frame :title "Brevis - UI" :width 1024 :height 768 #_:minimum-size #_[800 :by 600] :menubar menus)]
+    #_(listen (select f [:#tree]) :selection
+             (fn [e]
+               (if-let [dir (last (selection e))]
+                 (let [files (.listFiles dir)]
+                   (config! (select f [:#current-dir]) :text (.getAbsolutePath dir))
+                   (config! (select f [:#status]) :text (format "Ready (%d items)" (count files)))
+                   (config! (select f [:#list]) :model files)))))
     (display f panel)
     (-> f #_pack! show!)
     (.setLocation f 0 0)      
@@ -539,7 +589,9 @@
                                          true))
         #_(apply eval/eval-in-project project
                               (server-forms project cfg (ack-port project)
-                                            true))]
+                                            true))
+        ;pb (make-project-window {})
+        ]
     #_(.start repl-client-thread)
     (reset! repl {:server repl-server ;:client-thread repl-client-thread
                   ;:repl-inputstream r-is :repl-outputstream r-os})
@@ -550,11 +602,12 @@
     (reset! repl-inputstream r-is)
     (reset! repl-outputstream r-os)
     (reset! editor-window ew)
+    ;(reset! project-browser pb)
     (reset! repl-input-window ri)
     (reset! repl-output-window ro)
     (reset! current-filename (:current-filename @current-profile))
     (make-ui)
     (.setText (:text-area ew) (slurp @current-filename))))
 
-(when (find-ns 'ccw.complete)
-  (-main))
+#_(when (find-ns 'ccw.complete)
+   (-main))
