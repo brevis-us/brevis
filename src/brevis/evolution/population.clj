@@ -35,4 +35,11 @@ reproduction of results."
   [filename]
   (let [p (read-string (slurp filename))]
     p))
+
+(defn select-tournament
+  "Select an individual by tournament"
+  [p tournament-size individual-comparator]
+  (first (sort individual-comparator
+               (take tournament-size 
+                     (repeatedly #(lrand-nth (:individuals p)))))))
           

@@ -97,7 +97,8 @@ input-class: indicates the class of input. Currently supports (:key-press, :mous
                      {:key-id "LSHIFT"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false false false false true))
   (add-input-handler :key-press
-                     {:key-id "LSHIFT"}
+                     #_{:key-id "LSHIFT"} ;; too annoying with os x
+                     {:key-id "Z"}
                      #(.moveFromLook (:camera @*gui-state*) 0 (- keyspeed) 0))
   (add-input-handler :key-press
                      {:key-id "P"}
