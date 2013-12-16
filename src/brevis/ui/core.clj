@@ -488,23 +488,25 @@
 (def tree-project-model
   (simple-tree-model
     #(.isDirectory %) 
-    (fn [f] (filter #(.isDirectory %) (.listFiles f)))
-    #_(fn [f] (filter #(or (.isDirectory %) (.isFile %)) (.listFiles f)))
+    #_(fn [f] (filter #(.isDirectory %) (.listFiles f)))
+    (fn [f] (filter #(or (.isDirectory %) (.isFile %)) (.listFiles f)))
     (File. @workspace-directory)
     #_(File. ".")))
 
-#_(def chooser (javax.swing.JFileChooser.)) ; FileChooser hack to get system icons
+(def chooser (javax.swing.JFileChooser.)) ; FileChooser hack to get system icons
 
 (defn render-file-item
   [renderer {:keys [value]}]
   (config! renderer :text (.getName value)
-           #_:icon #_(.getIcon chooser value)))
+           :icon (.getIcon chooser value)))
 
 (defn make-project-browser
   "Make a widget for browsing projects."
   [params]
-  (let [browser (scrollable (tree    :id :tree :model tree-project-model :renderer render-file-item))]
-    {:scrollable browser}))
+  (let [pt (tree :id :project-tree :model tree-project-model :renderer render-file-item)
+        browser (scrollable pt)]
+    {:project-tree pt
+     :scrollable browser}))
 
 (defn make-ui
   "Make a multi-widget UI."
@@ -538,24 +540,29 @@
                                                           (action :handler (fn [e] nil) :name "in")
                                                           (action :handler (fn [e] nil) :name "projects menu")])])
         panel (mig-panel :constraints [#_"wrap 2"]
-                         :items [[(:scroll-pane (get-editor))
-                                  #_(left-right-split
-                                     (:scrollable @project-browser)
-                                     (:scroll-pane (get-editor))
-                                     :divider-location 0.2) "wrap, span 2, w 100%, h 75%"]                                 
+                         :items [[#_(:scroll-pane (get-editor))
+                                  (left-right-split
+                                    (:scrollable @project-browser)
+                                    (:scroll-pane (get-editor))
+                                    :divider-location 0.2) "wrap, span 2, w 100%, h 75%"]                                 
                                  [(:scroll-pane @repl-input-window) "w 50%, h 25%"]
                                  [(:scrollable @repl-output-window) "w 50%, h 25%"]]
                          #_[[(:scroll-pane (get-editor)) "wrap, span 2, w 100%, h 75%"]
                            [(:scroll-pane @repl-input-window) "w 50%, h 25%"]
                            [(:scrollable @repl-output-window) "w 50%, h 25%"]])
         f (frame :title "Brevis - UI" :width 1024 :height 768 #_:minimum-size #_[800 :by 600] :menubar menus)]
-    #_(listen (select f [:#tree]) :selection
-             (fn [e]
-               (if-let [dir (last (selection e))]
-                 (let [files (.listFiles dir)]
-                   (config! (select f [:#current-dir]) :text (.getAbsolutePath dir))
-                   (config! (select f [:#status]) :text (format "Ready (%d items)" (count files)))
-                   (config! (select f [:#list]) :model files)))))
+    (listen (:project-tree @project-browser) #_(select f [:#project-tree]) :selection
+            (fn [e]
+              (if-let [dir (last (selection e))]
+                (let [files (.listFiles dir)]
+                  (when (and (.isFile dir)
+                             (or (.contains (.toString dir) "clj") (.contains (.toString dir) "java")))
+                    (reset! current-filename (.toString dir))
+                    (.setText (:text-area (get-editor)) (slurp @current-filename)))
+                  #_(println dir)
+                  (config! (select f [:#current-dir]) :text (.getAbsolutePath dir))
+                  (config! (select f [:#status]) :text (format "Ready (%d items)" (count files)))
+                  (config! (select f [:#list]) :model files)))))
     (display f panel)
     (-> f #_pack! show!)
     (.setLocation f 0 0)      
@@ -590,7 +597,7 @@
         #_(apply eval/eval-in-project project
                               (server-forms project cfg (ack-port project)
                                             true))
-        ;pb (make-project-window {})
+        pb (make-project-browser {})
         ]
     #_(.start repl-client-thread)
     (reset! repl {:server repl-server ;:client-thread repl-client-thread
@@ -602,12 +609,12 @@
     (reset! repl-inputstream r-is)
     (reset! repl-outputstream r-os)
     (reset! editor-window ew)
-    ;(reset! project-browser pb)
+    (reset! project-browser pb)
     (reset! repl-input-window ri)
     (reset! repl-output-window ro)
     (reset! current-filename (:current-filename @current-profile))
     (make-ui)
     (.setText (:text-area ew) (slurp @current-filename))))
 
-#_(when (find-ns 'ccw.complete)
-   (-main))
+(when (find-ns 'ccw.complete)
+  (-main))
