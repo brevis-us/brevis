@@ -9,6 +9,7 @@
            [javax.swing.filechooser FileSystemView]
            java.awt.Font)
   (:require  
+    [brevis.ui.keybinds :as keybinds]
     [clojure.string :as string]
     [clojure.tools.nrepl.transport :as nrepl.transport]
     [clojure.tools.nrepl.server :as nrepl.server]
@@ -23,6 +24,17 @@
         [seesaw core font color graphics chooser mig tree]
         [brevis.ui.profile])
   (:gen-class))
+
+;; Todo:
+;;
+;; - keybinds
+;; - find/replace
+;; - tabbed windows
+;; - autosave
+;; - generalized directories
+;; - profile
+;; - popups for projects
+;;
 
 ;; ## Globals
 
@@ -52,6 +64,52 @@
 
 (def ui-window
   "The complete UI panel." (atom nil))
+
+#_(def keybind-handlers
+   "Map of keybinds."
+   (atom {}))
+
+#_(defn add-keybind-handler
+   "Add a keybind handler.
+event-type is a map with at least 
+  - :type in [:keyPressed]
+  - :context in [:input-type]]
+predicate is (fn [e] ...)
+response is (fn [e context] ...) where e is an Event, and context is a hash-map with relevant widgets and such"
+   [name event-type predicate response]
+   #_(println "Adding keybind:" name)
+   (swap! keybind-handlers assoc 
+          (str "keybind_" name) #_(gensym "keybind")
+          {:event-type event-type,
+           :predicate predicate,
+           :response response}))
+
+#_(defn add-keybind-handler
+    "Add a keybind handler.
+event-type is a map with at least 
+  - :type in [:keyPressed]
+  - :context in [:input-type]]
+keystroke :
+KeyStroke.getKeyStroke(KeyEvent.VK_SPACE,
+                            java.awt.event.InputEvent.CTRL_DOWN_MASK)
+or
+KeyStroke.getKeyStroke(KeyEvent.VK_SPACE,
+                       java.awt.event.InputEvent.CTRL_DOWN_MASK
+                       | java.awt.event.InputEvent.SHIFT_DOWN_MASK)
+response is (fn [e context] ...) where e is an Event, and context is a hash-map with relevant widgets and such"
+    [name event-type keystroke response]
+    #_(println "Adding keybind:" name)
+    (swap! keybind-handlers assoc 
+           (str "keybind_" name) #_(gensym "keybind")
+           {:event-type event-type,
+            :keystroke keystroke,
+            :response response}))
+
+;component.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE,
+;                            java.awt.event.InputEvent.CTRL_DOWN_MASK),
+;                    "actionMapKey");
+;component.getActionMap().put("actionMapKey",
+;                     someAction);
 
 ;;
 
@@ -243,11 +301,26 @@
         :scroll-pane sp
         :menus menus}))
 
+#_(def input-text-keyhandler
+   (proxy [java.awt.event.KeyAdapter] []          
+     (keyPressed [#^java.awt.event.KeyEvent e]
+       (doseq [[kid keybind] @keybind-handlers]
+         (println "Testing keybind:" kid)
+         (println (= (:context (:event-type keybind)) :input-text)
+                    (= (:type (:event-type keybind)) :keyPressed)
+                    ((:predicate keybind) e))
+         (when (and (= (:context (:event-type keybind)) :input-text)
+                    (= (:type (:event-type keybind)) :keyPressed)
+                    ((:predicate keybind) e))
+           (try ((:response keybind) e
+                                     (get-editor))            
+             (catch Exception e (println (.getMessage e))))
+           (.consume e))))))
+
 (defn make-editor-window
      "Make an editor window."
      [params]
-     (let [
-           textArea (RSyntaxTextArea. 42 115)
+     (let [textArea (RSyntaxTextArea. 42 115)
            ;textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
            ;textArea.setCodeFoldingEnabled(true);      
            sp (RTextScrollPane. textArea)
@@ -275,6 +348,17 @@
                                                              (action :handler (fn [e] nil) :name "projects menu")])])
            ;f (frame :title "Brevis - Editor Window" :menubar menus)
            ]
+       #_(.addKeyListener textArea input-text-keyhandler)
+       (when (:keybinds params)
+         (doseq [keybind (:keybinds params)]
+           #_(println keybind)
+           (.put (.getInputMap textArea)
+             (:keystroke keybind)
+             (:action keybind))
+           #_(.put (.getActionMap textArea)
+              (:name keybind)
+              (:action keybind))))
+
        (.setSyntaxEditingStyle textArea (cond (= (:language params) :java) 
                                               (SyntaxConstants/SYNTAX_STYLE_JAVA)
                                               :else
@@ -573,7 +657,8 @@
   "Start from command line."
   [& args]
   (init-ui)
-  (let [ew (make-editor-window {:language :clojure})
+  (let [ew (make-editor-window {:language :clojure
+                                :keybinds keybinds/standard})
         ri (make-repl-input-window {:language :clojure})
         ro (make-repl-output-window {:language :clojure})
         r-is System/in #_(java.io.ByteArrayInputStream.
@@ -614,6 +699,7 @@
     (reset! repl-output-window ro)
     (reset! current-filename (:current-filename @current-profile))
     (make-ui)
+    (load-file "src/brevis/ui/keybinds.clj")
     (.setText (:text-area ew) (slurp @current-filename))))
 
 (when (find-ns 'ccw.complete)

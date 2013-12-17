@@ -15,6 +15,7 @@
                  ;; Project management
                  ;[leiningen-core "2.3.4"]
                  [leiningen "2.3.4"]
+                 [clj-jgit "0.3.9"]
                  
                  ;; Physics packages                 
 ;                 [kephale/ode4j "0.12.0-j1.4"]
