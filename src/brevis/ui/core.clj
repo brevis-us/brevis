@@ -38,7 +38,7 @@
 
 ;; ## Globals
 
-(def workspace-directory (atom "/Users/kyle/git"))
+(def workspace-directory (atom (str (System/getProperty "user.home") File/separator "git") #_"/Users/kyle/git"))
 
 (def editor-window
   "Keeping track of the open editor window." (atom nil))
@@ -113,6 +113,7 @@ response is (fn [e context] ...) where e is an Event, and context is a hash-map 
 
 ;;
 
+(def chooser (javax.swing.JFileChooser.)) ; FileChooser hack to get system icons
 (def current-filename (atom nil))
 
 (defn get-editor
@@ -324,6 +325,16 @@ response is (fn [e context] ...) where e is an Event, and context is a hash-map 
            ;textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
            ;textArea.setCodeFoldingEnabled(true);      
            sp (RTextScrollPane. textArea)
+           tabs (tabbed-panel :placement :top ;:overflow :wrap 
+                              :tabs [{:title (label;; title is not a string but a label component
+                                                   :id (str (gensym "editor-panel"))
+                                                   ;; current-filename isn't set when this function is called
+                                                   :text "*current*"#_(last (string/split @current-filename #"/")) #_@current-filename;; with text set to txt
+                                                   :foreground :blue) 
+                                      #_@current-filename 
+                                      :tip @current-filename 
+                                      :icon (.getIcon chooser (file @current-filename))
+                                      :content sp}])
            a-new (action :handler a-new :name "New" :tip "Create a new file.")
            a-open (action :handler a-open :name "Open" :tip "Open a file")
            a-save (action :handler a-save :name "Save" :tip "Save the current file.")
@@ -358,7 +369,6 @@ response is (fn [e context] ...) where e is an Event, and context is a hash-map 
            #_(.put (.getActionMap textArea)
               (:name keybind)
               (:action keybind))))
-
        (.setSyntaxEditingStyle textArea (cond (= (:language params) :java) 
                                               (SyntaxConstants/SYNTAX_STYLE_JAVA)
                                               :else
@@ -369,6 +379,7 @@ response is (fn [e context] ...) where e is an Event, and context is a hash-map 
        #_(.setLocation f 0 0)      
        {;:frame f
         :text-area textArea
+        :tabbed-panel tabs
         :scroll-pane sp
         :menus menus}))
 
@@ -553,7 +564,7 @@ response is (fn [e context] ...) where e is an Event, and context is a hash-map 
                                            :text "> ")
           area (scrollable text-area)
           listener-thread (Thread. (fn []  
-                                     (loop []
+                                     (loop [] ;; should probably at least check something for a termination condition
                                        (let [resp (nrepl.transport/recv (:client @repl) 20)]
                                          (when resp
                                            (when (:out resp) (write-stdout-repl (:out resp)))
@@ -576,8 +587,6 @@ response is (fn [e context] ...) where e is an Event, and context is a hash-map 
     (fn [f] (filter #(or (.isDirectory %) (.isFile %)) (.listFiles f)))
     (File. @workspace-directory)
     #_(File. ".")))
-
-(def chooser (javax.swing.JFileChooser.)) ; FileChooser hack to get system icons
 
 (defn render-file-item
   [renderer {:keys [value]}]
@@ -627,7 +636,7 @@ response is (fn [e context] ...) where e is an Event, and context is a hash-map 
                          :items [[#_(:scroll-pane (get-editor))
                                   (left-right-split
                                     (:scrollable @project-browser)
-                                    (:scroll-pane (get-editor))
+                                    (:tabbed-panel (get-editor)) #_(:scroll-pane (get-editor))
                                     :divider-location 0.2) "wrap, span 2, w 100%, h 75%"]                                 
                                  [(:scroll-pane @repl-input-window) "w 50%, h 25%"]
                                  [(:scrollable @repl-output-window) "w 50%, h 25%"]]
@@ -664,7 +673,7 @@ response is (fn [e context] ...) where e is an Event, and context is a hash-map 
         r-is System/in #_(java.io.ByteArrayInputStream.
                           #_(.getBytes "(println 'foobar)\nexit\n(println 'foobar)\n"))
         r-os (java.io.ByteArrayOutputStream.)
-        project (project/read (str (:current-project @current-profile) "/project.clj"))
+        project (project/read (str (:current-project @current-profile) File/separator "project.clj"))
         #_(project/read project-filename)
         #_(assoc (project/read (str (:current-project @current-profile) "/project.clj") #_project-filename)
                 :repl-options {:input-stream r-is :output-stream r-os})
@@ -699,7 +708,7 @@ response is (fn [e context] ...) where e is an Event, and context is a hash-map 
     (reset! repl-output-window ro)
     (reset! current-filename (:current-filename @current-profile))
     (make-ui)
-    (load-file "src/brevis/ui/keybinds.clj")
+    (load-file (str "src" File/separator "brevis" File/separator "ui" File/separator "keybinds.clj"))
     (.setText (:text-area ew) (slurp @current-filename))))
 
 (when (find-ns 'ccw.complete)
