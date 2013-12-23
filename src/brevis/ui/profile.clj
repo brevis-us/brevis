@@ -1,17 +1,18 @@
 (ns brevis.ui.profile
+  (:import [java.io File])
   (:require [clojure.java.io :as io]
             [leiningen.core.project :as project])
   (:use [clojure.pprint]))
 
-(def brevis-directory (str (io/file (System/getProperty "user.home")) "/.brevis"))
-(def current-profile-filename (atom (str brevis-directory "/default")))
+(def brevis-directory (str (io/file (System/getProperty "user.home")) File/separator ".brevis"))
+(def current-profile-filename (atom (str brevis-directory File/separator "default")))
 
 (def current-profile (atom {}))
 
 (def default-profile
   {:author "Brevis h4x3r"
-   :current-project (str (io/file (System/getProperty "user.home")) "/git/brevis")
-   :current-filename (str (io/file (System/getProperty "user.home")) "/git/brevis/src/brevis/example/swarm.clj")
+   :current-project (str (io/file (System/getProperty "user.home")) File/separator "git" File/separator "brevis")
+   :current-filename (str (io/file (System/getProperty "user.home")) File/separator "git" File/separator "brevis" File/separator "src"File/separator "brevis" File/separator "example" File/separator "swarm.clj")
    :projects []})
 
 (defn read-profile
@@ -32,7 +33,7 @@
 (defn read-project
   "Read a project from its directory."
   [d]
-  (let [filename (str d "/project.clj")]
+  (let [filename (str d File/separator "project.clj")]
     (when (.exists (io/file filename))
       (let [p (project/read filename)]
         {:project-file filename
