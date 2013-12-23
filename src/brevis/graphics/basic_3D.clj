@@ -37,7 +37,7 @@ Copyright 2012, 2013 Kyle Harrington"
  []
  (def #^:dynamic *sky*
    (BrSky.))
- #_(def #^:dynamic *sky*
+ #_(def #^:dynamic *sky-texture*
     (load-texture-from-file (clojure.java.io/resource "img/sky.jpg"))))
 
 

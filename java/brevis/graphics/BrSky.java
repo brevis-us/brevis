@@ -38,14 +38,16 @@ public class BrSky {
 		
 	}
 		
-	static float SkyboxUnit = 5000f;
+	static float SkyboxUnit = 500f;
 	
-	public void draw() {
+	//public void draw() {
+	public void draw( float x, float y, float z ) {
 		
 		GL11.glPushMatrix();
 		
 		GL11.glLoadIdentity();
 		//GL11.glTranslatef(Renderer.camPosX, Renderer.camPosY, -Renderer.camPosZ);
+		//GL11.glTranslatef( x, y, z );
 		GL11.glPushAttrib(GL11.GL_ENABLE_BIT);		
 	    GL11.glDisable(GL11.GL_DEPTH_TEST);
 	    GL11.glDisable(GL11.GL_LIGHTING);
@@ -54,13 +56,13 @@ public class BrSky {
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 	   
 		// Just in case we set all vertices to white.
-	    GL11.glColor4f(1,1,1,1);
+	    GL11.glColor4f(1,1,1,0.5f);
 
 //			gluBuild2DMipmaps( GL_TEXTURE_2D, 3, width, height,
 //	                GL_RGB, GL_UNSIGNED_BYTE, data );
 	    
 	    // Render the front quad
-	    clampToEdge();
+	    //clampToEdge();
 	    textures.get(0).bind();
 	    GL11.glBegin(GL11.GL_QUADS);
 		    GL11.glTexCoord2f(1f, 1f); GL11.glVertex3f(  SkyboxUnit, -1f * SkyboxUnit, -1f * SkyboxUnit );
@@ -70,7 +72,7 @@ public class BrSky {
 	    GL11.glEnd();
 
 	    // Render the left quad
-	    clampToEdge();
+	    //clampToEdge();
 	    textures.get(1).bind();
 	    GL11.glBegin(GL11.GL_QUADS);
 		    GL11.glTexCoord2f(1f, 1f); GL11.glVertex3f(  SkyboxUnit, -1f * SkyboxUnit,  SkyboxUnit );
@@ -80,7 +82,7 @@ public class BrSky {
 	    GL11.glEnd();
 	    
 	    // Render the back quad
-	    clampToEdge();
+	    //clampToEdge();
 	    textures.get(2).bind();
 	    GL11.glBegin(GL11.GL_QUADS);
 		    GL11.glTexCoord2f(1f, 1f); GL11.glVertex3f( -1f * SkyboxUnit, -1f * SkyboxUnit,  SkyboxUnit );
@@ -91,7 +93,7 @@ public class BrSky {
 	    GL11.glEnd();
 	    
 	    // Render the right quad
-	    clampToEdge();
+	    //clampToEdge();
 	    textures.get(3).bind();
 	    GL11.glBegin(GL11.GL_QUADS);
 		    GL11.glTexCoord2f(1f, 1f); GL11.glVertex3f( -1f * SkyboxUnit, -1f * SkyboxUnit, -1f * SkyboxUnit );
@@ -101,7 +103,7 @@ public class BrSky {
 	    GL11.glEnd();
 	    
 	    // Render the top quad
-	    clampToEdge();
+	    //clampToEdge();
 	    textures.get(4).bind();
 	    GL11.glBegin(GL11.GL_QUADS);
 		    GL11.glTexCoord2f(1f, 1f); GL11.glVertex3f( -1f * SkyboxUnit,  SkyboxUnit, -1f * SkyboxUnit );
@@ -111,7 +113,7 @@ public class BrSky {
 	    GL11.glEnd();
 	    
 	    // Render the bottom quad
-	    clampToEdge();
+	    //clampToEdge();
 	    textures.get(5).bind();
 	    GL11.glBegin(GL11.GL_QUADS);
 		    GL11.glTexCoord2f(1f, 1f); GL11.glVertex3f( -1f * SkyboxUnit, -1f * SkyboxUnit, -1f * SkyboxUnit );

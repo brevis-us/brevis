@@ -111,7 +111,11 @@ Copyright 2012, 2013 Kyle Harrington"
   "Draw a skybox"
   []
   (when *sky*
-    (.draw *sky*)))
+    #_(println "drawing sky")
+    (.draw *sky* (.x (:camera @*gui-state*))
+      (.y (:camera @*gui-state*))
+      (.z (:camera @*gui-state*)))
+    #_(.draw *sky*)))
 
 #_(defn draw-sky
   "Draw a skybox"
@@ -121,11 +125,11 @@ Copyright 2012, 2013 Kyle Harrington"
         d 2000
         pos [0 0 0]
         ]
-    (when *sky*
+    (when *sky-texture*
       (with-disabled :lighting      
         (with-enabled :depth-test
           (with-enabled :texture-2d
-            (with-texture *sky*
+            (with-texture *sky-texture*
               (depth-test :lequal)
               (push-matrix
 	            (material :front-and-back
@@ -198,7 +202,7 @@ Copyright 2012, 2013 Kyle Harrington"
   []
   (let [objs (all-objects)]
     (Basic3D/initFrame (:camera @*gui-state*))
-    #_(draw-sky)
+    (draw-sky)
     #_(gl-matrix-mode :modelview)
     #_(gl-load-identity-matrix)
     #_(use-camera (:camera @*gui-state*))
@@ -222,7 +226,9 @@ Copyright 2012, 2013 Kyle Harrington"
     (catch LWJGLException e
         (.printStackTrace e)))
   (Basic3D/initGL)     
-  #_(init-sky)
+  (init-sky)
+  (when *sky*
+    (println "Sky loaded."))
   (initialize)
   (try 
     (reset! *gui-state* (assoc @*gui-state* :input (BrInput.)))

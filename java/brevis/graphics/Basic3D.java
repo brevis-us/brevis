@@ -236,7 +236,7 @@ public class Basic3D {
 		//GL11.glLight (GL11.GL_LIGHT0, GL11.GL_POSITION, light_position);
 		GL11.glLight (GL11.GL_LIGHT0, GL11.GL_POSITION, light_position);
     	
-		sky.draw();
+		sky.draw( displayCamera.x, displayCamera.y, displayCamera.z );
 		
     }
     
