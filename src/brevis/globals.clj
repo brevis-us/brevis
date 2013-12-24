@@ -20,10 +20,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (def enable-display-text (atom true))
 
-(def default-gui-state {:rotate-mode :none :translate-mode :none
-                        ;:camera (BrCamera. 300 300 -50)
-                        :fullscreen false
-                        ;:resizeable true;; this cannot be changed during runtime
+(def default-gui-state {:fullscreen false
                         ;:camera (BrCamera. 300 300 -50 90 -70 45 60 (/ 4 3) 0.1 4000)
                         ;:camera (BrCamera. 300 300 -50 162 -56 0 60 (/ 4 3) 0.1 4000)
                         :camera (BrCamera. 100 50 -50 0 -90 0 60 640 480 0.1 4000)

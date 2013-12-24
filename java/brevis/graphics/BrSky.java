@@ -17,7 +17,7 @@ import org.newdawn.slick.util.ResourceLoader;
 // from http://code.google.com/p/lwjgl-water-shader/
 public class BrSky {
 
-	private Vector<Texture> textures;
+	public Vector<Texture> textures;
 	
 	public BrSky() {
 		
@@ -52,74 +52,79 @@ public class BrSky {
 	    GL11.glDisable(GL11.GL_DEPTH_TEST);
 	    GL11.glDisable(GL11.GL_LIGHTING);
 	    GL11.glDisable(GL11.GL_BLEND);
-		//GL13.glActiveTexture(GL13.GL_TEXTURE0);
+		GL13.glActiveTexture(GL13.GL_TEXTURE0);
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 	   
 		// Just in case we set all vertices to white.
-	    GL11.glColor4f(1,1,1,0.5f);
+	    GL11.glColor4f(1,1,1,1);
 
 //			gluBuild2DMipmaps( GL_TEXTURE_2D, 3, width, height,
 //	                GL_RGB, GL_UNSIGNED_BYTE, data );
 	    
 	    // Render the front quad
 	    //clampToEdge();
-	    textures.get(0).bind();
+	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(0).getTextureID());
 	    GL11.glBegin(GL11.GL_QUADS);
-		    GL11.glTexCoord2f(1f, 1f); GL11.glVertex3f(  SkyboxUnit, -1f * SkyboxUnit, -1f * SkyboxUnit );
-		    GL11.glTexCoord2f(0f, 1f); GL11.glVertex3f( -1f * SkyboxUnit, -1f * SkyboxUnit, -1f * SkyboxUnit );
-		    GL11.glTexCoord2f(0f, 0f); GL11.glVertex3f( -1f * SkyboxUnit,  SkyboxUnit, -1f * SkyboxUnit );
-		    GL11.glTexCoord2f(1f, 0f); GL11.glVertex3f(  SkyboxUnit,  SkyboxUnit, -1f * SkyboxUnit );
+		    GL11.glNormal3f(0f, 0f, 1f);
+			GL11.glTexCoord2f(0.0f, 0.0f); GL11.glVertex3f(-SkyboxUnit, -SkyboxUnit,  SkyboxUnit);  // Bottom Left
+			GL11.glTexCoord2f(1.0f, 0.0f); GL11.glVertex3f( SkyboxUnit, -SkyboxUnit,  SkyboxUnit);  // Bottom Right
+			GL11.glTexCoord2f(1.0f, 1.0f); GL11.glVertex3f( SkyboxUnit,  SkyboxUnit,  SkyboxUnit);  // Top Right
+			GL11.glTexCoord2f(0.0f, 1.0f); GL11.glVertex3f(-SkyboxUnit,  SkyboxUnit,  SkyboxUnit);  // Top Left	    
 	    GL11.glEnd();
 
 	    // Render the left quad
 	    //clampToEdge();
-	    textures.get(1).bind();
+	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(1).getTextureID());
 	    GL11.glBegin(GL11.GL_QUADS);
-		    GL11.glTexCoord2f(1f, 1f); GL11.glVertex3f(  SkyboxUnit, -1f * SkyboxUnit,  SkyboxUnit );
-		    GL11.glTexCoord2f(0f, 1f); GL11.glVertex3f(  SkyboxUnit, -1f * SkyboxUnit, -1f * SkyboxUnit );
-		    GL11.glTexCoord2f(0f, 0f); GL11.glVertex3f(  SkyboxUnit,  SkyboxUnit, -1f * SkyboxUnit );
-		    GL11.glTexCoord2f(1f, 0f); GL11.glVertex3f(  SkyboxUnit,  SkyboxUnit,  SkyboxUnit );
+		    GL11.glNormal3f(1f, 0f, 0f);
+			GL11.glTexCoord2f(0.0f, 0.0f); GL11.glVertex3f(-SkyboxUnit, -SkyboxUnit, -SkyboxUnit);  // Bottom Left
+			GL11.glTexCoord2f(1.0f, 0.0f); GL11.glVertex3f(-SkyboxUnit, -SkyboxUnit,  SkyboxUnit);  // Bottom Right 
+			GL11.glTexCoord2f(1.0f, 1.0f); GL11.glVertex3f(-SkyboxUnit,  SkyboxUnit,  SkyboxUnit);  // Top Right
+		    GL11.glTexCoord2f(0.0f, 1.0f); GL11.glVertex3f(-SkyboxUnit,  SkyboxUnit, -SkyboxUnit);  // Top Left;
 	    GL11.glEnd();
 	    
 	    // Render the back quad
 	    //clampToEdge();
-	    textures.get(2).bind();
+	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(2).getTextureID());
 	    GL11.glBegin(GL11.GL_QUADS);
-		    GL11.glTexCoord2f(1f, 1f); GL11.glVertex3f( -1f * SkyboxUnit, -1f * SkyboxUnit,  SkyboxUnit );
-		    GL11.glTexCoord2f(0f, 1f); GL11.glVertex3f(  SkyboxUnit, -1f * SkyboxUnit,  SkyboxUnit );
-		    GL11.glTexCoord2f(0f, 0f); GL11.glVertex3f(  SkyboxUnit,  SkyboxUnit,  SkyboxUnit );
-		    GL11.glTexCoord2f(1f, 0f); GL11.glVertex3f( -1f * SkyboxUnit,  SkyboxUnit,  SkyboxUnit );
-	 
+		    GL11.glNormal3f(0f, 0f, -1f);
+			GL11.glTexCoord2f(1.0f, 0.0f); GL11.glVertex3f(-SkyboxUnit, -SkyboxUnit, -SkyboxUnit);  // Bottom Right
+			GL11.glTexCoord2f(1.0f, 1.0f); GL11.glVertex3f(-SkyboxUnit,  SkyboxUnit, -SkyboxUnit);  // Top Right
+			GL11.glTexCoord2f(0.0f, 1.0f); GL11.glVertex3f( SkyboxUnit,  SkyboxUnit, -SkyboxUnit);  // Top Left
+			GL11.glTexCoord2f(0.0f, 0.0f); GL11.glVertex3f( SkyboxUnit, -SkyboxUnit, -SkyboxUnit);  // Bottom Left 
 	    GL11.glEnd();
 	    
 	    // Render the right quad
-	    //clampToEdge();
-	    textures.get(3).bind();
+	    //clampToEdge();	    
+	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(3).getTextureID());
 	    GL11.glBegin(GL11.GL_QUADS);
-		    GL11.glTexCoord2f(1f, 1f); GL11.glVertex3f( -1f * SkyboxUnit, -1f * SkyboxUnit, -1f * SkyboxUnit );
-		    GL11.glTexCoord2f(0f, 1f); GL11.glVertex3f( -1f * SkyboxUnit, -1f * SkyboxUnit,  SkyboxUnit );
-		    GL11.glTexCoord2f(0f, 0f); GL11.glVertex3f( -1f * SkyboxUnit,  SkyboxUnit,  SkyboxUnit );
-		    GL11.glTexCoord2f(1f, 0f); GL11.glVertex3f( -1f * SkyboxUnit,  SkyboxUnit, -1f * SkyboxUnit );
+		    GL11.glNormal3f(-1f, 0f, 0f);
+			GL11.glTexCoord2f(1.0f, 0.0f); GL11.glVertex3f( SkyboxUnit, -SkyboxUnit, -SkyboxUnit);  // Bottom Right
+			GL11.glTexCoord2f(1.0f, 1.0f); GL11.glVertex3f( SkyboxUnit,  SkyboxUnit, -SkyboxUnit);  // Top Right 
+			GL11.glTexCoord2f(0.0f, 1.0f); GL11.glVertex3f( SkyboxUnit,  SkyboxUnit,  SkyboxUnit);  // Top Left 
+			GL11.glTexCoord2f(0.0f, 0.0f); GL11.glVertex3f( SkyboxUnit, -SkyboxUnit,  SkyboxUnit);  // Bottom Left 
 	    GL11.glEnd();
 	    
 	    // Render the top quad
 	    //clampToEdge();
-	    textures.get(4).bind();
+	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(4).getTextureID());
 	    GL11.glBegin(GL11.GL_QUADS);
-		    GL11.glTexCoord2f(1f, 1f); GL11.glVertex3f( -1f * SkyboxUnit,  SkyboxUnit, -1f * SkyboxUnit );
-		    GL11.glTexCoord2f(0f, 1f); GL11.glVertex3f( -1f * SkyboxUnit,  SkyboxUnit,  SkyboxUnit );
-		    GL11.glTexCoord2f(0f, 0f); GL11.glVertex3f(  SkyboxUnit,  SkyboxUnit,  SkyboxUnit );
-		    GL11.glTexCoord2f(1f, 0f); GL11.glVertex3f(  SkyboxUnit,  SkyboxUnit, -1f * SkyboxUnit );
+		    GL11.glNormal3f(0f, -1f, 0f);
+			GL11.glTexCoord2f(0.0f, 1.0f); GL11.glVertex3f(-SkyboxUnit,  SkyboxUnit, -SkyboxUnit);  // Top Left
+			GL11.glTexCoord2f(0.0f, 0.0f); GL11.glVertex3f(-SkyboxUnit,  SkyboxUnit,  SkyboxUnit);  // Bottom Left 
+			GL11.glTexCoord2f(1.0f, 0.0f); GL11.glVertex3f( SkyboxUnit,  SkyboxUnit,  SkyboxUnit);  // Bottom Right 
+			GL11.glTexCoord2f(1.0f, 1.0f); GL11.glVertex3f( SkyboxUnit,  SkyboxUnit, -SkyboxUnit);  // Top Right 
 	    GL11.glEnd();
 	    
 	    // Render the bottom quad
 	    //clampToEdge();
-	    textures.get(5).bind();
+	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(5).getTextureID());
 	    GL11.glBegin(GL11.GL_QUADS);
-		    GL11.glTexCoord2f(1f, 1f); GL11.glVertex3f( -1f * SkyboxUnit, -1f * SkyboxUnit, -1f * SkyboxUnit );
-		    GL11.glTexCoord2f(1f, 0f); GL11.glVertex3f( -1f * SkyboxUnit, -1f * SkyboxUnit,  SkyboxUnit );
-		    GL11.glTexCoord2f(0f, 0f); GL11.glVertex3f(  SkyboxUnit, -1f * SkyboxUnit,  SkyboxUnit );
-		    GL11.glTexCoord2f(0f, 1f); GL11.glVertex3f(  SkyboxUnit, -1f * SkyboxUnit, -1f * SkyboxUnit );
+		    GL11.glNormal3f(0f, 1f, 0f);
+			GL11.glTexCoord2f(1.0f, 1.0f); GL11.glVertex3f(-SkyboxUnit, -SkyboxUnit, -SkyboxUnit);  // Top Right
+			GL11.glTexCoord2f(0.0f, 1.0f); GL11.glVertex3f( SkyboxUnit, -SkyboxUnit, -SkyboxUnit);  // Top Left 
+			GL11.glTexCoord2f(0.0f, 0.0f); GL11.glVertex3f( SkyboxUnit, -SkyboxUnit,  SkyboxUnit);  // Bottom Left 
+			GL11.glTexCoord2f(1.0f, 0.0f); GL11.glVertex3f(-SkyboxUnit, -SkyboxUnit,  SkyboxUnit);  // Bottom Right
 	    GL11.glEnd();
 	 
 	    // Restore enable bits and matrix

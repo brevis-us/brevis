@@ -177,9 +177,9 @@ public class Basic3D {
 		GL11.glShadeModel (GL11.GL_FLAT);
 		GL11.glEnable (GL11.GL_DEPTH_TEST);
 		GL11.glDepthFunc (GL11.GL_LESS);
-		GL11.glEnable (GL11.GL_CULL_FACE);
-		GL11.glCullFace (GL11.GL_BACK);
-		GL11.glFrontFace (GL11.GL_CCW);
+		//GL11.glEnable (GL11.GL_CULL_FACE);
+		//GL11.glCullFace (GL11.GL_BACK);
+		//GL11.glFrontFace (GL11.GL_CCW);
 
 		// setup viewport
 		//displayCamera.setupFrame();		
@@ -218,6 +218,8 @@ public class Basic3D {
 		GL11.glClearColor (0.5f ,0.5f ,0.5f ,0);
 		GL11.glClear (GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
+		//sky.draw( displayCamera.x, displayCamera.y, displayCamera.z );
+		
 		// snapshot camera position (in MS Windows it is changed by the GUI thread)
 		//float[] view2_xyz=view_xyz.clone();
 		//float[] view2_hpr=view_hpr.clone();
@@ -237,6 +239,10 @@ public class Basic3D {
 		GL11.glLight (GL11.GL_LIGHT0, GL11.GL_POSITION, light_position);
     	
 		sky.draw( displayCamera.x, displayCamera.y, displayCamera.z );
+				
+    	//GL11.glEnable(GL11.GL_TEXTURE_2D);
+    	//GL11.glBindTexture(GL11.GL_TEXTURE_2D, sky.textures.get(0).getTextureID() );
+		//drawBox( 500, 500, 500 );
 		
     }
     

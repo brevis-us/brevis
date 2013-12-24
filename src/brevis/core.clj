@@ -112,7 +112,8 @@ Copyright 2012, 2013 Kyle Harrington"
   []
   (when *sky*
     #_(println "drawing sky")
-    (.draw *sky* (.x (:camera @*gui-state*))
+    (.draw *sky* 
+      (.x (:camera @*gui-state*))
       (.y (:camera @*gui-state*))
       (.z (:camera @*gui-state*)))
     #_(.draw *sky*)))
