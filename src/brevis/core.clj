@@ -19,7 +19,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
         [brevis globals utils input osd display vector]
-        [brevis.graphics.basic-3D]
+        [brevis.graphics basic-3D multithread]
         [brevis.physics core space utils]
         [brevis.shape core box sphere cone])       
   (:require [penumbra.app :as app]            
@@ -35,7 +35,10 @@ Copyright 2012, 2013 Kyle Harrington"
            (java.awt.image AffineTransformOp BufferedImage)
            (java.nio ByteBuffer)
            (java.io File IOException)
+           (java.util.concurrent.locks ReentrantLock)
+           (java.util.concurrent TimeUnit)
            (javax.imageio ImageIO)
+           (org.lwjgl.opengl SharedDrawable)
            (org.lwjgl.input Keyboard Mouse)
            (org.lwjgl.opengl Display GL11 DisplayMode GLContext)
            (org.lwjgl BufferUtils LWJGLException Sys)))
@@ -200,7 +203,11 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (defn display
   "Render all objects."
-  []
+  []  
+  (begin-with-graphics-thread)
+  #_(.tryLock (:lock @brevis.globals/*graphics*) 50 TimeUnit/MILLISECONDS)
+  #_(when-not (.isCurrent (:drawable @brevis.globals/*graphics*))
+      (.makeCurrent (:drawable @brevis.globals/*graphics*)))
   (let [objs (all-objects)]
     (Basic3D/initFrame (:camera @*gui-state*))
     (draw-sky)
@@ -211,6 +218,10 @@ Copyright 2012, 2013 Kyle Harrington"
       (when (drawable? obj) ;; add a check to see if the object is in view
        (draw-shape obj)))
     (Display/update)    
+    #_(when (.isCurrent (:drawable @brevis.globals/*graphics*))
+       (.releaseContext (:drawable @brevis.globals/*graphics*)))
+    #_(.unlock (:lock @brevis.globals/*graphics*))
+    (end-with-graphics-thread)
     ))
 
 (defn simulate
@@ -226,6 +237,10 @@ Copyright 2012, 2013 Kyle Harrington"
     (Display/create)
     (catch LWJGLException e
         (.printStackTrace e)))
+  ;; For multithreaded graphics
+  (swap! *graphics* assoc
+         :drawable (SharedDrawable. (Display/getDrawable))
+         :lock (ReentrantLock.))
   (Basic3D/initGL)     
   (init-sky)
   (when *sky*

@@ -20,6 +20,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
         [brevis vector]
+        [brevis.graphics multithread]
         [brevis.shape.core]))
 
 (defn create-box
@@ -27,9 +28,11 @@ Copyright 2012, 2013 Kyle Harrington"
   ([]
      (create-box 1 1 1))
   ([width height depth]
+    (begin-with-graphics-thread)
     (let [box (BrShape/createBox width height depth)]
       (.setDimension box (vec3 width height depth))
       ;(println "create-box" (.getDimension box))
+      (end-with-graphics-thread)
       box)))
 
 (defn draw-textured-cube

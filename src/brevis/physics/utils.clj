@@ -23,6 +23,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (:use [penumbra.opengl]        
         [brevis vector]
         [brevis.shape core box]        
+        [brevis.graphics multithread]
         [brevis.physics core]))
 
 (defn get-world
@@ -291,9 +292,11 @@ axis is the axis about which the joint rotates"
 
 (defn set-texture
   "set the texture of an object."
-  [obj new-tex]
-  (.setTexture obj new-tex)
-  obj)
+  [obj new-tex]  
+  (begin-with-graphics-thread)
+  (.setTexture obj new-tex) 
+  (end-with-graphics-thread)
+  obj)  
 
 (defn set-texture-image
   "set the texture of an object to a bufferedimage."

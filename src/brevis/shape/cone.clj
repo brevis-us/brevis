@@ -20,6 +20,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
         [brevis vector]
+        [brevis.graphics multithread]
         [brevis.shape.core])) 
 
 (defn create-cone
@@ -27,4 +28,8 @@ Copyright 2012, 2013 Kyle Harrington"
   ([]
      (create-cone 1 1))
   ([length base]
-    (BrShape/createCone length base)))
+    (begin-with-graphics-thread)
+    (let [result (BrShape/createCone length base)]
+      (end-with-graphics-thread)
+      result)))
+      

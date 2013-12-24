@@ -20,9 +20,11 @@ Copyright 2012, 2013 Kyle Harrington"
   (:gen-class)
   (:import (org.ode4j.ode OdeHelper DSapSpace OdeConstants DContactBuffer DGeom DFixedJoint DContactJoint))  (:import (org.ode4j.math DVector3))  (:import java.lang.Math)  
   (:import (brevis Engine BrPhysics BrObject))
+  (:import (org.lwjgl.opengl GL32))
   (:use [penumbra.opengl]
-        [brevis vector utils]
+        [brevis vector utils globals]
         [brevis.shape core box]
+        [brevis.graphics multithread]
         [brevis.physics core collision utils])
   (:require [clojure.java.io]))
 
@@ -31,7 +33,9 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (defn make-real
   "Add Real attributes to an object map."
-  [obj]
+  [obj]  
+  (begin-with-graphics-thread)
+  #_(GL32/glFenceSync GL32/GL_SYNC_GPU_COMMANDS_COMPLETE 0)  
   (let [uid (long (hash (gensym)))        
         obj (assoc obj        
 			         :uid uid
@@ -41,14 +45,15 @@ Copyright 2012, 2013 Kyle Harrington"
                :density (or (:density obj) 1)
 			         :shape (or (:shape obj) (create-box)))
         pos (or (:position obj) (vec3 0 0 0))
-        brobj (BrObject.)]
+        brobj (BrObject.)]    
     (when (:color obj)
       (.setColor brobj (:color obj)))
     (.setShadow brobj (:hasShadow obj))
     (.setUID brobj uid)
     (.setType brobj (str (name (:type obj))))
     (.setShape brobj (:shape obj))    
-    (.makeReal brobj @*java-engine*)    
+    (.makeReal brobj @*java-engine*)
+    (end-with-graphics-thread)
     brobj))
 
 (defn orient-object
