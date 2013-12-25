@@ -584,11 +584,15 @@ public class Basic3D {
         //GL11.glTranslatef(0.0f, 0.0f, -20.0f);                   // Zoom Into The Screen 20 Units
         drawGLRoom();                                       // Draw The Room*/
         
+        GL11.glMatrixMode(GL11.GL_MODELVIEW);
+        
         GL11.glPushMatrix();
         //GL11.glColor4d( obj.color.x, obj.color.y, obj.color.z, obj.color.w );
         setColor( (float)obj.color.x, (float)obj.color.y, (float)obj.color.z, (float)obj.color.w );
         GL11.glTranslatef(objPos[0], objPos[1], objPos[2]);      // Position The Object
-                
+                        
+        Vector4f rot = obj.getRotation();
+        GL11.glRotatef( (float)rot.w, (float)rot.x, (float)rot.y, (float)rot.z);
         if( ! ( obj.getShape().type == BrShape.BrShapeType.CONE ||
         		obj.getShape().type == BrShape.BrShapeType.UNIT_CONE ||
         		obj.getShape().type == BrShape.BrShapeType.SPHERE ||
@@ -598,8 +602,6 @@ public class Basic3D {
         	GL11.glScaled( dim.x, dim.y, dim.z );
         	//System.out.println( "drawShape " + dim );
         }
-        Vector4f rot = obj.getRotation();
-        GL11.glRotatef( (float)rot.w, (float)rot.x, (float)rot.y, (float)rot.z);
                 
         if( obj.getTextureId() != -1 ) {
         	GL11.glEnable(GL11.GL_TEXTURE_2D);
@@ -610,6 +612,7 @@ public class Basic3D {
         
         // Render primitives directly with vertex commands       
         if( obj.getShape().mesh == null || ( obj.getShape().getType() == "box" ) ) {
+        //if( obj.getShape().mesh == null ) {
         	//System.out.println( "NO MESH " + obj.type );
 	        if( obj.getShape().getType() == "box" )
 	        	drawBox( 1, 1, 1 );
