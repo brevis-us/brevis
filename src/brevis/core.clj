@@ -205,9 +205,7 @@ Copyright 2012, 2013 Kyle Harrington"
   "Render all objects."
   []  
   (begin-with-graphics-thread)
-  #_(.tryLock (:lock @brevis.globals/*graphics*) 50 TimeUnit/MILLISECONDS)
-  #_(when-not (.isCurrent (:drawable @brevis.globals/*graphics*))
-      (.makeCurrent (:drawable @brevis.globals/*graphics*)))
+  (when (Display/wasResized) (.setDimensions (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
   (let [objs (all-objects)]
     (Basic3D/initFrame (:camera @*gui-state*))
     (draw-sky)
@@ -218,9 +216,6 @@ Copyright 2012, 2013 Kyle Harrington"
       (when (drawable? obj) ;; add a check to see if the object is in view
        (draw-shape obj)))
     (Display/update)    
-    #_(when (.isCurrent (:drawable @brevis.globals/*graphics*))
-       (.releaseContext (:drawable @brevis.globals/*graphics*)))
-    #_(.unlock (:lock @brevis.globals/*graphics*))
     (end-with-graphics-thread)
     ))
 
@@ -267,7 +262,7 @@ Copyright 2012, 2013 Kyle Harrington"
               (ref-set startTime (+ (java.lang.System/nanoTime) 1000000000))
               (ref-set fps 0)))
           (when display?            
-            (when (Display/wasResized) (.setDimensions (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
+            #_(when (Display/wasResized) (.setDimensions (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
             #_(println "fullscreen" (:fullscreen @*gui-state*) (not (Display/isFullscreen)))
             #_(when (and (:fullscreen @*gui-state*) (not (Display/isFullscreen))) (println "going fullscreen") (Display/setFullscreen true))
             #_(when (and (not (:fullscreen @*gui-state*)) (Display/isFullscreen)) (println "disable fullscreen") (Display/setFullscreen false))

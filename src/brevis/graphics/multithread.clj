@@ -35,6 +35,8 @@
   "Everything that follows will have a GL context."
   []
   (.tryLock (:lock @brevis.globals/*graphics*) 50 TimeUnit/MILLISECONDS)
+  (when-not (.isHeldByCurrentThread (:lock @brevis.globals/*graphics*))
+    (throw (Exception. "Can't acquire graphics lock")))
   (when-not (.isCurrent (:drawable @brevis.globals/*graphics*))
     (.makeCurrent (:drawable @brevis.globals/*graphics*))))
 

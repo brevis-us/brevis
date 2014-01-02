@@ -39,7 +39,7 @@ Copyright 2012, 2013 Kyle Harrington"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds 5)
+(def num-birds 500)
 
 (def avoidance-distance (atom 10))
 
@@ -167,6 +167,3 @@ so we only modify bird1."
 (when (find-ns 'ccw.complete)
   (-main))
 ;(-main :nogui)
-
-
-

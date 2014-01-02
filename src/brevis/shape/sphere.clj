@@ -20,6 +20,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (:use [penumbra opengl compute]
         [penumbra.opengl core]
         [brevis.shape.core]
+        [brevis.graphics multithread]
         [brevis vector])) 
 
 (defn create-sphere
@@ -27,6 +28,8 @@ Copyright 2012, 2013 Kyle Harrington"
   ([]
      (create-sphere 1))
   ([radius]
+    (begin-with-graphics-thread)
     (let [sphere (BrShape/createSphere radius)]
       (.setDimension sphere (vec3 radius radius radius))
+      (end-with-graphics-thread)
       sphere)))
