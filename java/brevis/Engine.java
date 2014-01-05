@@ -30,6 +30,7 @@ import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.vecmath.Vector3d;
 
@@ -131,6 +132,8 @@ public class Engine {
 	
 	public BrKDTree<BrKDNode> spaceTree = null;
 	
+	public ReentrantLock lock = new ReentrantLock();
+	
 	/* Methods: */	
 	
 	class GUHComparator implements Comparator<GlobalUpdateHandler> {
@@ -189,81 +192,102 @@ public class Engine {
 	 * Move according to physics
 	 */
 	public void updatePhysics( double dt ) {
-		physics.contactGroup.empty();
-		OdeHelper.spaceCollide( physics.space, null, new BrevisCollision() );		
-		physics.world.quickStep( dt );						
-		
-		physics.time += dt;		
+		lock.lock();  // block until condition holds
+	     try {
+
+	 		physics.contactGroup.empty();
+	 		OdeHelper.spaceCollide( physics.space, null, new BrevisCollision() );		
+	 		physics.world.quickStep( dt );						
+	 		
+	 		physics.time += dt;		
+	     } finally {
+	       lock.unlock();
+	     }
 	}
 	
 	/* synchronizeObjects
 	 * Apply all insertions/deletions
 	 */
 	public void synchronizeObjects() {
-		//System.out.println( "synchronizeObjects del: " + deletedObjects.size() + " add: " + addedObjects.size() );
-		// Remove deleted objects
-		for( Long uid : deletedObjects ) {
-			objects.remove( uid );
-		}
-		deletedObjects = new HashSet<Long>();
+		lock.lock();  // block until condition holds
+	     try {
+	    	//System.out.println( "synchronizeObjects del: " + deletedObjects.size() + " add: " + addedObjects.size() );
+	 		// Remove deleted objects
+	 		for( Long uid : deletedObjects ) {
+	 			objects.remove( uid );
+	 		}
+	 		deletedObjects = new HashSet<Long>();
+	 		
+	 		// Add newly created objects
+	 		objects.putAll( addedObjects );
+	 		addedObjects = new HashMap<Long,BrObject>();
+	     } finally {
+	       lock.unlock();
+	     }
 		
-		// Add newly created objects
-		objects.putAll( addedObjects );
-		addedObjects = new HashMap<Long,BrObject>();
 	}
 	
 	/* updateObjects
 	 * Call individual update functions
 	 */
 	public void updateObjects( double dt ) {
-		//HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
-		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();
-		
-		// Call the 0 update handler once (eliminating this implementation)
-		/*if( updateHandlers.containsKey( 0 ) ) {
-			UpdateHandler global_uh = updateHandlers.get( 0 );
-			BrObject placeholder = global_uh.update( this, null, dt );
-		}*/		
-		
-		//System.out.println( "updateObjects " + objects.keySet() );
-		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
-			BrObject obj = entry.getValue();
-			UpdateHandler uh = updateHandlers.get( obj.type );
-			
-			BrObject newObj = obj;
-			if( uh != null ) {
-				//System.out.println( "--" + getTime() + " updating object " + entry.getKey() );
-				newObj = uh.update( this, entry.getKey(), dt );				
-			} 
-			//else System.out.println( "--" + getTime() + " not updating object " + entry.getKey() + " " + entry.getValue().type );
-			
-			Boolean kh = updateKinematics.get( obj.type );
-			//System.out.println( obj.type + " " + kh );
-			if( kh != null && kh ) {
-				newObj.updateObjectKinematics( dt );
-			}
-			
-			updatedObjects.put( entry.getKey(), newObj );
-		}
-		objects = updatedObjects;
+		lock.lock();  // block until condition holds
+	     try {
+	    	//HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
+	 		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();
+	 		
+	 		// Call the 0 update handler once (eliminating this implementation)
+	 		/*if( updateHandlers.containsKey( 0 ) ) {
+	 			UpdateHandler global_uh = updateHandlers.get( 0 );
+	 			BrObject placeholder = global_uh.update( this, null, dt );
+	 		}*/		
+	 		
+	 		//System.out.println( "updateObjects " + objects.keySet() );
+	 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
+	 			BrObject obj = entry.getValue();
+	 			UpdateHandler uh = updateHandlers.get( obj.type );
+	 			
+	 			BrObject newObj = obj;
+	 			if( uh != null ) {
+	 				//System.out.println( "--" + getTime() + " updating object " + entry.getKey() );
+	 				newObj = uh.update( this, entry.getKey(), dt );				
+	 			} 
+	 			//else System.out.println( "--" + getTime() + " not updating object " + entry.getKey() + " " + entry.getValue().type );
+	 			
+	 			Boolean kh = updateKinematics.get( obj.type );
+	 			//System.out.println( obj.type + " " + kh );
+	 			if( kh != null && kh ) {
+	 				newObj.updateObjectKinematics( dt );
+	 			}
+	 			
+	 			updatedObjects.put( entry.getKey(), newObj );
+	 		}
+	 		objects = updatedObjects;
+	     } finally {
+	       lock.unlock();
+	     }		
 	}
 	
 	/* globalUpdateObjects
 	 * Call individual update functions
 	 */
 	public void globalUpdateObjects( boolean preIndividual ) {
-		
-		for( GlobalUpdateHandler gh : globalUpdateHandlers ) {
-			//System.out.println( "guh " + gh );
-			if( preIndividual && gh.getPriority() < 0 ) {
-//				System.out.println( "globalUpdate " + gh );
-				gh.update( this );
-				synchronizeObjects();
-			} else if ( !preIndividual && gh.getPriority() >= 0 ) {
-				//System.out.println( "globalUpdate " + gh );
-				gh.update( this );
-				synchronizeObjects();
+		lock.lock();
+		try {
+			for( GlobalUpdateHandler gh : globalUpdateHandlers ) {
+				//System.out.println( "guh " + gh );
+				if( preIndividual && gh.getPriority() < 0 ) {
+	//				System.out.println( "globalUpdate " + gh );
+					gh.update( this );
+					synchronizeObjects();
+				} else if ( !preIndividual && gh.getPriority() >= 0 ) {
+					//System.out.println( "globalUpdate " + gh );
+					gh.update( this );
+					synchronizeObjects();
+				}
 			}
+		} finally {
+			lock.unlock();
 		}
 	}
 	
@@ -271,35 +295,41 @@ public class Engine {
 	 * Respond to all computed collisions
 	 */
 	public void handleCollisions( double dt ) {
-		collisions = globalCollisions;
+		lock.lock();  // block until condition holds
+	     try {
+	    	 collisions = globalCollisions;
+	 		
+	 		//HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
+	 		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();		
+	 		
+	 		// An object may be involved in multiple computations, therefore we first duplicate all objects and use
+	 		// these.
+	 		for( Entry<Long, BrObject> entry : objects.entrySet() ) {
+	 			updatedObjects.put( entry.getKey(), entry.getValue() );
+	 		}
+	 		
+	 		//System.out.println( "handleCollisions " + collisions );
+	 		for( SimpleEntry<Long,Long> entry: collisions ) {
+	 			BrObject subj = updatedObjects.get( entry.getKey() );
+	 			BrObject othr = updatedObjects.get( entry.getValue() );
+	 			if( subj != null && othr != null ) {
+	 				SimpleEntry<String,String> typeEntry = new SimpleEntry<String,String>(subj.type,othr.type);
+	 				CollisionHandler ch = collisionHandlers.get( typeEntry );
+	 				
+	 				//System.out.println( "collision " + subj + " " + othr + " " + ch + " " + typeEntry + " " + collisionHandlers );				
+	 				if( ch != null ) {
+	 					PersistentVector pair = ch.collide( this, subj, othr, dt );
+	 					BrObject newSubj = (BrObject) pair.get(0);
+	 					updatedObjects.put( entry.getKey() , newSubj );
+	 				}
+	 			}
+	 		}
+	 		objects = updatedObjects;
+	 		collisions.clear();
+	     } finally {
+	       lock.unlock();
+	     }		
 		
-		//HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
-		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();		
-		
-		// An object may be involved in multiple computations, therefore we first duplicate all objects and use
-		// these.
-		for( Entry<Long, BrObject> entry : objects.entrySet() ) {
-			updatedObjects.put( entry.getKey(), entry.getValue() );
-		}
-		
-		//System.out.println( "handleCollisions " + collisions );
-		for( SimpleEntry<Long,Long> entry: collisions ) {
-			BrObject subj = updatedObjects.get( entry.getKey() );
-			BrObject othr = updatedObjects.get( entry.getValue() );
-			if( subj != null && othr != null ) {
-				SimpleEntry<String,String> typeEntry = new SimpleEntry<String,String>(subj.type,othr.type);
-				CollisionHandler ch = collisionHandlers.get( typeEntry );
-				
-				//System.out.println( "collision " + subj + " " + othr + " " + ch + " " + typeEntry + " " + collisionHandlers );				
-				if( ch != null ) {
-					PersistentVector pair = ch.collide( this, subj, othr, dt );
-					BrObject newSubj = (BrObject) pair.get(0);
-					updatedObjects.put( entry.getKey() , newSubj );
-				}
-			}
-		}
-		objects = updatedObjects;
-		collisions.clear();
 	}
 	
 	
@@ -334,44 +364,50 @@ public class Engine {
 	 * KD tree implementation
 	 */
 	public void updateNeighborhoods() {
-		//HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
-		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();
-		
-		//spaceTree = new BrKDTree<BrKDNode>();//lazy
-		spaceTree.clear();
-		
-		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
-			BrObject obj = entry.getValue();
-			Vector3f pos = obj.getPosition();
-			double[] arryloc = { pos.x, pos.y, pos.z };
-			BrKDNode n = new BrKDNode( arryloc, entry.getKey() );
-			spaceTree.add( n );
-		}		
-		
-		int nResults = 10;
-		
-		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
-			BrObject obj = entry.getValue();
-			Vector<Long> nbrs = new Vector<Long>();
-			
-			Vector3f pos = obj.getPosition();
-			double[] arryloc = { pos.x, pos.y, pos.z };
-			
-			//Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.search( arryloc, nResults);
-			//Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.searchByDistance( arryloc, neighborhoodRadius );
-			ArrayList<BrKDNode> searchNbrs = spaceTree.searchByDistance( arryloc, neighborhoodRadius );
-			Iterator<BrKDNode> itr = searchNbrs.iterator();
-			
-			while( itr.hasNext() ) {
-				BrKDNode nbr = itr.next();
-				nbrs.add( nbr.UID );
-			}
-			
-			//System.out.println( "Neighbors of " + obj + " " + nbrs.size() );
-			obj.nbrs = nbrs;
-			updatedObjects.put( entry.getKey(), obj );
-		}
-		objects = updatedObjects;
+		lock.lock();  // block until condition holds
+	     try {
+	 		//HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
+	 		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();
+	 		
+	 		//spaceTree = new BrKDTree<BrKDNode>();//lazy
+	 		spaceTree.clear();
+	 		
+	 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
+	 			BrObject obj = entry.getValue();
+	 			Vector3f pos = obj.getPosition();
+	 			double[] arryloc = { pos.x, pos.y, pos.z };
+	 			BrKDNode n = new BrKDNode( arryloc, entry.getKey() );
+	 			spaceTree.add( n );
+	 		}		
+	 		
+	 		int nResults = 10;
+	 		
+	 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
+	 			BrObject obj = entry.getValue();
+	 			Vector<Long> nbrs = new Vector<Long>();
+	 			
+	 			Vector3f pos = obj.getPosition();
+	 			double[] arryloc = { pos.x, pos.y, pos.z };
+	 			
+	 			//Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.search( arryloc, nResults);
+	 			//Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.searchByDistance( arryloc, neighborhoodRadius );
+	 			ArrayList<BrKDNode> searchNbrs = spaceTree.searchByDistance( arryloc, neighborhoodRadius );
+	 			Iterator<BrKDNode> itr = searchNbrs.iterator();
+	 			
+	 			while( itr.hasNext() ) {
+	 				BrKDNode nbr = itr.next();
+	 				nbrs.add( nbr.UID );
+	 			}
+	 			
+	 			//System.out.println( "Neighbors of " + obj + " " + nbrs.size() );
+	 			obj.nbrs = nbrs;
+	 			updatedObjects.put( entry.getKey(), obj );
+	 		}
+	 		objects = updatedObjects;
+	     } finally {
+	       lock.unlock();
+	     }	
+
 	}
 	
 	/* 
@@ -380,55 +416,67 @@ public class Engine {
 	 * NOTE: currently only centers of objects are considered, so radius should account for the largest dimension of the largest object to be considered
 	 */
 	public ArrayList<BrObject> objectsAlongLine( double[] start, double[] direction, double radius ) {
-		ArrayList<BrObject> objs = new ArrayList<BrObject>();
-		
-		spaceTree.clear();
-		
-		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
-			BrObject obj = entry.getValue();
-			Vector3f pos = obj.getPosition();
-			double[] arryloc = { pos.x, pos.y, pos.z };
-			BrKDNode n = new BrKDNode( arryloc, entry.getKey() );
-			spaceTree.add( n );
-		}				
-		
-		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
-			BrObject obj = entry.getValue();
-			Vector<Long> nbrs = new Vector<Long>();
-			
-			Vector3f pos = obj.getPosition();
-			double[] arryloc = { pos.x, pos.y, pos.z };
-			
-			//Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.search( arryloc, nResults);
-			//Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.searchByDistance( arryloc, neighborhoodRadius );
-			ArrayList<BrKDNode> searchNbrs = spaceTree.searchAlongLine( start, direction, radius);
-			Iterator<BrKDNode> itr = searchNbrs.iterator();
-			
-			while( itr.hasNext() ) {
-				BrKDNode nbr = itr.next();
-				nbrs.add( nbr.UID );
-			}
-			
-			//System.out.println( "Neighbors of " + obj + " " + nbrs.size() );
-			obj.nbrs = nbrs;
-			objs.add( obj );
-		}
-		return objs;
+		ArrayList<BrObject> objs = null;
+		lock.lock();  // block until condition holds
+	     try {	 		
+	    	 objs = new ArrayList<BrObject>();
+	 		
+	 		spaceTree.clear();
+	 		
+	 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
+	 			BrObject obj = entry.getValue();
+	 			Vector3f pos = obj.getPosition();
+	 			double[] arryloc = { pos.x, pos.y, pos.z };
+	 			BrKDNode n = new BrKDNode( arryloc, entry.getKey() );
+	 			spaceTree.add( n );
+	 		}				
+	 		
+	 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
+	 			BrObject obj = entry.getValue();
+	 			Vector<Long> nbrs = new Vector<Long>();
+	 			
+	 			Vector3f pos = obj.getPosition();
+	 			double[] arryloc = { pos.x, pos.y, pos.z };
+	 			
+	 			//Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.search( arryloc, nResults);
+	 			//Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.searchByDistance( arryloc, neighborhoodRadius );
+	 			ArrayList<BrKDNode> searchNbrs = spaceTree.searchAlongLine( start, direction, radius);
+	 			Iterator<BrKDNode> itr = searchNbrs.iterator();
+	 			
+	 			while( itr.hasNext() ) {
+	 				BrKDNode nbr = itr.next();
+	 				nbrs.add( nbr.UID );
+	 			}
+	 			
+	 			//System.out.println( "Neighbors of " + obj + " " + nbrs.size() );
+	 			obj.nbrs = nbrs;
+	 			objs.add( obj );
+	 		}	 		
+	     } finally {
+	       lock.unlock();
+	     }	
+	     return objs;
 	}
 	
 	/* initWorld
 	 * Initialization functions
 	 */
 	public void initWorld( ) {
-		physics.time = 0;		
-		startWallTime = System.nanoTime();
-		objects.clear();
-		addedObjects.clear();
-		deletedObjects.clear();
-		collisions.clear();
-		globalCollisions.clear();
-		spaceTree.clear();
-		synchronizeObjects();		
+		lock.lock();  // block until condition holds
+	     try {	 		
+	    	 physics.time = 0;		
+	 		startWallTime = System.nanoTime();
+	 		objects.clear();
+	 		addedObjects.clear();
+	 		deletedObjects.clear();
+	 		collisions.clear();
+	 		globalCollisions.clear();
+	 		spaceTree.clear();
+	 		synchronizeObjects(); 		
+	     } finally {
+	       lock.unlock();
+	     }	
+				
 	}
 	
 	/* updateWorld

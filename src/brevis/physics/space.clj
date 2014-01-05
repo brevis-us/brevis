@@ -234,7 +234,7 @@ are removed from the simulation. (deprecated)"
 
 (defn java-update-world
   "Update the world (Java engine)."
-  [[dt t] state]
+  [[dt t] state]  
   (when (and state
              (not (:terminated? state)))
     (when-not @*java-engine*
@@ -299,3 +299,25 @@ are removed from the simulation. (deprecated)"
     
     (assoc state
            :simulation-time (+ (:simulation-time state) (get-dt)))))
+
+;; ## Neighbors
+
+(defn distance-obj-to-line
+  "Distance of an object to a line."
+  [obj start-point direction]
+  (let [p (get-position obj)
+        a (sub p start-point)
+        aXv (cross a direction)
+        la (length a)
+        sin-theta (/ (length aXv) (* la (length direction)))]		
+		(* la sin-theta)))
+
+(defn get-neighbors-along-line
+  "Return all neighbors along a line."
+  [point dir radius]
+  #_(println point dir radius @*java-engine*)
+  (let [objs  (seq (.objectsAlongLine @*java-engine* (double-array point) (double-array dir) radius))
+        adjacent (filter #(< (distance-obj-to-line % (apply vec3 point) (apply vec3 dir)) 
+                             radius) objs)]
+    #_(println point dir radius (count adjacent))
+    adjacent))
