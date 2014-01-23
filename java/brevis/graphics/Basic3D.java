@@ -57,7 +57,8 @@ public class Basic3D {
 	private static final FloatBuffer light_diffuse = BufferUtils.createFloatBuffer(4);
 	private static final FloatBuffer light_specular = BufferUtils.createFloatBuffer(4);
 	static {
-		light_position.put(new float[] { LIGHTX, LIGHTY, 1.0f, 0.0f }).flip();
+		//light_position.put(new float[] { LIGHTX, LIGHTY, 1.0f, 0.0f }).flip();
+		light_position.put(new float[] { 50.0f, 200.0f, 50.0f, 0.0f }).flip();
 		light_ambient.put(new float[]{ 0.5f, 0.5f, 0.5f, 1.0f }).flip();
 		light_diffuse.put(new float[] { 1.0f, 1.0f, 1.0f, 1.0f }).flip();
 		light_specular.put(new float[] { 1.0f, 1.0f, 1.0f, 1.0f }).flip();
@@ -85,7 +86,8 @@ public class Basic3D {
 		float far = 3000;
 		//displayCamera = new BrCamera( view_xyz[0], view_xyz[1], view_xyz[2], view_hpr[0], view_hpr[1], view_hpr[2], fov, width, height, near, far );
         
-		light1.setPosition( new float[]{ 1.0f, 0.4f, 1.0f, 0.0f } );
+		//light1.setPosition( new float[]{ 1.0f, 0.4f, 1.0f, 0.0f } );
+		light1.setPosition(new float[] { 50.0f, 200.0f, 50.0f, 0.0f }  );
 		
         GL11.glShadeModel(GL11.GL_SMOOTH);                            // Enable Smooth Shading
         GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.5f);               // Black Background
@@ -236,7 +238,7 @@ public class Basic3D {
 		// set the light position (for some reason we have to do this in model view.
 //				static GLfloat light_position[] = { LIGHTX, LIGHTY, 1.0, 0.0 };
 		//GL11.glLight (GL11.GL_LIGHT0, GL11.GL_POSITION, light_position);
-		GL11.glLight (GL11.GL_LIGHT0, GL11.GL_POSITION, light_position);
+		//GL11.glLight (GL11.GL_LIGHT0, GL11.GL_POSITION, light_position);
     	
 		sky.draw( displayCamera.x, displayCamera.y, displayCamera.z );
 				

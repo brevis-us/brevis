@@ -83,7 +83,7 @@ public class BrObject implements clojure.lang.IPersistentMap {
 	
 	// Physics
 	public DBody body;
-	public DGeom geom;
+	public DGeom geom;	
 	
 	public boolean enabledShadow() {
 		return hasShadow;

@@ -317,7 +317,8 @@ are removed from the simulation. (deprecated)"
   [point dir radius]
   #_(println point dir radius @*java-engine*)
   (let [objs  (seq (.objectsAlongLine @*java-engine* (double-array point) (double-array dir) radius))
-        adjacent (filter #(< (distance-obj-to-line % (apply vec3 point) (apply vec3 dir)) 
-                             radius) objs)]
+        adjacent objs 
+        #_(filter #(< (distance-obj-to-line % (apply vec3 point) (apply vec3 dir)) 
+                     radius) objs)]
     #_(println point dir radius (count adjacent))
     adjacent))

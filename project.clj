@@ -3,7 +3,7 @@
   :url "https://github.com/kephale/brevis"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :jvm-opts ["-Xmx2g" "-Xdock:name=Brevis" "-splash:resources/brevis_splash.gif"]  
+  :jvm-opts ["-Xmx4g" "-Xdock:name=Brevis" "-splash:resources/brevis_splash.gif"]  
   :resource-paths ["resources"]
   :plugins [[lein-marginalia "0.7.1"]]
   :java-source-paths ["java"]
@@ -40,4 +40,5 @@
   ;:javac-options ["-target" "1.6" "-source" "1.6" "-Xlint:-options"]
   :aot [clojure.main brevis.ui.core]
   :main ^:skip-aot brevis.Launcher
+  ;:main brevisHCISwarm.qb
   :manifest {"SplashScreen-Image" "brevis_splash.gif"})

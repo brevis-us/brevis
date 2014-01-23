@@ -205,6 +205,23 @@ public class Engine {
 	     }
 	}
 	
+	public void clearSimulation() {
+		/* Just clear everything */
+		
+		lock.lock();  // block until condition holds
+	     try {
+
+	    	 physics = new BrPhysics();
+	 		//objects = new HashMap<Long,BrObject>();
+	 		objects = new ConcurrentHashMap<Long,BrObject>();
+	 		addedObjects = new HashMap<Long,BrObject>();
+	 		deletedObjects = new HashSet<Long>();
+	 	} finally {
+	       lock.unlock();
+	     }
+		
+	}
+	
 	/* synchronizeObjects
 	 * Apply all insertions/deletions
 	 */
@@ -214,6 +231,8 @@ public class Engine {
 	    	//System.out.println( "synchronizeObjects del: " + deletedObjects.size() + " add: " + addedObjects.size() );
 	 		// Remove deleted objects
 	 		for( Long uid : deletedObjects ) {
+	 			//objects.get(uid).clear();
+	 			// things aren't getting removed from the physics engine
 	 			objects.remove( uid );
 	 		}
 	 		deletedObjects = new HashSet<Long>();
@@ -224,8 +243,11 @@ public class Engine {
 	     } finally {
 	       lock.unlock();
 	     }
-		
+	
+	     //physics.space.cleanGeoms();
 	}
+	
+	
 	
 	/* updateObjects
 	 * Call individual update functions
@@ -410,6 +432,16 @@ public class Engine {
 
 	}
 	
+	/*(defn distance-obj-to-line
+			  "Distance of an object to a line."*/
+	public double distanceToLine( Vector3f testPoint, Vector3f linePoint, Vector3f direction ) {
+		Vector3f diff = Vector3f.sub( testPoint, linePoint, null );
+		Vector3f diffXv = Vector3f.cross( diff, direction, null );
+		double ldiff = diff.length();
+		double sinTheta = diffXv.length() / ( ldiff * direction.length() );
+		return ( ldiff * sinTheta );
+	}
+	
 	/* 
 	 * Return all objects along a line with start point, start, and direction vector, direction
 	 * within distance, radius 
@@ -417,6 +449,8 @@ public class Engine {
 	 */
 	public ArrayList<BrObject> objectsAlongLine( double[] start, double[] direction, double radius ) {
 		ArrayList<BrObject> objs = null;
+		Vector3f linePoint = new Vector3f( (float)start[0], (float)start[1], (float)start[2] );
+		Vector3f dirVec= new Vector3f( (float)direction[0], (float)direction[1], (float)direction[2] );
 		lock.lock();  // block until condition holds
 	     try {	 		
 	    	 objs = new ArrayList<BrObject>();
@@ -449,9 +483,11 @@ public class Engine {
 	 			}
 	 			
 	 			//System.out.println( "Neighbors of " + obj + " " + nbrs.size() );
-	 			obj.nbrs = nbrs;
-	 			objs.add( obj );
-	 		}	 		
+	 			//obj.nbrs = nbrs;
+	 			if( distanceToLine( pos, linePoint, dirVec ) < radius )
+	 				objs.add( obj );
+	 		}	 
+	 		
 	     } finally {
 	       lock.unlock();
 	     }	
