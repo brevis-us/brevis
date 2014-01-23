@@ -1,17 +1,19 @@
 # brevis
 
-brevis, a Second Generation artificial life simulator.
+brevis, an open-source, functional artificial life simulator.
 
-brevis is a revitalization of the spirit of the breve simulator in the functional
-language, Clojure.
+brevis is a 3D artificial life and complex systems simulator where simulations are written in the functional programming language Clojure.
 	
-Documentation:   http://cs.brandeis.edu/~kyleh/brevis
+On the web:   http://brevis.golemics.org
 Chat: #brevis@irc.freenode.net
   
-by Kyle Harrington (kyleh@cs.brandeis.edu), 2011-2013.
+by Kyle Harrington (kyleh@cs.brandeis.edu), 2011-2014.
    http://kyleharrington.com
+      
 
 ## Getting started:
+
+[There is a prototype IDE that allows Brevis to be run with no extra software added. Be on the look out in 2014 for this fancy new version.]
 
 brevis is designed to be compatible with Eclipse and a couple of Eclipse addons. These instructions should work with Eclipse versions on all major OS platforms.
 
@@ -45,6 +47,8 @@ p - pause
 o - screenshot  
 
 ## License
+
+Brevis is licensed under GPLv3. LGPL licenses may be granted upon request.
 
 This file is part of brevis.                                                                                                                                                 
                                                                                                                                                                                      
