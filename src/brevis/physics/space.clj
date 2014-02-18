@@ -65,6 +65,12 @@ Copyright 2012, 2013 Kyle Harrington"
     (do (.orient obj obj-vec target-vec)
       obj)))
 
+(defn set-rotation
+  "Set the rotation of an object directly using a quaternion."
+  [obj v]
+  (.setRotation obj v)
+  obj)
+
 (defn sort-by-proximity
   "Return a list of objects sorted by proximity."
   [position objects]

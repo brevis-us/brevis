@@ -206,22 +206,24 @@ Copyright 2012, 2013 Kyle Harrington"
   []  
   (begin-with-graphics-thread)
   (when (Display/wasResized) (.setDimensions (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
-  (let [objs (all-objects)]
+  (let [objs (all-objects)]    
     (Basic3D/initFrame (:camera @*gui-state*))
     (draw-sky)
+    #_(update-display-text)
     #_(gl-matrix-mode :modelview)
     #_(gl-load-identity-matrix)
     #_(use-camera (:camera @*gui-state*))
     (doseq [obj objs]
       (when (drawable? obj) ;; add a check to see if the object is in view
-       (draw-shape obj)))
-    (Display/update)    
+       (draw-shape obj)))    
+    (Display/update)        
+    (Display/sync 100)
     (end-with-graphics-thread)
     ))
 
 (defn simulate
   "Simulation loop."
-  [initialize update]
+  [initialize update & input-handlers]
   (Display/setLocation (/ (- (.getWidth (Display/getDisplayMode)) (.width (:camera @*gui-state*))) 2)
                        (/ (- (.getHeight (Display/getDisplayMode)) (.height (:camera @*gui-state*))) 2))
   (try 
@@ -245,7 +247,9 @@ Copyright 2012, 2013 Kyle Harrington"
     (reset! *gui-state* (assoc @*gui-state* :input (BrInput.)))
     (catch LWJGLException e
       (.printStackTrace e)))
-  (default-input-handlers)
+  (if (empty? input-handlers);; hack for custom input handlers
+    (default-input-handlers)
+    ((first input-handlers)))
   (let [startTime (ref (java.lang.System/nanoTime))
         fps (ref 0)
         display? true]
@@ -280,23 +284,25 @@ Copyright 2012, 2013 Kyle Harrington"
   "Start the simulation with a GUI."
   ([initialize]
     (start-gui initialize java-update-world))    
-  ([initialize update]
+  ([initialize update & input-handlers]
     (reset! *gui-message-board* (sorted-map))
     (when (.contains (System/getProperty "os.name") "indows")
       (reset! enable-display-text false))
 	  (reset! *app-thread*
-           (Thread. (fn []
-                      (simulate initialize update)
-                      #_(app/start
-                             {:reshape reshape, :init (make-init initialize), :mouse-drag mouse-drag, :key-press key-press :mouse-wheel mouse-wheel, :update update, :display display
-                              :key-release key-release
-                              ;:mouse-move    (fn [[[dx dy] [x y]] state] (println )
-                              ;:mouse-up       (fn [[x y] button state] (println button) state)
-                              ;:mouse-click   (fn [[x y] button state] (println button) state)
-                              ;:mouse-down    (fn [[x y] button state] (println button) state)
-                              ;:mouse-wheel   (fn [dw state] (println dw) state)
-                              }        
-                             @*gui-state*))))
+           (if-not (empty? input-handlers)
+             (Thread. (fn [] (simulate initialize update (first input-handlers))))
+             (Thread. (fn []
+                        (simulate initialize update)
+                        #_(app/start
+                               {:reshape reshape, :init (make-init initialize), :mouse-drag mouse-drag, :key-press key-press :mouse-wheel mouse-wheel, :update update, :display display
+                                :key-release key-release
+                                ;:mouse-move    (fn [[[dx dy] [x y]] state] (println )
+                                ;:mouse-up       (fn [[x y] button state] (println button) state)
+                                ;:mouse-click   (fn [[x y] button state] (println button) state)
+                                ;:mouse-down    (fn [[x y] button state] (println button) state)
+                                ;:mouse-wheel   (fn [dw state] (println dw) state)
+                                }        
+                               @*gui-state*)))))
    (.start @*app-thread*)))
 
 ;; ## Non-graphical simulation loop (may need updating)

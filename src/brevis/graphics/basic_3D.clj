@@ -61,6 +61,16 @@ Copyright 2012, 2013 Kyle Harrington"
   (.perspectiveMatrix cam)
   (.translate cam))
 
+(defn camera-set-position
+  [cam new-position]
+  (.setPosition cam new-position))
+
+(defn camera-look-at
+  "Camera look at a given location from the current camera location."
+  [cam target-vec]
+  (println "camera-look-at" (.getPosition cam) target-vec)
+  (.lookAt cam (.getPosition cam) target-vec))
+
 (defn draw-shape
   "Draw a shape. Call this after translating, scaling, and setting color."
   [obj]
@@ -72,3 +82,8 @@ Copyright 2012, 2013 Kyle Harrington"
   [obj]
   (Basic3D/castShadow (.getMesh (.getShape obj)) (double-array [0 1 0 0]))
   )
+
+(defn move-light
+  "Move the n-th light."
+  [n pos]
+  (Basic3D/lightMove (int n) (float-array pos)))
