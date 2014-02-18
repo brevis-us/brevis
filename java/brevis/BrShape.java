@@ -18,6 +18,7 @@
 package brevis;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -44,10 +45,11 @@ public class BrShape {
 	public enum BrShapeType {
 		BOX, SPHERE, CONE, CYLINDER, MESH,
 		// Unit meshes for optimized rendering
-		UNIT_CONE, UNIT_SPHERE //FLOOR
+		UNIT_CONE, UNIT_SPHERE, //FLOOR
+		ICOSAHEDRON, PRISM
 	};
 	
-	static public String objDir = "obj/";
+	static public String objDir = "obj" + File.separator;
 	
 	public BrShapeType type;
 	//public Vector3d dim;
@@ -148,6 +150,10 @@ public class BrShape {
 			return "cone";			
 		} else if( type == BrShapeType.CYLINDER ) {
 			return "cylinder";
+		} else if( type == BrShapeType.ICOSAHEDRON ) {
+			return "icosahedron";
+		} else if( type == BrShapeType.PRISM ) {
+			return "prism";
 		} else if( type == BrShapeType.MESH ) {
 			return "mesh";
 		} else {
@@ -162,7 +168,7 @@ public class BrShape {
 		DMass m = OdeHelper.createMass();
 		if( type == BrShapeType.BOX ) {
 			m.setBox(density, dim.x, dim.y, dim.z );
-		} else if( type == BrShapeType.SPHERE || type == BrShapeType.UNIT_SPHERE ) {
+		} else if( type == BrShapeType.SPHERE || type == BrShapeType.UNIT_SPHERE || type == BrShapeType.ICOSAHEDRON || type == BrShapeType.PRISM ) {
 			m.setSphere( density, dim.x );
 		} else if( type == BrShapeType.CONE || type == BrShapeType.UNIT_CONE ) {
 			m.setSphere(density, dim.x);
@@ -275,6 +281,12 @@ public class BrShape {
 		} else if( type == BrShapeType.CYLINDER ) {
 			//mesh.initCylinder( dim );
 			filename = "cylinder.obj";
+		} else if( type == BrShapeType.ICOSAHEDRON ) {
+			//mesh.initCylinder( dim );
+			filename = "icosahedron.obj";
+		} else if( type == BrShapeType.PRISM) {
+			//mesh.initCylinder( dim );
+			filename = "prism.obj";
 		}
 		filename = objDir + filename;
 		
@@ -354,6 +366,11 @@ public class BrShape {
 	
 	public static BrShape createSphere( double r ) {
 		return ( new BrShape( BrShapeType.SPHERE, new Vector3f( (float)r, (float)r, (float)r ) ) );
+		//return ( new BrShape( BrShapeType.UNIT_SPHERE, new Vector3d( r, r, r )));	
+	}
+	
+	public static BrShape createIcosahedron( double r ) {
+		return ( new BrShape( BrShapeType.ICOSAHEDRON, new Vector3f( (float)r, (float)r, (float)r ) ) );
 		//return ( new BrShape( BrShapeType.UNIT_SPHERE, new Vector3d( r, r, r )));	
 	}
 	

@@ -71,6 +71,11 @@ public class Basic3D {
 	static BrSky sky;
 	//static BrCamera displayCamera;// This is the BrCamera that gets the main GL context
 	
+	public static void lightMove( int lightNum, float[] position ) {
+		//light_position.put( position ).flip();
+		light1.setPosition( position );
+	}	
+	
 	// a good bit from ode4j
     static public void initGL() {
         
@@ -600,7 +605,8 @@ public class Basic3D {
         		obj.getShape().type == BrShape.BrShapeType.SPHERE ||
         		obj.getShape().type == BrShape.BrShapeType.UNIT_SPHERE ||
         		obj.getShape().type == BrShape.BrShapeType.CYLINDER ||
-        		obj.getShape().type == BrShape.BrShapeType.MESH ) ) {         	 
+        		obj.getShape().type == BrShape.BrShapeType.MESH ||
+        		obj.getShape().type == BrShape.BrShapeType.ICOSAHEDRON ) ) {         	 
         	GL11.glScaled( dim.x, dim.y, dim.z );
         	//System.out.println( "drawShape " + dim );
         }

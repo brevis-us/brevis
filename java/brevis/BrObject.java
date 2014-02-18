@@ -286,6 +286,10 @@ public class BrObject implements clojure.lang.IPersistentMap {
 		return rotation;
 	}
 	
+	public void setRotation( Vector4f v ) {
+		rotation = v;
+	}
+	
 	public DMass getMass() {
 		return mass;
 	}

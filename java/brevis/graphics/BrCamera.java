@@ -24,7 +24,9 @@ import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 
-import javax.vecmath.Vector3f;
+//import javax.vecmath.Vector3f;
+import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import static java.lang.Math.*;
 
@@ -55,6 +57,7 @@ public class BrCamera {
 	public float pitch = 0;
 	public float yaw = 0;
 	public float roll = 0;
+	public Vector4f rotation;
 	// Field of View
 	private float fov = 90;
 	// Aspect Ratio
@@ -96,6 +99,7 @@ public class BrCamera {
 		this.height = height;
 		this.nearClippingPlane = zNear;
 		this.farClippingPlane = zFar;
+		this.rotation = new Vector4f( 1, 0, 0, 0 );
 	}
 	
 	public void setDimensions( float width, float height ) {
@@ -250,7 +254,54 @@ public class BrCamera {
 		this.x -= dx * (float) sin(toRadians(yaw - 90)) + dz * sin(toRadians(yaw));
 		this.y += dy * (float) sin(toRadians(roll - 90)) + dz * sin(toRadians(roll));
 	}
+	
+	public void lookAt( Vector3f camVec, Vector3f targetVec ) {
+		if( camVec.length() != 0 && targetVec.length() != 0 ) {
+			Vector3f dir = new Vector3f();
+			Vector3f.cross( camVec, targetVec, dir );
+			//dir.cross( targetVec, objVec );
+			//System.out.println( "orient cross " + dir );
+			dir.set( ( camVec.y * targetVec.z - camVec.z * targetVec.y ), 
+					 ( camVec.z * targetVec.x - camVec.x * targetVec.z ), 
+					 ( camVec.x * targetVec.y - camVec.y * targetVec.x ) );
+			if( dir.length() != 0 )
+				dir.normalise();
+			//dir.scale( 1.0 / dir.length() );
+			double vdot = Vector3f.dot( targetVec, camVec );
+			vdot = Math.max( Math.min( vdot / ( camVec.length() * targetVec.length() ), 
+									   1.0), -1.0 );
+			//double angle = ( Math.acos( vdot ) * ( Math.PI / 180.0 ) );
+			double angle = ( Math.acos( vdot ) * ( 180.0 / Math.PI ) );
+			if( dir.length() == 0 ) 
+				rotation.set( camVec.x, camVec.y, camVec.z, (float)0.001 );
+			else
+				rotation.set( dir.x, dir.y, dir.z, (float)angle );
+			//System.out.println( "orient " + objVec + " " + targetVec + " " + dir + " " + vdot + " " + rotation );
+			
+		}
+	}
 
+	public void setPosition( Vector3f v ) {
+		x = v.x;
+		y = v.y;
+		z = v.z;
+	}
+	
+	public Vector3f getPosition() {
+		return ( new Vector3f( x, y, z ) ); 		
+	}
+	
+	public Vector4f getRotation() {
+		return rotation;
+	}
+	
+	public void setRotation( Vector4f v ) {
+		rotation = v;
+		roll = v.x;
+		pitch = v.y;
+		yaw = v.z;
+	}
+	
 	/**
 	 * Applies optimal states
 	 */
@@ -309,15 +360,22 @@ public class BrCamera {
 	 * Translates camera position to OpenGL position
 	 */
 	public void translate() {
-		//glPushAttrib(GL_TRANSFORM_BIT);
+		glPushAttrib(GL_TRANSFORM_BIT);
 		//glMatrixMode(GL_MODELVIEW);
 		//glRotatef (90, 0,0,1);
 		//glRotatef (90, 0,1,0);		
+		
 		glRotatef(roll, 1, 0, 0);
 		glRotatef(pitch, 0, 1, 0);
+		
+		// Future call, should be re-enabled
+		//GL11.glRotatef( (float)rotation.w, (float)rotation.x, (float)rotation.y, (float)rotation.z);
+		
+		
 		//glRotatef(yaw, 0, 0, 1);
-		glTranslatef(-x, -y, -z);
-		//glPopAttrib();
+		//glTranslatef(-x, -y, -z);
+		glTranslatef(x, y, z);
+		glPopAttrib();
 	}
 	
 	public void makeFBO() {
