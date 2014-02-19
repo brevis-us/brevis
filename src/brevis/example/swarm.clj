@@ -150,6 +150,7 @@ so we only modify bird1."
   []  
   (init-world)
   (init-view)
+  (.moveFromLook (:camera @brevis.globals/*gui-state*) 0 100 0)
   (set-dt 0.1)
   (set-neighborhood-radius 500)
   (default-display-text)
