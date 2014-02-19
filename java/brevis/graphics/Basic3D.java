@@ -571,8 +571,12 @@ public class Basic3D {
         
         //vMatMult(Minv, lp);                                 // We Store Rotated Light Vector In 'lp' Array
         
-        Vector3f vObjPos = obj.getPosition();        
-        float[] objPos = { (float) vObjPos.x, (float) vObjPos.y, (float) vObjPos.z, 0 };
+        //Vector3f vObjPos = obj.getPosition();        
+    	Vector3f vObjPos = new Vector3f();
+    	Vector3f.add( obj.getPosition(), obj.getShape().center, vObjPos );
+    	
+        //float[] objPos = { (float) vObjPos.x, (float) vObjPos.y, (float) vObjPos.z, 0 };
+        //float[] objPos = { (float) vObjPos.x, (float) vObjPos.y, (float) vObjPos.z, 0 };
         
         /*GL11.glTranslatef(-objPos[0], -objPos[1], -objPos[2]);   // Move Negative On All Axis Based On ObjPos[] Values (X, Y, Z)
         GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX,(FloatBuffer)floatBuffer.asFloatBuffer().put(Minv).flip());              // Retrieve ModelView Matrix From Minv
@@ -596,7 +600,9 @@ public class Basic3D {
         GL11.glPushMatrix();
         //GL11.glColor4d( obj.color.x, obj.color.y, obj.color.z, obj.color.w );
         setColor( (float)obj.color.x, (float)obj.color.y, (float)obj.color.z, (float)obj.color.w );
-        GL11.glTranslatef(objPos[0], objPos[1], objPos[2]);      // Position The Object
+                
+        GL11.glTranslatef( vObjPos.x, vObjPos.y, vObjPos.z );      // Position The Object
+        //GL11.glTranslatef(objPos[0], objPos[1], objPos[2]);      // Position The Object
                         
         Vector4f rot = obj.getRotation();
         GL11.glRotatef( (float)rot.w, (float)rot.x, (float)rot.y, (float)rot.z);

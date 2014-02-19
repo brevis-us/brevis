@@ -60,6 +60,8 @@ public class BrShape {
 	public int numIdx = 0;
 	public BrMesh mesh = null;
 	
+	public Vector3f center;
+	
 	// Make final?
 	public static BrMesh unitCone = null;	
 	public static BrMesh unitSphere = null;	
@@ -77,6 +79,16 @@ public class BrShape {
 		String s = "#BrShape{ :type " + type + ", :dim" + dim +
 				", :mesh " + mesh + "}";		 				
 		return s;
+	}
+	
+	void computeCenter() {
+		if( type == BrShapeType.BOX ) {
+			center = new Vector3f( ( dim.x / 2f) , ( dim.y / 2f ), ( dim.z / 2f ) );
+		} else if( type == BrShapeType.SPHERE ) {
+			center = new Vector3f( dim.x, dim.x, dim.x );
+		} else {
+			center = new Vector3f( 0, 0, 0 );
+		}
 	}
 	
 	BrShape( BrShapeType t, Vector3f d ) {
@@ -108,6 +120,7 @@ public class BrShape {
 			}
 		}
 				
+		computeCenter();
 	}
 	
 	BrShape( String filename, boolean isResource ) {

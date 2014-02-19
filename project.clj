@@ -1,5 +1,5 @@
-(defproject brevis "0.7.2"
-  :description "A Functional Artificial Life Simulator"
+(defproject brevis "0.7.4"
+  :description "A Functional Scientific and Artificial Life Simulator"
   :url "https://github.com/kephale/brevis"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
@@ -40,5 +40,5 @@
   ;:javac-options ["-target" "1.6" "-source" "1.6" "-Xlint:-options"]
   :aot [clojure.main brevis.ui.core]
   :main ^:skip-aot brevis.Launcher
-  ;:main brevisHCISwarm.qb
-  :manifest {"SplashScreen-Image" "brevis_splash.gif"})
+  :manifest {"SplashScreen-Image" "brevis_splash.gif"}
+  )
