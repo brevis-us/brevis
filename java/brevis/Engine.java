@@ -394,9 +394,12 @@ public class Engine {
 	 		//spaceTree = new BrKDTree<BrKDNode>();//lazy
 	 		spaceTree.clear();
 	 		
+	 		// Add everyone to the KD tree
 	 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
 	 			BrObject obj = entry.getValue();
-	 			Vector3f pos = obj.getPosition();
+	 			//Vector3f pos = obj.getPosition();
+	 			Vector3f pos = new Vector3f();
+	 			pos = Vector3f.add( obj.getPosition(), obj.getShape().center, pos);
 	 			double[] arryloc = { pos.x, pos.y, pos.z };
 	 			BrKDNode n = new BrKDNode( arryloc, entry.getKey() );
 	 			spaceTree.add( n );
@@ -404,6 +407,7 @@ public class Engine {
 	 		
 	 		int nResults = 10;
 	 		
+	 		// Loop over everyone and cache their neighborhood (this could be made lazy)
 	 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
 	 			BrObject obj = entry.getValue();
 	 			Vector<Long> nbrs = new Vector<Long>();

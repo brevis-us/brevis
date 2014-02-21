@@ -425,6 +425,8 @@ public final class BrKDTree<X extends BrKDNode> {
 		//final ArrayList<X> results = new ArrayList<X>(nResults);
 		ArrayList<X> results = new ArrayList<X>();
 		
+		double distance_sq = distance * distance; // easier than taking sqrt for every entry
+		
 		final Deque<SearchStackEntry<X>> stack =
 			new ArrayDeque<SearchStackEntry<X>>();
 		if (tree.contentMin != null)
@@ -444,7 +446,7 @@ public final class BrKDTree<X extends BrKDNode> {
 			if (cur.isTree()) {
 				searchTree(query, cur, stack);
 			} else {
-				searchLeafByDistance(query, cur, results, distance);
+				searchLeafByDistance(query, cur, results, distance_sq);
 			}
 		}		
 
@@ -463,7 +465,10 @@ public final class BrKDTree<X extends BrKDNode> {
 			if ( exD < distance ) {
 				//System.out.println( "Within distance " + distance + " " + exD );
 				results.add(ex);
-			} 
+			} /*else {
+				System.out.println( "Not within distance " + distance + " " + exD + " " + query[0] + "," + query[1] + "," + query[2] + " " +
+						ex.domain[0] + "," + ex.domain[1] + "," + ex.domain[2] );
+			}*/
 		}
 	}
 	
