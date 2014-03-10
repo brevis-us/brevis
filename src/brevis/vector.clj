@@ -113,3 +113,36 @@ Copyright 2012, 2013 Kyle Harrington"
   (let [nv (if (vec3? v) (Vector3f. v) (Vector4f. v))]                          
     (.normalise nv)
     nv))
+
+(defn map-vec3
+  "Map over a vec3"
+  [f v]
+  (vec3 (f (.x v)) (f (.y v)) (f (.z v))))
+
+(defn map-vec4
+  "Map over a vec4"
+  [f v]
+  (vec4 (f (.x v)) (f (.y v)) (f (.z v)) (f (.w v))))
+
+;; These 2 functions should be somewhere else
+(defn radians
+  "Transforms degrees to radians."
+  [x]
+  (* (/ Math/PI 180.0) (double x)))
+
+(defn degrees
+  "Transforms radians to degrees."
+  [x]
+  (* (/ 180.0 Math/PI) (double x)))
+
+(defn polar-to-cartesian
+  "Create polar coordinate."
+  ([theta phi] (polar-to-cartesian theta phi 1))
+  ([theta phi r] 
+   (let [theta (radians theta)
+         phi (radians (- 90 phi))
+         ts (Math/sin theta)
+         tc (Math/cos theta)
+         ps (Math/sin phi)
+         pc (Math/cos phi)]
+     (vec3 (* r ps tc) (* r pc) (* r ps ts)))))

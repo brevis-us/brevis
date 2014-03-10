@@ -91,7 +91,7 @@ Copyright 2012, 2013 Kyle Harrington"
   "Transform a vector."
   [xform v]
   (let [outv (vec4 0 0 0 0)]
-    (def tmp001 {:xform xform :v v :outv outv})
+    #_(def tmp001 {:xform xform :v v :outv outv})
     (Matrix4f/transform xform v outv)
     outv))
 
