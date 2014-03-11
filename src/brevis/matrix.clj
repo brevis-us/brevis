@@ -17,7 +17,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 
 (ns brevis.matrix
-  (:use [brevis vector])
+  (:use [brevis vector math])
   (:import [org.lwjgl.util.vector Vector3f Vector4f Matrix4f]
            [java.nio FloatBuffer]
            [org.lwjgl BufferUtils])
@@ -100,3 +100,18 @@ Copyright 2012, 2013 Kyle Harrington"
   [m]
   (.setIdentity m)
   m)
+
+;; derived from Cantor's rotation-matrix
+(defn rotation-matrix
+   "Returns a matrix which 3-D vectors about
+the specified axis."
+   ([theta x y z]
+     (let [theta (radians theta)
+           s (Math/sin theta)
+           c (Math/cos theta)
+           t (- 1 c)]       
+       (mat4
+         (+ c (* t x x)) (- (* t x y) (* s z)) (+ (* t x z) (* s y)) 0
+         (+ (* t x y) (* s z)) (+ (* t y y) c) (- (* t y z) (* s x)) 0
+         (- (* t x z) (* s y)) (+ (* t y z) (* s x)) (+ (* t z z) c) 0
+         0 0 0 1))))

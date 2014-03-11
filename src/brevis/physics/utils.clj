@@ -238,16 +238,16 @@ axis is the axis about which the joint rotates"
   []
   (.getNeighborhoodRadius @*java-engine*))
 
-;; the following 2 functions from ztellman's cantor (see github)
-(defn radians
-  "Transforms degrees to radians."
-  [x]
-  (* (/ Math/PI 180.0) (double x)))
 
-(defn degrees
-  "Transforms radians to degrees."
-  [x]
-  (* (/ 180.0 Math/PI) (double x)))
+#_(defn radians
+   "Transforms degrees to radians."
+   [x]
+   (* (/ Math/PI 180.0) (double x)))
+
+#_(defn degrees
+   "Transforms radians to degrees."
+   [x]
+   (* (/ 180.0 Math/PI) (double x)))
 
 (defn get-color
   "Return the color of an object."
