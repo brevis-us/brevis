@@ -576,8 +576,8 @@ public class Engine {
 		return physics.getWorld();
 	}
 	
-	public DJointGroup getJoints() {
-		return physics.getJoints();
+	public DJointGroup getContactGroup() {
+		return physics.getContactGroup();
 	}
 	
 	public DSpace getSpace() {

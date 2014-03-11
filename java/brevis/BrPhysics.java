@@ -104,7 +104,7 @@ public class BrPhysics {
 		return space;
 	}
 	
-	public DJointGroup getJoints() {
+	public DJointGroup getContactGroup() {
 		return contactGroup;
 	}
 }
