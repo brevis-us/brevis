@@ -36,6 +36,7 @@ import javax.vecmath.Vector3d;
 
 import org.lwjgl.util.vector.Vector3f;
 import org.ode4j.ode.DGeom;
+import org.ode4j.ode.DSpace;
 import org.ode4j.ode.DWorld;
 import org.ode4j.ode.OdeHelper;
 
@@ -572,6 +573,10 @@ public class Engine {
 	
 	public DWorld getWorld() {
 		return physics.getWorld();
+	}
+	
+	public DSpace getSpace() {
+		return physics.getSpace();
 	}
 	
 	public double getWallTime() {

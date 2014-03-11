@@ -21,7 +21,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (:import java.lang.Math)  
   (:import (brevis Engine BrPhysics BrObject))
   (:use [penumbra.opengl]        
-        [brevis vector]
+        [brevis vector math]
         [brevis.shape core box]        
         [brevis.graphics multithread]
         [brevis.physics core]))
@@ -30,6 +30,11 @@ Copyright 2012, 2013 Kyle Harrington"
   "Return the current world"
   []
   (.getWorld @*java-engine*))
+
+(defn get-space
+  "Return the current physical space being simulated"
+  []
+  (.getSpace @*java-engine*))
 
 (defn get-time
   "Return the current time."

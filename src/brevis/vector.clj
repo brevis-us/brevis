@@ -140,3 +140,4 @@ Copyright 2012, 2013 Kyle Harrington"
   "Quick hacks for seq-ing vectors."
   [v]
   [(.x v) (.y v) (.z v) (.w v)])
+
