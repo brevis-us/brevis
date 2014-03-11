@@ -36,6 +36,7 @@ import javax.vecmath.Vector3d;
 
 import org.lwjgl.util.vector.Vector3f;
 import org.ode4j.ode.DGeom;
+import org.ode4j.ode.DJointGroup;
 import org.ode4j.ode.DSpace;
 import org.ode4j.ode.DWorld;
 import org.ode4j.ode.OdeHelper;
@@ -571,8 +572,12 @@ public class Engine {
 		collisionsEnabled = newCE;
 	}
 	
-	public DWorld getWorld() {
+	public DWorld getWorld() {		
 		return physics.getWorld();
+	}
+	
+	public DJointGroup getJoints() {
+		return physics.getJoints();
 	}
 	
 	public DSpace getSpace() {

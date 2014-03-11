@@ -36,6 +36,11 @@ Copyright 2012, 2013 Kyle Harrington"
   []
   (.getSpace @*java-engine*))
 
+(defn get-joints
+  "Return the current joints being used by entities."
+  []
+  (.getJoints @*java-engine*))
+
 (defn get-time
   "Return the current time."
   []

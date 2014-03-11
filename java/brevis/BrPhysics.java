@@ -103,4 +103,8 @@ public class BrPhysics {
 	public DSpace getSpace() {
 		return space;
 	}
+	
+	public DJointGroup getJoints() {
+		return contactGroup;
+	}
 }
