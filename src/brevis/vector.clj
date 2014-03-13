@@ -18,6 +18,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (ns brevis.vector
   #_(:import [org.ejml.data DenseMatrix64F]
            [org.ejml.ops CommonOps])
+  (:use [brevis.math])
   (:import [org.lwjgl.util.vector Vector3f Vector4f])
   #_(:import [javax.vecmath Vector3f Vector4f]))
 ;; Temporary way of making Java's Vector3f's look like Cantor's vec3's
@@ -41,6 +42,11 @@ Copyright 2012, 2013 Kyle Harrington"
   "convert a vec4 to a vec3"
   [v]
   (vec3 (.x v) (.y v) (.z v)))
+
+(defn vec3-to-vec4
+  "Convert a vec3 to a vec4 by padding the 4th dim with 1."
+  [v]
+  (vec4 (.x v) (.y v) (.z v) 1))
 
 (defn sub
   "Wrap's Vector3f sub."
@@ -110,6 +116,28 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn normalize
   "Normalize a vector."
   [v]
-  (let [nv (if (vec3? v) (Vector3f. v) (Vector4f. v))]                          
-    (.normalise nv)
+  (let [nv (if (vec3? v) (Vector3f. v) (Vector4f. v))]          
+    (when-not (zero? (length v))
+      (.normalise nv))
     nv))
+
+(defn map-vec3
+  "Map over a vec3"
+  [f v]
+  (vec3 (f (.x v)) (f (.y v)) (f (.z v))))
+
+(defn map-vec4
+  "Map over a vec4"
+  [f v]
+  (vec4 (f (.x v)) (f (.y v)) (f (.z v)) (f (.w v))))
+
+(defn vec3-to-seq
+  "Quick hacks for seq-ing vectors."
+  [v]
+  [(.x v) (.y v) (.z v)])
+
+(defn vec4-to-seq
+  "Quick hacks for seq-ing vectors."
+  [v]
+  [(.x v) (.y v) (.z v) (.w v)])
+

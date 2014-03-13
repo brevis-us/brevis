@@ -103,4 +103,13 @@ public class BrPhysics {
 	public DSpace getSpace() {
 		return space;
 	}
+	
+	public DJointGroup getContactGroup() {
+		return contactGroup;
+	}
+	
+	/* Empty the current contact group. Probably want to do this before each simulation step. */
+	public void clearContactGroup() {
+		contactGroup.clear();
+	}
 }

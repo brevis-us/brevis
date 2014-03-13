@@ -258,7 +258,8 @@ Copyright 2012, 2013 Kyle Harrington"
         (println "Closing application.")
         (do
           (.pollInput (:input @*gui-state*) @*java-engine*)
-          (update [1 1] {})
+          ;(update [1 1] {})
+          (update [(* step (get-dt)) (get-dt)] {})
           (dosync (ref-set fps (inc @fps)))
           (when (> (java.lang.System/nanoTime) @startTime)
             #_(println "Update" step "FPS:" (double (/ @fps (/ (- (+ 1000000000 (java.lang.System/nanoTime)) @startTime) 1000000000))))
@@ -333,6 +334,6 @@ Copyright 2012, 2013 Kyle Harrington"
   "Start the simulation with a GUI."
   ([initialize]
     (start-nogui initialize update-world))
-  ([initialize update]
+  ([initialize update]    
 	  (simulation-loop
 	   {:init initialize, :update update})))      

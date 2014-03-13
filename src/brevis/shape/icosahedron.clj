@@ -29,8 +29,8 @@ Copyright 2012, 2013 Kyle Harrington"
      (create-icosahedron 1))
   ([radius]
     (begin-with-graphics-thread)
-    (let [icos (BrShape/createIcosahedron radius)]
-      (.setDimension icos (vec3 radius radius radius))
+    (let [icos (BrShape/createIcosahedron radius (:gui @brevis.globals/*gui-state*))]
+      (.setDimension icos (vec3 radius radius radius) (:gui @brevis.globals/*gui-state*))
       (end-with-graphics-thread)
       icos)))
 

@@ -36,6 +36,8 @@ import javax.vecmath.Vector3d;
 
 import org.lwjgl.util.vector.Vector3f;
 import org.ode4j.ode.DGeom;
+import org.ode4j.ode.DJointGroup;
+import org.ode4j.ode.DSpace;
 import org.ode4j.ode.DWorld;
 import org.ode4j.ode.OdeHelper;
 
@@ -522,7 +524,13 @@ public class Engine {
 	/* updateWorld
 	 * 	Run all of the enabled update subroutines including object updates, collisions, etc.
 	 */
-	public void updateWorld( double dt ) {		
+	//public void updateWorld( double dt ) {		
+	public void updateWorld() {		
+		
+		// Clear up old collisions
+		if( collisionsEnabled ) {
+			physics.clearContactGroup();
+		}
 		
 		if( physicsEnabled ) {
 			updatePhysics( dt );
@@ -570,8 +578,16 @@ public class Engine {
 		collisionsEnabled = newCE;
 	}
 	
-	public DWorld getWorld() {
+	public DWorld getWorld() {		
 		return physics.getWorld();
+	}
+	
+	public DJointGroup getContactGroup() {
+		return physics.getContactGroup();
+	}
+	
+	public DSpace getSpace() {
+		return physics.getSpace();
 	}
 	
 	public double getWallTime() {

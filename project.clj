@@ -1,4 +1,4 @@
-(defproject brevis "0.7.6"
+(defproject brevis "0.7.8"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "https://github.com/kephale/brevis"
   :license {:name "Eclipse Public License"
@@ -32,6 +32,8 @@
                  ;; Math packages
                  ;[java3d/vecmath "1.3.1"]
                  ;[com.googlecode.efficient-java-matrix-library/ejml "0.23"]
+                 [org.flatland/ordered "1.5.2"]
+                 [kephale/jblas "1.2.0"]; should use ejml instead
                  
                  ;; UI packages
                  [seesaw "1.4.4"]

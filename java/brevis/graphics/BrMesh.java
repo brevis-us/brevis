@@ -90,12 +90,14 @@ public class BrMesh {
 		return s;
 	}
 	
-	public BrMesh(BufferedReader ref, boolean centerit) {
+	public BrMesh(BufferedReader ref, boolean centerit, boolean withGraphics ) {
 		loadobject(ref);
 		if (centerit) {
 			centerit();
 		}
-		opengldrawtolist();
+		if( withGraphics ) {
+			opengldrawtolist();
+		}
 		numpolys = faces.size();
 		// We don't actually want to cleanup
 		//cleanup();
@@ -348,7 +350,7 @@ public class BrMesh {
 		return Indices;
 	}
 	
-	public void rescaleMesh( float w, float h, float d ) {		
+	public void rescaleMesh( float w, float h, float d, boolean withGraphics ) {		
 		
 		for( int k = 0; k < vertexsets.size(); k++ ) {
 			float[] v = vertexsets.get(k);
@@ -366,7 +368,8 @@ public class BrMesh {
 		farpoint *= d;		// z-
 		nearpoint *= d;		// z+
 		
-		opengldrawtolist();
+		if( withGraphics )
+			opengldrawtolist();
 		// Regen display list
 	}
 }

@@ -273,8 +273,8 @@ public class BrObject implements clojure.lang.IPersistentMap {
 		return color;
 	}
 	
-	public void setDimension( Vector3f newDim ) {
-		shape.setDimension( newDim );
+	public void setDimension( Vector3f newDim, boolean withGraphics ) {
+		shape.setDimension( newDim, withGraphics );
 	}
 	
 	public Vector3f getDimension() {
