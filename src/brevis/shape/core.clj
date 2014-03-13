@@ -18,10 +18,10 @@ Copyright 2012, 2013 Kyle Harrington"
 (ns brevis.shape.core
   (:import [java.awt.image BufferedImage]
            [java.awt Color])
-  (:use [penumbra opengl compute]
-        [penumbra.opengl core]
+  (:use ;[penumbra opengl compute]
+        ;[penumbra.opengl core]
         [brevis vector])
-  (:require [penumbra.data :as data]))  
+  #_(:require #_[penumbra.data :as data]))  
 
 (defn compute-normal
   "Compute the normal for some vertices of an arbitrary polygon."
@@ -41,32 +41,32 @@ Copyright 2012, 2013 Kyle Harrington"
                      (+ (.z normal) (* (- (.x curr) (.x next))
                                        (+ (.y curr) (.y next))))))))))
 
-(defn- define-quads-display-list
-  "Create a quads display list."
-  [polys]
-  (create-display-list
-     (draw-quads
-       (loop [rem polys]
-         (apply normal (compute-normal (first rem)))
-         (doseq [v (first rem)]
-           (apply vertex v))))))
+#_(defn- define-quads-display-list
+   "Create a quads display list."
+   [polys]
+   (create-display-list
+      (draw-quads
+        (loop [rem polys]
+          (apply normal (compute-normal (first rem)))
+          (doseq [v (first rem)]
+            (apply vertex v))))))
 
-(defn- define-triangles-display-list
-  "Create a tris display list."
-  [polys]
-  (create-display-list
-     (draw-triangles
-       (loop [rem polys]
-         (apply normal (compute-normal (first rem)))
-         (doseq [v (first rem)]
-           (apply vertex v))))))
+#_(defn- define-triangles-display-list
+   "Create a tris display list."
+   [polys]
+   (create-display-list
+      (draw-triangles
+        (loop [rem polys]
+          (apply normal (compute-normal (first rem)))
+          (doseq [v (first rem)]
+            (apply vertex v))))))
 
-(defn define-display-list
-  "Penumbra suffers from slowdowns if you do per-vertex shapes on the fly. Compute a display list beforehand and save some CPU."
-  [poly-type polys]
-  (cond
-    (= :quads poly-type) (define-quads-display-list polys)
-    (= :triangles poly-type) (define-triangles-display-list polys)))    
+#_(defn define-display-list
+   "Penumbra suffers from slowdowns if you do per-vertex shapes on the fly. Compute a display list beforehand and save some CPU."
+   [poly-type polys]
+   (cond
+     (= :quads poly-type) (define-quads-display-list polys)
+     (= :triangles poly-type) (define-triangles-display-list polys)))    
 
 #_(defn resize-shape
   "Change the dimension of an object's shape."
@@ -84,16 +84,16 @@ Copyright 2012, 2013 Kyle Harrington"
   (.resize (.getShape obj) new-dim)
   obj)
 
-(defn textured-quad []
-  (push-matrix
-    (material :front-and-back)
-    (translate -0.5 -0.5 0.5)
-    (normal 0 0 -1)
-    (draw-quads
-      (texture 1 1) (vertex 1 1 0)
-      (texture 0 1) (vertex 0 1 0)
-      (texture 0 0) (vertex 0 0 0)
-      (texture 1 0) (vertex 1 0 0))))
+#_(defn textured-quad []
+   (push-matrix
+     (material :front-and-back)
+     (translate -0.5 -0.5 0.5)
+     (normal 0 0 -1)
+     (draw-quads
+       (texture 1 1) (vertex 1 1 0)
+       (texture 0 1) (vertex 0 1 0)
+       (texture 0 0) (vertex 0 0 0)
+       (texture 1 0) (vertex 1 0 0))))
 
 (defn xor [a b] (or (and a (not b)) (and (not a) b)))
 

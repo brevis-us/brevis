@@ -22,10 +22,10 @@ Copyright 2012, 2013 Kyle Harrington"
   (:import java.lang.Math)
   (:import (brevis Engine BrPhysics BrObject))  
   (:use ;[cantor]
-        [penumbra.opengl]
+        ;[penumbra.opengl]
         [brevis.shape core box]
         [brevis.physics core])
-  (:require [cantor.range]))
+  #_(:require [cantor.range]))
 
 #_(defn add-collision-handler
   "Store the collision handler for typea colliding with typeb."

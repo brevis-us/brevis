@@ -17,8 +17,8 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.shape.sphere
   (:import [brevis BrShape])
-  (:use [penumbra opengl compute]
-        [penumbra.opengl core]
+  (:use ;[penumbra opengl compute]
+        ;[penumbra.opengl core]
         [brevis.shape.core]
         [brevis.graphics multithread]
         [brevis vector])) 

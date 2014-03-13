@@ -20,18 +20,18 @@ Copyright 2012, 2013 Kyle Harrington"
            [java.nio ByteBuffer ByteOrder]
            [org.lwjgl.opengl GL11]
            [brevis.graphics Basic3D BrSky])
-  (:use [penumbra opengl compute]
-        [penumbra.opengl core]
+  (:use ;[penumbra opengl compute]
+        ;[penumbra.opengl core]
         ;[cantor]
         [brevis globals]
         [brevis.physics utils]
         [brevis.shape core box sphere cone])
-  (:require [penumbra.app :as app]
-            [penumbra.text :as text]
-            [penumbra.data :as data]
+  (:require ;[penumbra.app :as app]
+            ;[penumbra.text :as text]
+            ;[penumbra.data :as data]
             ;[cantor.range]
             [clojure.java.io]
-            [penumbra.opengl.frame-buffer :as fb])) 
+            #_[penumbra.opengl.frame-buffer :as fb])) 
 
 (defn init-sky
  []

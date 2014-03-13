@@ -1,4 +1,4 @@
-(defproject brevis "0.7.8"
+(defproject brevis "0.7.9"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "https://github.com/kephale/brevis"
   :license {:name "Eclipse Public License"
@@ -24,7 +24,7 @@
                  [org.ode4j/demo "0.2.7"]
                  
                  ;; Graphics packages
-                 [kephale/penumbra "0.6.7"]
+                 ;[kephale/penumbra "0.6.7"]
                  [kephale/slick-util "1.0.1"]
                  [org.l33tlabs.twl/pngdecoder "1.0"]
                  [com.nitayjoffe.thirdparty.net.robowiki.knn/knn-benchmark "0.1"]                 

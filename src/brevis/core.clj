@@ -16,18 +16,18 @@
 Copyright 2012, 2013 Kyle Harrington"     
 
 (ns brevis.core
-  (:use [penumbra opengl compute]
-        [penumbra.opengl core]
+  (:use ;[penumbra opengl compute]
+        ;[penumbra.opengl core]
         [brevis globals utils input osd display vector]
         [brevis.graphics basic-3D multithread]
         [brevis.physics core space utils]
         [brevis.shape core box sphere cone])       
-  (:require [penumbra.app :as app]            
+  (:require ;[penumbra.app :as app]            
             [clojure.math.numeric-tower :as math]
-            [penumbra.text :as text]
-            [penumbra.data :as data]
-            [penumbra.opengl.frame-buffer :as fb]
-            [penumbra.opengl.effects :as glfx])
+            ;[penumbra.text :as text]
+            ;[penumbra.data :as data]
+            ;[penumbra.opengl.frame-buffer :as fb]
+            #_[penumbra.opengl.effects :as glfx])
   (:import (brevis.graphics Basic3D) 
            (brevis BrInput)
            (java.awt AWTException Robot Rectangle Toolkit)

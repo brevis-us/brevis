@@ -17,7 +17,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.input
   (:import (brevis BrInput))
-  (:require [penumbra.app :as app])
+  #_(:require [penumbra.app :as app])
   (:use [brevis globals display utils osd vector]
         [brevis.physics utils]))
 

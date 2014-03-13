@@ -20,7 +20,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (:import (org.ode4j.math DVector3))
   (:import java.lang.Math)  
   (:import (brevis Engine BrPhysics BrObject))
-  (:use [penumbra.opengl]        
+  (:use ;[penumbra.opengl]        
         [brevis vector math]
         [brevis.shape core box]        
         [brevis.graphics multithread]
