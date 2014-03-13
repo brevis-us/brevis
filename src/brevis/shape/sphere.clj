@@ -29,7 +29,7 @@ Copyright 2012, 2013 Kyle Harrington"
      (create-sphere 1))
   ([radius]
     (begin-with-graphics-thread)
-    (let [sphere (BrShape/createSphere radius)]
-      (.setDimension sphere (vec3 radius radius radius))
+    (let [sphere (BrShape/createSphere radius (:gui @brevis.globals/*gui-state*))]
+      (.setDimension sphere (vec3 radius radius radius) (:gui @brevis.globals/*gui-state*))
       (end-with-graphics-thread)
       sphere)))

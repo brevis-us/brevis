@@ -25,6 +25,6 @@ Copyright 2012, 2013 Kyle Harrington"
   "Create a mesh object."
   [filename is-resource?]
   #_(println "create-mesh" filename)
-  (BrShape/createMeshFromFile filename is-resource?)
+  (BrShape/createMeshFromFile filename is-resource? (:gui @brevis.globals/*gui-state*))
   #_(BrShape. filename)
   #_(BrShape/loadMesh (BrShape.) filename))

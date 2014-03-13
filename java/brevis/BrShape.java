@@ -91,7 +91,7 @@ public class BrShape {
 		}
 	}
 	
-	BrShape( BrShapeType t, Vector3f d ) {
+	BrShape( BrShapeType t, Vector3f d, boolean withGraphics ) {
 		//type = BrShapeType.SPHERE;
 		//dim = new Vector3d(1,1,1);
 		type = t;
@@ -99,7 +99,7 @@ public class BrShape {
 		
 		if( type == BrShapeType.UNIT_CONE ) {
 			if( unitCone == null ) {
-				initUnitCone();				
+				initUnitCone( withGraphics );				
 			}
 			mesh = unitCone;
 			//dim = new Vector3d( mesh.getXWidth(), mesh.getYHeight(), mesh.getZDepth() );
@@ -107,44 +107,44 @@ public class BrShape {
 			//System.out.println( dim );
 		} else if( type == BrShapeType.UNIT_SPHERE) {
 			if( unitSphere== null ) {
-				initUnitSphere();				
+				initUnitSphere( withGraphics );				
 			}
 			mesh = unitSphere;
 			//dim = new Vector3d( mesh.getXWidth(), mesh.getYHeight(), mesh.getZDepth() );
 			dim = new Vector3f( 1, 1, 1 );
 			//System.out.println( dim );
 		} else {
-			createMesh();
+			createMesh( withGraphics );
 			if( mesh != null ) {
-				mesh.rescaleMesh( (float)dim.x, (float)dim.y, (float)dim.z );
+				mesh.rescaleMesh( (float)dim.x, (float)dim.y, (float)dim.z, withGraphics );
 			}
 		}
 				
 		computeCenter();
 	}
 	
-	BrShape( String filename, boolean isResource ) {
+	BrShape( String filename, boolean isResource, boolean withGraphics ) {
 		type = BrShapeType.MESH;
-		loadMesh( filename, isResource );
+		loadMesh( filename, isResource, withGraphics );
 	}
 	
-	public void initUnitCone() {		
+	public void initUnitCone( boolean withGraphics ) {		
 		String filename = objDir + "cone.obj";
 	
 		try {		
 			BufferedReader br = new BufferedReader( new InputStreamReader( ClassLoader.getSystemResource( filename ).openStream() ) );
-			unitCone = new BrMesh( br, true );
+			unitCone = new BrMesh( br, true, withGraphics );
 		} catch( Exception e ) {
 			e.printStackTrace();
 		}	
 	}
 	
-	public void initUnitSphere() {		
+	public void initUnitSphere( boolean withGraphics ) {		
 		String filename = objDir + "sphere.obj";
 	
 		try {		
 			BufferedReader br = new BufferedReader( new InputStreamReader( ClassLoader.getSystemResource( filename ).openStream() ) );
-			unitSphere = new BrMesh( br, true );
+			unitSphere = new BrMesh( br, true, withGraphics );
 		} catch( Exception e ) {
 			e.printStackTrace();
 		}	
@@ -280,7 +280,7 @@ public class BrShape {
 	}*/
 	
 	
-	public void createMesh() {		
+	public void createMesh( boolean withGraphics ) {		
 		String filename  = "";
 		if( type == BrShapeType.BOX ) {
 			//initBox( dim );
@@ -304,10 +304,10 @@ public class BrShape {
 		filename = objDir + filename;
 		
 		//System.out.println( "createMesh " + filename + " " + type );
-		loadMesh( filename, true );
+		loadMesh( filename, true, withGraphics );
 	}
 	
-	public void loadMesh( String filename, boolean isResource ) {
+	public void loadMesh( String filename, boolean isResource, boolean withGraphics ) {
 		try {
 			//System.out.println( "Loading object: " + filename );			
 			
@@ -315,11 +315,11 @@ public class BrShape {
 			//FileReader fr = new FileReader(filename);		
 				BufferedReader br = new BufferedReader( new InputStreamReader( ClassLoader.getSystemResource( filename ).openStream() ) );
 				//mesh = new BrMesh( br, false );
-				mesh = new BrMesh( br, true );
+				mesh = new BrMesh( br, true, withGraphics );
 			} else {				
 				BufferedReader br = new BufferedReader( new FileReader( filename ) );
 				//mesh = new BrMesh( br, false );
-				mesh = new BrMesh( br, true );
+				mesh = new BrMesh( br, true, withGraphics );
 			}
 						
 			// this is actually size
@@ -360,10 +360,10 @@ public class BrShape {
 		}		
 	}
 	
-	public void setDimension( Vector3f newd ) {
+	public void setDimension( Vector3f newd, boolean withGraphics ) {
 		dim = newd;
 		if( mesh != null ) {
-			mesh.rescaleMesh( (float)newd.x, (float)newd.y, (float)newd.z );
+			mesh.rescaleMesh( (float)newd.x, (float)newd.y, (float)newd.z, withGraphics );
 			//System.out.println( "rescaling " + newd );
 		}
 	}
@@ -372,32 +372,32 @@ public class BrShape {
 		return dim;
 	}
 	
-	public static BrShape createMeshFromFile( String filename, boolean isResource ) {
+	public static BrShape createMeshFromFile( String filename, boolean isResource, boolean withGraphics ) {
 		//System.out.println( filename );
-		return ( new BrShape( filename, isResource ) );
+		return ( new BrShape( filename, isResource, withGraphics ) );
 	}
 	
-	public static BrShape createSphere( double r ) {
-		return ( new BrShape( BrShapeType.SPHERE, new Vector3f( (float)r, (float)r, (float)r ) ) );
+	public static BrShape createSphere( double r, boolean withGraphics ) {
+		return ( new BrShape( BrShapeType.SPHERE, new Vector3f( (float)r, (float)r, (float)r ), withGraphics ) );
 		//return ( new BrShape( BrShapeType.UNIT_SPHERE, new Vector3d( r, r, r )));	
 	}
 	
-	public static BrShape createIcosahedron( double r ) {
-		return ( new BrShape( BrShapeType.ICOSAHEDRON, new Vector3f( (float)r, (float)r, (float)r ) ) );
+	public static BrShape createIcosahedron( double r, boolean withGraphics ) {
+		return ( new BrShape( BrShapeType.ICOSAHEDRON, new Vector3f( (float)r, (float)r, (float)r ), withGraphics ) );
 		//return ( new BrShape( BrShapeType.UNIT_SPHERE, new Vector3d( r, r, r )));	
 	}
 	
-	public static BrShape createBox( double x, double y, double z ) {
-		return ( new BrShape( BrShapeType.BOX, new Vector3f( (float)x, (float)y, (float)z ) ) );
+	public static BrShape createBox( double x, double y, double z, boolean withGraphics ) {
+		return ( new BrShape( BrShapeType.BOX, new Vector3f( (float)x, (float)y, (float)z ), withGraphics ) );
 	}
 	
-	public static BrShape createCone( double length, double base ) {
+	public static BrShape createCone( double length, double base, boolean withGraphics ) {
 		//return ( new BrShape( BrShapeType.CONE, new Vector3d( length, base, 25 )));	// last element of vector is # of sides or stacks (depending on renderer)
 		//return ( new BrShape( BrShapeType.UNIT_CONE, new Vector3f( (float)length, (float)base, (float)25 )));	// last element of vector is # of sides or stacks (depending on renderer)
-		return ( new BrShape( BrShapeType.CONE, new Vector3f( (float)length, (float)base, (float)25 )));	// last element of vector is # of sides or stacks (depending on renderer)
+		return ( new BrShape( BrShapeType.CONE, new Vector3f( (float)length, (float)base, (float)25 ), withGraphics ));	// last element of vector is # of sides or stacks (depending on renderer)
 	}
 	
-	public static BrShape createCylinder( double length, double radius ) {
-		return ( new BrShape( BrShapeType.CYLINDER, new Vector3f( (float)length, (float)radius, (float)25 )));	// last element of vector is # of sides or stacks (depending on renderer)
+	public static BrShape createCylinder( double length, double radius, boolean withGraphics ) {
+		return ( new BrShape( BrShapeType.CYLINDER, new Vector3f( (float)length, (float)radius, (float)25 ), withGraphics ));	// last element of vector is # of sides or stacks (depending on renderer)
 	}
 }

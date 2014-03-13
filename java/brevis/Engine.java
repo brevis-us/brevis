@@ -524,7 +524,13 @@ public class Engine {
 	/* updateWorld
 	 * 	Run all of the enabled update subroutines including object updates, collisions, etc.
 	 */
-	public void updateWorld( double dt ) {		
+	//public void updateWorld( double dt ) {		
+	public void updateWorld() {		
+		
+		// Clear up old collisions
+		if( collisionsEnabled ) {
+			physics.clearContactGroup();
+		}
 		
 		if( physicsEnabled ) {
 			updatePhysics( dt );

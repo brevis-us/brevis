@@ -56,6 +56,11 @@ Copyright 2012, 2013 Kyle Harrington"
   [obj]
   (.getUID obj))
 
+(defn get-mass 
+  "Return the mass object for an object."
+  [obj]
+  (.getMass obj))
+
 (defn add-object
   "Add an object to the current world."
   [obj]
@@ -304,7 +309,8 @@ axis is the axis about which the joint rotates"
   "set the texture of an object."
   [obj new-tex]  
   (begin-with-graphics-thread)
-  (.setTexture obj new-tex) 
+  (when (:gui @brevis.globals/*gui-state*);; for now textures shouldn't matter without graphics, they may eventually though  
+    (.setTexture obj new-tex) )
   (end-with-graphics-thread)
   obj)  
 

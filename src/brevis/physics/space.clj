@@ -247,7 +247,8 @@ are removed from the simulation. (deprecated)"
       (reset! *java-engine*
               (Engine.)))
     (when @*java-engine*
-      (.updateWorld @*java-engine* (double dt)))
+      (.updateWorld @*java-engine*)
+      #_(.updateWorld @*java-engine* (double dt)))
     state))
 
 (defn java-init-world

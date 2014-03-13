@@ -29,8 +29,8 @@ Copyright 2012, 2013 Kyle Harrington"
      (create-box 1 1 1))
   ([width height depth]
     (begin-with-graphics-thread)
-    (let [box (BrShape/createBox width height depth)]
-      (.setDimension box (vec3 width height depth))
+    (let [box (BrShape/createBox width height depth (:gui @brevis.globals/*gui-state*))]
+      (.setDimension box (vec3 width height depth) (:gui @brevis.globals/*gui-state*))
       ;(println "create-box" (.getDimension box))
       (end-with-graphics-thread)
       box)))

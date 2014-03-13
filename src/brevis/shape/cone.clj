@@ -29,7 +29,7 @@ Copyright 2012, 2013 Kyle Harrington"
      (create-cone 1 1))
   ([length base]
     (begin-with-graphics-thread)
-    (let [result (BrShape/createCone length base)]
+    (let [result (BrShape/createCone length base (:gui @brevis.globals/*gui-state*))]
       (end-with-graphics-thread)
       result)))
       

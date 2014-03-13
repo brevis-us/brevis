@@ -27,7 +27,7 @@ Copyright 2012, 2013 Kyle Harrington"
   ([]
      (create-cylinder 1 1))
   ([length radius]
-    (BrShape/createCylinder length radius)))
+    (BrShape/createCylinder length radius (:gui @brevis.globals/*gui-state*))))
 
 #_(defn gen-cone-faces
   [length lod]
