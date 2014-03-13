@@ -29,7 +29,7 @@ Copyright 2012, 2013 Kyle Harrington"
             ;[penumbra.opengl.frame-buffer :as fb]
             #_[penumbra.opengl.effects :as glfx])
   (:import (brevis.graphics Basic3D) 
-           (brevis BrInput)
+           (brevis BrInput SystemUtils Natives)
            (java.awt AWTException Robot Rectangle Toolkit)
            (java.awt.geom AffineTransform)
            (java.awt.image AffineTransformOp BufferedImage)
@@ -42,6 +42,8 @@ Copyright 2012, 2013 Kyle Harrington"
            (org.lwjgl.input Keyboard Mouse)
            (org.lwjgl.opengl Display GL11 DisplayMode GLContext)
            (org.lwjgl BufferUtils LWJGLException Sys)))
+
+(Natives/extractNativeLibs (SystemUtils/getPlatform) "LWGL")
 
 ;; ## Todo:
 ;;
