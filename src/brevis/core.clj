@@ -18,6 +18,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (ns brevis.core
   (:use ;[penumbra opengl compute]
         ;[penumbra.opengl core]
+        [brevis.init]; ew.....
         [brevis globals utils input osd display vector]
         [brevis.graphics basic-3D multithread]
         [brevis.physics core space utils]
@@ -43,7 +44,7 @@ Copyright 2012, 2013 Kyle Harrington"
            (org.lwjgl.opengl Display GL11 DisplayMode GLContext)
            (org.lwjgl BufferUtils LWJGLException Sys)))
 
-(Natives/extractNativeLibs (SystemUtils/getPlatform) "LWGL")
+
 
 ;; ## Todo:
 ;;
