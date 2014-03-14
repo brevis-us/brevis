@@ -39,10 +39,11 @@ Copyright 2012, 2013 Kyle Harrington"
            (java.util.concurrent.locks ReentrantLock)
            (java.util.concurrent TimeUnit)
            (javax.imageio ImageIO)
-           (org.lwjgl.opengl SharedDrawable)
-           (org.lwjgl.input Keyboard Mouse)
-           (org.lwjgl.opengl Display GL11 DisplayMode GLContext)
-           (org.lwjgl BufferUtils LWJGLException Sys)))
+;           (org.lwjgl.opengl SharedDrawable)
+;           (org.lwjgl.input Keyboard Mouse)
+;           (org.lwjgl.opengl Display GL11 DisplayMode GLContext)
+;           (org.lwjgl BufferUtils LWJGLException Sys)
+           ))
 
 
 
@@ -179,118 +180,126 @@ Copyright 2012, 2013 Kyle Harrington"
     (if (> (camera-score next-state) (camera-score state))
       next-state state)))                            
   
-(defn enable-video-recording
-  "Turn on video recording."
-  [video-name]
-  (def video-counter (atom 0))
-  (swap! *gui-state* 
-         assoc :record-video true
-               :video-name video-name))
+#_(defn enable-video-recording
+   "Turn on video recording."
+   [video-name]
+   (def video-counter (atom 0))
+   (swap! *gui-state* 
+          assoc :record-video true
+                :video-name video-name))
 
-(defn disable-video-recording
-  "Turn off video recording."
-  []
-  (swap! *gui-state* dissoc :record-video))
+#_(defn disable-video-recording
+   "Turn off video recording."
+   []
+   (swap! *gui-state* dissoc :record-video))
 
 (defn init-view
-  "Initialize the gui-state global to the default."
-  []
-  (reset! *gui-state* default-gui-state))
+ "Initialize the gui-state global to the default."
+ []
+ (reset! *gui-state* default-gui-state))
 
-(defn drawable?
-  "Is an object drawable?"
-  [obj]
-  (.isDrawable obj))
+#_(defn drawable?
+   "Is an object drawable?"
+   [obj]
+   (.isDrawable obj))
 
 ;; ## Start a brevis instance
 
-(defn display
-  "Render all objects."
-  []  
-  (begin-with-graphics-thread)
-  (when (Display/wasResized) (.setDimensions (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
-  (let [objs (all-objects)]    
-    (Basic3D/initFrame (:camera @*gui-state*))
-    (draw-sky)
-    #_(update-display-text)
-    #_(gl-matrix-mode :modelview)
-    #_(gl-load-identity-matrix)
-    #_(use-camera (:camera @*gui-state*))
-    (doseq [obj objs]
-      (when (drawable? obj) ;; add a check to see if the object is in view
-       (draw-shape obj)))    
-    (Display/update)        
-    (Display/sync 100)
-    (end-with-graphics-thread)
-    ))
+#_(defn display
+   "Render all objects."
+   []  
+   (begin-with-graphics-thread)
+   (when (Display/wasResized) (.setDimensions (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
+   (let [objs (all-objects)]    
+     (Basic3D/initFrame (:camera @*gui-state*))
+     (draw-sky)
+     #_(update-display-text)
+     #_(gl-matrix-mode :modelview)
+     #_(gl-load-identity-matrix)
+     #_(use-camera (:camera @*gui-state*))
+     (doseq [obj objs]
+       (when (drawable? obj) ;; add a check to see if the object is in view
+        (draw-shape obj)))    
+     (Display/update)        
+     (Display/sync 100)
+     (end-with-graphics-thread)
+     ))
 
-(defn simulate
-  "Simulation loop."
-  [initialize update & input-handlers]
-  (Display/setLocation (/ (- (.getWidth (Display/getDisplayMode)) (.width (:camera @*gui-state*))) 2)
-                       (/ (- (.getHeight (Display/getDisplayMode)) (.height (:camera @*gui-state*))) 2))
-  (try 
-    (Display/setDisplayMode (DisplayMode. (.width (:camera @*gui-state*)) (.height (:camera @*gui-state*))))
-    (Display/setTitle "Brevis")
-    (Display/setVSyncEnabled true)
-    (Display/setResizable true)
-    (Display/create)
-    (catch LWJGLException e
-        (.printStackTrace e)))
-  ;; For multithreaded graphics
-  (swap! *graphics* assoc
-         :drawable (SharedDrawable. (Display/getDrawable))
-         :lock (ReentrantLock.))
-  (Basic3D/initGL)     
-  (init-sky)
-  (when *sky*
-    (println "Sky loaded."))
-  (initialize)
-  (try 
-    (reset! *gui-state* (assoc @*gui-state* :input (BrInput.)))
-    (catch LWJGLException e
-      (.printStackTrace e)))
-  (if (empty? input-handlers);; hack for custom input handlers
-    (default-input-handlers)
-    ((first input-handlers)))
-  (let [startTime (ref (java.lang.System/nanoTime))
-        fps (ref 0)
-        display? true]
-    (loop [step 0]             
-      (if (:close-requested @*gui-state*)
-        (println "Closing application.")
-        (do
-          (.pollInput (:input @*gui-state*) @*java-engine*)
-          ;(update [1 1] {})
-          (update [(* step (get-dt)) (get-dt)] {})
-          (dosync (ref-set fps (inc @fps)))
-          (when (> (java.lang.System/nanoTime) @startTime)
-            #_(println "Update" step "FPS:" (double (/ @fps (/ (- (+ 1000000000 (java.lang.System/nanoTime)) @startTime) 1000000000))))
-            (dosync 
-              (ref-set startTime (+ (java.lang.System/nanoTime) 1000000000))
-              (ref-set fps 0)))
-          (when display?            
-            #_(when (Display/wasResized) (.setDimensions (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
-            #_(println "fullscreen" (:fullscreen @*gui-state*) (not (Display/isFullscreen)))
-            #_(when (and (:fullscreen @*gui-state*) (not (Display/isFullscreen))) (println "going fullscreen") (Display/setFullscreen true))
-            #_(when (and (not (:fullscreen @*gui-state*)) (Display/isFullscreen)) (println "disable fullscreen") (Display/setFullscreen false))
-            (display)
-              )
-          (recur (inc step))))))
-  (Keyboard/destroy)
-  (Mouse/destroy)
-  (Display/destroy)
-  ;; Should call system/exit if not using UI
-  #_(System/exit 0)
-  )
+#_(defn simulate
+   "Simulation loop."
+   [initialize update & input-handlers]
+   (Display/setLocation (/ (- (.getWidth (Display/getDisplayMode)) (.width (:camera @*gui-state*))) 2)
+                        (/ (- (.getHeight (Display/getDisplayMode)) (.height (:camera @*gui-state*))) 2))
+   (try 
+     (Display/setDisplayMode (DisplayMode. (.width (:camera @*gui-state*)) (.height (:camera @*gui-state*))))
+     (Display/setTitle "Brevis")
+     (Display/setVSyncEnabled true)
+     (Display/setResizable true)
+     (Display/create)
+     (catch LWJGLException e
+         (.printStackTrace e)))
+   ;; For multithreaded graphics
+   (swap! *graphics* assoc
+          :drawable (SharedDrawable. (Display/getDrawable))
+          :lock (ReentrantLock.))
+   (Basic3D/initGL)     
+   (init-sky)
+   (when *sky*
+     (println "Sky loaded."))
+   (initialize)
+   (try 
+     (reset! *gui-state* (assoc @*gui-state* :input (BrInput.)))
+     (catch LWJGLException e
+       (.printStackTrace e)))
+   (if (empty? input-handlers);; hack for custom input handlers
+     (default-input-handlers)
+     ((first input-handlers)))
+   (let [startTime (ref (java.lang.System/nanoTime))
+         fps (ref 0)
+         display? true]
+     (loop [step 0]             
+       (if (:close-requested @*gui-state*)
+         (println "Closing application.")
+         (do
+           (.pollInput (:input @*gui-state*) @*java-engine*)
+           ;(update [1 1] {})
+           (update [(* step (get-dt)) (get-dt)] {})
+           (dosync (ref-set fps (inc @fps)))
+           (when (> (java.lang.System/nanoTime) @startTime)
+             #_(println "Update" step "FPS:" (double (/ @fps (/ (- (+ 1000000000 (java.lang.System/nanoTime)) @startTime) 1000000000))))
+             (dosync 
+               (ref-set startTime (+ (java.lang.System/nanoTime) 1000000000))
+               (ref-set fps 0)))
+           (when display?            
+             #_(when (Display/wasResized) (.setDimensions (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
+             #_(println "fullscreen" (:fullscreen @*gui-state*) (not (Display/isFullscreen)))
+             #_(when (and (:fullscreen @*gui-state*) (not (Display/isFullscreen))) (println "going fullscreen") (Display/setFullscreen true))
+             #_(when (and (not (:fullscreen @*gui-state*)) (Display/isFullscreen)) (println "disable fullscreen") (Display/setFullscreen false))
+             (display)
+               )
+           (recur (inc step))))))
+   (Keyboard/destroy)
+   (Mouse/destroy)
+   (Display/destroy)
+   ;; Should call system/exit if not using UI
+   #_(System/exit 0)
+   )
 
+(def simulate nil)
 (defn start-gui 
   "Start the simulation with a GUI."
   ([initialize]
     (start-gui initialize java-update-world))    
   ([initialize update & input-handlers]
     (reset! *gui-message-board* (sorted-map))
-    (when (.contains (System/getProperty "os.name") "indows")
+    ;; Load graphics dependencies now
+    #_(import (org.lwjgl.opengl SharedDrawable)
+             (org.lwjgl.input Keyboard Mouse)
+             (org.lwjgl.opengl Display GL11 DisplayMode GLContext)
+             (org.lwjgl BufferUtils LWJGLException Sys))    
+    (use 'brevis.graphics.core)
+    ;;
+    (when (.contains (System/getProperty "os.name") "indows");; this was from the Penumbra days, can probably be removed
       (reset! enable-display-text false))
 	  (reset! *app-thread*
            (if-not (empty? input-handlers)

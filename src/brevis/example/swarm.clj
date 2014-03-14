@@ -148,8 +148,10 @@ so we only modify bird1."
 (defn initialize-simulation
   "This is the function where you add everything to the world."
   []  
+  ;(swap! brevis.globals/*gui-state* assoc :gui false)
   (init-world)
-  (init-view)
+  (init-view)  
+  ;(swap! brevis.globals/*gui-state* assoc :gui false)
   (.moveFromLook (:camera @brevis.globals/*gui-state*) 0 100 0)
   (set-dt 0.1)
   (set-neighborhood-radius 500)
@@ -160,6 +162,7 @@ so we only modify bird1."
 
 ;; Start zee macheen
 (defn -main [& args]
+  #_(start-nogui initialize-simulation)
   (if-not (empty? args)
     (start-nogui initialize-simulation)
     (start-gui initialize-simulation)))

@@ -26,8 +26,8 @@ Copyright 2012, 2013 Kyle Harrington"
            (java.io File IOException)
            (javax.imageio ImageIO)
            (brevis.graphics Basic3D)
-           (org.lwjgl.opengl Display GL11)
-           (org.lwjgl BufferUtils)))
+           #_(org.lwjgl.opengl Display GL11)
+           #_(org.lwjgl BufferUtils)))
 
 #_(defn screenshot
   "Take a screenshot."

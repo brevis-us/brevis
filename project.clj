@@ -1,4 +1,4 @@
-(defproject brevis "0.7.12"
+(defproject brevis "0.7.13"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "https://github.com/kephale/brevis"
   :license {:name "Eclipse Public License"
@@ -27,6 +27,8 @@
                  ;[kephale/penumbra "0.6.7"]
                  [kephale/lwjgl "2.9.0"]
                  [kephale/lwjgl-natives "2.9.0"]
+                 ;[org.lwjgl.lwjgl/lwjgl-platform "2.9.1" :classifier "natives-osx" :native-prefix ""]
+                 ;[org.lwjgl.lwjgl/lwjgl "2.9.1"]
                  [kephale/slick-util "1.0.1"]
                  [org.l33tlabs.twl/pngdecoder "1.0"]
                  [com.nitayjoffe.thirdparty.net.robowiki.knn/knn-benchmark "0.1"]                 
