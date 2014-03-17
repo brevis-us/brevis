@@ -17,7 +17,7 @@
                                                                                                                                                                                      
 Copyright 2012, 2013 Kyle Harrington"     
 
-(ns brevis.core
+(ns brevis.core;graphics.core;; was just brevis.core
   (:use ;[penumbra opengl compute]
         ;[penumbra.opengl core]
         [brevis.init]; ew.....
@@ -71,6 +71,17 @@ Copyright 2012, 2013 Kyle Harrington"
   (.isDrawable obj))
 
 ;; ## Start a brevis instance
+
+(defn draw-sky
+  "Draw a skybox"
+  []
+  (when *sky*
+    #_(println "drawing sky")
+    (.draw *sky* 
+      (.x (:camera @*gui-state*))
+      (.y (:camera @*gui-state*))
+      (.z (:camera @*gui-state*)))
+    #_(.draw *sky*)))
 
 (defn display
   "Render all objects."

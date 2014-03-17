@@ -114,17 +114,6 @@ Copyright 2012, 2013 Kyle Harrington"
                  :window-height h))
   state)
 
-(defn draw-sky
-  "Draw a skybox"
-  []
-  (when *sky*
-    #_(println "drawing sky")
-    (.draw *sky* 
-      (.x (:camera @*gui-state*))
-      (.y (:camera @*gui-state*))
-      (.z (:camera @*gui-state*)))
-    #_(.draw *sky*)))
-
 #_(defn draw-sky
   "Draw a skybox"
   []
@@ -285,7 +274,9 @@ Copyright 2012, 2013 Kyle Harrington"
    #_(System/exit 0)
    )
 
-(def simulate nil)
+;(in-ns 'brevis.graphics.core)
+(declare simulate)
+;(in-ns 'brevis.core)
 (defn start-gui 
   "Start the simulation with a GUI."
   ([initialize]
@@ -335,7 +326,8 @@ Copyright 2012, 2013 Kyle Harrington"
           (println "Walltime" (java.lang.System/nanoTime) 
                    "Simulation time" t
                    "FPS" fps)))
-      (if (:terminated? state)
+      (if (or (:terminated? state)
+              (:close-requested @*gui-state*));; shouldnt be using gui state for this
         state
         (recur ((:update state) [t (get-dt)] state)
                (+ t (get-dt))
