@@ -210,6 +210,11 @@ axis is the axis about which the joint rotates"
   (let [dim (:dim (:shape obj))]
     (obj-to-geom (assoc-in obj [:shape :dim] (+ dim (* 2 (vec3 @*neighborhood-radius* @*neighborhood-radius* @*neighborhood-radius*)))))))
 
+(defn get-geom
+  "Return an object's geometry structure."
+  [obj]
+  (.getGeom obj))
+
 (defn get-dt
   []
   @*dt*)
