@@ -17,8 +17,8 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.shape.box
   (:import [brevis BrShape])
-  (:use [penumbra opengl compute]
-        [penumbra.opengl core]
+  (:use ;[penumbra opengl compute]
+        ;[penumbra.opengl core]
         [brevis vector]
         [brevis.graphics multithread]
         [brevis.shape.core]))
@@ -35,23 +35,23 @@ Copyright 2012, 2013 Kyle Harrington"
       (end-with-graphics-thread)
       box)))
 
-(defn draw-textured-cube
-  "This function is depricated, use the Java Basic3D class."
-  []
-  (dotimes [_ 4]
-    (rotate 90 0 1 0)
-    (textured-quad))
-  (rotate 90 1 0 0)
-  (textured-quad)
-  (rotate 180 1 0 0)
-  (textured-quad))
+#_(defn draw-textured-cube
+   "This function is depricated, use the Java Basic3D class."
+   []
+   (dotimes [_ 4]
+     (rotate 90 0 1 0)
+     (textured-quad))
+   (rotate 90 1 0 0)
+   (textured-quad)
+   (rotate 180 1 0 0)
+   (textured-quad))
 
-(defn init-box-graphic
-  []
-  (def box-mesh 
-    (create-display-list 
-      (draw-textured-cube))))
+#_(defn init-box-graphic
+   []
+   (def box-mesh 
+     (create-display-list 
+       (draw-textured-cube))))
 
-(defn draw-box
-  []
-  (box-mesh))
+#_(defn draw-box
+   []
+   (box-mesh))

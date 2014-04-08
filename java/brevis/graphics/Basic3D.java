@@ -26,7 +26,9 @@ import java.nio.FloatBuffer;
 import javax.imageio.ImageIO;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.util.glu.Cylinder;
@@ -658,10 +660,16 @@ public class Basic3D {
                 
 	}   
     
-    public static void screenshot( String filename ) {
+    public static void screenshot( String filename ) throws LWJGLException {
 	    GL11.glReadBuffer(GL11.GL_FRONT);	
-	    int width = Display.getDisplayMode().getWidth();
-	    int height= Display.getDisplayMode().getHeight();
+	    /*if( Display.wasResized() ) {
+	    	//GL11.glViewport(0, 0, Display.getWidth(), Display.getHeight());
+	    	Display.setDisplayMode(new DisplayMode(Display.getWidth(),Display.getHeight()));
+	    }*/
+	    //int width = Display.getDisplayMode().getWidth();
+	    int width = Display.getWidth();
+	    //int height= Display.getDisplayMode().getHeight();
+	    int height = Display.getHeight();
 	    int bpp = 4; // Assuming a 32-bit display with a byte each for red, green, blue, and alpha.
 	    ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * bpp);
 	    GL11.glReadPixels(0, 0, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer );

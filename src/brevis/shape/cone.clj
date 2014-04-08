@@ -17,8 +17,8 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.shape.cone
   (:import [brevis BrShape])
-  (:use [penumbra opengl compute]
-        [penumbra.opengl core]
+  (:use ;[penumbra opengl compute]
+        ;[penumbra.opengl core]
         [brevis vector]
         [brevis.graphics multithread]
         [brevis.shape.core])) 
