@@ -37,6 +37,15 @@ Copyright 2012-2014 Kyle Harrington"
     (let [xycoll (XYSeriesCollection. xyseries)]
       xycoll)))
 
+(defn make-xy-plot
+  "Just make me a friggin XY plot!"
+  [data]
+  (let [plotter (brevis.plot.Plotter. "my title" (make-xy-dataset data))]
+    (.pack plotter)
+    (RefineryUtilities/centerFrameOnScreen plotter)
+    (.setVisible plotter true)
+    plotter))
+
 (defn example-plotter
   "Do an example plot."
   []
