@@ -16,24 +16,24 @@
 Copyright 2012, 2013 Kyle Harrington"     
 
 (ns brevis.utils
+  (:require [me.raynes.conch :refer [programs with-programs let-programs]])
   (:use [brevis globals]
-        [brevis.physics core]))
+        [brevis.physics core utils]))
 
-#_(defn reset-core
-  "Reset the core variables."
-  []
-  #_(reset! *collision-handlers* {})
-  (reset! *gui-message-board* (sorted-map))
-  (reset! *collisions* {})
-  #_(reset! *update-handlers* {})
-  (reset! *physics* nil)
-  (reset! *objects* {}))
+(programs mkdir tar)
 
-#_(defn disable-collisions "Disable collision detection." [] (reset! collisions-enabled false))
-#_(defn enable-collisions "Enable collision detection." [] (reset! collisions-enabled true))
-
-#_(defn disable-neighborhoods "Disable neighborhood detection." [] (reset! neighborhoods-enabled false))
-#_(defn enable-neighborhoods "Enable neighborhood detection." [] (reset! neighborhoods-enabled true))
+(defn add-terminate-trigger
+  "Add a termination trigger. If it is a number, then it is a threshold on time, 
+otherwise it should be a function that returns true/false"
+  [trigger]
+  (add-global-update-handler 10000 
+    (fn [] 
+      (when (and (not (nil? trigger))
+                 (or (and (number? trigger)                      
+                          (> (get-time) trigger))
+                     (and (not (number? trigger))
+                          (trigger))))
+        (swap! *gui-state* assoc :close-requested true)))))
 
 (defn get-objects
   "Return all objects in the simulation."
@@ -52,3 +52,13 @@ Copyright 2012, 2013 Kyle Harrington"
       (dorun (map #(send % f) agents))
       (apply await agents)
       (doall (map deref agents)))))
+
+#_(defn save-simulation-state
+   "[EXPERIMENTAL:PROBABLY WONT SAVE WHAT YOU NEED] Save the state of the simulation to filename."
+   [filename]
+   #_(mkdir (str filename "_brevis"))
+   (spit filename
+         (with-out-str
+           (doseq [obj (all-objects)]
+             (println (str obj))))
+         :append true))

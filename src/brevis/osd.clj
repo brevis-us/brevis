@@ -16,7 +16,6 @@
 Copyright 2012, 2013 Kyle Harrington"     
 
 (ns brevis.osd
-  #_(:require [penumbra.text :as text])
   (:import (java.awt Font)
            (org.newdawn.slick TrueTypeFont Color))
   (:use [brevis globals]
@@ -100,34 +99,3 @@ stop-t = -1 means do not automatically erase"
                   :else (rest msgs))
                 x (+ y 30))))))
 
-;; Old penumbra version
-#_(defn update-display-text
-   "Update the onscreen displayed (OSD) text."
-   [[dt t] state]
-   (loop [msgs @*gui-message-board*
-          console-x 5
-          console-y 5]
-     (when-not (empty? msgs)      
-       (let [[uid msg] (first msgs)
-             x (or (:x msg) console-x)
-             y (or (:y msg) console-y)
-             sim-t (get-time)
-             started? (> sim-t (:start-t msg))
-             stopped? (and (> (:stop-t msg) 0) (> sim-t (:stop-t msg)))]
-         (when started?
-           (let [text (cond
-                        (= (:msg-type msg) :penumbra) ((:fn msg) [dt t] state)
-                        (= (:msg-type msg) :penumbra-rotate) ((:fn msg) [dt t] state)
-                        (= (:msg-type msg) :penumbra-translate) ((:fn msg) [dt t] state)
-                        (= (:msg-type msg) :brevis) ((:fn msg))
-                        :else (str "OSD msg type:" (:msg-type msg) "not recognized"))]
-             (text/write-to-screen text x y)))
-         (when stopped?
-           (remove-osd-by-uid uid))
-         (recur (cond
-                  (= (:msg-type msg) :penumbra-rotate) 
-                  (filter #(not= (:msg-type (second %)) :penumbra-rotate) (rest msgs))
-                  (= (:msg-type msg) :penumbra-translate) 
-                  (filter #(not= (:msg-type (second %)) :penumbra-translate) (rest msgs))
-                  :else (rest msgs))
-                x (+ y 30))))))

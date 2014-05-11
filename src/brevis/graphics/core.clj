@@ -18,19 +18,12 @@
 Copyright 2012, 2013 Kyle Harrington"     
 
 (ns brevis.core;graphics.core;; was just brevis.core
-  (:use ;[penumbra opengl compute]
-        ;[penumbra.opengl core]
-        [brevis.init]; ew.....
+  (:use [brevis.init]; ew.....
         [brevis globals utils input osd display vector]
         [brevis.graphics basic-3D multithread]
         [brevis.physics core space utils]
         [brevis.shape core box sphere cone])       
-  (:require ;[penumbra.app :as app]            
-            [clojure.math.numeric-tower :as math]
-            ;[penumbra.text :as text]
-            ;[penumbra.data :as data]
-            ;[penumbra.opengl.frame-buffer :as fb]
-            #_[penumbra.opengl.effects :as glfx])
+  (:require [clojure.math.numeric-tower :as math])
   (:import (brevis.graphics Basic3D) 
            (brevis BrInput SystemUtils Natives)
            (java.awt AWTException Robot Rectangle Toolkit)
@@ -59,11 +52,6 @@ Copyright 2012, 2013 Kyle Harrington"
   "Turn off video recording."
   []
   (swap! *gui-state* dissoc :record-video))
-
-#_(defn init-view
-   "Initialize the gui-state global to the default."
-   []
-   (reset! *gui-state* default-gui-state))
 
 (defn drawable?
   "Is an object drawable?"
@@ -136,8 +124,8 @@ Copyright 2012, 2013 Kyle Harrington"
         fps (ref 0)
         display? true]
     (loop [step 0]             
-      (if (:close-requested @*gui-state*)
-        (println "Closing application.")
+      (when-not (:close-requested @*gui-state*)
+        #_(println "Closing application.")
         (do
           (.pollInput (:input @*gui-state*) @*java-engine*)
           ;(update [1 1] {})
@@ -160,5 +148,5 @@ Copyright 2012, 2013 Kyle Harrington"
   (Mouse/destroy)
   (Display/destroy)
   ;; Should call system/exit if not using UI
-  #_(System/exit 0)
+  (System/exit 0)
   )

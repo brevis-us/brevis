@@ -18,10 +18,10 @@ Copyright 2012, 2013 Kyle Harrington"
 (ns brevis.physics.utils
   (:import (org.ode4j.ode OdeHelper DSapSpace OdeConstants DContactBuffer DGeom DFixedJoint DContactJoint))
   (:import (org.ode4j.math DVector3))
+  (:import (org.lwjgl.util.vector Vector3f Vector4f))
   (:import java.lang.Math)  
   (:import (brevis Engine BrPhysics BrObject))
-  (:use ;[penumbra.opengl]        
-        [brevis vector math]
+  (:use [brevis vector math]
         [brevis.shape core box]        
         [brevis.graphics multithread]
         [brevis.physics core]))
@@ -29,47 +29,47 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn get-world
   "Return the current world"
   []
-  (.getWorld @*java-engine*))
+  (.getWorld ^Engine @*java-engine*))
 
 (defn get-space
   "Return the current physical space being simulated"
   []
-  (.getSpace @*java-engine*))
+  (.getSpace ^Engine @*java-engine*))
 
 (defn get-contact-group
   "Return the current joints being used by entities."
   []
-  (.getJoints @*java-engine*))
+  (.getJoints ^Engine @*java-engine*))
 
 (defn get-time
   "Return the current time."
   []
-  (.getTime @*java-engine*))
+  (.getTime ^Engine @*java-engine*))
 
 (defn get-wall-time
   "Return the elapsed wall-clock time."
   []
-  (.getWallTime @*java-engine*))
+  (.getWallTime ^Engine @*java-engine*))
 
 (defn get-uid
   "Return the UID of an object."
-  [obj]
+  [^BrObject obj]
   (.getUID obj))
 
 (defn get-mass 
   "Return the mass object for an object."
-  [obj]
+  [^BrObject obj]
   (.getMass obj))
 
 (defn add-object
   "Add an object to the current world."
-  [obj]
+  [^BrObject obj]
   (.addObject @*java-engine* (get-uid obj) obj) 
   obj)
 
 (defn del-object
   "Add an object to the current world."
-  [obj]
+  [^BrObject obj]
   (.deleteObject @*java-engine* (get-uid obj)))
 
 (defn add-update-handler
@@ -144,18 +144,18 @@ axis is the axis about which the joint rotates"
 
 (defn set-velocity
   "Set the velocity of an object"
-  [obj v]
+  [^BrObject obj ^Vector3f v]
   (.setVelocity obj v)
   obj)
 
 (defn get-position
   "Return the position of an object"
-  [obj]
+  [^BrObject obj]
   (.getPosition obj))
 
 (defn get-velocity
   "Return the velocity of an object"
-  [obj]
+  [^BrObject obj]
   (.getVelocity obj))
 
 (defn all-objects
@@ -170,18 +170,18 @@ axis is the axis about which the joint rotates"
 
 (defn get-acceleration
   "Return the acceleration of an object."
-  [obj]
+  [^BrObject obj]
   (.getAcceleration obj))
 
 (defn set-acceleration
   "Set the acceleration of an object."
-  [obj v]
+  [^BrObject obj ^Vector3f v]
   (.setAcceleration obj v)  
   obj)
 
 (defn get-body
   "Return the physics body of an object."
-  [obj]
+  [^BrObject obj]
   (.getBody obj))
 
 (defn obj-to-mass
@@ -225,24 +225,24 @@ axis is the axis about which the joint rotates"
 
 (defn obj-distance
   "Return the distance between two objects, this is preferable because faster lookups can be standardized."
-  [me other]
+  [^BrObject me ^BrObject other]
   (.distance 
     (.getPosition (get-body me)) 
     (.getPosition (get-body other))))
 
 (defn get-object
   "Return the object by UID"
-  [uid]
-  (.getObject @*java-engine* uid))
+  [^Long uid]
+  (.getObject ^Engine @*java-engine* uid))
 
 (defn set-object
   "Set the object at UID to a new version."
-  [uid new-obj]
-  (.addObject @*java-engine* uid new-obj))
+  [^Long uid ^BrObject new-obj]
+  (.addObject ^Engine @*java-engine* uid new-obj))
 
 (defn get-neighbor-objects
   "Return the objects of a neighborhood."
-  [obj]
+  [^BrObject obj]
   (let [nbrs (.getNeighbors obj)]
     (when nbrs
       (map #(get-object %)
@@ -271,12 +271,12 @@ axis is the axis about which the joint rotates"
 
 (defn get-color
   "Return the color of an object."
-  [obj]
+  [^BrObject obj]
   (.getColor obj))
 
 (defn set-color
   "Return the color of an object."
-  [obj col]
+  [^BrObject obj ^Vector4f col]
   (.setColor obj col)
   obj)
 
@@ -292,22 +292,22 @@ axis is the axis about which the joint rotates"
 
 (defn get-mass
   "Return the mass of an object."
-  [obj]
+  [^BrObject obj]
   (.getMass obj))
 
 (defn get-double-mass
   "Return the mass of an object."
-  [obj]
+  [^BrObject obj]
   (.getDoubleMass obj))
 
 (defn get-texture
   "Return the texture of an object."
-  [obj]
+  [^BrObject obj]
   (.getTexture obj))
 
 (defn get-type
   "Return the type of an object."
-  [obj]
+  [^BrObject obj]
   (.getType obj))
 
 (defn set-texture

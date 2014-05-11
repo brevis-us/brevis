@@ -17,9 +17,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.shape.cylinder
   (:import [brevis BrShape])
-  (:use [penumbra opengl compute]
-        [penumbra.opengl core]
-        [brevis vector]
+  (:use [brevis vector]
         [brevis.shape.core])) 
 
 (defn create-cylinder

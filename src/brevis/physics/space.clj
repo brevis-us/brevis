@@ -21,8 +21,8 @@ Copyright 2012, 2013 Kyle Harrington"
   (:import (org.ode4j.ode OdeHelper DSapSpace OdeConstants DContactBuffer DGeom DFixedJoint DContactJoint))  (:import (org.ode4j.math DVector3))  (:import java.lang.Math)  
   (:import (brevis Engine BrPhysics BrObject))
   (:import (org.lwjgl.opengl GL32))
-  (:use ;[penumbra.opengl]
-        [brevis vector utils globals]
+  (:import (org.lwjgl.util.vector Vector4f Vector3f))
+  (:use [brevis vector utils globals]
         [brevis.shape core box]
         [brevis.graphics multithread]
         [brevis.physics core collision utils])
@@ -36,7 +36,7 @@ Copyright 2012, 2013 Kyle Harrington"
   [obj]  
   (begin-with-graphics-thread)
   #_(GL32/glFenceSync GL32/GL_SYNC_GPU_COMMANDS_COMPLETE 0)  
-  (let [uid (long (hash (gensym)))        
+  (let [uid (long (hash (gensym)))        ;; might not be safe
         obj (assoc obj        
 			         :uid uid
 			         :real true
@@ -58,7 +58,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (defn orient-object
   "Orient an object by changing its rotation such that its vertex points towards a target vector."
-  [obj obj-vec target-vec]
+  [^BrObject obj ^org.lwjgl.util.vector.Vector3f obj-vec ^org.lwjgl.util.vector.Vector3f target-vec]
   (if (or (zero? (length obj-vec)) 
                 (zero? (length target-vec)))
     obj
@@ -67,7 +67,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (defn set-rotation
   "Set the rotation of an object directly using a quaternion."
-  [obj v]
+  [^BrObject obj ^Vector4f v]
   (.setRotation obj v)
   obj)
 
@@ -261,51 +261,51 @@ are removed from the simulation. (deprecated)"
               (Engine.))
   (.initWorld @*java-engine*))
 
-(defn update-world
-  "Update the world. (deprecated)"
-  [[dt t] state]
-  (when (and  state
-              (not (:terminated? state)))
-    (when (:contact-group @*physics*)
-      (.empty (:contact-group @*physics*)))
-    (reset! *collisions* #{})
+#_(defn update-world
+   "Update the world. (deprecated)"
+   [[dt t] state]
+   (when (and  state
+               (not (:terminated? state)))
+     (when (:contact-group @*physics*)
+       (.empty (:contact-group @*physics*)))
+     (reset! *collisions* #{})
         
-    (OdeHelper/spaceCollide (:space @*physics*) nil nearCallback)
-    (.quickStep (:world @*physics*) (get-dt))
-    (increment-physics-time (get-dt))
+     (OdeHelper/spaceCollide (:space @*physics*) nil nearCallback)
+     (.quickStep (:world @*physics*) (get-dt))
+     (increment-physics-time (get-dt))
     
-    ;; Add/delete objects before updating them
-    (reset! *objects* (let [in-objs (vals (merge @*objects* @*added-objects*))]
-                        (reset! *added-objects* {})
-                        (let [objs (zipmap (map :uid in-objs) in-objs)]                              
-                          (apply (partial dissoc objs) @*deleted-objects*))))
+     ;; Add/delete objects before updating them
+     (reset! *objects* (let [in-objs (vals (merge @*objects* @*added-objects*))]
+                         (reset! *added-objects* {})
+                         (let [objs (zipmap (map :uid in-objs) in-objs)]                              
+                           (apply (partial dissoc objs) @*deleted-objects*))))
     
-    ;; Update objects based upon their update method
-    (reset! *objects* (let [in-objs (vals @*objects*)]
-                        (reset! *added-objects* {})
-                        (let [new-objs (update-objects in-objs (get-dt))
-                              objs (zipmap (map :uid new-objs) new-objs)]
-                          (apply (partial dissoc objs) @*deleted-objects*))))
-    (reset! *deleted-objects* #{})
+     ;; Update objects based upon their update method
+     (reset! *objects* (let [in-objs (vals @*objects*)]
+                         (reset! *added-objects* {})
+                         (let [new-objs (update-objects in-objs (get-dt))
+                               objs (zipmap (map :uid new-objs) new-objs)]
+                           (apply (partial dissoc objs) @*deleted-objects*))))
+     (reset! *deleted-objects* #{})
     
-    ;; Update objects for collisions
-    (when @collisions-enabled
-	    (reset! *objects* (let [in-objs (vals (merge @*objects* @*added-objects*))]
-	                        (reset! *added-objects* {})
-	                        (let [new-objs (handle-collisions in-objs @*collision-handlers*)
-                                objs (zipmap (map :uid new-objs) new-objs)]	                          
-                           (apply (partial dissoc objs) @*deleted-objects*)))))
-    (reset! *deleted-objects* #{})
+     ;; Update objects for collisions
+     (when @collisions-enabled
+	     (reset! *objects* (let [in-objs (vals (merge @*objects* @*added-objects*))]
+	                         (reset! *added-objects* {})
+	                         (let [new-objs (handle-collisions in-objs @*collision-handlers*)
+                                 objs (zipmap (map :uid new-objs) new-objs)]	                          
+                            (apply (partial dissoc objs) @*deleted-objects*)))))
+     (reset! *deleted-objects* #{})
     
-    ;; Finally update neighborhoods
-    (when @neighborhoods-enabled	    
-	    (reset! *objects* (let [in-objs (vals (merge @*objects* @*added-objects*))]
-	                        (reset! *added-objects* {})                        
-	                        (let [new-objs (update-neighbors in-objs)]
-	                          (zipmap (map :uid new-objs) new-objs)))))
+     ;; Finally update neighborhoods
+     (when @neighborhoods-enabled	    
+	     (reset! *objects* (let [in-objs (vals (merge @*objects* @*added-objects*))]
+	                         (reset! *added-objects* {})                        
+	                         (let [new-objs (update-neighbors in-objs)]
+	                           (zipmap (map :uid new-objs) new-objs)))))
     
-    (assoc state
-           :simulation-time (+ (:simulation-time state) (get-dt)))))
+     (assoc state
+            :simulation-time (+ (:simulation-time state) (get-dt)))))
 
 ;; ## Neighbors
 

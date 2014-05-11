@@ -17,9 +17,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.shape.icosahedron
   (:import [brevis BrShape])
-  (:use [penumbra opengl compute]
-        [penumbra.opengl core]
-        [brevis.shape.core]
+  (:use [brevis.shape.core]
         [brevis.graphics multithread]
         [brevis vector])) 
 
@@ -30,7 +28,7 @@ Copyright 2012, 2013 Kyle Harrington"
   ([radius]
     (begin-with-graphics-thread)
     (let [icos (BrShape/createIcosahedron radius (:gui @brevis.globals/*gui-state*))]
-      (.setDimension icos (vec3 radius radius radius) (:gui @brevis.globals/*gui-state*))
+      (.setDimension ^BrShape icos (vec3 radius radius radius) (:gui @brevis.globals/*gui-state*))
       (end-with-graphics-thread)
       icos)))
 

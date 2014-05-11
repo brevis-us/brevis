@@ -26,21 +26,24 @@ Copyright 2012-2014 Kyle Harrington"
            (java.text SimpleDateFormat)
            (java.awt Color)
            (brevis.plot Plotter))
-  (:use [brevis.random]))
+  (:use [brevis.physics.utils]; for add-update-handler
+        [brevis.random]))
 
 (defn make-xy-dataset
   "Convert a hash-map or vector of pairs into a plottable XY dataset."
-  [data]
-  (let [xyseries (XYSeries. (gensym "dataset"))]
-    (doseq [[k v] data]
-      (.addOrUpdate xyseries k v))
-    (let [xycoll (XYSeriesCollection. xyseries)]
-      xycoll)))
+  ([data] (make-xy-dataset data (gensym "dataset")))
+  ([data dataset-name]
+    (let [xyseries (XYSeries. dataset-name)]
+      (doseq [[k v] data]
+        (.addOrUpdate xyseries k v))
+      (let [xycoll (XYSeriesCollection. xyseries)]
+        {:data-collection xycoll
+         :series [xyseries]}))))
 
 (defn make-xy-plot
   "Just make me a friggin XY plot!"
   [data]
-  (let [plotter (brevis.plot.Plotter. "my title" (make-xy-dataset data))]
+  (let [plotter (brevis.plot.Plotter. "my title" (:data-collection (make-xy-dataset data)))]
     (.pack plotter)
     (RefineryUtilities/centerFrameOnScreen plotter)
     (.setVisible plotter true)
@@ -59,4 +62,51 @@ Copyright 2012-2014 Kyle Harrington"
     (.setVisible plotter true)))
 
 #_(example-plotter)
+
+(defn add-plot-handler
+  "Add a plot handler. Remove assumes you want to remove the min x, value, this is best for timeseries"
+  [xy-fn & {:keys [interval
+                   title
+                   priority]
+            :or {interval 200
+                 title "Brevis"
+                 priority 100}}]
+  (when-not (System/getProperty "brevisHeadless")
+    (let [plot-data (make-xy-dataset [] title)
+          plotter (brevis.plot.Plotter. title (:data-collection plot-data))
+          handler-fn (fn []
+                       (when (> (.getItemCount (first (:series plot-data))) interval)                              
+                         (.remove ^XYSeries (first (:series plot-data)) 
+                           (.getMinX (first (:series plot-data)))))
+                       (let [[x y] (xy-fn)]
+                         (.addOrUpdate ^XYSeries (first (:series plot-data)) x y)))]    
+      (.pack plotter)
+      (RefineryUtilities/positionFrameRandomly plotter)
+      (.setVisible plotter true)      
+      (add-global-update-handler 4 handler-fn))))
+
+(defn add-scatter-handler
+  "Add a plot handler. Remove assumes you want to remove the min x, value, this is best for timeseries"
+  [xy-fn & {:keys [interval
+                   title
+                   priority]
+            :or {interval 200
+                 title "Brevis"
+                 priority 100}}]
+  (when-not (System/getProperty "brevisHeadless")
+    (let [plot-data (make-xy-dataset [] title)
+          plotter (brevis.plot.Plotter. title (:data-collection plot-data))
+          handler-fn (fn []
+                       (.clear ^XYSeries (first (:series plot-data)))
+                       (doseq [[x y] (xy-fn)]
+                         (.addOrUpdate ^XYSeries (first (:series plot-data)) x y))
+                       #_(when (> (.getItemCount (first (:series plot-data))) interval)                              
+                          (.remove (first (:series plot-data)) 
+                            (.getMinX (first (:series plot-data)))))
+                       #_(let [[x y] (xy-fn)]
+                          (.addOrUpdate (first (:series plot-data)) x y)))]    
+      (.pack plotter)
+      (RefineryUtilities/positionFrameRandomly plotter)
+      (.setVisible plotter true)      
+      (add-global-update-handler 4 handler-fn))))
 

@@ -1,4 +1,5 @@
 (ns brevis.init
   (:import (brevis BrInput SystemUtils Natives)))
 
-(Natives/extractNativeLibs (SystemUtils/getPlatform) "LWGL")
+(when-not (System/getProperty "brevisHeadless")
+  (Natives/extractNativeLibs (SystemUtils/getPlatform) "LWGL"))

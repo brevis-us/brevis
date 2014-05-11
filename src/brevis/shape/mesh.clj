@@ -17,9 +17,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.shape.mesh
   (:import [brevis BrShape])
-  (:use [penumbra opengl compute]
-        [penumbra.opengl core]
-        [brevis.shape.core]))        
+  (:use [brevis.shape.core]))        
 
 (defn create-mesh
   "Create a mesh object."

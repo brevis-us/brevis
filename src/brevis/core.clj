@@ -16,19 +16,12 @@
 Copyright 2012, 2013 Kyle Harrington"     
 
 (ns brevis.core
-  (:use ;[penumbra opengl compute]
-        ;[penumbra.opengl core]
-        [brevis.init]; ew.....
+  (:use [brevis.init]; ew.....
         [brevis globals utils input osd display vector]
         [brevis.graphics basic-3D multithread]
         [brevis.physics core space utils]
         [brevis.shape core box sphere cone])       
-  (:require ;[penumbra.app :as app]            
-            [clojure.math.numeric-tower :as math]
-            ;[penumbra.text :as text]
-            ;[penumbra.data :as data]
-            ;[penumbra.opengl.frame-buffer :as fb]
-            #_[penumbra.opengl.effects :as glfx])
+  (:require [clojure.math.numeric-tower :as math])
   (:import (brevis.graphics Basic3D) 
            (brevis BrInput SystemUtils Natives)
            (java.awt AWTException Robot Rectangle Toolkit)
@@ -38,14 +31,7 @@ Copyright 2012, 2013 Kyle Harrington"
            (java.io File IOException)
            (java.util.concurrent.locks ReentrantLock)
            (java.util.concurrent TimeUnit)
-           (javax.imageio ImageIO)
-;           (org.lwjgl.opengl SharedDrawable)
-;           (org.lwjgl.input Keyboard Mouse)
-;           (org.lwjgl.opengl Display GL11 DisplayMode GLContext)
-;           (org.lwjgl BufferUtils LWJGLException Sys)
-           ))
-
-
+           (javax.imageio ImageIO)))
 
 ;; ## Todo:
 ;;
@@ -65,218 +51,15 @@ Copyright 2012, 2013 Kyle Harrington"
 
 ;; ## Window and Graphical Environment
 
-#_(defn init
-  "Initialize the brevis window and the graphical environment."
-  [state]
-  (app/title! "brevis")
-  (app/vsync! true)   
-  (enable :blend)
-  (enable :depth-test)
-  (init-box-graphic)
-  (init-checkers)
-  (init-sky)
-  (enable :lighting)
-  (enable :light0)
-  (light 0 
-         :specular [0.4 0.4 0.4 1.0];:specular [1 1 1 1.0]
-         :position [0 -1 0 0];;directional can be enabled after the penumbra update         
-         :diffuse [1 1 1 1])
-  (enable :light1)
-  (light 1
-         :specular [0.2 0.2 0.2 1.0]
-         :position [0 -1 0 0]
-         :diffuse [1 1 1 1])
-  (glfx/light-model :light-model-ambient [0.5 0.5 0.5 1.0])
-  (blend-func :src-alpha :one-minus-src-alpha)  
-  (enable :normalize)
-  (java-init-world)
-  (init-sky)
-  state)
-
-#_(defn make-init
-  "Make an initialize function based upon a user-customized init function."
-  [user-init]
-  (fn [state]
-    (init state)
-    (user-init)
-    state))
-
-#_(defn reshape
-  "Reshape after the window is resized."
-  [[x y w h] state]
-  (frustum-view  45 (/ w h) 0.1 2000)
-  (load-identity)
-  (reset! *gui-state*
-          (assoc @*gui-state*
-                 :window-x x
-                 :window-y y
-                 :window-width w
-                 :window-height h))
-  state)
-
-#_(defn draw-sky
-  "Draw a skybox"
-  []
-  (let [w 2000
-        h 2000
-        d 2000
-        pos [0 0 0]
-        ]
-    (when *sky-texture*
-      (with-disabled :lighting      
-        (with-enabled :depth-test
-          (with-enabled :texture-2d
-            (with-texture *sky-texture*
-              (depth-test :lequal)
-              (push-matrix
-	            (material :front-and-back
-	                      :shininess 0
-	                      :ambient-and-diffuse [0 0 1 0.5])
-	            (translate pos)
-	            (apply scale [w h d])
-	            (draw-textured-cube)))))))))
-
-#_(defn get-min-vec
-  "Return the minimum vec3 of a collection, component-wise."
-  [vectors]
-  (reduce #(vec3 (Math/min (.x %1) (.x %2)) (Math/min (.y %1) (.y %2)) (Math/min (.z %1) (.z %2))) 
-          (vec3 java.lang.Double/POSITIVE_INFINITY java.lang.Double/POSITIVE_INFINITY java.lang.Double/POSITIVE_INFINITY)
-          vectors))
-
-#_(defn get-max-vec
-  "Return the maximum vec3 of a collection, component-wise."
-  [vectors]
-  (reduce #(vec3 (Math/max (.x %) (.x %2)) (Math/max (.y %1) (.y %2)) (Math/max (.z %1) (.z %2))) 
-          (vec3 java.lang.Double/NEGATIVE_INFINITY java.lang.Double/NEGATIVE_INFINITY java.lang.Double/NEGATIVE_INFINITY)
-          vectors))
-
-#_(defn camera-score
-  "What is the score of a current camera position relative to the world."
-  [state]
-  0)
-
-#_(defn auto-camera
-  "Automatically focus the camera to maximize the number of objects in view."
-  [state]
-  (let [obj-vecs (map get-position @*objects*)
-        min-vec (get-min-vec obj-vecs)
-        max-vec (get-max-vec obj-vecs)
-        mid-vec (div (add min-vec max-vec) 2)
-        comp-x (cos (* 2 Math/PI (/ (:rot-x state) 360)))
-        comp-y (cos (* 2 Math/PI (/ (:rot-y state) 360)))
-        comp-z (cos (* 2 Math/PI (/ (:rot-z state) 360)))
-        next-state state]
-    (if (> (camera-score next-state) (camera-score state))
-      next-state state)))                            
-  
-#_(defn enable-video-recording
-   "Turn on video recording."
-   [video-name]
-   (def video-counter (atom 0))
-   (swap! *gui-state* 
-          assoc :record-video true
-                :video-name video-name))
-
-#_(defn disable-video-recording
-   "Turn off video recording."
-   []
-   (swap! *gui-state* dissoc :record-video))
-
 (defn init-view
  "Initialize the gui-state global to the default."
  []
  (reset! *gui-state* default-gui-state))
 
-#_(defn drawable?
-   "Is an object drawable?"
-   [obj]
-   (.isDrawable obj))
-
 ;; ## Start a brevis instance
 
-#_(defn display
-   "Render all objects."
-   []  
-   (begin-with-graphics-thread)
-   (when (Display/wasResized) (.setDimensions (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
-   (let [objs (all-objects)]    
-     (Basic3D/initFrame (:camera @*gui-state*))
-     (draw-sky)
-     #_(update-display-text)
-     #_(gl-matrix-mode :modelview)
-     #_(gl-load-identity-matrix)
-     #_(use-camera (:camera @*gui-state*))
-     (doseq [obj objs]
-       (when (drawable? obj) ;; add a check to see if the object is in view
-        (draw-shape obj)))    
-     (Display/update)        
-     (Display/sync 100)
-     (end-with-graphics-thread)
-     ))
-
-#_(defn simulate
-   "Simulation loop."
-   [initialize update & input-handlers]
-   (Display/setLocation (/ (- (.getWidth (Display/getDisplayMode)) (.width (:camera @*gui-state*))) 2)
-                        (/ (- (.getHeight (Display/getDisplayMode)) (.height (:camera @*gui-state*))) 2))
-   (try 
-     (Display/setDisplayMode (DisplayMode. (.width (:camera @*gui-state*)) (.height (:camera @*gui-state*))))
-     (Display/setTitle "Brevis")
-     (Display/setVSyncEnabled true)
-     (Display/setResizable true)
-     (Display/create)
-     (catch LWJGLException e
-         (.printStackTrace e)))
-   ;; For multithreaded graphics
-   (swap! *graphics* assoc
-          :drawable (SharedDrawable. (Display/getDrawable))
-          :lock (ReentrantLock.))
-   (Basic3D/initGL)     
-   (init-sky)
-   (when *sky*
-     (println "Sky loaded."))
-   (initialize)
-   (try 
-     (reset! *gui-state* (assoc @*gui-state* :input (BrInput.)))
-     (catch LWJGLException e
-       (.printStackTrace e)))
-   (if (empty? input-handlers);; hack for custom input handlers
-     (default-input-handlers)
-     ((first input-handlers)))
-   (let [startTime (ref (java.lang.System/nanoTime))
-         fps (ref 0)
-         display? true]
-     (loop [step 0]             
-       (if (:close-requested @*gui-state*)
-         (println "Closing application.")
-         (do
-           (.pollInput (:input @*gui-state*) @*java-engine*)
-           ;(update [1 1] {})
-           (update [(* step (get-dt)) (get-dt)] {})
-           (dosync (ref-set fps (inc @fps)))
-           (when (> (java.lang.System/nanoTime) @startTime)
-             #_(println "Update" step "FPS:" (double (/ @fps (/ (- (+ 1000000000 (java.lang.System/nanoTime)) @startTime) 1000000000))))
-             (dosync 
-               (ref-set startTime (+ (java.lang.System/nanoTime) 1000000000))
-               (ref-set fps 0)))
-           (when display?            
-             #_(when (Display/wasResized) (.setDimensions (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
-             #_(println "fullscreen" (:fullscreen @*gui-state*) (not (Display/isFullscreen)))
-             #_(when (and (:fullscreen @*gui-state*) (not (Display/isFullscreen))) (println "going fullscreen") (Display/setFullscreen true))
-             #_(when (and (not (:fullscreen @*gui-state*)) (Display/isFullscreen)) (println "disable fullscreen") (Display/setFullscreen false))
-             (display)
-               )
-           (recur (inc step))))))
-   (Keyboard/destroy)
-   (Mouse/destroy)
-   (Display/destroy)
-   ;; Should call system/exit if not using UI
-   #_(System/exit 0)
-   )
-
-;(in-ns 'brevis.graphics.core)
+;; Yeesh... There must be a better way than this
 (declare simulate)
-;(in-ns 'brevis.core)
 (defn start-gui 
   "Start the simulation with a GUI."
   ([initialize]
@@ -296,17 +79,7 @@ Copyright 2012, 2013 Kyle Harrington"
            (if-not (empty? input-handlers)
              (Thread. (fn [] (simulate initialize update (first input-handlers))))
              (Thread. (fn []
-                        (simulate initialize update)
-                        #_(app/start
-                               {:reshape reshape, :init (make-init initialize), :mouse-drag mouse-drag, :key-press key-press :mouse-wheel mouse-wheel, :update update, :display display
-                                :key-release key-release
-                                ;:mouse-move    (fn [[[dx dy] [x y]] state] (println )
-                                ;:mouse-up       (fn [[x y] button state] (println button) state)
-                                ;:mouse-click   (fn [[x y] button state] (println button) state)
-                                ;:mouse-down    (fn [[x y] button state] (println button) state)
-                                ;:mouse-wheel   (fn [dw state] (println dw) state)
-                                }        
-                               @*gui-state*)))))
+                        (simulate initialize update)))))
    (.start @*app-thread*)))
 
 ;; ## Non-graphical simulation loop (may need updating)
@@ -337,7 +110,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn start-nogui 
   "Start the simulation with a GUI."
   ([initialize]
-    (start-nogui initialize update-world))
+    (start-nogui initialize java-update-world #_update-world))
   ([initialize update]    
 	  (simulation-loop
 	   {:init initialize, :update update})))      

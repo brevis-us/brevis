@@ -18,6 +18,7 @@
 (def lrand-int random/lrand-int)
 (def lrand-nth random/lrand-nth)
 (def lshuffle random/lshuffle)
+(def lrand-gaussian random/lrand-gaussian)
 
 (defmacro with-rng
   "Use a specific RNG with all lrand calls within the body."

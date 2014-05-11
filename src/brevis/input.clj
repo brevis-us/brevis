@@ -17,16 +17,10 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.input
   (:import (brevis BrInput))
-  #_(:require [penumbra.app :as app])
   (:use [brevis globals display utils osd vector]
         [brevis.physics utils]))
 
-#_(def #^:dynamic *input-handlers* (atom {:key-press {}
-                                        :key-release {}}));; no mouse yet
-
-#_(def shift-key-down (atom false))
-#_(defn sin [n] (float (Math/sin n)))
-#_(defn cos [n] (float (Math/cos n)))
+(def mouse-translate-speed 100)
 
 (defn make-input-type
   "Make an input type for input class based upon the input specifications."
@@ -43,8 +37,6 @@ input-class: indicates the class of input. Currently supports (:key-press, :mous
                         (trigger [#^brevis.Engine engine]
                           (behavior)))]
     (.addInputHandler (:input @*gui-state*) input-type input-handler)))
-
-#_(def keyspeed 10000)
 
 (defn get-mouse-dx
   "Return the current mouse DX."
@@ -113,26 +105,6 @@ input-class: indicates the class of input. Currently supports (:key-press, :mous
   (add-input-handler :mouse-click
                      {:mouse-button "LEFT"}
                      #(.rotateFromLook (:camera @*gui-state*) (- (get-mouse-dy)) (get-mouse-dx) 0)))
-;; Currently forcing default input handlers to be enabled
-#_(default-input-handlers)
-
-#_(defn key-press
-  "Update the state in response to a keypress."
-  [key state]
-  (doseq [[predicate behavior] (:key-press @*input-handlers*)]
-    (when (predicate key)
-      (behavior)))
-  state)
-
-#_(defn key-release
-  "Update the state in response to the release of a key"
-  [key state]
-  (doseq [[predicate behavior] (:key-release @*input-handlers*)]
-    (when (predicate key)
-      (behavior)))
-  state)
-
-(def mouse-translate-speed 100)
 
 (defn osd-view-transformation
   "Display the current view transformation as an OSD message."
@@ -210,31 +182,6 @@ input-class: indicates the class of input. Currently supports (:key-press, :mous
                                      (int (:shift-x @*gui-state*)) "," (int (:shift-y @*gui-state*)) "," (int (:shift-z @*gui-state*)) ")")) 
          :start-t t :stop-t (+ t 1))
     state))
-
-#_(defn mouse-wheel
-  "Respond to a mousewheel movement. dw is +/- depending on scroll-up or down."
-  [dw state]
-  (let [rads (/ (Math/PI) 180)
-        thetaY (*(:rot-y state) rads)
-        sY (sin thetaY)
-        cY (cos thetaY)
-        thetaX (* (:rot-x state) rads)
-        sX (sin thetaX)
-        cX (cos thetaX)
-        t (get-time)]
-  (swap! *gui-state* assoc
-						         :shift-z (+ (:shift-z @*gui-state*) (* (/ dw 6) cY))
-						         :shift-x (+ (:shift-x @*gui-state*) (* (/ dw 6) (* sY -1)))
-						         :shift-y (+ (:shift-y @*gui-state*) (* (/ dw 6) sX)))
-  (osd :msg-type :penumbra-rotate 
-        :fn (fn [[dt t] state] (str "Rotation: (" 
-                                    (:rot-x @*gui-state*) "," (:rot-y @*gui-state*) "," (:rot-z @*gui-state*) ")")) 
-        :start-t t :stop-t (+ t 1))
-   (osd :msg-type :penumbra-translate 
-        :fn (fn [[dt t] state] (str "Translation: (" 
-                                    (int (:shift-x @*gui-state*)) "," (int (:shift-y @*gui-state*)) "," (int (:shift-z @*gui-state*)) ")")) 
-        :start-t t :stop-t (+ t 1))
-  state))
 
 (defn mouse-move
   "Respond to a change in x,y position of the mouse."

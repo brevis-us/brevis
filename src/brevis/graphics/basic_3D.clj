@@ -19,27 +19,17 @@ Copyright 2012, 2013 Kyle Harrington"
   (:import [java.lang.Math]
            [java.nio ByteBuffer ByteOrder]
            [org.lwjgl.opengl GL11]
+           [brevis BrObject]
            [brevis.graphics Basic3D BrSky])
-  (:use ;[penumbra opengl compute]
-        ;[penumbra.opengl core]
-        ;[cantor]
-        [brevis globals]
+  (:use [brevis globals]
         [brevis.physics utils]
         [brevis.shape core box sphere cone])
-  (:require ;[penumbra.app :as app]
-            ;[penumbra.text :as text]
-            ;[penumbra.data :as data]
-            ;[cantor.range]
-            [clojure.java.io]
-            #_[penumbra.opengl.frame-buffer :as fb])) 
+  (:require [clojure.java.io])) 
 
 (defn init-sky
  []
  (def #^:dynamic *sky*
-   (BrSky.))
- #_(def #^:dynamic *sky-texture*
-    (load-texture-from-file (clojure.java.io/resource "img/sky.jpg"))))
-
+   (BrSky.)))
 
 ;; ## Shape handling code
 ;;
@@ -73,7 +63,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (defn draw-shape
   "Draw a shape. Call this after translating, scaling, and setting color."
-  [obj]
+  [^BrObject obj]
   (Basic3D/drawShape obj (.getDimension (.getShape obj)))
   #_(Basic3D/drawShape obj (double-array [0 1 0 0]) (.getDimension (.getShape obj))))
 	  

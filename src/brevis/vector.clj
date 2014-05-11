@@ -19,13 +19,11 @@ Copyright 2012, 2013 Kyle Harrington"
   #_(:import [org.ejml.data DenseMatrix64F]
            [org.ejml.ops CommonOps])
   (:use [brevis.math])
-  (:import [org.lwjgl.util.vector Vector3f Vector4f])
-  #_(:import [javax.vecmath Vector3f Vector4f]))
-;; Temporary way of making Java's Vector3f's look like Cantor's vec3's
+  (:import [org.lwjgl.util.vector Vector3f Vector4f]))
 
 (defn vec3
   "Make a Vector3f"
-  [x y z]
+  [^double x ^double y ^double z]
   (Vector3f. x y z))
 
 (defn vec3?
@@ -35,27 +33,40 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (defn vec4
   "Make a Vector4f"
-  [x y z w]
+  [^double x ^double y ^double z ^double w]
   (Vector4f. x y z w))
 
 (defn vec4-to-vec3
   "convert a vec4 to a vec3"
-  [v]
+  [^Vector3f v]
   (vec3 (.x v) (.y v) (.z v)))
 
 (defn vec3-to-vec4
   "Convert a vec3 to a vec4 by padding the 4th dim with 1."
-  [v]
+  [^Vector4f v]
   (vec4 (.x v) (.y v) (.z v) 1))
 
 (defn sub
-  "Wrap's Vector3f sub."
-  [v1 v2]
-  #_((if (vec3? v1) Vector3f/sub Vector4f/sub)
-    v1 v2 nil)
-  (if (vec3? v1) 
-    (Vector3f/sub v1 v2 nil)
-    (Vector4f/sub v1 v2 nil)))    
+   "Wrap's Vector3f sub."
+   [v1 v2]
+   #_((if (vec3? v1) Vector3f/sub Vector4f/sub)
+     v1 v2 nil)
+   (if (vec3? v1) 
+     (Vector3f/sub v1 v2 nil)
+     (Vector4f/sub v1 v2 nil)))
+
+#_(defn sub
+   "Wrap's Vector3f sub."
+   ([^Vector3f v1 ^Vector3f v2] (Vector3f/sub v1 v2 nil))
+   ([^Vector4f v1 ^Vector4f v2] (Vector4f/sub v1 v2 nil)))
+
+(defn sub-vec3
+   "Wrap's Vector3f sub."
+   [v1 v2] (Vector3f/sub v1 v2 nil))
+
+(defn sub-vec4
+   "Wrap's Vector3f sub."
+   [^Vector4f v1 ^Vector4f v2] (Vector4f/sub v1 v2 nil))
 
 (defn div
   "Divide a Vector3f by a scalar."
@@ -105,12 +116,19 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (defn length
   "Return the length of a vector."
-  [v]
-  (.length v))
+  [v] (.length v))
+
+(defn length-vec3
+  "Return the length of a vector."
+  [^Vector3f v] (.length v))
+
+(defn length-vec3
+  "Return the length of a vector."
+  [^Vector4f v] (.length v))  
 
 (defn cross
   "Cross product of vectors."
-  [v1 v2]  
+  [^Vector3f v1 ^Vector3f v2]  
   (Vector3f/cross v1 v2 nil))
 
 (defn normalize
@@ -121,23 +139,39 @@ Copyright 2012, 2013 Kyle Harrington"
       (.normalise nv))
     nv))
 
+(defn normalize-vec3
+  "Normalize a vector."
+  [^Vector3f v]
+  (let [nv (Vector3f. v)]          
+    (when-not (zero? (length v))
+      (.normalise nv))
+    nv))
+
+(defn normalize-vec4
+  "Normalize a vector."
+  [^Vector4f v]
+  (let [nv (Vector4f. v)]          
+    (when-not (zero? (length v))
+      (.normalise nv))
+    nv))
+
 (defn map-vec3
   "Map over a vec3"
-  [f v]
+  [f ^Vector3f v]
   (vec3 (f (.x v)) (f (.y v)) (f (.z v))))
 
 (defn map-vec4
   "Map over a vec4"
-  [f v]
+  [f ^Vector4f v]
   (vec4 (f (.x v)) (f (.y v)) (f (.z v)) (f (.w v))))
 
 (defn vec3-to-seq
   "Quick hacks for seq-ing vectors."
-  [v]
+  [^Vector3f v]
   [(.x v) (.y v) (.z v)])
 
 (defn vec4-to-seq
   "Quick hacks for seq-ing vectors."
-  [v]
+  [^Vector4f v]
   [(.x v) (.y v) (.z v) (.w v)])
 
