@@ -9,6 +9,7 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
@@ -28,6 +29,11 @@ import org.jfree.ui.RefineryUtilities;
 public class Plotter extends ApplicationFrame {
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4224772067055836525L;
+
+	/**
      * A demonstration application showing how to create a simple time series 
      * chart.  This example uses monthly data.
      *
@@ -50,11 +56,13 @@ public class Plotter extends ApplicationFrame {
      */
     private static JFreeChart createChart(XYDataset dataset) {
 
-        JFreeChart chart = ChartFactory.createTimeSeriesChart(
+        //JFreeChart chart = ChartFactory.createTimeSeriesChart(
+    	JFreeChart chart = ChartFactory.createXYLineChart(
             "Brevis plot",  // title
             "",             // x-axis label
             "",   // y-axis label
             dataset,            // data
+            PlotOrientation.VERTICAL,
             true,               // create legend?
             true,               // generate tooltips?
             false               // generate URLs?
@@ -77,8 +85,8 @@ public class Plotter extends ApplicationFrame {
             renderer.setBaseShapesFilled(true);
         }
         
-        DateAxis axis = (DateAxis) plot.getDomainAxis();
-        axis.setDateFormatOverride(new SimpleDateFormat("MMM-yyyy"));
+        //DateAxis axis = (DateAxis) plot.getDomainAxis();
+        //axis.setDateFormatOverride(new SimpleDateFormat("MMM-yyyy"));
         
         return chart;
 

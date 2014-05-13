@@ -564,5 +564,14 @@ public class BrObject implements clojure.lang.IPersistentMap {
 		return null;
 	}
 
+	public void destroy( Engine e ) {
+		shape.destroy();
+		//System.out.println( "[A]Number of objects in collision space : " + e.physics.space.getNumGeoms() );
+		e.physics.space.remove( geom );
+		//System.out.println( "[B]Number of objects in collision space : " + e.physics.space.getNumGeoms() );
+		//body.destroy();
+		geom.destroy();		
+	}
+
 	
 }

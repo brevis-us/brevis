@@ -17,30 +17,6 @@ Copyright 2012, 2013 Kyle Harrington*/
 
 package brevis.graphics;
 
-import javax.vecmath.Vector3d;
-
-/*public class BrMesh {
-	public float[] verts;
-	public float[] col;
-	public int[] idx;
-	
-	public int numVerts() {
-		return verts.length;
-	}
-	
-	public int numCol() {
-		return col.length;
-	}
-	
-	public int numIdx() {
-		return idx.length;
-	}
-
-
-}*/
-
-
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -371,5 +347,15 @@ public class BrMesh {
 		if( withGraphics )
 			opengldrawtolist();
 		// Regen display list
+	}
+
+	public void destroy() {
+		//GL11.glDeleteLists(objectlist,1);
+		vertexsets.clear();		
+		vertexsetsnorms.clear();
+		vertexsetstexs.clear();
+		faces.clear();
+		facestexs.clear();
+		facesnorms.clear();
 	}
 }

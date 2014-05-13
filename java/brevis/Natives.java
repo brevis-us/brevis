@@ -35,6 +35,7 @@
 package brevis;
 
 import brevis.SystemUtils.Platform;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -45,6 +46,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * Helper class for extracting the natives (dll, so) from the jars.
@@ -62,13 +64,21 @@ public class Natives {
 
     protected static void extractNativeLib(String sysName, String name) throws IOException{
         String fullname = System.mapLibraryName(name);
+        //System.out.println( fullname + " " + fullname.contains( "dylib" ) );
+        if( fullname.contains( "dylib" )  )
+        	fullname = fullname.replace( "dylib", "jnilib" );
+        //System.out.println( fullname + " " + fullname.contains( "dylib" ) );
 
-        String path = "native/"+sysName+"/" + fullname;
+        String path = "target/native/"+sysName+"/" + fullname;
         InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
+        //InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(System.getProperty("user.dir") + "/" + path);
+        
+        //System.out.println( System.getProperty("user.dir") + "/" + path + " exists? " +  ( new File( System.getProperty("user.dir") + "/" + path )).exists() );
+        
         //InputStream in = Natives.class.getResourceAsStream();
         if (in == null) {
-            logger.log(Level.WARNING, "Cannot locate native library: {0}/{1}", 
-                    new String[]{ sysName, fullname} );
+            logger.log(Level.WARNING, "Cannot locate native library: {0}/{1} {2} {3}", 
+                    new String[]{ sysName, fullname, path, System.getProperty("user.dir") } );
             return;
         }
         File targetFile = new File(workingDir, fullname);
@@ -305,6 +315,8 @@ public class Natives {
 
                 break;
             case MacOSX64:
+            	System.setProperty( "org.lwjgl.librarypath",  System.getProperty("user.dir") + "/target/native/macosx");
+            	
                 if (needLWJGL){
                     extractNativeLib("macosx", "lwjgl");
                 }
@@ -325,6 +337,8 @@ public class Natives {
                 if (needJInput)
                     extractNativeLib("macosx", "jinput-osx");
 
+                
+                
                 break;
             
                 

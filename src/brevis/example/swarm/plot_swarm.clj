@@ -46,12 +46,6 @@ Copyright 2012, 2013 Kyle Harrington"
 (def speed 25)
 (def max-acceleration 10)
 
-(def xhistory (atom []))
-(def yhistory (atom []))
-
-(def plot-data (atom nil))
-(def global-plotter (atom nil));; we shouldn't be doing dynamic plots this way, oh well
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Birds
 
@@ -151,38 +145,17 @@ so we only modify bird1."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## plotting code 
 
-;; Record the data
-(add-global-update-handler 1
-  (fn [] 
-    (let [positions (map get-position (filter bird? (all-objects)))
-          center (vec3 (/ (apply + (map #(.x %) positions)) (count positions))
-                       (/ (apply + (map #(.y %) positions)) (count positions))
-                       (/ (apply + (map #(.z %) positions)) (count positions)))
-          distances (map #(length (sub center %)) positions)
-          avg-distance (/ (apply + distances) (count distances))]
-      (if @plot-data
-        (.addOrUpdate (first (:series @plot-data)) 
-          (get-time) 
-          avg-distance)
-        (reset! plot-data (make-xy-dataset [[(get-time) avg-distance]])))
-    (swap! xhistory conj (get-time))
-    (swap! yhistory conj avg-distance))))
-
-;; Do the actual potting
-(add-global-update-handler 2
-  (fn [] 
-    (when (zero? (mod (get-time) 25))      
-      (when-not @global-plotter
-        (let [plotter (brevis.plot.Plotter. "my title" (:data-collection @plot-data))]
-          (.pack plotter)
-          #_(RefineryUtilities/centerFrameOnScreen plotter)
-          (.setVisible plotter true)
-          (reset! global-plotter plotter)))
-      #_(when @global-plotter
-         (.setVisible @global-plotter false)
-         (.dispose @global-plotter))
-      #_(let [plotter (make-xy-plot (zipmap @xhistory @yhistory))]
-         (reset! global-plotter plotter)))))
+ (add-plot-handler
+   (fn [] 
+     (let [positions (map get-position (filter bird? (all-objects)))
+           center (vec3 (/ (apply + (map #(.x %) positions)) (count positions))
+                        (/ (apply + (map #(.y %) positions)) (count positions))
+                        (/ (apply + (map #(.z %) positions)) (count positions)))
+           distances (map #(length (sub center %)) positions)
+           avg-distance (/ (apply + distances) (count distances))]
+       [(* (get-time) (get-dt)) avg-distance]))
+   :interval 200
+   :title "Avg dist from centroid")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## brevis control code

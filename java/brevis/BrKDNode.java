@@ -19,8 +19,6 @@ package brevis;
 
 import java.util.Arrays;
 
-import javax.vecmath.Vector3d;
-
 public class BrKDNode {
 
 	//public final Vector3d loc;

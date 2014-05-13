@@ -26,8 +26,6 @@ import java.net.URLClassLoader;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-import javax.vecmath.Vector3d;
-
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.opengl.GL15;
@@ -400,4 +398,10 @@ public class BrShape {
 	public static BrShape createCylinder( double length, double radius, boolean withGraphics ) {
 		return ( new BrShape( BrShapeType.CYLINDER, new Vector3f( (float)length, (float)radius, (float)25 ), withGraphics ));	// last element of vector is # of sides or stacks (depending on renderer)
 	}
+
+	public void destroy() {
+		mesh.destroy();
+		
+	}
+	
 }

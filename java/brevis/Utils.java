@@ -17,8 +17,6 @@
 
 package brevis;
 
-import javax.vecmath.Vector3d;
-
 import org.lwjgl.util.vector.Vector3f;
 import org.ode4j.math.DVector3;
 import org.ode4j.math.DVector3C;
