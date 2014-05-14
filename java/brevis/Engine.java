@@ -29,11 +29,19 @@ import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.vecmath.Vector3d;
 
+import org.ejml.data.DenseMatrix64F;
 import org.lwjgl.util.vector.Vector3f;
 import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DJointGroup;
@@ -292,6 +300,107 @@ public class Engine {
 	     }		
 	}
 	
+	class BrObjectResult {
+        public BrObject obj;
+        public Long UID;
+
+        BrObjectResult(){
+        }
+   }
+
+   class UpdateObjectTask implements Callable<BrObjectResult> {
+       BrObject obj;
+       Long UID;
+
+       UpdateObjectTask( BrObject myObj, Long myUID ){
+           UID = myUID;
+           obj = myObj;
+       }
+
+       public BrObjectResult call() throws Exception {
+    	   BrObjectResult result = new BrObjectResult();
+    	   
+    	   UpdateHandler uh = updateHandlers.get( obj.type );
+			
+    	   result.obj = obj;
+    	   result.UID = UID;
+    	   if( uh != null ) {
+				//System.out.println( "--" + getTime() + " updating object " + entry.getKey() );
+    		   result.obj = uh.update( null, UID, dt );				
+    	   } 
+			//else System.out.println( "--" + getTime() + " not updating object " + entry.getKey() + " " + entry.getValue().type );
+			
+           return result;
+       }
+
+   }		
+	
+	/* parallelUpdateObjects
+	 * Call individual update functions in parallel
+	 */
+	public void parallelUpdateObjects( final double dt ) {
+		lock.lock();  // block until condition holds
+		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();
+		ExecutorService exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+	     try {
+	    	 
+	    	 
+             CompletionService<BrObjectResult> taskCompletionService =
+                new ExecutorCompletionService<BrObjectResult>(exec);
+
+             // Send
+	         for( Map.Entry<Long,BrObject> entry : objects.entrySet()  ){
+	             taskCompletionService.submit(new UpdateObjectTask( entry.getValue(), entry.getKey() ));
+	         }
+	         
+	         // Wait
+	         for(int tasksHandled=0;tasksHandled<objects.size();tasksHandled++){
+	             try {
+	                 System.out.println("trying to take from Completion service");
+	                 Future<BrObjectResult> result = taskCompletionService.take();
+	                 System.out.println("result for a task availble in queue.Trying to get()"  );
+	                 // above call blocks till atleast one task is completed and results availble for it
+	                 // but we dont have to worry which one
+	
+	                 // process the result here by doing result.get()
+	                 BrObjectResult obj = result.get();
+	                 
+	                 if( !deletedObjects.contains( obj.UID ) ) {// Can't update what isn't there (i.e. objects that self-delete)
+	     	 			Boolean kh = updateKinematics.get( obj.obj.type );
+	     	 			//System.out.println( obj.type + " " + kh );
+	     	 			if( kh != null && kh ) {
+	     	 				obj.obj.updateObjectKinematics( dt );
+	     	 			}
+	     	 			
+	     	 			//updatedObjects.put( entry.getKey(), newObj ); //was here
+	     			} else {
+	     				// Delete the object
+	     				if( obj.obj != null )
+	     					obj.obj.destroy( null );
+	     			}
+	                 
+	                 updatedObjects.put( obj.UID, obj.obj );
+	                 //System.out.println("Task " + String.valueOf(tasksHandled) + "Completed - results obtained : " + String.valueOf(l.result));
+	
+	             } catch (InterruptedException e) {
+	                 // Something went wrong with a task submitted
+	                 System.out.println("Error Interrupted exception");
+	                 e.printStackTrace();
+	             } catch (ExecutionException e) {
+	                 // Something went wrong with the result
+	                 e.printStackTrace();
+	                 System.out.println("Error get() threw exception");
+	             }
+	         }
+	 		
+	 		
+	     } finally {
+	    	 exec.shutdown();
+	       lock.unlock();
+	     }	
+	     objects = updatedObjects;
+	}	
+	
 	/* globalUpdateObjects
 	 * Call individual update functions
 	 */
@@ -543,7 +652,11 @@ public class Engine {
 		synchronizeObjects();
 		
 		//System.out.println( " normal update " + globalUpdateHandlers.size() );
-		updateObjects( dt );
+		if( brevisParallel ) {
+			parallelUpdateObjects( dt );
+		} else {
+			updateObjects( dt );
+		}
 		synchronizeObjects();
 		
 		//System.out.println( " post globalupdate ");
@@ -672,4 +785,30 @@ public class Engine {
 	public BrPhysics getPhysics() {
 		return physics;
 	}	
+	
+	public DenseMatrix64F pairwiseObjectDistances() {
+		DenseMatrix64F dists = new DenseMatrix64F( objects.size(), objects.size() );
+		ArrayList<Long> objKeys = new ArrayList<Long>( objects.keySet() );
+		for( int k = 0; k < objects.size(); k++ ) {
+			BrObject thisObj = objects.get( objKeys.get( k ) );
+			for( int j = 0; j < objects.size(); j++ ) {
+				double val = 0;
+				if( k == j ) val = 0;
+				else {
+					val = thisObj.distanceTo( objects.get( objKeys.get( j ) ) );
+				}
+				dists.set(k,j,val);
+				dists.set(j,k,val);
+			}
+		}
+		return dists;		
+	}
+	
+	public void setParallel( boolean newParallel ) {
+		brevisParallel = newParallel;
+	}
+	
+	public boolean getParallel() {
+		return brevisParallel;
+	}
 }
