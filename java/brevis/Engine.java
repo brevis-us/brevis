@@ -594,8 +594,20 @@ public class Engine {
 		return (System.nanoTime() - startWallTime) / 1000000000.0;
 	}
 	
+	public double getDT() {
+		return dt;
+	}
+	
+	public void setDT(double newDT) {
+		dt = newDT;
+	}
+	
 	public double getTime() {
 		return physics.getTime();
+	}
+	
+	public long getSteps() {
+		return numSteps;
 	}
 	
 	/* addObject

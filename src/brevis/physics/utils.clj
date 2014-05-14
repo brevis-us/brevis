@@ -46,6 +46,11 @@ Copyright 2012, 2013 Kyle Harrington"
   []
   (.getTime ^Engine @*java-engine*))
 
+(defn get-steps
+  "Return the number of timesteps taken thus far. steps*dt==time"
+  []
+  (.getSteps ^Engine @*java-engine*))
+
 (defn get-wall-time
   "Return the elapsed wall-clock time."
   []
@@ -217,11 +222,11 @@ axis is the axis about which the joint rotates"
 
 (defn get-dt
   []
-  @*dt*)
+  (.getDT ^Engine @*java-engine*))
 
 (defn set-dt
   [new-dt]
-  (reset! *dt* new-dt)) 
+  (.setDT ^Engine @*java-engine* new-dt))
 
 (defn obj-distance
   "Return the distance between two objects, this is preferable because faster lookups can be standardized."

@@ -39,7 +39,7 @@ Copyright 2012, 2013 Kyle Harrington"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds 500)
+(def num-birds 2000)
 
 (def avoidance-distance (atom 10))
 
@@ -168,8 +168,9 @@ so we only modify bird1."
   (init-view)  
   ;(swap! brevis.globals/*gui-state* assoc :gui false)
   (.moveFromLook (:camera @brevis.globals/*gui-state*) 0 100 0)
-  (set-dt 0.1)
-  (set-neighborhood-radius 500)
+  #_(set-dt 0.1)
+  (set-dt 1)
+  (set-neighborhood-radius 100)
   (default-display-text)
   (add-object (make-floor 500 500))
   (dotimes [_ num-birds]

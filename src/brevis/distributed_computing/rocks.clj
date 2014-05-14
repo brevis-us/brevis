@@ -27,8 +27,6 @@ This namespace was first contributed by Alex Bardasu.
 ;; (ssh call)
 ;; Later: hook class that lets you listen to system signals -> dump to serialized files
 
-;; hpc64.brandeis.edu
-
 (def debug false)
 (programs ssh)
 
