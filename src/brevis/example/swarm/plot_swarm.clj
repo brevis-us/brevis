@@ -39,7 +39,7 @@ Copyright 2012, 2013 Kyle Harrington"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds 2000)
+(def num-birds 500)
 
 (def avoidance-distance (atom 10))
 
@@ -184,6 +184,6 @@ so we only modify bird1."
     (start-gui initialize-simulation)))
 
 ;; For autostart with Counterclockwise in Eclipse
-(when (find-ns 'ccw.complete)
+#_(when (find-ns 'ccw.complete)
   (-main))
 ;(-main :nogui)

@@ -17,6 +17,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.utils
   (:require [me.raynes.conch :refer [programs with-programs let-programs]])
+  (:import [brevis Engine])
   (:use [brevis globals]
         [brevis.physics core utils]))
 
@@ -38,20 +39,17 @@ otherwise it should be a function that returns true/false"
 (defn get-objects
   "Return all objects in the simulation."
   []
-  (seq (.toArray (.getObjects  @*java-engine*))))
+  (seq (.toArray (.getObjects ^Engine @*java-engine*))))
 
-;; from lspector's taggp (avail on github)
-(defn pmapall
-  "Like pmap but: 1) coll should be finite, 2) the returned sequence
-   will not be lazy, 3) calls to f may occur in any order, to maximize
-   multicore processor utilization, and 4) takes only one coll so far."
-  [f coll]
-  (if false;@*brevis-parallel*
-    (map f coll)
-    (let [agents (map #(agent % :error-handler (fn [agnt except] (println except))) coll)]
-      (dorun (map #(send % f) agents))
-      (apply await agents)
-      (doall (map deref agents)))))
+(defn set-parallel
+  "set parallel flag"
+  [new-flag]
+  (.setParallel @*java-engine* new-flag))
+                                          
+(defn get-parallel
+  "get parallel flag"
+  []
+  (.getParallel @*java-engine*))
 
 #_(defn save-simulation-state
    "[EXPERIMENTAL:PROBABLY WONT SAVE WHAT YOU NEED] Save the state of the simulation to filename."

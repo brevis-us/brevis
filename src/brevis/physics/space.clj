@@ -224,19 +224,19 @@ Copyright 2012, 2013 Kyle Harrington"
   (reset! *physics* (assoc @*physics* 
                            :time (+ (:time @*physics*) dt))))
 
-(defn update-objects
-  "Update all objects in the simulation. Objects whose update returns nil                                                                                                
+#_(defn update-objects
+   "Update all objects in the simulation. Objects whose update returns nil                                                                                                
 are removed from the simulation. (deprecated)"
-  [objects dt]  
-  (let [updated-objects 
-        (pmapall (fn [obj]                             
-                   (let [f (get @*update-handlers* (:type obj))]
-                     (if f
-                       (f obj dt (remove #{obj} objects))
-                       obj))) objects)
-        singles (filter #(not (seq? %)) updated-objects);; These objects didn't produce children                                                                         
-        multiples (apply concat (filter seq? updated-objects))];; These are parents and children
-    (into [] (keep identity (concat singles multiples)))))
+   [objects dt]  
+   (let [updated-objects 
+         (pmapall (fn [obj]                             
+                    (let [f (get @*update-handlers* (:type obj))]
+                      (if f
+                        (f obj dt (remove #{obj} objects))
+                        obj))) objects)
+         singles (filter #(not (seq? %)) updated-objects);; These objects didn't produce children                                                                         
+         multiples (apply concat (filter seq? updated-objects))];; These are parents and children
+     (into [] (keep identity (concat singles multiples)))))
 
 (defn java-update-world
   "Update the world (Java engine)."

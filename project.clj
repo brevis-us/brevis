@@ -1,4 +1,4 @@
-(defproject brevis "0.9.3"
+(defproject brevis "0.9.7"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "https://github.com/kephale/brevis"
   :license {:name "Eclipse Public License"
@@ -53,5 +53,6 @@
   ;:aot [clojure.main brevis.ui.core #_brevis.plot.Plotter]
   :main ^:skip-aot brevis.Launcher
   :manifest {"SplashScreen-Image" "brevis_splash.gif"}
+  :javadoc-opts {:package-names ["brevis" "brevis.graphics" "brevis.plot"]}
   :profiles {:headless {:jvm-opts ["-DbrevisHeadless=true"]}}
   )

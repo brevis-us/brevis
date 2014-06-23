@@ -138,7 +138,7 @@ public class Engine {
 	public boolean neighborhoodsEnabled = true;
 	
 	// enableParallel
-	public boolean brevisParallel = true;
+	public boolean brevisParallel = false;
 	
 	public BrKDTree<BrKDNode> spaceTree = null;
 	

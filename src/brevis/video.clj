@@ -14,5 +14,3 @@
     [directory input-pattern out-filename]
     (ffmpeg "-r" "30" "-i" (str directory "/" input-pattern) out-filename)))
 
-
-;(ffmpeg "-r" "1/5" "-i" (str "video_hawkdove_1398778920284081000" "/" "img%05d.png") "-r" "30" "video_hawkdove_1398778920284081000.avi")
