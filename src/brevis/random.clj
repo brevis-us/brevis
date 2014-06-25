@@ -1,5 +1,6 @@
 (ns brevis.random
-  (:require [clj-random.core :as random])
+  (:require [clj-random.core :as random]
+            [clojure.string :as string])
   (:use [brevis vector])
   (:import [java.security.SecureRandom]
            [ec.util.MersenneTwisterFast]))
@@ -25,6 +26,12 @@
   [my-rng & body]
   `(binding [random/*RNG* ~my-rng]
      ~@body))
+
+(defn string-to-seed
+  "Convert a string to a random seed (a byte array)."
+  [s]
+  (byte-array (map #(java.lang.Byte. %)
+                   (string/split s #" "))))
 
 (defn lrand-vec3
   "Return a random vec3."
