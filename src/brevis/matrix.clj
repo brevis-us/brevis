@@ -87,11 +87,12 @@ Copyright 2012, 2013 Kyle Harrington"
     (Matrix4f/transform xform v outv)
     outv))
 
-(defn identity-mat
+(defn identity-mat4
   "Convert a matrix to an identity matrix."
   [^Matrix4f m]
   (.setIdentity m)
   m)
+(def identity-mat identity-mat4); deprecation in progress
 
 ;; derived from Cantor's rotation-matrix
 (defn rotation-matrix
@@ -146,3 +147,86 @@ the specified axis."
   "Sum of all elements in a matrix."
   [m]
   (CommonOps/elementSumAbs m))
+
+(defn add
+  "Add one matrix to another."
+  [^DenseMatrix64F m1 ^DenseMatrix64F m2]
+  (let [outm (DenseMatrix64F. m1)]
+    (CommonOps/addEquals outm m2)
+    outm))
+
+(defn positive-only
+  "Return a matrix with only positive entries."
+  [mat]
+  (let [outm (DenseMatrix64F. mat)]
+    (doseq [i (range (.getNumRows outm))
+            j (range (.getNumCols outm))]    
+      (when (neg? (.unsafe_get ^DenseMatrix64F outm i j))
+        (.unsafe_set ^DenseMatrix64F outm i j 0)))
+    outm))
+
+(defn det
+  "Return the determinant of a matrix."
+  [m]
+  (CommonOps/det ^DenseMatrix64F m))
+
+(defn element-max
+  "Return the maximum value in the matrix."
+  [m]
+  (CommonOps/elementMax ^DenseMatrix64F m))
+
+(defn element-absmax
+  "Return the maximum absolute value in the matrix."
+  [m]
+  (CommonOps/elementMaxAbs ^DenseMatrix64F m))
+
+(defn element-min
+  "Return the minimum value in the matrix."
+  [m]
+  (CommonOps/elementMin ^DenseMatrix64F m))
+
+(defn element-absmin
+  "Return the minimum absolute value in the matrix."
+  [m]
+  (CommonOps/elementMinAbs ^DenseMatrix64F m))
+
+(defn fill
+  "Fill a matrix with a single value."
+  [m val]
+  (let [outm (DenseMatrix64F. m)]
+    (CommonOps/fill outm val)
+    outm))
+
+(defn identity-matrix
+  "Return an identity matrix."
+  ([w]
+    (CommonOps/identity w))
+  ([r c]
+    (CommonOps/identity r c)))
+
+(defn invert
+  "Invert a matrix. Returns nil if m cannot be inverted."
+  [m]
+  (let [outm (DenseMatrix64F. m)]
+    (when (CommonOps/invert outm)
+      outm)))
+
+(defn scale
+  "Scale a matrix."
+  [m s]
+  (let [outm (DenseMatrix64F. m)]
+    (CommonOps/scale s outm)
+    outm))
+
+(defn trace
+  "Return the trace of a matrix."
+  [m]
+  (CommonOps/trace m))
+
+(defn transpose
+  "Transpose a matrix."
+  [m]
+  (let [outm (DenseMatrix64F. m)]
+    (CommonOps/transpose outm)
+    outm))
+

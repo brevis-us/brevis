@@ -32,8 +32,9 @@ Copyright 2012-2014 Kyle Harrington"
 (defn make-xy-dataset
   "Convert a hash-map or vector of pairs into a plottable XY dataset."
   ([data] (make-xy-dataset data (gensym "dataset")))
-  ([data dataset-name]
-    (let [xyseries (XYSeries. dataset-name)]
+  ([data dataset-name] (make-xy-dataset data (gensym "dataset") false false))
+  ([data dataset-name auto-sort allow-duplicates]
+    (let [xyseries (XYSeries. dataset-name auto-sort allow-duplicates)]
       (doseq [[k v] data]
         (.addOrUpdate xyseries k v))
       (let [xycoll (XYSeriesCollection. xyseries)]
