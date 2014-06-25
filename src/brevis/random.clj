@@ -14,7 +14,8 @@
   [new-seed]
   (random/make-mersennetwister-rng new-seed))
 
-(def random-seed-to-string random/seed-to-string)
+(def random-seed-to-string random/seed-to-string); this binding will be deprecated
+(def seed-to-string random/seed-to-string)
 (def lrand random/lrand)
 (def lrand-int random/lrand-int)
 (def lrand-nth random/lrand-nth)
