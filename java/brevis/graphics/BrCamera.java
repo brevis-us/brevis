@@ -250,8 +250,8 @@ public class BrCamera {
 		this.x -= dx * (float) sin(toRadians(yaw - 90)) + dz * sin(toRadians(yaw));
 		this.y += dy * (float) sin(toRadians(pitch - 90)) + dz * sin(toRadians(pitch));*/
 		
-		this.z += dx * (float) cos(toRadians(yaw - 90)) + dz * cos(toRadians(yaw));
-		this.x -= dx * (float) sin(toRadians(yaw - 90)) + dz * sin(toRadians(yaw));
+		this.z += dx * (float) cos(toRadians(pitch - 90)) + dz * cos(toRadians(pitch));
+		this.x -= dx * (float) sin(toRadians(pitch - 90)) + dz * sin(toRadians(pitch));
 		this.y += dy * (float) sin(toRadians(roll - 90)) + dz * sin(toRadians(roll));
 	}
 	

@@ -18,6 +18,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (ns brevis.ui.profile
   (:import [java.io File])
   (:require [clojure.java.io :as io]
+            [clojure.string :as string]
             [leiningen.core.project :as project])
   (:use [clojure.pprint]))
 
@@ -26,11 +27,19 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (def current-profile (atom {}))
 
+#_(def default-profile
+   {:author "Brevis h4x3r"
+    :current-project (str (io/file (System/getProperty "user.home")) File/separator "git" File/separator "brevis")
+    :current-filename (str (io/file (System/getProperty "user.home")) File/separator "git" File/separator "brevis" File/separator "src"File/separator "brevis" File/separator "example" File/separator "swarm.clj")
+    :projects []})
+
 (def default-profile
-  {:author "Brevis h4x3r"
-   :current-project (str (io/file (System/getProperty "user.home")) File/separator "git" File/separator "brevis")
-   :current-filename (str (io/file (System/getProperty "user.home")) File/separator "git" File/separator "brevis" File/separator "src"File/separator "brevis" File/separator "example" File/separator "swarm.clj")
-   :projects []})
+   {:author "Brevis h4x3r"
+    ;:current-project (str (io/file (System/getProperty "user.home")) File/separator "git" File/separator "brevis")
+    :current-project (string/join [(io/file (System/getProperty "user.home")) "git" "brevis"]
+                                  File/separator)
+    :current-filename ""
+    :projects []})
 
 (defn read-profile
   "Read a brevis profile."

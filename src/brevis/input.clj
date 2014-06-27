@@ -59,25 +59,25 @@ input-class: indicates the class of input. Currently supports (:key-press, :mous
                      {:key-id "W"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 true false false false false false))
   (add-input-handler :key-press
-                     {:key-id "W"}
+                     {:key-id "D"}
                      #(.moveFromLook (:camera @*gui-state*) (- keyspeed) 0 0 ))                     
   #_(add-input-handler :key-press
                      {:key-id "A"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false true false false false))
   (add-input-handler :key-press
-                     {:key-id "A"}
+                     {:key-id "W"}
                      #(.moveFromLook (:camera @*gui-state*) 0 0 keyspeed))                     
   #_(add-input-handler :key-press
                      {:key-id "S"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false true false false false false))
   (add-input-handler :key-press
-                     {:key-id "S"}
+                     {:key-id "A"}
                      #(.moveFromLook (:camera @*gui-state*) keyspeed 0 0))                     
   #_(add-input-handler :key-press
                      {:key-id "D"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 false false false true false false))
   (add-input-handler :key-press
-                     {:key-id "D"}
+                     {:key-id "S"}
                      #(.moveFromLook (:camera @*gui-state*) 0 0 (- keyspeed)))                     
   #_(add-input-handler :key-press
                      {:key-id "C"}

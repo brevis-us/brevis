@@ -55,7 +55,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 ;; ## Globals
 
-(def workspace-directory (atom (str (System/getProperty "user.home") File/separator "git") #_"/Users/kyle/git"))
+(def workspace-directory (atom (str (System/getProperty "user.home") File/separator "git")))
 
 (def editor-window
   "Keeping track of the open editor window." (atom nil))
