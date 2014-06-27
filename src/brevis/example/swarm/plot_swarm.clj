@@ -88,15 +88,18 @@ Copyright 2012, 2013 Kyle Harrington"
   [bird dt nbrs]
   (let [nbrs (filter bird? (get-neighbor-objects bird))      
         ;tmp (println (count nbrs))
-        ;tmp (do (doseq [nbr nbrs] (print (get-position nbr))) (println)) 
+        ;tmp (do (doseq [nbr nbrs] (print (get-position nbr))) (println))
+        bird-pos (get-position bird)
+        bird-dists (map #(length-vec3 (sub-vec3 (get-position %) bird-pos)) nbrs)
         closest-bird (when-not (empty? nbrs)
-                       (first nbrs)
-                       #_(rand-nth nbrs))
+                       (nth nbrs 
+                            (reduce #(if (< (nth bird-dists %1) (nth bird-dists %2)) %1 %2) (range (count bird-dists)))))
+
         new-acceleration (if-not closest-bird
                            ;; No neighbor, move randomly
                            (elmul (vec3 (- (rand) 0.5) (- (rand) 0.5) (- (rand) 0.5))
-                                  (mul (get-position bird) -1.0))
-                           (let [dvec (sub (get-position bird) (get-position closest-bird)) 
+                                  (mul bird-pos -1.0))
+                           (let [dvec (sub bird-pos (get-position closest-bird)) 
                                  len (length dvec)]
                              (add (sub (get-velocity closest-bird) (get-velocity bird)); velocity matching
                                   (if (<= len @avoidance-distance)
@@ -109,7 +112,7 @@ Copyright 2012, 2013 Kyle Harrington"
                            new-acceleration
                            (mul new-acceleration (/ 1 (length new-acceleration))))]
     (set-acceleration
-      (if (> (length (get-position bird)) 700)
+      (if (> (length bird-pos) 700)
         (move bird (vec3 0 25 0))
         bird)
       (bound-acceleration
@@ -143,21 +146,6 @@ so we only modify bird1."
 (add-collision-handler :bird :floor land)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ## plotting code 
-
- (add-plot-handler
-   (fn [] 
-     (let [positions (map get-position (filter bird? (all-objects)))
-           center (vec3 (/ (apply + (map #(.x %) positions)) (count positions))
-                        (/ (apply + (map #(.y %) positions)) (count positions))
-                        (/ (apply + (map #(.z %) positions)) (count positions)))
-           distances (map #(length (sub center %)) positions)
-           avg-distance (/ (apply + distances) (count distances))]
-       [(* (get-time) (get-dt)) avg-distance]))
-   :interval 200
-   :title "Avg dist from centroid")
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## brevis control code
 
 (defn initialize-simulation
@@ -174,7 +162,23 @@ so we only modify bird1."
   (default-display-text)
   (add-object (make-floor 500 500))
   (dotimes [_ num-birds]
-    (add-object (random-bird))))
+    (add-object (random-bird)))
+  
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ## plotting code 
+
+ (add-plot-handler
+   (fn [] 
+     (let [positions (map get-position (filter bird? (all-objects)))
+           center (vec3 (/ (apply + (map #(.x %) positions)) (count positions))
+                        (/ (apply + (map #(.y %) positions)) (count positions))
+                        (/ (apply + (map #(.z %) positions)) (count positions)))
+           distances (map #(length (sub center %)) positions)
+           avg-distance (/ (apply + distances) (count distances))]
+       [(* (get-time) (get-dt)) avg-distance]))
+   :interval 200
+   :title "Avg dist from centroid")  
+  )
 
 ;; Start zee macheen
 (defn -main [& args]
@@ -184,6 +188,6 @@ so we only modify bird1."
     (start-gui initialize-simulation)))
 
 ;; For autostart with Counterclockwise in Eclipse
-#_(when (find-ns 'ccw.complete)
-  (-main))
+(when (find-ns 'ccw.complete)
+(-main))
 ;(-main :nogui)

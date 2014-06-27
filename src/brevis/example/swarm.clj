@@ -89,14 +89,18 @@ Copyright 2012, 2013 Kyle Harrington"
   (let [nbrs (filter bird? (get-neighbor-objects bird))      
         ;tmp (println (count nbrs))
         ;tmp (do (doseq [nbr nbrs] (print (get-position nbr))) (println)) 
+        bird-pos (get-position bird)
+        
+        bird-dists (map #(length-vec3 (sub-vec3 (get-position %) bird-pos)) nbrs)
         closest-bird (when-not (empty? nbrs)
-                       (first nbrs)
-                       #_(rand-nth nbrs))
+                       (nth nbrs 
+                            (reduce #(if (< (nth bird-dists %1) (nth bird-dists %2)) %1 %2) (range (count bird-dists)))))
+        
         new-acceleration (if-not closest-bird
                            ;; No neighbor, move randomly
                            (elmul (vec3 (- (rand) 0.5) (- (rand) 0.5) (- (rand) 0.5))
-                                  (mul (get-position bird) -1.0))
-                           (let [dvec (sub (get-position bird) (get-position closest-bird)) 
+                                  (mul bird-pos -1.0))
+                           (let [dvec (sub bird-pos (get-position closest-bird)) 
                                  len (length dvec)]
                              (add (sub (get-velocity closest-bird) (get-velocity bird)); velocity matching
                                   (if (<= len @avoidance-distance)
@@ -109,7 +113,7 @@ Copyright 2012, 2013 Kyle Harrington"
                            new-acceleration
                            (mul new-acceleration (/ 1 (length new-acceleration))))]
     (set-acceleration
-      (if (> (length (get-position bird)) 700)
+      (if (> (length bird-pos) 700)
         (move bird (vec3 0 25 0))
         bird)
       (bound-acceleration
