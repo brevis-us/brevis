@@ -1,4 +1,4 @@
-(defproject brevis "0.9.10"
+(defproject brevis "0.9.11"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "https://github.com/kephale/brevis"
   :license {:name "Eclipse Public License"
@@ -14,20 +14,16 @@
                  [clj-random "0.1.6"]         
                  
                  ;; Project management & utils
-                 ;[leiningen-core "2.3.4"]
                  [leiningen "2.3.4"]
                  [clj-jgit "0.3.9"]
                  [me.raynes/conch "0.6.0"]
                  
                  ;; Physics packages                 
-;                 [kephale/ode4j "0.12.0-j1.4"]
-                 ;[kephale/ode4j "20130414_001"]
                  [org.ode4j/core "0.2.8"]
                  [org.ode4j/demo "0.2.8"]
                  [com.nitayjoffe.thirdparty.net.robowiki.knn/knn-benchmark "0.1"]                 
                  
                  ;; Graphics packages (3D rendering)
-                 ;[kephale/penumbra "0.6.7"]
                  [kephale/lwjgl "2.9.0"]
                  [kephale/lwjgl-natives "2.9.0"]
                  ;[org.lwjgl.lwjgl/lwjgl-platform "2.9.1" :classifier "natives-osx" :native-prefix ""]
@@ -40,10 +36,8 @@
                  [org.jfree/jfreechart "1.0.17"]
                  
                  ;; Math packages
-                 ;[java3d/vecmath "1.3.1"]
                  [com.googlecode.efficient-java-matrix-library/ejml "0.24"]
                  [org.flatland/ordered "1.5.2"]
-                 #_[kephale/jblas "1.2.0"]; should use ejml instead
                  
                  ;; UI packages
                  [seesaw "1.4.4"]

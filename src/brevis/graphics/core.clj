@@ -148,5 +148,5 @@ Copyright 2012, 2013 Kyle Harrington"
   (Mouse/destroy)
   (Display/destroy)
   ;; Should call system/exit if not using UI
-  (System/exit 0)
+  #_(System/exit 0)
   )

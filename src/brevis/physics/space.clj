@@ -198,9 +198,11 @@ Copyright 2012, 2013 Kyle Harrington"
                      (vec3 0 -3 0))
                (clojure.java.io/resource "img/checker_large.png")))
 
-(defn init-world  "Return a map of ODE physics for 1 world."  []  (let [world (doto (OdeHelper/createWorld)     
-                      (.setGravity 0 0 0)                                                                                   
-                      #_(.setGravity 0 -9.81 0))        space (OdeHelper/createHashSpace)        contact-group (OdeHelper/createJointGroup)]
+(defn init-world  "Return a map of ODE physics for 1 world. (Now does some brevis in it too)"  []
+  (when @*java-engine*
+    (.clearSimulation @*java-engine*))  (let [world (doto (OdeHelper/createWorld)     
+(.setGravity 0 0 0)                                                                                   
+#_(.setGravity 0 -9.81 0))        space (OdeHelper/createHashSpace)        contact-group (OdeHelper/createJointGroup)]
     (reset! *physics* {:world world                             :space space                       :contact-group contact-group
                        :time 0});      (let [[floor floor-joint] (make-floor 1000 1000)
     #_(println "Collision handlers:" (keys @*collision-handlers*))

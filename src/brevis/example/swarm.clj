@@ -19,7 +19,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (:use [brevis.graphics.basic-3D]
         [brevis.physics collision core space utils]
         [brevis.shape box sphere cone]
-        [brevis core osd vector]))
+        [brevis core osd vector camera]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Swarm
@@ -91,10 +91,13 @@ Copyright 2012, 2013 Kyle Harrington"
         ;tmp (do (doseq [nbr nbrs] (print (get-position nbr))) (println)) 
         bird-pos (get-position bird)
         
-        bird-dists (map #(length-vec3 (sub-vec3 (get-position %) bird-pos)) nbrs)
-        closest-bird (when-not (empty? nbrs)
-                       (nth nbrs 
-                            (reduce #(if (< (nth bird-dists %1) (nth bird-dists %2)) %1 %2) (range (count bird-dists)))))
+        ;; Actual closest bird, a little slow
+        ;bird-dists (map #(length-vec3 (sub-vec3 (get-position %) bird-pos)) nbrs)
+        #_closest-bird #_(when-not (empty? nbrs)
+                          (nth nbrs 
+                               (reduce #(if (< (nth bird-dists %1) (nth bird-dists %2)) %1 %2) (range (count bird-dists)))))
+        
+        closest-bird (first nbrs)
         
         new-acceleration (if-not closest-bird
                            ;; No neighbor, move randomly
@@ -156,8 +159,11 @@ so we only modify bird1."
   (init-world)
   (init-view)  
   ;(swap! brevis.globals/*gui-state* assoc :gui false)
-  (.moveFromLook (:camera @brevis.globals/*gui-state*) 0 100 0)
+  #_(.moveFromLook (:camera @brevis.globals/*gui-state*) 0 100 0)
   #_(set-dt 0.1)
+  
+  (set-camera-information (vec3 -10.0 -50.0 -200.0) (vec4 1.0 0.0 0.0 0.0))
+  
   (set-dt 1)
   (set-neighborhood-radius 500)
   (default-display-text)
