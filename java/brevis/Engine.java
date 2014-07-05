@@ -333,7 +333,7 @@ public class Engine {
 
    }		
 	
-	/* parallelUpdateObjects
+	/* parallelUpdateObjects (not working properly yet)
 	 * Call individual update functions in parallel
 	 */
 	public void parallelUpdateObjects( final double dt ) {
@@ -461,34 +461,7 @@ public class Engine {
 	       lock.unlock();
 	     }		
 		
-	}
-	
-	
-	/* updateNeighborhoods
-	 * Update the neighborhoods of all objects
-	 * LAZY PAIRWISE IMPLEMENTATION
-	 */
-	/*public void updateNeighborhoods() {
-		//HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
-		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();			
-		
-		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
-			BrObject obj = entry.getValue();
-			Vector<Long> nbrs = new Vector<Long>();
-			for( Map.Entry<Long,BrObject> otherEntry : objects.entrySet() ) {
-				BrObject otherObj = otherEntry.getValue();
-				//System.out.println( "Distance to " + obj.distanceTo( otherObj ) + " radius " + neighborhoodRadius );
-				if( obj.distanceTo( otherObj ) < neighborhoodRadius && obj != otherObj ) {
-					nbrs.add( otherObj.uid );
-					//System.out.println( "Adding neighbor " + obj.getType() );
-				}
-			}
-			//System.out.println( "Neighbors of " + obj + " " + nbrs.size() );
-			obj.nbrs = nbrs;
-			updatedObjects.put( entry.getKey(), obj );
-		}
-		objects = updatedObjects;
-	}*/
+	}	
 	
 	/* updateNeighborhoods
 	 * Update the neighborhoods of all objects
@@ -757,6 +730,18 @@ public class Engine {
 	public Vector<Long> allObjectUIDs() {
 		Vector<Long> v = new Vector<Long>();
 		v.addAll( objects.keySet() );
+		return v;
+	}
+	
+	public Vector<Long> allObjectUIDsByType( String type ) {
+		Vector<Long> v = new Vector<Long>();
+		
+		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
+ 			if( entry.getValue().getType() == type ) {
+ 				v.add( entry.getKey() );
+ 			}
+ 		}
+		
 		return v;
 	}
 	

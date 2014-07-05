@@ -1,10 +1,11 @@
-(defproject brevis "0.9.13"
+(defproject brevis "0.9.14"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "https://brevis.us"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   ;:jvm-opts ^:replace ["-Xmx4g" "-splash:resources/brevis_splash.gif" "-XX:+UseParallelGC"]; "-Xdock:name=Brevis"  
-  ;:jvm-opts ^:replace ["-Xmx4g" #_"-XX:+UseParallelGC"]; "-Xdock:name=Brevis"  
+  ;:jvm-opts ^:replace ["-Xmx4g" #_"-XX:+UseParallelGC"]; "-Xdock:name=Brevis"
+  ;:jvm-opts ^:replace ["-XX:+UseG1GC" "-Xmx4g" "-XX:-UseGCOverheadLimit"]  
   :resource-paths ["resources" "target/native"]
   :plugins [[lein-marginalia "0.7.1"]]
   :java-source-paths ["java"]

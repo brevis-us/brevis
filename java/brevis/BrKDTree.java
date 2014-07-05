@@ -1,6 +1,6 @@
 /* 
  * brevis KDTree
- * basded on Duy Nguyen's duyn.algorithm.nearestneighbours 
+ * based on Duy Nguyen's duyn.algorithm.nearestneighbours 
  */
 
 

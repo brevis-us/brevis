@@ -94,6 +94,42 @@ Copyright 2012, 2013 Kyle Harrington"
                (handler-fn)))]
     (.addGlobalUpdateHandler @*java-engine* priority gh)))
 
+(defn all-object-uids-by-type
+  "Return the collection of all UIDs."
+  [type]
+  (seq (.allObjectUIDsByType ^Engine @*java-engine* (name type))))
+
+(defn set-object
+  "Set the object at UID to a new version."
+  [^Long uid ^BrObject new-obj]
+  (.addObject ^Engine @*java-engine* uid new-obj))
+
+(defn get-object
+  "Return the object by UID"
+  [^Long uid]
+  (.getObject ^Engine @*java-engine* uid))
+
+(defn add-parallel-update-handler
+  "Associate an update function with a type."
+  [type handler-fn]
+  (add-global-update-handler 0
+                             (fn []
+                                (let [uids (all-object-uids-by-type type)
+                                      agents (map #(agent % :error-handler (fn [agnt except] (println except))) uids)
+                                      f (fn [uid]
+                                          (let [obj (get-object uid)]
+                                            (set-object uid
+                                                        (handler-fn obj))))]
+                                      (dorun (map #(send % f) agents))
+                                      (apply await agents)
+                                      (doall (map deref agents))))
+                             #_(fn []
+                                (let [uids (all-object-uids-by-type type)]
+                                  (doall (pmap #(let [obj (get-object %)]
+                                                 (set-object %
+                                                             (handler-fn obj)))
+                                              uids))))))
+
 #_(defn param-label
   "Convert a string into an ODE param label."
   [s]
@@ -165,12 +201,14 @@ axis is the axis about which the joint rotates"
 (defn all-objects
   "Return the collection of all objects."
   []
-  (seq (.allObjects @*java-engine*)))
+  (seq (.allObjects ^Engine @*java-engine*)))
 
 (defn all-object-uids
   "Return the collection of all UIDs."
   []
-  (seq (.allObjectUIDs @*java-engine*)))
+  (seq (.allObjectUIDs ^Engine @*java-engine*)))
+
+
 
 (defn get-acceleration
   "Return the acceleration of an object."
@@ -233,16 +271,6 @@ axis is the axis about which the joint rotates"
   (.distance 
     (.getPosition (get-body me)) 
     (.getPosition (get-body other))))
-
-(defn get-object
-  "Return the object by UID"
-  [^Long uid]
-  (.getObject ^Engine @*java-engine* uid))
-
-(defn set-object
-  "Set the object at UID to a new version."
-  [^Long uid ^BrObject new-obj]
-  (.addObject ^Engine @*java-engine* uid new-obj))
 
 (defn get-neighbor-objects
    "Return the objects of a neighborhood."

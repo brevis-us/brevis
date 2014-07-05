@@ -145,6 +145,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (enable-kinematics-update :bird); This tells the simulator to move our objects
 (add-update-handler :bird fly); This tells the simulator how to update these objects
+;(add-parallel-update-handler :bird fly); This tells the simulator how to update these objects (in parallel)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Collision handling
@@ -185,7 +186,7 @@ so we only modify bird1."
   (set-camera-information (vec3 -10.0 57.939613 -890.0) (vec4 1.0 0.0 0.0 0.0))
   
   (set-dt 1)
-  (set-neighborhood-radius 500)
+  (set-neighborhood-radius 250)
   (default-display-text)
   (add-object (move (make-floor 500 500) (vec3 0 (- boundary) 0)))
   (dotimes [_ num-birds]
