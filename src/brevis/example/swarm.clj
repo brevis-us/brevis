@@ -42,6 +42,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (def num-birds 500)
 
 (def avoidance-distance (atom 10))
+(def boundary 250)
 
 (def speed 25)
 (def max-acceleration 10)
@@ -83,9 +84,25 @@ Copyright 2012, 2013 Kyle Harrington"
     (mul (div v (length v)) max-acceleration)
     v))
 
+(defn periodic-boundary
+  "Change a position according to periodic boundary conditions."
+  [pos]
+  (let [x (.x pos)
+        y (.y pos)
+        z (.z pos)]
+    (vec3 (cond (> x boundary) (- (mod x boundary) boundary)
+                (< x (- boundary)) (mod (- x) boundary)
+                :else x)
+          (cond (> y boundary) (- (mod y boundary) boundary)
+                (< y (- boundary)) (mod (- y) boundary)
+                :else y)
+          (cond (> z boundary) (- (mod z boundary) boundary)
+                (< z (- boundary)) (mod (- z) boundary)
+                :else z))))
+
 (defn fly
   "Change the acceleration of a bird."
-  [bird dt nbrs]
+  [bird]
   (let [nbrs (filter bird? (get-neighbor-objects bird))      
         ;tmp (println (count nbrs))
         ;tmp (do (doseq [nbr nbrs] (print (get-position nbr))) (println)) 
@@ -116,8 +133,10 @@ Copyright 2012, 2013 Kyle Harrington"
                            new-acceleration
                            (mul new-acceleration (/ 1 (length new-acceleration))))]
     (set-acceleration
-      (if (> (length bird-pos) 700)
-        (move bird (vec3 0 25 0))
+      (if (or (> (java.lang.Math/abs (.x bird-pos)) boundary) 
+              (> (java.lang.Math/abs (.y bird-pos)) boundary) 
+              (> (java.lang.Math/abs (.z bird-pos)) boundary)) 
+        (move bird (periodic-boundary bird-pos) #_(vec3 0 25 0))
         bird)
       (bound-acceleration
         new-acceleration
@@ -162,12 +181,13 @@ so we only modify bird1."
   #_(.moveFromLook (:camera @brevis.globals/*gui-state*) 0 100 0)
   #_(set-dt 0.1)
   
-  (set-camera-information (vec3 -10.0 -50.0 -200.0) (vec4 1.0 0.0 0.0 0.0))
+  #_(set-camera-information (vec3 -10.0 -50.0 -200.0) (vec4 1.0 0.0 0.0 0.0))
+  (set-camera-information (vec3 -10.0 57.939613 -890.0) (vec4 1.0 0.0 0.0 0.0))
   
   (set-dt 1)
   (set-neighborhood-radius 500)
   (default-display-text)
-  (add-object (make-floor 500 500))
+  (add-object (move (make-floor 500 500) (vec3 0 (- boundary) 0)))
   (dotimes [_ num-birds]
     (add-object (random-bird))))
 

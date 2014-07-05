@@ -81,10 +81,9 @@ Copyright 2012, 2013 Kyle Harrington"
   "Associate an update function with a type."
   [type handler-fn]
   (let [uh (proxy [brevis.Engine$UpdateHandler] []
-				    (update [#^brevis.Engine engine #^Long uid #^Double dt]
-          #_(println "inside an update handler" uid dt)
-              (let [obj (.getObject engine uid)]
-                (handler-fn obj dt (.getNeighbors obj)))))]
+             (update [#^brevis.Engine engine #^Long uid #^Double dt]
+               (let [obj (.getObject engine uid)]
+                 (handler-fn obj))))]
     (.addUpdateHandler @*java-engine* (str (name type)) uh)))
 
 (defn add-global-update-handler

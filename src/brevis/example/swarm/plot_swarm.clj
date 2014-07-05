@@ -85,7 +85,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (defn fly
   "Change the acceleration of a bird."
-  [bird dt nbrs]
+  [bird]
   (let [nbrs (filter bird? (get-neighbor-objects bird))      
         ;tmp (println (count nbrs))
         ;tmp (do (doseq [nbr nbrs] (print (get-position nbr))) (println))

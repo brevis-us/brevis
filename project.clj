@@ -1,6 +1,6 @@
-(defproject brevis "0.9.11"
+(defproject brevis "0.9.12"
   :description "A Functional Scientific and Artificial Life Simulator"
-  :url "https://github.com/kephale/brevis"
+  :url "https://brevis.us"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   ;:jvm-opts ^:replace ["-Xmx4g" "-splash:resources/brevis_splash.gif" "-XX:+UseParallelGC"]; "-Xdock:name=Brevis"  

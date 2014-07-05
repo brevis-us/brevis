@@ -87,7 +87,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (defn fly
   "Change the acceleration of a bird."
-  [bird dt nbrs]
+  [bird]
   (let [nbrs (filter bird? (get-neighbor-objects bird))        
         closest-bird (when-not (empty? nbrs)
                        (first nbrs)
@@ -127,9 +127,8 @@ Copyright 2012, 2013 Kyle Harrington"
     (doall (pmap #(let [obj (get-object %)]
                    #_(println %)
                    (set-object %
-                               (fly obj (get-dt) [])))
-                uids))
-    ))
+                               (fly obj)))
+                uids))))
 
 (enable-kinematics-update :bird); This tells the simulator to move our objects
 ;(add-update-handler :bird fly); This tells the simulator how to update these objects
