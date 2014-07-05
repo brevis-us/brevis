@@ -131,8 +131,9 @@ Copyright 2012, 2013 Kyle Harrington"
           ;(update [1 1] {})
           (update [(* step (get-dt)) (get-dt)] {})
           (dosync (ref-set fps (inc @fps)))
-          (when (> (java.lang.System/nanoTime) @startTime)
-            #_(println "Update" step "FPS:" (double (/ @fps (/ (- (+ 1000000000 (java.lang.System/nanoTime)) @startTime) 1000000000))))
+          (when (and (:display-fps @*gui-state*)
+                     (> (java.lang.System/nanoTime) @startTime))
+            (println "Update" step "FPS:" (double (/ @fps (/ (- (+ 1000000000 (java.lang.System/nanoTime)) @startTime) 1000000000))))
             (dosync 
               (ref-set startTime (+ (java.lang.System/nanoTime) 1000000000))
               (ref-set fps 0)))

@@ -245,13 +245,13 @@ axis is the axis about which the joint rotates"
   (.addObject ^Engine @*java-engine* uid new-obj))
 
 (defn get-neighbor-objects
-  "Return the objects of a neighborhood."
-  [^BrObject obj]
-  (let [nbrs (.getNeighbors obj)
-        obj-uid (get-uid obj)]
-    (when nbrs
-      (map #(get-object %)
-           (seq (.toArray (filter (partial not= obj-uid) nbrs)))))))
+   "Return the objects of a neighborhood."
+   [^BrObject obj]
+   (let [nbrs (.getNeighbors obj)
+         obj-uid (get-uid obj)]
+     (when nbrs
+       (map #(get-object %)
+            (filter (partial not= obj-uid) nbrs)))))
 
 (defn set-neighborhood-radius
   "Set the neighborhood radius."

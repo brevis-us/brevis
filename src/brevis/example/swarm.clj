@@ -19,7 +19,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (:use [brevis.graphics.basic-3D]
         [brevis.physics collision core space utils]
         [brevis.shape box sphere cone]
-        [brevis core osd vector camera]))
+        [brevis core osd vector camera utils]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Swarm
@@ -87,9 +87,9 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn periodic-boundary
   "Change a position according to periodic boundary conditions."
   [pos]
-  (let [x (.x pos)
-        y (.y pos)
-        z (.z pos)]
+  (let [x (x-val pos)
+        y (y-val pos)
+        z (z-val pos)]
     (vec3 (cond (> x boundary) (- (mod x boundary) boundary)
                 (< x (- boundary)) (mod (- x) boundary)
                 :else x)
@@ -133,9 +133,9 @@ Copyright 2012, 2013 Kyle Harrington"
                            new-acceleration
                            (mul new-acceleration (/ 1 (length new-acceleration))))]
     (set-acceleration
-      (if (or (> (java.lang.Math/abs (.x bird-pos)) boundary) 
-              (> (java.lang.Math/abs (.y bird-pos)) boundary) 
-              (> (java.lang.Math/abs (.z bird-pos)) boundary)) 
+      (if (or (> (java.lang.Math/abs (x-val bird-pos)) boundary) 
+              (> (java.lang.Math/abs (y-val bird-pos)) boundary) 
+              (> (java.lang.Math/abs (z-val bird-pos)) boundary)) 
         (move bird (periodic-boundary bird-pos) #_(vec3 0 25 0))
         bird)
       (bound-acceleration

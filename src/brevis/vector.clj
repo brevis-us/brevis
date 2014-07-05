@@ -52,8 +52,8 @@ Copyright 2012, 2013 Kyle Harrington"
    #_((if (vec3? v1) Vector3f/sub Vector4f/sub)
      v1 v2 nil)
    (if (vec3? v1) 
-     (Vector3f/sub v1 v2 nil)
-     (Vector4f/sub v1 v2 nil)))
+     (Vector3f/sub ^Vector3f v1 ^Vector3f v2 nil)
+     (Vector4f/sub ^Vector4f v1 ^Vector4f v2 nil)))
 
 #_(defn sub
    "Wrap's Vector3f sub."
@@ -61,8 +61,8 @@ Copyright 2012, 2013 Kyle Harrington"
    ([^Vector4f v1 ^Vector4f v2] (Vector4f/sub v1 v2 nil)))
 
 (defn sub-vec3
-   "Wrap's Vector3f sub."
-   [v1 v2] (Vector3f/sub v1 v2 nil))
+   "Wrap's Vector3f sub. Should be a little faster than normal sub"
+   [^Vector3f v1 ^Vector3f v2] (Vector3f/sub v1 v2 nil))
 
 (defn sub-vec4
    "Wrap's Vector3f sub."
@@ -71,7 +71,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn div
   "Divide a Vector3f by a scalar."
   [v s]
-  (let [vr (if (vec3? v) (Vector3f. v) (Vector4f. v))]             
+  (let [vr (if (vec3? v) ^Vector3f (Vector3f. v) ^Vector4f (Vector4f. v))]             
     (.scale vr (double (/ s)))
     vr))
     
@@ -81,8 +81,8 @@ Copyright 2012, 2013 Kyle Harrington"
     v)
   ([v1 v2]
     (if (vec3? v1) 
-      (Vector3f/add v1 v2 nil)
-      (Vector4f/add v1 v2 nil)))
+      (Vector3f/add ^Vector3f v1 ^Vector3f v2 nil)
+      (Vector4f/add ^Vector4f v1 ^Vector4f v2 nil)))
   ([v1 v2 & vs]
     (loop [vs vs
            v (add v1 v2)]
@@ -94,14 +94,14 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn mul
   "Multiply a Vector3f by a scalar."
   [v s]
-  (let [vr (if (vec3? v) (Vector3f. v) (Vector4f. v))]
+  (let [vr (if (vec3? v) ^Vector3f (Vector3f. v) ^Vector4f (Vector4f. v))]
     (.scale vr (double s))
     vr))
 
 (defn elmul
   "Multiply a Vector3f by a scalar."
   [v w]
-  (let [vr (if (vec3? v) (Vector3f. v) (Vector4f. v))]             
+  (let [vr (if (vec3? v) ^Vector3f (Vector3f. v) ^Vector4f (Vector4f. v))]             
     (.setX vr (double (* (.x w) (.x v))))
     (.setY vr (double (* (.y w) (.y v))))
     (.setZ vr (double (* (.z w) (.z v))))
@@ -111,8 +111,8 @@ Copyright 2012, 2013 Kyle Harrington"
   "Dot product of 2 vectors."
   [v1 v2]
   (if (vec3? v1) 
-    (Vector3f/dot v1 v2) 
-    (Vector4f/dot v1 v2))) 
+    (Vector3f/dot ^Vector3f v1 ^Vector3f v2) 
+    (Vector4f/dot ^Vector4f v1 ^Vector4f v2))) 
 
 (defn length
   "Return the length of a vector."
@@ -134,7 +134,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn normalize
   "Normalize a vector."
   [v]
-  (let [nv (if (vec3? v) (Vector3f. v) (Vector4f. v))]          
+  (let [nv (if (vec3? v) ^Vector3f (Vector3f. v) ^Vector4f (Vector4f. v))]          
     (when-not (zero? (length v))
       (.normalise nv))
     nv))
@@ -175,3 +175,17 @@ Copyright 2012, 2013 Kyle Harrington"
   [^Vector4f v]
   [(.x v) (.y v) (.z v) (.w v)])
 
+(defn x-val
+  "Return the x-value of a vector."
+  [v]
+  (if (vec3? v) (.x ^Vector3f v) (.x ^Vector4f v)))
+
+(defn y-val
+  "Return the y-value of a vector."
+  [v]
+  (if (vec3? v) (.y ^Vector3f v) (.y ^Vector4f v)))
+
+(defn z-val
+  "Return the z-value of a vector."
+  [v]
+  (if (vec3? v) (.z ^Vector3f v) (.z ^Vector4f v)))

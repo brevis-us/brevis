@@ -4,10 +4,10 @@ brevis, an open-source, functional artificial life simulator.
 
 brevis is a 3D artificial life and complex systems simulator where simulations are written in the functional programming language Clojure.
 	
-On the web:   http://brevis.golemics.org
+On the web:   http://brevis.us
 Chat: #brevis@irc.freenode.net
   
-by Kyle Harrington (kyleh@cs.brandeis.edu), 2011-2014.
+by Kyle Harrington (kharrin3@bidmc.harvard.edu), 2011-2014.
    http://kyleharrington.com
       
 
@@ -37,18 +37,21 @@ Developed for use with the Clojure Eclipse plugin, CounterClockwise (this must b
 
 ## Controlling the simulation
 
-Keyboard keys:
+Default input:
 
 esc - kill the simulation  
-<hold> z \& <hold> left button - rotate camera  
-<hold> z \& <hold> right button - translate camera  
-mouse wheel forward/backward - zoom camera   
-p - pause  
+w - move camera forward  
+s - move camera backward  
+a - move camera left  
+d - move camera right  
+z - move camera up  
+c - move camera down  
+<hold> shift \& left click + move mouse - rotate camera  
 o - screenshot  
 
 ## License
 
-Brevis is licensed under GPLv3. LGPL licenses may be granted upon request.
+Brevis is licensed under GPLv3. LGPL licenses may hesitantly be granted upon request.
 
 This file is part of brevis.                                                                                                                                                 
                                                                                                                                                                                      

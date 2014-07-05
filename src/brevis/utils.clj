@@ -51,6 +51,16 @@ otherwise it should be a function that returns true/false"
   []
   (.getParallel @*java-engine*))
 
+(defn enable-fps-display
+  "Print FPS."
+  []
+  (swap! *gui-state* assoc :display-fps true))
+
+(defn disable-fps-display
+  "Stop printing FPS."
+  []
+  (swap! *gui-state* assoc :display-fps false))
+
 #_(defn save-simulation-state
    "[EXPERIMENTAL:PROBABLY WONT SAVE WHAT YOU NEED] Save the state of the simulation to filename."
    [filename]
