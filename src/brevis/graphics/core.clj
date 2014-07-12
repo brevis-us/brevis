@@ -65,10 +65,13 @@ Copyright 2012, 2013 Kyle Harrington"
   []
   (when *sky*
     #_(println "drawing sky")
+    ;old
+    #_(.draw *sky* 
+       (.x (:camera @*gui-state*))
+       (.y (:camera @*gui-state*))
+       (.z (:camera @*gui-state*)))
     (.draw *sky* 
-      (.x (:camera @*gui-state*))
-      (.y (:camera @*gui-state*))
-      (.z (:camera @*gui-state*)))
+      (:camera @*gui-state*))
     #_(.draw *sky*)))
 
 (defn display
@@ -128,6 +131,9 @@ Copyright 2012, 2013 Kyle Harrington"
         #_(println "Closing application.")
         (do
           (.pollInput (:input @*gui-state*) @*java-engine*)
+          #_(when (:reset-simulation @*gui-state*)
+             (empty-simulation)
+             (swap! *gui-state* dissoc :reset-simulation))
           ;(update [1 1] {})
           (update [(* step (get-dt)) (get-dt)] {})
           (dosync (ref-set fps (inc @fps)))

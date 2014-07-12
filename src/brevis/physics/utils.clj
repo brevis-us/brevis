@@ -372,3 +372,9 @@ axis is the axis about which the joint rotates"
   "Return the current rate of simulation."
   []  
   (.getCurrentSimulationRate @*java-engine*))
+
+(defn empty-simulation
+  "Empty everything from the simulated world."
+  []
+  (doseq [obj (all-objects)]
+    (del-object obj)))

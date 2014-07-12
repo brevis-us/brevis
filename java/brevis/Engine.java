@@ -241,7 +241,9 @@ public class Engine {
 	 		for( Long uid : deletedObjects ) {
 	 			//objects.get(uid).clear();
 	 			// things aren't getting removed from the physics engine
-	 			objects.remove( uid );
+	 			BrObject object = objects.get( uid );
+	 			physics.getSpace().remove( object.getGeom() );
+	 			objects.remove( uid );	 			
 	 		}
 	 		deletedObjects = new HashSet<Long>();
 	 		
@@ -613,6 +615,7 @@ public class Engine {
 		}
 		
 		if( physicsEnabled ) {
+			synchronizeObjects();
 			updatePhysics( dt );
 			synchronizeObjects();
 		}

@@ -1,4 +1,4 @@
-(defproject brevis "0.9.14"
+(defproject brevis "0.9.15"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "https://brevis.us"
   :license {:name "Eclipse Public License"
@@ -20,8 +20,8 @@
                  [me.raynes/conch "0.6.0"]
                  
                  ;; Physics packages                 
-                 [org.ode4j/core "0.2.8"]
-                 [org.ode4j/demo "0.2.8"]
+                 [org.ode4j/core "0.2.9"]
+                 [org.ode4j/demo "0.2.9"]
                  [com.nitayjoffe.thirdparty.net.robowiki.knn/knn-benchmark "0.1"]                 
                  
                  ;; Graphics packages (3D rendering)

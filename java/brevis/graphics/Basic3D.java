@@ -253,7 +253,10 @@ public class Basic3D {
 		//GL11.glLight (GL11.GL_LIGHT0, GL11.GL_POSITION, light_position);
 		//GL11.glLight (GL11.GL_LIGHT0, GL11.GL_POSITION, light_position);
     	
-		sky.draw( displayCamera.x, displayCamera.y, displayCamera.z );
+		//old
+		//sky.draw( displayCamera.x, displayCamera.y, displayCamera.z );
+		
+		sky.draw( displayCamera );
 				
     	//GL11.glEnable(GL11.GL_TEXTURE_2D);
     	//GL11.glBindTexture(GL11.GL_TEXTURE_2D, sky.textures.get(0).getTextureID() );

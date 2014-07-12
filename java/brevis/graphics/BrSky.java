@@ -55,14 +55,16 @@ public class BrSky {
 		
 	}
 		
-	static float SkyboxUnit = 500f;
+	static float SkyboxUnit = 1500f;
 	
 	//public void draw() {
-	public void draw( float x, float y, float z ) {
+	//public void draw( float x, float y, float z ) {
+	public void draw( BrCamera cam ) {
 		
 		GL11.glPushMatrix();
 		
 		GL11.glLoadIdentity();
+		cam.setupFrame();
 		//GL11.glTranslatef(Renderer.camPosX, Renderer.camPosY, -Renderer.camPosZ);
 		//GL11.glTranslatef( x, y, z );
 		GL11.glPushAttrib(GL11.GL_ENABLE_BIT);		
@@ -130,7 +132,7 @@ public class BrSky {
 			GL11.glTexCoord2f(0.0f, 1.0f); GL11.glVertex3f(-SkyboxUnit,  SkyboxUnit, -SkyboxUnit);  // Top Left
 			GL11.glTexCoord2f(0.0f, 0.0f); GL11.glVertex3f(-SkyboxUnit,  SkyboxUnit,  SkyboxUnit);  // Bottom Left 
 			GL11.glTexCoord2f(1.0f, 0.0f); GL11.glVertex3f( SkyboxUnit,  SkyboxUnit,  SkyboxUnit);  // Bottom Right 
-			GL11.glTexCoord2f(1.0f, 1.0f); GL11.glVertex3f( SkyboxUnit,  SkyboxUnit, -SkyboxUnit);  // Top Right 
+			GL11.glTexCoord2f(1.0f, 1.0f); GL11.glVertex3f( SkyboxUnit,  SkyboxUnit, -SkyboxUnit);  // Top Right
 	    GL11.glEnd();
 	    
 	    // Render the bottom quad
