@@ -58,10 +58,15 @@ public class Natives {
     private static final byte[] buf = new byte[1024];
     private static File workingDir = new File("").getAbsoluteFile();
 
-    public static void setExtractionDir(String name){
-        workingDir = new File(name).getAbsoluteFile();
+    public static String getNativeBaseDirectory() {
+    	return System.getProperty("user.home") + File.separator + ".brevis" + File.separator + "native" + File.separator;
     }
-
+    
+    public static void setExtractionDir(String name){
+        //workingDir = new File(name).getAbsoluteFile();
+    	workingDir = new File(getNativeBaseDirectory());
+    }    
+    
     protected static void extractNativeLib(String sysName, String name) throws IOException{
         String fullname = System.mapLibraryName(name);
         //System.out.println( fullname + " " + fullname.contains( "dylib" ) );
@@ -69,19 +74,29 @@ public class Natives {
         	fullname = fullname.replace( "dylib", "jnilib" );
         //System.out.println( fullname + " " + fullname.contains( "dylib" ) );
 
+        //String path = "target/native/"+sysName+"/" + fullname;
+                
+        // This is about where the native lib should go
+        
+        
+        // This is about where to find the native lib in the classpath
         String path = "target/native/"+sysName+"/" + fullname;
-        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
+        //InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
+        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(fullname);
         //InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(System.getProperty("user.dir") + "/" + path);
         
         //System.out.println( System.getProperty("user.dir") + "/" + path + " exists? " +  ( new File( System.getProperty("user.dir") + "/" + path )).exists() );
         
         //InputStream in = Natives.class.getResourceAsStream();
         if (in == null) {
-            logger.log(Level.WARNING, "Cannot locate native library: {0}/{1} {2} {3}", 
+            logger.log(Level.WARNING, "Cannot locate native library: {0} {1} {2} {3}", 
                     new String[]{ sysName, fullname, path, System.getProperty("user.dir") } );
             return;
         }
-        File targetFile = new File(workingDir, fullname);
+        
+        String localPath = getNativeBaseDirectory() + fullname;
+        File targetFile = new File(localPath);
+		targetFile.getParentFile().mkdirs();// Make sure the directory exists
         try {
             OutputStream out = new FileOutputStream(targetFile);
             int len;
@@ -154,7 +169,8 @@ public class Natives {
             // it can load libraries from this path.
             // This is a fallback method in case the OS doesn't load
             // native libraries from the working directory (e.g Linux).
-            System.setProperty("org.lwjgl.librarypath", workingDir.toString());
+            //System.setProperty("org.lwjgl.librarypath", workingDir.toString());
+            System.setProperty( "org.lwjgl.librarypath", getNativeBaseDirectory() );
         }
 
         switch (platform){
@@ -315,7 +331,8 @@ public class Natives {
 
                 break;
             case MacOSX64:
-            	System.setProperty( "org.lwjgl.librarypath",  System.getProperty("user.dir") + "/target/native/macosx");
+            	//System.setProperty( "org.lwjgl.librarypath",  System.getProperty("user.dir") + "/target/native/macosx");
+            	System.setProperty( "org.lwjgl.librarypath",  getNativeBaseDirectory() );
             	
                 if (needLWJGL){
                     extractNativeLib("macosx", "lwjgl");

@@ -196,7 +196,8 @@ Copyright 2012, 2013 Kyle Harrington"
                                  ;                    :texture *checkers*
                                  :shape (create-box w 0.1 h)})
                      (vec3 0 -3 0))
-               (clojure.java.io/resource "img/checker_large.png")))
+               "img/checker_large.png"
+               #_(clojure.java.io/resource "img/checker_large.png")))
 
 (defn init-world  "Return a map of ODE physics for 1 world. (Now does some brevis in it too)"  []
   (when @*java-engine*

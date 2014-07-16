@@ -1,4 +1,4 @@
-(defproject brevis "0.9.15"
+(defproject brevis "0.9.16"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "https://brevis.us"
   :license {:name "Eclipse Public License"
@@ -47,7 +47,9 @@
   ;:javac-options ["-target" "1.6" "-source" "1.6" "-Xlint:-options"]
   ;:aot [clojure.main brevis.ui.core #_brevis.plot.Plotter]
   :main ^:skip-aot brevis.Launcher
-  :manifest {"SplashScreen-Image" "brevis_splash.gif"}
+  ;:manifest {"SplashScreen-Image" "brevis_splash.gif"}
   :javadoc-opts {:package-names ["brevis" "brevis.graphics" "brevis.plot"]}
-  :profiles {:headless {:jvm-opts ["-DbrevisHeadless=true"]}}
+  :profiles {:headless {:jvm-opts ["-DbrevisHeadless=true"]}
+             :brevis.example.swarm {:main brevis.example.swarm
+                                    :uberjar-name "brevis.example.swarm-STANDALONE.jar"}}
   )

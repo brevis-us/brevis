@@ -420,8 +420,8 @@ public class BrObject implements clojure.lang.IPersistentMap {
 				        
 	}
 	
-	//public void setTexture( String filename ) {
-	public void setTexture( URL filename ) {
+	public void setTexture( String filename ) {
+	//public void setTexture( URL filename ) {
 		
 		try {
 			// load texture from PNG file
@@ -429,7 +429,10 @@ public class BrObject implements clojure.lang.IPersistentMap {
 			//ResourceLoader.addResourceLocation( new ClasspathLocation() );// this should probably be a 1x thing
 			//texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream( filename.getPath() ) );
 			//texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream( filename.getFile() ) );
-			texture = TextureLoader.getTexture("PNG", filename.openStream() );
+			//texture = TextureLoader.getTexture("PNG", filename.openStream() );
+			
+			texture = TextureLoader.getTexture("PNG", Thread.currentThread().getContextClassLoader().getResourceAsStream( filename ) );
+			
 		
 			/*System.out.println("Texture loaded: "+texture);
 			System.out.println(">> Image width: "+texture.getImageWidth());

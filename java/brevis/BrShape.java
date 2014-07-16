@@ -311,7 +311,9 @@ public class BrShape {
 			
 			if( isResource ) {			
 			//FileReader fr = new FileReader(filename);		
-				BufferedReader br = new BufferedReader( new InputStreamReader( ClassLoader.getSystemResource( filename ).openStream() ) );
+				//BufferedReader br = new BufferedReader( new InputStreamReader( ClassLoader.getSystemResource( filename ).openStream() ) );
+				BufferedReader br = new BufferedReader( new InputStreamReader( Thread.currentThread().getContextClassLoader().getResourceAsStream(filename) ) );
+				
 				//mesh = new BrMesh( br, false );
 				mesh = new BrMesh( br, true, withGraphics );
 			} else {				

@@ -16,6 +16,8 @@
 Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.example.swarm
+  (:gen-class
+    :main -main)
   (:use [brevis.graphics.basic-3D]
         [brevis.physics collision core space utils]
         [brevis.shape box sphere cone]
