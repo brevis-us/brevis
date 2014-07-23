@@ -1,4 +1,4 @@
-(defproject brevis "0.9.16"
+(defproject brevis "0.9.17"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "https://brevis.us"
   :license {:name "Eclipse Public License"
@@ -10,8 +10,8 @@
   :plugins [[lein-marginalia "0.7.1"]]
   :java-source-paths ["java"]
   :dependencies [;; Essential
-                 [org.clojure/clojure "1.5.1"]                 
-                 [org.clojure/math.numeric-tower "0.0.2"]
+                 [org.clojure/clojure "1.6.0"]                 
+                 [org.clojure/math.numeric-tower "0.0.4"]
                  [clj-random "0.1.6"]         
                  
                  ;; Project management & utils
