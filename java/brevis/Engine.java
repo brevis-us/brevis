@@ -665,6 +665,14 @@ public class Engine {
 		collisionsEnabled = newCE;
 	}
 	
+	public boolean getNeighborhoodsEnabled() {
+		return neighborhoodsEnabled;		
+	}
+	
+	public void setNeighborhoodsEnabled( boolean newNE ) {
+		neighborhoodsEnabled = newNE;
+	}
+	
 	public DWorld getWorld() {		
 		return physics.getWorld();
 	}

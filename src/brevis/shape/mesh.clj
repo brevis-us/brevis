@@ -26,3 +26,11 @@ Copyright 2012, 2013 Kyle Harrington"
   (BrShape/createMeshFromFile filename is-resource? (:gui @brevis.globals/*gui-state*))
   #_(BrShape. filename)
   #_(BrShape/loadMesh (BrShape.) filename))
+
+(defn shape-from-mesh
+  "Create a mesh object."
+  [mesh]
+  (println mesh)
+  (BrShape/createMeshFromBrMesh mesh)
+  #_(BrShape. filename)
+  #_(BrShape/loadMesh (BrShape.) filename))

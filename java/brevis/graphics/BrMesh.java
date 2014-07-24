@@ -20,8 +20,10 @@ package brevis.graphics;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.vector.Vector3f;
 
 /**
  * derived from code by:
@@ -77,6 +79,83 @@ public class BrMesh {
 		numpolys = faces.size();
 		// We don't actually want to cleanup
 		//cleanup();
+	}
+	
+	public BrMesh() {
+		
+	}
+
+	public BrMesh(List<Vector3f> verts) {		
+		cleanup();
+
+		boolean firstpass = true;
+
+		for( Vector3f v : verts ) {
+			float[] coords = new float[4];
+			coords[0] = v.x;
+			coords[1] = v.y;
+			coords[2] = v.z;
+			//// check for farpoints ////
+			if (firstpass) {
+				rightpoint = coords[0];
+				leftpoint = coords[0];
+				toppoint = coords[1];
+				bottompoint = coords[1];
+				nearpoint = coords[2];
+				farpoint = coords[2];
+				firstpass = false;
+			}
+			if (coords[0] > rightpoint) {
+				rightpoint = coords[0];
+			}
+			if (coords[0] < leftpoint) {
+				leftpoint = coords[0];
+			}
+			if (coords[1] > toppoint) {
+				toppoint = coords[1];
+			}
+			if (coords[1] < bottompoint) {
+				bottompoint = coords[1];
+			}
+			if (coords[2] > nearpoint) {
+				nearpoint = coords[2];
+			}
+			if (coords[2] < farpoint) {
+				farpoint = coords[2];
+			}
+			/////////////////////////////
+			vertexsets.add(coords);
+		}		
+		List<Vector3f> normals = new ArrayList<Vector3f>();
+		Vector3f p1 = new Vector3f(), p2 = new Vector3f(), p3  = new Vector3f();
+		Vector3f edge1 = new Vector3f(), edge2 = new Vector3f();
+		Vector3f veccross = new Vector3f();
+		for( int k = 0; k < verts.size(); k+=3 ) {
+			p1.set( verts.get(k).x, verts.get(k).y, verts.get(k).z );
+			p2.set( verts.get(k+1).x, verts.get(k+1).y, verts.get(k+1).z );
+			p3.set( verts.get(k+2).x, verts.get(k+2).y, verts.get(k+2).z );
+			Vector3f.sub(p1, p2, edge1);
+			Vector3f.sub(p1, p3, edge2);			
+			Vector3f.cross( edge1, edge2, veccross );
+			//normals.add( new Vector3f( veccross ) ); 
+			//normals.add( new Vector3f( veccross ) ); 
+			//normals.add( new Vector3f( veccross ) );
+			vertexsetsnorms.add( new float[]{ veccross.x, veccross.y, veccross.z } );
+			vertexsetsnorms.add( new float[]{ veccross.x, veccross.y, veccross.z } );
+			vertexsetsnorms.add( new float[]{ veccross.x, veccross.y, veccross.z } );
+		}
+		for( int k = 0; k < vertexsets.size(); k+=3 ) {
+			int[] v = new int[]{ k+1, k+2, k+3 };
+			faces.add( v );
+			//int[] vn = new int[]{ 0, 0, 0 };
+			int[] vn = new int[]{ k+1, k+2, k+3 };
+			facesnorms.add( vn );
+			int[] vt = new int[]{ 0, 0, 0 };
+			facestexs.add( vt );
+		}
+		centerit();	
+		opengldrawtolist();
+		numpolys = faces.size();
 	}
 	
 	@SuppressWarnings("unused")

@@ -364,9 +364,19 @@ axis is the axis about which the joint rotates"
   (.setCollisionsEnabled @*java-engine* true))
 
 (defn disable-collisions
-  "Enable collision handling"
+  "Disable collision handling"
   []
   (.setCollisionsEnabled @*java-engine* false))
+
+(defn enable-neighborhoods
+  "Enable neighborhood detection"
+  []
+  (.setNeighborhoodsEnabled @*java-engine* true))
+
+(defn disable-neighborhoods
+  "Disable neighborhood detection."
+  []
+  (.setNeighborhoodsEnabled @*java-engine* false))
 
 (defn get-current-simulation-rate
   "Return the current rate of simulation."

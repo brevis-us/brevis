@@ -126,6 +126,13 @@ public class BrShape {
 		loadMesh( filename, isResource, withGraphics );
 	}
 	
+	BrShape( BrMesh inMesh ) {
+		type = BrShapeType.MESH;
+		mesh = inMesh;
+		dim = new Vector3f( 1, 1, 1 );
+		computeCenter();
+	}
+	
 	public void initUnitCone( boolean withGraphics ) {		
 		String filename = objDir + "cone.obj";
 	
@@ -370,6 +377,11 @@ public class BrShape {
 	
 	public Vector3f getDimension() {
 		return dim;
+	}
+	
+	public static BrShape createMeshFromBrMesh( BrMesh inMesh ) {
+		//System.out.println( filename );
+		return ( new BrShape( inMesh ) );
 	}
 	
 	public static BrShape createMeshFromFile( String filename, boolean isResource, boolean withGraphics ) {
