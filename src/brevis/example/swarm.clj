@@ -187,6 +187,8 @@ so we only modify bird1."
   #_(set-camera-information (vec3 -10.0 -50.0 -200.0) (vec4 1.0 0.0 0.0 0.0))
   (set-camera-information (vec3 -10.0 57.939613 -890.0) (vec4 1.0 0.0 0.0 0.0))
   
+  #_(disable-skybox)
+  
   (set-dt 1)
   (set-neighborhood-radius 250)
   (default-display-text)

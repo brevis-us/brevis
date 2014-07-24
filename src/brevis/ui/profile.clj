@@ -23,7 +23,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (:use [clojure.pprint]))
 
 (def brevis-directory (str (io/file (System/getProperty "user.home")) File/separator ".brevis"))
-(def current-profile-filename (atom (str brevis-directory File/separator "default")))
+(def current-profile-filename (atom (str brevis-directory File/separator "profile.clj")))
 
 (def current-profile (atom {}))
 

@@ -74,14 +74,25 @@ Copyright 2012, 2013 Kyle Harrington"
       (:camera @*gui-state*))
     #_(.draw *sky*)))
 
+(defn init-display
+  "Initialize the display before we do updates."
+  []
+  (begin-with-graphics-thread)
+  (when (Display/wasResized) (.setDimensions (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
+  (Basic3D/initFrame (:camera @*gui-state*))
+  (when-not (:disable-skybox @*gui-state*)
+    (draw-sky))
+  (end-with-graphics-thread))
+
 (defn display
   "Render all objects."
   []  
   (begin-with-graphics-thread)
-  (when (Display/wasResized) (.setDimensions (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
+  #_(when (Display/wasResized) (.setDimensions (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
   (let [objs (all-objects)]    
-    (Basic3D/initFrame (:camera @*gui-state*))
-    (draw-sky)
+    #_(Basic3D/initFrame (:camera @*gui-state*))
+    #_(when-not (:disable-skybox @*gui-state*)
+       (draw-sky))
     #_(update-display-text)
     #_(gl-matrix-mode :modelview)
     #_(gl-load-identity-matrix)
@@ -135,6 +146,7 @@ Copyright 2012, 2013 Kyle Harrington"
              (empty-simulation)
              (swap! *gui-state* dissoc :reset-simulation))
           ;(update [1 1] {})
+          (init-display)
           (update [(* step (get-dt)) (get-dt)] {})
           (dosync (ref-set fps (inc @fps)))
           (when (and (:display-fps @*gui-state*)

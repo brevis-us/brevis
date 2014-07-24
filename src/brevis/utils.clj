@@ -70,3 +70,14 @@ otherwise it should be a function that returns true/false"
            (doseq [obj (all-objects)]
              (println (str obj))))
          :append true))
+
+(defn disable-skybox
+  "Disable rendering of the skybox."
+  []
+  (swap! *gui-state* assoc :disable-skybox true))
+
+(defn enable-skybox
+  "Enable rendering of the skybox."
+  []
+  (swap! *gui-state* dissoc :disable-skybox))
+
