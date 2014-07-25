@@ -17,7 +17,11 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.example.swarm
   (:gen-class
-    :main -main)
+    :name BrevisExampleSwarm
+    :init -init
+    :main -main
+    :constructors {[] []
+                   [int int] []})
   (:use [brevis.graphics.basic-3D]
         [brevis.physics collision core space utils]
         [brevis.shape box sphere cone]
@@ -41,7 +45,7 @@ Copyright 2012, 2013 Kyle Harrington"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds 500)
+(def num-birds (atom 500))
 
 (def avoidance-distance (atom 10))
 (def boundary 250)
@@ -60,7 +64,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn random-bird-position
   "Returns a random valid bird position."
   []
-  (let [w num-birds
+  (let [w @num-birds
         h w]
     (vec3 (- (rand w) (/ w 2)) 
           (+ 59.5 (rand 10));; having this bigger than the neighbor radius will help with speed due to neighborhood computation
@@ -193,7 +197,7 @@ so we only modify bird1."
   (set-neighborhood-radius 250)
   (default-display-text)
   (add-object (move (make-floor 500 500) (vec3 0 (- boundary) 0)))
-  (dotimes [_ num-birds]
+  (dotimes [_ @num-birds]
     (add-object (random-bird))))
 
 ;; Start zee macheen
@@ -207,3 +211,14 @@ so we only modify bird1."
 (when (find-ns 'ccw.complete)
   (-main))
 ;(-main :nogui)
+
+;; Java interop
+
+(defn -init
+  "Init function to be used as a constructor."
+  ([]
+    (-init 500 10))
+  ([init-num-birds init-avoidance-distance]
+    (reset! num-birds init-num-birds)
+    (reset! avoidance-distance init-avoidance-distance)))
+
