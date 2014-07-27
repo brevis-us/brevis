@@ -37,8 +37,7 @@ Copyright 2012, 2013 Kyle Harrington"
 ;;
 ;; Todo:
 ;; - auto-centering of camera (and skybox?)
-;;
-
+;; 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 

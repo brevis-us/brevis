@@ -1,4 +1,4 @@
-(defproject brevis "0.9.23"
+(defproject brevis "0.9.24"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "http://brevis.us"
   :license {:name "Eclipse Public License"
@@ -42,7 +42,7 @@
                  
                  ;; UI packages
                  [seesaw "1.4.4"]
-                 [com.fifesoft/rsyntaxtextarea "2.5.0"]
+                 [com.fifesoft/rsyntaxtextarea "2.5.2"]
                  ]
   ;:javac-options ["-target" "1.6" "-source" "1.6" "-Xlint:-options"]
   :aot [#_clojure.main brevis.ui.core brevis.example.swarm]        
