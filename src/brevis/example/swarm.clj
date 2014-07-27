@@ -17,11 +17,8 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.example.swarm
   (:gen-class
-    :name BrevisExampleSwarm
-    :init -init
-    :main -main
-    :constructors {[] []
-                   [int int] []})
+    :name brevis.example.BrevisExampleSwarm
+    :main main)
   (:use [brevis.graphics.basic-3D]
         [brevis.physics collision core space utils]
         [brevis.shape box sphere cone]

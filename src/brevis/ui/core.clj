@@ -40,10 +40,14 @@ Copyright 2012, 2013 Kyle Harrington"
         [clojure.pprint]
         [seesaw core font color graphics chooser mig tree]
         [brevis.ui.profile])
-  (:gen-class))
+  (:gen-class
+    :name brevis.ui.BrevisUICore
+    ;:init init
+    :main main))
 
 ;; Todo:
 ;;
+;; - prompt to setup profile info
 ;; - keybinds
 ;; - find/replace
 ;; - tabbed windows
@@ -55,7 +59,7 @@ Copyright 2012, 2013 Kyle Harrington"
 
 ;; ## Globals
 
-(def workspace-directory (atom (str (System/getProperty "user.home") File/separator "git")))
+#_(def workspace-directory (atom (str (System/getProperty "user.home") File/separator "git")))
 
 (def editor-window
   "Keeping track of the open editor window." (atom nil))
@@ -602,7 +606,7 @@ response is (fn [e context] ...) where e is an Event, and context is a hash-map 
     #(.isDirectory %) 
     #_(fn [f] (filter #(.isDirectory %) (.listFiles f)))
     (fn [f] (filter #(or (.isDirectory %) (.isFile %)) (.listFiles f)))
-    (File. @workspace-directory)
+    (File. (:workspace-directory @current-profile))
     #_(File. ".")))
 
 (defn render-file-item
@@ -726,7 +730,8 @@ response is (fn [e context] ...) where e is an Event, and context is a hash-map 
     (reset! current-filename (:current-filename @current-profile))
     (make-ui)
     (load-file (str "src" File/separator "brevis" File/separator "ui" File/separator "keybinds.clj"))
-    (.setText (:text-area ew) (slurp @current-filename))))
+    (when-not (empty? (:current-filename @current-profile))      
+      (.setText (:text-area ew) (slurp @current-filename)))))
 
 (when (find-ns 'ccw.complete)
   (-main))

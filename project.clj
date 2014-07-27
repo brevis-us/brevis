@@ -1,4 +1,4 @@
-(defproject brevis "0.9.20"
+(defproject brevis "0.9.21"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "http://brevis.us"
   :license {:name "Eclipse Public License"
@@ -51,5 +51,6 @@
   :javadoc-opts {:package-names ["brevis" "brevis.graphics" "brevis.plot"]}
   :profiles {:headless {:jvm-opts ["-DbrevisHeadless=true"]}
              :brevis.example.swarm {:main brevis.example.swarm
+                                    :aot :all
                                     :uberjar-name "brevis.example.swarm-STANDALONE.jar"}}
   )

@@ -27,17 +27,11 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (def current-profile (atom {}))
 
-#_(def default-profile
-   {:author "Brevis h4x3r"
-    :current-project (str (io/file (System/getProperty "user.home")) File/separator "git" File/separator "brevis")
-    :current-filename (str (io/file (System/getProperty "user.home")) File/separator "git" File/separator "brevis" File/separator "src"File/separator "brevis" File/separator "example" File/separator "swarm.clj")
-    :projects []})
-
 (def default-profile
    {:author "Brevis h4x3r"
     ;:current-project (str (io/file (System/getProperty "user.home")) File/separator "git" File/separator "brevis")
-    :current-project (string/join [(io/file (System/getProperty "user.home")) "git" "brevis"]
-                                  File/separator)
+    :workspace-directory (string/join File/separator [(System/getProperty "user.home") "git"])
+    :current-project (string/join File/separator [(System/getProperty "user.home") "git" "brevis"])
     :current-filename ""
     :projects []})
 
@@ -65,20 +59,17 @@ Copyright 2012, 2013 Kyle Harrington"
         {:project-file filename
          :directory (if (string? d) d (.toString d))
          :group (:group p)
-         :name (:name p)}
-        #_(project/read filename)))))
+         :name (:name p)}))))
 
 (defn import-project-directory
   "Look through a directory (similar to Eclipse's workspace) for all projects."
   [d]
   (let [dir (filter #(.isDirectory %) (.listFiles (io/file d)))]
-    #_(doseq [f dir] (println (.toString f)))
-    #_(map #(.toString %) dir)
     (filter identity (map read-project dir))
     ))
 
 (reset! current-profile (assoc (read-profile)
-                               :projects (import-project-directory (io/file (System/getProperty "user.home") "git") #_"/Users/kyle/git")))
+                               :projects (import-project-directory (io/file (System/getProperty "user.home") "git"))))
 (write-profile @current-profile)
 
-#_(import-project-directory "/Users/kyle/git")
+
