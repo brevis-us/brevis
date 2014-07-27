@@ -601,7 +601,8 @@ response is (fn [e context] ...) where e is an Event, and context is a hash-map 
 
 
 ;; Some of the project browser code from https://github.com/daveray/seesaw/blob/develop/test/seesaw/test/examples/explorer.clj
-(def tree-project-model
+(defn tree-project-model
+  []
   (simple-tree-model
     #(.isDirectory %) 
     #_(fn [f] (filter #(.isDirectory %) (.listFiles f)))
@@ -617,7 +618,7 @@ response is (fn [e context] ...) where e is an Event, and context is a hash-map 
 (defn make-project-browser
   "Make a widget for browsing projects."
   [params]
-  (let [pt (tree :id :project-tree :model tree-project-model :renderer render-file-item)
+  (let [pt (tree :id :project-tree :model (tree-project-model) :renderer render-file-item)
         browser (scrollable pt)]
     {:project-tree pt
      :scrollable browser}))
