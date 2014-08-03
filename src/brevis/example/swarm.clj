@@ -180,6 +180,14 @@ so we only modify bird1."
   ;(swap! brevis.globals/*gui-state* assoc :gui false)
   (init-world)
   (init-view)  
+  
+  #_(change-skybox
+     ["img/night_skybox/front.jpg"
+      "img/night_skybox/left.jpg"
+      "img/night_skybox/back.jpg"
+      "img/night_skybox/right.jpg"
+      "img/night_skybox/up.jpg"
+      "img/night_skybox/down.jpg"])
   ;(swap! brevis.globals/*gui-state* assoc :gui false)
   #_(.moveFromLook (:camera @brevis.globals/*gui-state*) 0 100 0)
   #_(set-dt 0.1)

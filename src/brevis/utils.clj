@@ -81,3 +81,7 @@ otherwise it should be a function that returns true/false"
   []
   (swap! *gui-state* dissoc :disable-skybox))
 
+(defn change-skybox
+  "Files must contain: front, left, back, right, up, down"
+  [files]
+  (.changeSkybox brevis.graphics.basic-3D/*sky* files))

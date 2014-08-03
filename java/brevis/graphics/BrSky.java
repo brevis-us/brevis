@@ -19,6 +19,7 @@ package brevis.graphics;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Vector;
 
 import org.lwjgl.opengl.GL11;
@@ -40,6 +41,12 @@ public class BrSky {
 		
 		textures = new Vector<Texture>();
 		
+		defaultSkybox();
+
+	}
+	
+	public void defaultSkybox() {
+		textures.clear();
 		//load textures
 		try {
 			//textures.add(TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("resources/img/skybox/front.jpg"),GL11.GL_LINEAR));			
@@ -52,7 +59,21 @@ public class BrSky {
 		} catch (IOException e) {
 			throw new RuntimeException("skybox loading error");
 		}
-		
+	}
+	
+	public void changeSkybox( List<String> filenames ) {
+		textures.clear();
+		//load textures
+		try {
+			for( String filename : filenames ) {
+				textures.add(TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream( filename ),GL11.GL_LINEAR));						
+			}
+		} catch (IOException e) {
+			throw new RuntimeException("skybox loading error");
+		}
+		if( textures.size() < 6 ) {
+			System.out.println( "Insufficient number of skybox textures loaded." );
+		}
 	}
 		
 	static float SkyboxUnit = 1500f;
