@@ -167,5 +167,6 @@ Copyright 2012, 2013 Kyle Harrington"
   (Mouse/destroy)
   (Display/destroy)
   ;; Should call system/exit if not using UI
-  #_(System/exit 0)
+  (when-not (find-ns 'ccw.complete);; this would still quit when using the Brevis repl
+    (System/exit 0));; exit only when not using a repl-mode
   )

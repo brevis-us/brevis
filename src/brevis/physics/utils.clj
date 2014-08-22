@@ -341,7 +341,9 @@ axis is the axis about which the joint rotates"
 (defn get-type
   "Return the type of an object."
   [^BrObject obj]
-  (.getType obj))
+  ;; This should be done properly during make-real instead of faked here
+  (keyword (.getType obj))
+  #_(.getType obj))
 
 (defn set-texture
   "set the texture of an object."
@@ -388,3 +390,20 @@ axis is the axis about which the joint rotates"
   []
   (doseq [obj (all-objects)]
     (del-object obj)))
+
+#_(defn get-closest-object
+   "Return the closest object to a vector from a list of objects."
+   [pos objs]
+   (let [dists (map #(length-vec3 (sub-vec3 (get-position %) pos)) objs)]
+     (when-not (empty? objs)
+       (nth objs
+            (reduce #(if (< (nth dists %1) (nth dists %2)) %1 %2) (range (count dists)))))))
+
+(defn get-closest-object
+   "Return the closest object to a vector from a list of objects."
+   [pos objs]
+   (let [dists (map #(length-vec3 (sub-vec3 (get-position %) pos)) objs)]         
+     (when-not (empty? objs)
+       (nth objs
+            (first (apply min-key second (map-indexed vector dists)))))))
+    
