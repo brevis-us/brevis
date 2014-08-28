@@ -1,8 +1,8 @@
 # brevis
 
-brevis, an open-source, functional artificial life simulator.
+brevis, an open-source, functional scientific and artificial life simulator.
 
-brevis is a 3D artificial life and complex systems simulator where simulations are written in the functional programming language Clojure.
+brevis is a 3D scientific, artificial life and complex systems simulator where simulations are written in the functional programming language Clojure. 
 	
 On the web:   http://brevis.us
 Chat: #brevis@irc.freenode.net
@@ -10,6 +10,9 @@ Chat: #brevis@irc.freenode.net
 by Kyle Harrington (kharrin3@bidmc.harvard.edu), 2011-2014.
    http://kyleharrington.com
       
+# Citing:
+
+Harrington, K. I. (2014). Brevis (version X.Y.Z). where X, Y, Z are the version numbers found in project.clj for the Brevis version that you are using. Other Brevis publications can be found on the Brevis website.  
 
 ## Getting started:
 
@@ -40,13 +43,13 @@ Developed for use with the Clojure Eclipse plugin, CounterClockwise (this must b
 Default input:
 
 esc - kill the simulation  
+left click + drag - rotate camera  
 w - move camera forward  
 s - move camera backward  
 a - move camera left  
 d - move camera right  
 z - move camera up  
 c - move camera down  
-<hold> shift \& left click + move mouse - rotate camera  
 o - screenshot  
 
 ## License
