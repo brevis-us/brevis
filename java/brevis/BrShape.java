@@ -121,9 +121,27 @@ public class BrShape {
 		computeCenter();
 	}
 	
-	BrShape( String filename, boolean isResource, boolean withGraphics ) {
+	BrShape( String filename, boolean isResource, boolean withGraphics ) {		
 		type = BrShapeType.MESH;
+		//createMesh( withGraphics );
 		loadMesh( filename, isResource, withGraphics );
+		if( mesh != null ) {
+			mesh.rescaleMesh( (float)dim.x, (float)dim.y, (float)dim.z, withGraphics );
+		}
+		computeCenter();
+		//loadMesh( filename, isResource, withGraphics );
+	}
+	
+	BrShape( String filename, boolean isResource, boolean withGraphics, Vector3f d ) {		
+		type = BrShapeType.MESH;
+		dim = d;
+		//createMesh( withGraphics );
+		loadMesh( filename, isResource, withGraphics );
+		if( mesh != null ) {
+			mesh.rescaleMesh( (float)dim.x, (float)dim.y, (float)dim.z, withGraphics );
+		}
+		computeCenter();
+		//loadMesh( filename, isResource, withGraphics );
 	}
 	
 	BrShape( BrMesh inMesh ) {
@@ -312,8 +330,38 @@ public class BrShape {
 		loadMesh( filename, true, withGraphics );
 	}
 	
+	public void createMesh( boolean withGraphics, boolean isResource ) {// this version is actually just for meshes		
+		String filename  = "";
+		if( type == BrShapeType.BOX ) {
+			//initBox( dim );
+			filename = "box.obj";
+		} else if( type == BrShapeType.SPHERE ) {
+			//mesh.initSphere( dim );
+			filename = "sphere.obj";
+		} else if( type == BrShapeType.CONE ) {
+			//mesh.initCone( dim );
+			filename = "cone.obj";
+		} else if( type == BrShapeType.CYLINDER ) {
+			//mesh.initCylinder( dim );
+			filename = "cylinder.obj";
+		} else if( type == BrShapeType.ICOSAHEDRON ) {
+			//mesh.initCylinder( dim );
+			filename = "icosahedron.obj";
+		} else if( type == BrShapeType.PRISM) {
+			//mesh.initCylinder( dim );
+			filename = "prism.obj";
+		}
+		if( isResource )
+			filename = objDir + filename;
+		
+		//System.out.println( "createMesh " + filename + " " + type );
+		loadMesh( filename, isResource, withGraphics );
+	}
+	
 	public void loadMesh( String filename, boolean isResource, boolean withGraphics ) {
 		try {
+			if( isResource )
+				filename = objDir + filename;
 			//System.out.println( "Loading object: " + filename );			
 			
 			if( isResource ) {			
@@ -328,7 +376,11 @@ public class BrShape {
 				//mesh = new BrMesh( br, false );
 				mesh = new BrMesh( br, true, withGraphics );
 			}
-						
+					
+			if( mesh.numpolygons() == 0 ) {
+				System.out.println("Found 0 faces when reading: " + filename );
+			}
+			
 			// this is actually size
 			//dim = new Vector3d( mesh.getXWidth(), mesh.getYHeight(), mesh.getZDepth() );
 			
@@ -384,9 +436,10 @@ public class BrShape {
 		return ( new BrShape( inMesh ) );
 	}
 	
-	public static BrShape createMeshFromFile( String filename, boolean isResource, boolean withGraphics ) {
+	public static BrShape createMeshFromFile( String filename, boolean isResource, boolean withGraphics, Vector3f dim ) {
 		//System.out.println( filename );
-		return ( new BrShape( filename, isResource, withGraphics ) );
+		//return ( new BrShape( filename, isResource, withGraphics ) );
+		return ( new BrShape( filename, isResource, withGraphics, dim ) );
 	}
 	
 	public static BrShape createSphere( double r, boolean withGraphics ) {

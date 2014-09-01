@@ -15,26 +15,61 @@
                                                                                                                                                                                      
 Copyright 2012, 2013 Kyle Harrington"
 
-(ns brevis.shape.mesh
-  (:import [brevis BrShape])
-  (:use [brevis.vector]
-        [brevis.shape.core]
-        [brevis.graphics multithread]))        
+(ns brevis.example.mesh
+  (:gen-class
+    :name brevis.example.BrevisExampleSwarm
+    :main main)
+  (:use [brevis.graphics.basic-3D]
+        [brevis.physics collision core space utils]
+        [brevis.shape box mesh]
+        [brevis core osd vector camera utils]))
 
-(defn create-mesh
-  "Create a mesh object."
-  ([filename is-resource?]
-    (create-mesh filename is-resource? (vec3 1 1 1)))
-  ([filename is-resource? scale]
-    (begin-with-graphics-thread)
-    (let [result (BrShape/createMeshFromFile filename is-resource? (:gui @brevis.globals/*gui-state*) scale)]
-      (end-with-graphics-thread)
-      result)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ## Mesh demo
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ## Globals
 
-(defn shape-from-mesh
-  "Create a mesh object."
-  [mesh]
-  #_(println mesh)
-  (BrShape/createMeshFromBrMesh mesh)
-  #_(BrShape. filename)
-  #_(BrShape/loadMesh (BrShape.) filename))
+(def mesh-file "bunny.obj")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ## Make our mesh object
+
+(defn make-real-mesh
+  "Make a new bird with the specified program. At the specified location."
+  [position]  
+  (move (make-real {:type :real-mesh
+                    :color (vec4 1 0 0 1)
+                    :shape (create-mesh mesh-file true (vec3 10 10 10))})
+        position))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ## brevis control code
+
+(defn initialize-simulation
+  "This is the function where you add everything to the world."
+  []  
+  (init-world)
+  (init-view)  
+  
+  #_(set-camera-information (vec3 -10.0 57.939613 -890.0) (vec4 1.0 0.0 0.0 0.0))
+  (set-camera-information (vec3 0.0 -27.036232 -30.0) (vec4 1.0 0.0 0.0 0.0))
+  (disable-collisions)
+  
+  (set-dt 1)
+  (set-neighborhood-radius 250)
+  (default-display-text)
+  #_(add-object (move (make-floor 500 500) (vec3 0 -10 0)))
+  (add-object (make-real-mesh (vec3 0 25 0))))
+
+;; Start zee macheen
+(defn -main [& args]
+  #_(start-nogui initialize-simulation)
+  (if-not (empty? args)
+    (start-nogui initialize-simulation)
+    (start-gui initialize-simulation)))
+
+;; For autostart with Counterclockwise in Eclipse
+(when (find-ns 'ccw.complete)
+  (-main))
+

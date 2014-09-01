@@ -75,7 +75,7 @@ public class BrMesh {
 		}
 		if( withGraphics ) {
 			opengldrawtolist();
-		}
+		}		
 		numpolys = faces.size();
 		// We don't actually want to cleanup
 		//cleanup();
@@ -269,8 +269,7 @@ public class BrMesh {
 		} catch (NumberFormatException e) {
 			System.out.println("Malformed OBJ (on line " + linecounter + "): " + br.toString() + "\r \r" + e.getMessage());
 			//System.exit(0);
-		}
-		
+		}		
 	}
 	
 	private void centerit() {

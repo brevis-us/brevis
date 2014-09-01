@@ -648,7 +648,6 @@ public class Basic3D {
 	        else
 	        	drawSphere( (float)dim.x, (int)dim.y, 20);
         } else {
-        	//System.out.println( "Rendering from mesh " + dim );
         	//GL11.glScaled( dim.x, dim.y, dim.z );
         	obj.getShape().mesh.opengldraw();
     	}        

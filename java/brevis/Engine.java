@@ -204,7 +204,9 @@ public class Engine {
 	     try {
 
 	 		physics.contactGroup.empty();
-	 		OdeHelper.spaceCollide( physics.space, null, new BrevisCollision() );		
+	 		if( collisionsEnabled ) {
+	 			OdeHelper.spaceCollide( physics.space, null, new BrevisCollision() );
+	 		}
 	 		physics.world.quickStep( dt );						
 	 		
 	 		physics.time += dt;		
