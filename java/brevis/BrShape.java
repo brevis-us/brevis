@@ -324,7 +324,7 @@ public class BrShape {
 			//mesh.initCylinder( dim );
 			filename = "prism.obj";
 		}
-		filename = objDir + filename;
+		//filename = objDir + filename;		
 		
 		//System.out.println( "createMesh " + filename + " " + type );
 		loadMesh( filename, true, withGraphics );

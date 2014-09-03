@@ -32,3 +32,11 @@ Copyright 2012, 2013 Kyle Harrington"
    (begin-with-graphics-thread)
    (Basic3D/screenshot filename)
    (end-with-graphics-thread))  
+
+(defn screenshot-image
+   "Take a screenshot and return an image (BufferedImage for now)."
+   []
+   (begin-with-graphics-thread)
+   (let [img (Basic3D/screenshotImage)]     
+     (end-with-graphics-thread)
+     img))

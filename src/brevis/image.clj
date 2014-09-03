@@ -50,3 +50,56 @@ Copyright 2012, 2013 Kyle Harrington"
   [filename img]
   (let [format-type "png"]
     (ImageIO/write img format-type (io/file filename))))
+
+(defn image-difference
+  "Take the difference (absolute value of subtraction) of 2 images. Assumes equal size (uses first images dimensions)"
+  [^BufferedImage img-1 ^BufferedImage img-2]
+  (let [width (.getWidth img-1)
+        height (.getHeight img-1)
+        out-img (BufferedImage. width height (.getType img-1))]    
+    (doall (for [x (range width)
+                 y (range height)]
+             (let [rgb1 (.getRGB img-1 x y)
+                   a1 (bit-and (bit-shift-right rgb1 24)  0xff)
+                   r1 (bit-and (bit-shift-right rgb1 16)  0xff)
+                   g1 (bit-and (bit-shift-right rgb1 8)  0xff)
+                   b1 (bit-and rgb1 0xff)
+                   rgb2 (.getRGB img-2 x y)
+                   a2 (bit-and (bit-shift-right rgb2 24)  0xff)
+                   r2 (bit-and (bit-shift-right rgb2 16)  0xff)
+                   g2 (bit-and (bit-shift-right rgb2 8)  0xff)
+                   b2 (bit-and rgb2 0xff)
+                   diff-a (Math/abs (- a1 a2))
+                   diff-r (Math/abs (- r1 r2))
+                   diff-g (Math/abs (- g1 g2))
+                   diff-b (Math/abs (- b1 g2))
+                   diff-rgb (bit-or (bit-shift-left diff-a 24)
+                                    (bit-shift-left diff-r 16)
+                                    (bit-shift-left diff-g 8)
+                                    diff-b)]
+               (.setRGB out-img x y diff-rgb))))
+    out-img))
+
+(defn sum-image-difference
+  "Take the difference (absolute value of subtraction) of 2 images. Assumes equal size (uses first images dimensions). sums over all channels"
+  [^BufferedImage img-1 ^BufferedImage img-2]
+  (let [width (.getWidth img-1)
+        height (.getHeight img-1)]
+    (reduce + 
+            (flatten (doall (for [x (range width)
+                                  y (range height)]
+                              (let [rgb1 (.getRGB img-1 x y)
+                                    a1 (bit-and (bit-shift-right rgb1 24)  0xff)
+                                    r1 (bit-and (bit-shift-right rgb1 16)  0xff)
+                                    g1 (bit-and (bit-shift-right rgb1 8)  0xff)
+                                    b1 (bit-and rgb1 0xff)
+                                    rgb2 (.getRGB img-2 x y)
+                                    a2 (bit-and (bit-shift-right rgb2 24)  0xff)
+                                    r2 (bit-and (bit-shift-right rgb2 16)  0xff)
+                                    g2 (bit-and (bit-shift-right rgb2 8)  0xff)
+                                    b2 (bit-and rgb2 0xff)
+                                    diff-a (Math/abs (- a1 a2))
+                                    diff-r (Math/abs (- r1 r2))
+                                    diff-g (Math/abs (- g1 g2))
+                                    diff-b (Math/abs (- b1 g2))]
+                                [diff-a diff-r diff-g diff-b])))))))  
