@@ -715,5 +715,5 @@ Copyright 2012, 2013 Kyle Harrington"
     #_(when-not (empty? (:current-filename @current-profile))      
        (.setText (:text-area ew) (slurp @current-filename)))))
 
-(when (find-ns 'ccw.complete)
-  (-main))
+#_(when (find-ns 'ccw.complete)
+   (-main))

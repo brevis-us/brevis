@@ -1,4 +1,4 @@
-(defproject brevis "0.9.28"
+(defproject brevis "0.9.29"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "http://brevis.us"
   :license {:name "General Public License v3"
