@@ -112,10 +112,16 @@ Copyright 2012, 2013 Kyle Harrington"
   (config! f :content content)
   content)
 
-(defn select-file []
-  (let [chooser (JFileChooser.)]
+(defn select-file 
+  "File selection dialog."
+  ([]
+    (let [chooser (JFileChooser.)]
     (.showDialog chooser nil "Select")
     (.getSelectedFile chooser)))
+  ([directory]
+    (let [chooser (JFileChooser. (file directory))]
+    (.showDialog chooser nil "Select")
+    (.getSelectedFile chooser))))
 
 (defn a-new [e]
   (let [selected (select-file)] 
@@ -157,14 +163,18 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (defn a-save [e]
   (let [tab-idx (current-tab-index)]
-    (spit (.getName (.getTabComponentAt (:tabbed-panel @editor-window) tab-idx))
+    (spit (.getToolTipTextAt (:tabbed-panel @editor-window) tab-idx)
           (get-text-from-tab tab-idx))))
 
 (defn a-save-as [e]
-  (when-let [selected (select-file)]
-    (let [tab-idx (.getSelectedIndex (:tabbed-panel @editor-window))]
-    (spit selected
-          (get-text-from-tab tab-idx)))))
+  (let [tab-idx (.getSelectedIndex (:tabbed-panel @editor-window))
+        current-filename (.getToolTipTextAt (:tabbed-panel @editor-window) tab-idx)
+        current-file (file current-filename)]
+    (when-let [selected (if current-filename
+                          (select-file (.getParent current-file))
+                          (select-file))]      
+      (spit selected
+            (get-text-from-tab tab-idx)))))
 
 (defn a-exit  [e] (System/exit 0))
 (defn a-copy  [e] (.copy (:text-area (get-editor))))
@@ -613,6 +623,7 @@ Copyright 2012, 2013 Kyle Harrington"
     (reset! repl-output-window ro)
     (make-ui)
     (load-file (str "src" File/separator "brevis" File/separator "ui" File/separator "keybinds.clj"))
+    "Launched BrIDE"
     #_(add-content-tab-from-filename @current-filename params)
     #_(when-not (empty? (:current-filename @current-profile))      
        (.setText (:text-area ew) (slurp @current-filename)))))
