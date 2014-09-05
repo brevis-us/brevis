@@ -94,7 +94,7 @@ Copyright 2012, 2013 Kyle Harrington"
   "The complete UI panel." (atom nil))
 
 (def chooser (javax.swing.JFileChooser.)) ; FileChooser hack to get system icons
-(def current-filename (atom nil))
+
 
 (defn get-editor
   "return the first editor window."
@@ -129,28 +129,42 @@ Copyright 2012, 2013 Kyle Harrington"
   "Check if a file is already open."
   [filename]
   (let [num-tabs (.getTabCount (:tabbed-panel @editor-window))
-        tab-names (map #(.getName (.getTabComponentAt (:tabbed-panel @editor-window) %)) (range num-tabs))]
-    (some #(= filename %) tab-names)))
+        tab-names (map #(.getToolTipTextAt (:tabbed-panel @editor-window) %) (range num-tabs))]
+    (some #(when (= filename (nth tab-names %)) %)
+          (range (count tab-names)))))
 
 (declare add-content-tab-from-filename)
 (defn open-file
   "Open a file and add  the tab if it isnt already open."
   [filename]
-  (when-not (is-open? filename);; could make tab active if it is already open
+  (if-let [tab-idx (is-open? filename)]
+    (.setSelectedIndex (:tabbed-panel @editor-window) tab-idx)
     (add-content-tab-from-filename filename @content-pane-params)))
 
 (defn a-open [e]
   (open-file (select-file)))
 
+(defn get-text-from-tab
+  "Return the text from a tab."
+  [tab-idx]
+  (let [component (.getTabComponentAt (:tabbed-panel @editor-window) tab-idx)]
+    (.getText (.getTextArea component))))
+  
+(defn current-tab-index
+  "Return the index of the currently selected tab."
+  []
+  (.getSelectedIndex (:tabbed-panel @editor-window)))
+
 (defn a-save [e]
-  (spit @current-filename (.getText (:text-area (get-editor))))
-  #_(set-status "Wrote " filename "."))
+  (let [tab-idx (current-tab-index)]
+    (spit (.getName (.getTabComponentAt (:tabbed-panel @editor-window) tab-idx))
+          (get-text-from-tab tab-idx))))
 
 (defn a-save-as [e]
   (when-let [selected (select-file)]
-    #_(set-current-file selected)
-    (spit selected (.getText (:text-area (get-editor))))
-    #_(set-status "Wrote " filename ".")))
+    (let [tab-idx (.getSelectedIndex (:tabbed-panel @editor-window))]
+    (spit selected
+          (get-text-from-tab tab-idx)))))
 
 (defn a-exit  [e] (System/exit 0))
 (defn a-copy  [e] (.copy (:text-area (get-editor))))
@@ -199,7 +213,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn a-eval-file
   "Evaluate a file."
   [e]
-  (eval-and-print (.getText (:text-area (get-editor))) false)
+  (eval-and-print (get-text-from-tab (current-tab-index)) false)
   #_(let [response-vals (nrepl/message (:client @repl) {:op "eval" :code (.getText (:text-area (get-editor)))})]
      (text! (:text-area @repl-output-window)
                           (with-out-str (doseq [resp response-vals]
@@ -252,6 +266,8 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (def ^{:private true} make-icon icon)
 
+
+
 (defn add-content-tab
   "Add a tab to the content pane."
   [tab-map]
@@ -289,8 +305,8 @@ Copyright 2012, 2013 Kyle Harrington"
                                :text filename #_(last (string/split @current-filename #"/")) #_@current-filename;; with text set to txt
                                :foreground :blue) 
                       ;:filename @current-filename 
-                      :tip @current-filename 
-                      :icon (.getIcon chooser (file @current-filename))
+                      :tip filename
+                      :icon (.getIcon chooser (file filename))
                       :content (RTextScrollPane. textArea)})))
         
 (defn make-editor-window
@@ -595,10 +611,9 @@ Copyright 2012, 2013 Kyle Harrington"
     (reset! project-browser pb)
     (reset! repl-input-window ri)
     (reset! repl-output-window ro)
-    (reset! current-filename (:current-filename @current-profile))
     (make-ui)
     (load-file (str "src" File/separator "brevis" File/separator "ui" File/separator "keybinds.clj"))
-    (add-content-tab-from-filename @current-filename params)
+    #_(add-content-tab-from-filename @current-filename params)
     #_(when-not (empty? (:current-filename @current-profile))      
        (.setText (:text-area ew) (slurp @current-filename)))))
 
