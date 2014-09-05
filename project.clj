@@ -1,8 +1,8 @@
 (defproject brevis "0.9.28"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "http://brevis.us"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :license {:name "General Public License v3"
+            :url "http://www.gnu.org/licenses/"}
   ;:jvm-opts ^:replace ["-Xmx4g" "-splash:resources/brevis_splash.gif" "-XX:+UseParallelGC"]; "-Xdock:name=Brevis"  
   ;:jvm-opts ^:replace ["-Xmx4g" #_"-XX:+UseParallelGC"]; "-Xdock:name=Brevis"
   ;:jvm-opts ^:replace ["-XX:+UseG1GC" "-Xmx4g" "-XX:-UseGCOverheadLimit"]  
