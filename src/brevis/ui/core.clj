@@ -145,7 +145,9 @@ Copyright 2012, 2013 Kyle Harrington"
   [filename]
   (if-let [tab-idx (is-open? filename)]
     (.setSelectedIndex (:tabbed-panel @editor-window) tab-idx)
-    (add-content-tab-from-filename filename @content-pane-params)))
+    (let [new-tab-idx (.getTabCount (:tabbed-panel @editor-window))]
+      (add-content-tab-from-filename filename @content-pane-params)
+      (.setSelectedIndex (:tabbed-panel @editor-window) new-tab-idx))))
 
 (defn a-open [e]
   (open-file (select-file)))
@@ -516,7 +518,10 @@ Copyright 2012, 2013 Kyle Harrington"
   (simple-tree-model
     #(.isDirectory %) 
     #_(fn [f] (filter #(.isDirectory %) (.listFiles f)))
-    (fn [f] (filter #(or (.isDirectory %) (.isFile %)) (.listFiles f)))
+    (fn [f] (filter #(and (not (.isHidden %))
+                          (or (.isDirectory %)
+                              (and (.isFile %))))                              
+                    (.listFiles f)))
     (File. (:workspace-directory @current-profile))
     #_(File. ".")))
 
