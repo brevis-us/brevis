@@ -176,6 +176,13 @@ Copyright 2012, 2013 Kyle Harrington"
       (spit selected
             (get-text-from-tab tab-idx)))))
 
+(defn a-close-tab
+  "Close the currently selected tab. Should check if it has been saved.. oops."
+  [e]
+  (let [tab-idx (.getSelectedIndex (:tabbed-panel @editor-window))]
+    (when tab-idx
+      (.removeTabAt  (:tabbed-panel @editor-window) tab-idx))))
+
 (declare save-IDE-state)
 (defn a-exit  [e]   
   (save-IDE-state)
@@ -521,6 +528,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (let [action-new (action :handler a-new :name "New" :tip "Create a new file.")
         action-open (action :handler a-open :name "Open" :tip "Open a file")
         action-save (action :handler a-save :name "Save" :tip "Save the current file.")
+        action-close-tab (action :handler a-close-tab :name "Close tab" :tip "Close the current tab.")
         action-exit (action :handler a-exit :name "Exit" :tip "Exit the editor.")
         action-copy (action :handler a-copy :name "Copy" :tip "Copy selected text to the clipboard.")
         action-paste (action :handler a-paste :name "Paste" :tip "Paste text from the clipboard.")
@@ -537,7 +545,7 @@ Copyright 2012, 2013 Kyle Harrington"
                                       :tip (str (:group %) "/" (:name %)))
                              (:projects @current-profile))
         menus (menubar
-                :items [(menu :text "File" :items [action-new action-open action-save action-save-as action-exit])
+                :items [(menu :text "File" :items [action-new action-open action-save action-save-as action-close-tab action-exit])
                         (menu :text "Edit" :items [action-copy action-cut action-paste])
                         (menu :text "Run" :items [action-eval-file])
                         (menu :text "Projects" :items (into [] action-projects))
