@@ -176,7 +176,10 @@ Copyright 2012, 2013 Kyle Harrington"
       (spit selected
             (get-text-from-tab tab-idx)))))
 
-(defn a-exit  [e] (System/exit 0))
+(declare save-IDE-state)
+(defn a-exit  [e]   
+  (save-IDE-state)
+  (System/exit 0))
 (defn a-copy  [e] (.copy (:text-area (get-editor))))
 (defn a-cut   [e] (.cut (:text-area (get-editor))))
 (defn a-paste [e] (.paste (:text-area (get-editor))))
@@ -515,31 +518,31 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn make-ui
   "Make a multi-widget UI."
   []
-  (let [a-new (action :handler a-new :name "New" :tip "Create a new file.")
-        a-open (action :handler a-open :name "Open" :tip "Open a file")
-        a-save (action :handler a-save :name "Save" :tip "Save the current file.")
-        a-exit (action :handler a-exit :name "Exit" :tip "Exit the editor.")
-        a-copy (action :handler a-copy :name "Copy" :tip "Copy selected text to the clipboard.")
-        a-paste (action :handler a-paste :name "Paste" :tip "Paste text from the clipboard.")
-        a-cut (action :handler a-cut :name "Cut" :tip "Cut text to the clipboard.")
-        a-save-as (action :handler a-save-as :name "Save As" :tip "Save the current file.")
-        a-eval-file (action :handler a-eval-file :name "Evaluate" :tip "Evaluate the current file.")
-        a-restart-brevis
+  (let [action-new (action :handler a-new :name "New" :tip "Create a new file.")
+        action-open (action :handler a-open :name "Open" :tip "Open a file")
+        action-save (action :handler a-save :name "Save" :tip "Save the current file.")
+        action-exit (action :handler a-exit :name "Exit" :tip "Exit the editor.")
+        action-copy (action :handler a-copy :name "Copy" :tip "Copy selected text to the clipboard.")
+        action-paste (action :handler a-paste :name "Paste" :tip "Paste text from the clipboard.")
+        action-cut (action :handler a-cut :name "Cut" :tip "Cut text to the clipboard.")
+        action-save-as (action :handler a-save-as :name "Save As" :tip "Save the current file.")
+        action-eval-file (action :handler a-eval-file :name "Evaluate" :tip "Evaluate the current file.")
+        action-restart-brevis
         (action :handler (fn [e]
                            (System/exit 1))
                 :name "Restart Brevis"
                 :tip "Completely restarts the application")
-        a-projects (map #(action :handler (make-a-active-project %)
-                                 :name (str (:group %) "/" (:name %))
-                                 :tip (str (:group %) "/" (:name %)))
-                        (:projects @current-profile))
+        action-projects (map #(action :handler (make-a-active-project %)
+                                      :name (str (:group %) "/" (:name %))
+                                      :tip (str (:group %) "/" (:name %)))
+                             (:projects @current-profile))
         menus (menubar
-                :items [(menu :text "File" :items [a-new a-open a-save a-save-as a-exit])
-                        (menu :text "Edit" :items [a-copy a-cut a-paste])
-                        (menu :text "Run" :items [a-eval-file])
-                        (menu :text "Projects" :items (into [] a-projects))
+                :items [(menu :text "File" :items [action-new action-open action-save action-save-as action-exit])
+                        (menu :text "Edit" :items [action-copy action-cut action-paste])
+                        (menu :text "Run" :items [action-eval-file])
+                        (menu :text "Projects" :items (into [] action-projects))
                         (menu :text "Git" :items [])
-                        (menu :text "Brevis" :items [a-restart-brevis]) 
+                        (menu :text "Brevis" :items [action-restart-brevis]) 
                         #_(menu :text "My Project" :items [(action :handler (fn [e] nil) :name "Open a project")
                                                           (action :handler (fn [e] nil) :name "in")
                                                           (action :handler (fn [e] nil) :name "projects menu")])])
@@ -554,7 +557,11 @@ Copyright 2012, 2013 Kyle Harrington"
                          #_[[(:scroll-pane (get-editor)) "wrap, span 2, w 100%, h 75%"]
                            [(:scroll-pane @repl-input-window) "w 50%, h 25%"]
                            [(:scrollable @repl-output-window) "w 50%, h 25%"]])
-        f (frame :title "Brevis - UI" :width 1024 :height 768 #_:minimum-size #_[800 :by 600] :menubar menus)]
+        f (frame :title "Brevis" :width 1024 :height 768 #_:minimum-size #_[800 :by 600] 
+                 :menubar menus :on-close :nothing #_:exit)]
+    (listen f
+            #{:window-closed :window-closing}
+            a-exit)
     (listen (:project-tree @project-browser) #_(select f [:#project-tree]) :selection
             (fn [e]
               (if-let [dir (last (selection e))]
@@ -574,6 +581,26 @@ Copyright 2012, 2013 Kyle Harrington"
     (.setLocation f 0 0)      
     {:frame f
      :panel panel}))
+
+(defn save-IDE-state
+  "Save the state of the IDE."
+  []
+  (println "saving IDE state.")
+  (let [num-tabs (.getTabCount (:tabbed-panel @editor-window))
+        tab-names (map #(.getToolTipTextAt (:tabbed-panel @editor-window) %) (range num-tabs))
+        state-filename (str brevis-directory File/separator "IDE_state.clj")]
+    (spit state-filename {:open-files tab-names})))
+
+(defn load-IDE-state
+  "Load the IDE state, if it was saved."
+  []
+  (println "loading IDE state.")
+  (let [state-filename (str brevis-directory File/separator "IDE_state.clj")]
+    (if (.exists (file state-filename))    
+      (let [saved-state (read-string (slurp state-filename))]                           
+        (doseq [filename (:open-files saved-state)]
+          (add-content-tab-from-filename filename @content-pane-params))))))
+
 
 (defn -main 
   "Start from command line."
@@ -623,6 +650,7 @@ Copyright 2012, 2013 Kyle Harrington"
     (reset! repl-output-window ro)
     (make-ui)
     (load-file (str "src" File/separator "brevis" File/separator "ui" File/separator "keybinds.clj"))
+    (load-IDE-state)
     "Launched BrIDE"
     #_(add-content-tab-from-filename @current-filename params)
     #_(when-not (empty? (:current-filename @current-profile))      
