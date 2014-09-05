@@ -24,7 +24,8 @@ Copyright 2012, 2013 Kyle Harrington"
            (java.io ByteArrayInputStream)
            [java.io File]
            [javax.swing.filechooser FileSystemView]
-           java.awt.Font)
+           java.awt.Font
+           [java.awt Component])
   (:require  
     [brevis.ui.keybinds :as keybinds]
     [clojure.string :as string]
@@ -38,6 +39,10 @@ Copyright 2012, 2013 Kyle Harrington"
     [leiningen.core.main :as lein-main])
   (:use [clojure.java.io :only [file]] 
         [clojure.pprint]
+        [seesaw.util :only [illegal-argument to-seq check-args
+                            constant-map resource resource-key?
+                            to-dimension to-insets to-url try-cast
+                            cond-doto to-mnemonic-keycode]]
         [seesaw core font color graphics chooser mig tree]
         [brevis.ui.profile])
   (:gen-class
@@ -83,56 +88,10 @@ Copyright 2012, 2013 Kyle Harrington"
 (def repl-outputstream
   (atom nil))
 
+(def content-pane-params (atom {}))
+
 (def ui-window
   "The complete UI panel." (atom nil))
-
-#_(def keybind-handlers
-   "Map of keybinds."
-   (atom {}))
-
-#_(defn add-keybind-handler
-   "Add a keybind handler.
-event-type is a map with at least 
-  - :type in [:keyPressed]
-  - :context in [:input-type]]
-predicate is (fn [e] ...)
-response is (fn [e context] ...) where e is an Event, and context is a hash-map with relevant widgets and such"
-   [name event-type predicate response]
-   #_(println "Adding keybind:" name)
-   (swap! keybind-handlers assoc 
-          (str "keybind_" name) #_(gensym "keybind")
-          {:event-type event-type,
-           :predicate predicate,
-           :response response}))
-
-#_(defn add-keybind-handler
-    "Add a keybind handler.
-event-type is a map with at least 
-  - :type in [:keyPressed]
-  - :context in [:input-type]]
-keystroke :
-KeyStroke.getKeyStroke(KeyEvent.VK_SPACE,
-                            java.awt.event.InputEvent.CTRL_DOWN_MASK)
-or
-KeyStroke.getKeyStroke(KeyEvent.VK_SPACE,
-                       java.awt.event.InputEvent.CTRL_DOWN_MASK
-                       | java.awt.event.InputEvent.SHIFT_DOWN_MASK)
-response is (fn [e context] ...) where e is an Event, and context is a hash-map with relevant widgets and such"
-    [name event-type keystroke response]
-    #_(println "Adding keybind:" name)
-    (swap! keybind-handlers assoc 
-           (str "keybind_" name) #_(gensym "keybind")
-           {:event-type event-type,
-            :keystroke keystroke,
-            :response response}))
-
-;component.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE,
-;                            java.awt.event.InputEvent.CTRL_DOWN_MASK),
-;                    "actionMapKey");
-;component.getActionMap().put("actionMapKey",
-;                     someAction);
-
-;;
 
 (def chooser (javax.swing.JFileChooser.)) ; FileChooser hack to get system icons
 (def current-filename (atom nil))
@@ -166,10 +125,22 @@ response is (fn [e context] ...) where e is an Event, and context is a hash-map 
           (.setText (:text-area (get-editor)) "")
           #_(set-status "Created a new file.")))))
 
+(defn is-open?
+  "Check if a file is already open."
+  [filename]
+  (let [num-tabs (.getTabCount (:tabbed-panel @editor-window))
+        tab-names (map #(.getName (.getTabComponentAt (:tabbed-panel @editor-window) %)) (range num-tabs))]
+    (some #(= filename %) tab-names)))
+
+(declare add-content-tab-from-filename)
+(defn open-file
+  "Open a file and add  the tab if it isnt already open."
+  [filename]
+  (when-not (is-open? filename);; could make tab active if it is already open
+    (add-content-tab-from-filename filename @content-pane-params)))
+
 (defn a-open [e]
-  (let [selected (select-file)] #_(set-current-file selected)
-    (.setText (:text-area (get-editor)) (slurp selected))
-    #_(set-status "Opened " filename ".")))
+  (open-file (select-file)))
 
 (defn a-save [e]
   (spit @current-filename (.getText (:text-area (get-editor))))
@@ -279,83 +250,66 @@ response is (fn [e context] ...) where e is an Event, and context is a hash-map 
     (make-project-window proj)
     #_(println "Switching project:" proj)))
 
-#_(defn make-editor-window
-     "Make an editor window."
-     [params]
-     (let [
-           textArea (RSyntaxTextArea. 42 115)
-           ;textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
-           ;textArea.setCodeFoldingEnabled(true);      
-           sp (RTextScrollPane. textArea)
-           a-new (action :handler a-new :name "New" :tip "Create a new file.")
-           a-open (action :handler a-open :name "Open" :tip "Open a file")
-           a-save (action :handler a-save :name "Save" :tip "Save the current file.")
-           a-exit (action :handler a-exit :name "Exit" :tip "Exit the editor.")
-           a-copy (action :handler a-copy :name "Copy" :tip "Copy selected text to the clipboard.")
-           a-paste (action :handler a-paste :name "Paste" :tip "Paste text from the clipboard.")
-           a-cut (action :handler a-cut :name "Cut" :tip "Cut text to the clipboard.")
-           a-save-as (action :handler a-save-as :name "Save As" :tip "Save the current file.")
-           a-eval-file (action :handler a-eval-file :name "Evaluate" :tip "Evaluate the current file.")
-           a-projects (map #(action :handler (make-a-active-project %)
-                                    :name (str (:group %) "/" (:name %))
-                                    :tip (str (:group %) "/" (:name %)))
-                           (:projects @current-profile))
-           menus (menubar
-                   :items [(menu :text "File" :items [a-new a-open a-save a-save-as a-exit])
-                           (menu :text "Edit" :items [a-copy a-cut a-paste])
-                           (menu :text "Run" :items [a-eval-file])
-                           (menu :text "Projects" :items (into [] a-projects))
-                           (menu :text "Git" :items [])
-                           #_(menu :text "My Project" :items [(action :handler (fn [e] nil) :name "Open a project")
-                                                             (action :handler (fn [e] nil) :name "in")
-                                                             (action :handler (fn [e] nil) :name "projects menu")])])
-           f (frame :title "Brevis - Editor Window" :menubar menus)]
-       (.setSyntaxEditingStyle textArea (cond (= (:language params) :java) 
-                                              (SyntaxConstants/SYNTAX_STYLE_JAVA)
-                                              :else
-                                              (SyntaxConstants/SYNTAX_STYLE_CLOJURE)))
-       (.setCodeFoldingEnabled textArea true)      
-       (display f sp)
-       (-> f pack! show!)
-       (.setLocation f 0 0)      
-       {:frame f
-        :text-area textArea
-        :scroll-pane sp
-        :menus menus}))
+(def ^{:private true} make-icon icon)
 
-#_(def input-text-keyhandler
-   (proxy [java.awt.event.KeyAdapter] []          
-     (keyPressed [#^java.awt.event.KeyEvent e]
-       (doseq [[kid keybind] @keybind-handlers]
-         (println "Testing keybind:" kid)
-         (println (= (:context (:event-type keybind)) :input-text)
-                    (= (:type (:event-type keybind)) :keyPressed)
-                    ((:predicate keybind) e))
-         (when (and (= (:context (:event-type keybind)) :input-text)
-                    (= (:type (:event-type keybind)) :keyPressed)
-                    ((:predicate keybind) e))
-           (try ((:response keybind) e
-                                     (get-editor))            
-             (catch Exception e (println (.getMessage e))))
-           (.consume e))))))
+(defn add-content-tab
+  "Add a tab to the content pane."
+  [tab-map]
+  (let [tp (:tabbed-panel @editor-window)
+        {:keys [title content tip icon]} tab-map
+        title-cmp (try-cast Component title)
+        index (.getTabCount tp)]
+    (cond-doto tp
+               true (.addTab (if-not title-cmp (resource title)) (make-icon icon) (make-widget content) (resource tip))
+               title-cmp (.setTabComponentAt index title-cmp))))
 
+(defn add-content-tab-from-filename
+  "Add a tab for a filename, autoconstruct the component."
+  [filename params]
+  (let [textArea (RSyntaxTextArea. 42 115)
+        sp (RTextScrollPane. textArea)]
+    (when (:keybinds params)
+             (doseq [keybind (:keybinds params)]
+               #_(println keybind)
+               (.put (.getInputMap textArea)
+                 (:keystroke keybind)
+                 (:action keybind))
+               #_(.put (.getActionMap textArea)
+                  (:name keybind)
+                  (:action keybind))))
+    (.setSyntaxEditingStyle textArea (cond (= (:language params) :java) 
+                                           (SyntaxConstants/SYNTAX_STYLE_JAVA)
+                                           :else
+                                           (SyntaxConstants/SYNTAX_STYLE_CLOJURE)))
+    (.setCodeFoldingEnabled textArea true)      
+    (.setText textArea (slurp filename))
+    (add-content-tab {:title (label;; title is not a string but a label component
+                               :id (str (gensym "editor-panel"))
+                               ;; current-filename isn't set when this function is called
+                               :text filename #_(last (string/split @current-filename #"/")) #_@current-filename;; with text set to txt
+                               :foreground :blue) 
+                      ;:filename @current-filename 
+                      :tip @current-filename 
+                      :icon (.getIcon chooser (file @current-filename))
+                      :content (RTextScrollPane. textArea)})))
+        
 (defn make-editor-window
      "Make an editor window."
      [params]
-     (let [textArea (RSyntaxTextArea. 42 115)
+     (let [;textArea (RSyntaxTextArea. 42 115)
            ;textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
            ;textArea.setCodeFoldingEnabled(true);      
-           sp (RTextScrollPane. textArea)
+           ;sp (RTextScrollPane. textArea)
            tabs (tabbed-panel :placement :top ;:overflow :wrap 
-                              :tabs [{:title (label;; title is not a string but a label component
-                                                   :id (str (gensym "editor-panel"))
-                                                   ;; current-filename isn't set when this function is called
-                                                   :text "*current*"#_(last (string/split @current-filename #"/")) #_@current-filename;; with text set to txt
-                                                   :foreground :blue) 
-                                      #_@current-filename 
-                                      :tip @current-filename 
-                                      :icon (.getIcon chooser (file @current-filename))
-                                      :content sp}])
+                              :tabs [#_{:title (label;; title is not a string but a label component
+                                                    :id (str (gensym "editor-panel"))
+                                                    ;; current-filename isn't set when this function is called
+                                                    :text @current-filename #_(last (string/split @current-filename #"/")) #_@current-filename;; with text set to txt
+                                                    :foreground :blue) 
+                                       #_@current-filename 
+                                       :tip @current-filename 
+                                       :icon (.getIcon chooser (file @current-filename))
+                                       :content sp}])
            a-new (action :handler a-new :name "New" :tip "Create a new file.")
            a-open (action :handler a-open :name "Open" :tip "Open a file")
            a-save (action :handler a-save :name "Save" :tip "Save the current file.")
@@ -381,28 +335,29 @@ response is (fn [e context] ...) where e is an Event, and context is a hash-map 
            ;f (frame :title "Brevis - Editor Window" :menubar menus)
            ]
        #_(.addKeyListener textArea input-text-keyhandler)
-       (when (:keybinds params)
-         (doseq [keybind (:keybinds params)]
-           #_(println keybind)
-           (.put (.getInputMap textArea)
-             (:keystroke keybind)
-             (:action keybind))
-           #_(.put (.getActionMap textArea)
-              (:name keybind)
-              (:action keybind))))
-       (.setSyntaxEditingStyle textArea (cond (= (:language params) :java) 
-                                              (SyntaxConstants/SYNTAX_STYLE_JAVA)
-                                              :else
-                                              (SyntaxConstants/SYNTAX_STYLE_CLOJURE)))
-       (.setCodeFoldingEnabled textArea true)      
+       #_(when (:keybinds params)
+          (doseq [keybind (:keybinds params)]
+            #_(println keybind)
+            (.put (.getInputMap textArea)
+              (:keystroke keybind)
+              (:action keybind))
+            #_(.put (.getActionMap textArea)
+               (:name keybind)
+               (:action keybind))))
+       #_(.setSyntaxEditingStyle textArea (cond (= (:language params) :java) 
+                                               (SyntaxConstants/SYNTAX_STYLE_JAVA)
+                                               :else
+                                               (SyntaxConstants/SYNTAX_STYLE_CLOJURE)))
+       #_(.setCodeFoldingEnabled textArea true)      
        #_(display f sp)
        #_(-> f pack! show!)
        #_(.setLocation f 0 0)      
        {;:frame f
-        :text-area textArea
+        ;:text-area textArea
         :tabbed-panel tabs
-        :scroll-pane sp
-        :menus menus}))
+        ;:scroll-pane sp
+        :menus menus
+        }))
 
 (defn get-repl-inputstream
   "Return the input stream for the REPL."
@@ -413,76 +368,6 @@ response is (fn [e context] ...) where e is an Event, and context is a hash-map 
   "Return the output stream for the REPL."
   []
   @repl-outputstream)
-
-#_(defn make-repl-input-window
-     "Make a REPL input window."
-     [params]
-     (let [textArea (RSyntaxTextArea. 25 115)          
-           ;textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
-           ;textArea.setCodeFoldingEnabled(true);      
-           sp (RTextScrollPane. textArea)
-           a-new (action :handler a-new :name "New" :tip "Create a new file.")
-           a-open (action :handler a-open :name "Open" :tip "Open a file")
-           a-save (action :handler a-save :name "Save" :tip "Save the current file.")
-           a-exit (action :handler a-exit :name "Exit" :tip "Exit the editor.")
-           a-copy (action :handler a-copy :name "Copy" :tip "Copy selected text to the clipboard.")
-           a-paste (action :handler a-paste :name "Paste" :tip "Paste text from the clipboard.")
-           a-cut (action :handler a-cut :name "Cut" :tip "Cut text to the clipboard.")
-           a-save-as (action :handler a-save-as :name "Save As" :tip "Save the current file.")
-           menus (menubar
-                   :items [#_(menu :text "File" :items [a-new a-open a-save a-save-as a-exit])
-                           (menu :text "Edit" :items [a-copy a-cut a-paste])])
-           f (frame :title "Brevis - REPL Input" :menubar menus)]
-       (.addKeyListener textArea 
-         (proxy [java.awt.event.KeyAdapter] []          
-           (keyPressed [#^java.awt.event.KeyEvent e]
-             (when (= (.getKeyCode e) java.awt.event.KeyEvent/VK_UP)
-               (try 
-                 (let [startPosition 0]
-                   (.remove (.getDocument textArea) startPosition (- (.getLength (.getDocument textArea)) startPosition 1))                  
-                   (.setText textArea (nth @repl-input (- (dec (count @repl-input)) @repl-input-index)))
-                   (reset! repl-input-index (min (inc @repl-input-index) (dec (count @repl-input))))
-                   #_(.setText textArea (last @repl-input)))
-                 (catch Exception e (println (.getMessage e))))
-               (.consume e))
-             (when (= (.getKeyCode e) java.awt.event.KeyEvent/VK_DOWN)
-               (try 
-                 (let [startPosition 0]
-                   (.remove (.getDocument textArea) startPosition (- (.getLength (.getDocument textArea)) startPosition 1))                  
-                   (.setText textArea (nth @repl-input (- (dec (count @repl-input)) @repl-input-index)))
-                   (reset! repl-input-index (max (dec @repl-input-index) 0))
-                   #_(.setText textArea (last @repl-input)))
-                 (catch Exception e (println (.getMessage e))))
-               (.consume e))
-             (when (= (.getKeyCode e) java.awt.event.KeyEvent/VK_ENTER)
-               (.append textArea "\n")
-               ;; This shouldn't be here:
-               #_(text! (:text-area @repl-output-window) (.toString (get-repl-outputstream)))
-               (try 
-                 (let [startPosition 0
-                       line (.getText textArea startPosition (- (.getLength (.getDocument textArea)) startPosition 1))
-                       ;response-vals (nrepl/message (:client @repl) {:op "eval" :code line})
-                       #_session-sender #_(nrepl/client-session @reply.eval-modes.nrepl/current-connection :session @reply.eval-modes.nrepl/current-session)]
-                   (reset! repl-input-index 0)
-                   (.setText textArea "")
-                   (eval-and-print line true)           
-                   ;; Add to a console history
-                   )
-                 (catch Exception e (println (.getMessage e))))
-               (.consume e)))))
-       (.setSyntaxEditingStyle textArea (cond (= (:language params) :java) 
-                                              (SyntaxConstants/SYNTAX_STYLE_JAVA)
-                                              :else
-                                              (SyntaxConstants/SYNTAX_STYLE_CLOJURE)))
-       #_(.setCodeFoldingEnabled textArea true)      
-       (display f sp)
-       (-> f pack! show!)
-       #_(println (.getLocation f))
-       (.setLocation f 0 680)      
-       {:frame f
-        :text-area textArea
-        :scroll-pane sp
-        :menus menus}))
 
 (defn make-repl-input-window
      "Make a REPL input window."
@@ -554,28 +439,6 @@ response is (fn [e context] ...) where e is an Event, and context is a hash-map 
         :text-area textArea
         :scroll-pane sp
         :menus menus}))
-
-#_(defn make-repl-output-window
-    "Make an editor window."
-    [params]
-    (let [f (frame :title "Brevis - REPL Output" :width 800 :height 200 :minimum-size [800 :by 360])
-          text-area (text :multi-line? true :font "MONOSPACED-PLAIN-14"
-                                           :text "> ")
-          area (scrollable text-area)
-          listener-thread (Thread. (fn []  
-                                     (loop []
-                                       (let [resp (nrepl.transport/recv (:client @repl) 20)]
-                                         (when resp
-                                           (when (:out resp) (write-stdout-repl (:out resp)))
-                                           (when (:value resp) (write-value-repl (:value resp)))))
-                                       (recur))))]
-     (display f area)
-     (-> f pack! show!)
-     (.setLocation f 850 650)      
-     {:frame f
-      :scrollable area
-      :listener-thread listener-thread
-      :text-area text-area}))
 
 (defn make-repl-output-window
     "Make an editor window."
@@ -671,9 +534,11 @@ response is (fn [e context] ...) where e is an Event, and context is a hash-map 
               (if-let [dir (last (selection e))]
                 (let [files (.listFiles dir)]
                   (when (and (.isFile dir)
-                             (or (.contains (.toString dir) "clj") (.contains (.toString dir) "java")))
-                    (reset! current-filename (.toString dir))
-                    (.setText (:text-area (get-editor)) (slurp @current-filename)))
+                             (or (.contains (.toString dir) "clj")
+                                 (.contains (.toString dir) "java")))
+                    #_(reset! current-filename (.toString dir))
+                    #_(.setText (:text-area (get-editor)) (slurp @current-filename))
+                    (open-file (.toString dir)))
                   #_(println dir)
                   (config! (select f [:#current-dir]) :text (.getAbsolutePath dir))
                   (config! (select f [:#status]) :text (format "Ready (%d items)" (count files)))
@@ -688,10 +553,11 @@ response is (fn [e context] ...) where e is an Event, and context is a hash-map 
   "Start from command line."
   [& args]
   (init-ui)
-  (let [ew (make-editor-window {:language :clojure
-                                :keybinds keybinds/standard})
-        ri (make-repl-input-window {:language :clojure})
-        ro (make-repl-output-window {:language :clojure})
+  (let [params {:language :clojure
+                :keybinds keybinds/standard}
+        ew (make-editor-window params)
+        ri (make-repl-input-window params)
+        ro (make-repl-output-window params)
         r-is System/in #_(java.io.ByteArrayInputStream.
                           #_(.getBytes "(println 'foobar)\nexit\n(println 'foobar)\n"))
         r-os (java.io.ByteArrayOutputStream.)
@@ -714,8 +580,9 @@ response is (fn [e context] ...) where e is an Event, and context is a hash-map 
                               (server-forms project cfg (ack-port project)
                                             true))
         pb (make-project-browser {})
-        ]
+        ]    
     #_(.start repl-client-thread)
+    (reset! content-pane-params params)
     (reset! repl {:server repl-server ;:client-thread repl-client-thread
                   ;:repl-inputstream r-is :repl-outputstream r-os})
                   ;:client (nrepl/client @reply.eval-modes.nrepl/current-connection Long/MAX_VALUE)
@@ -731,8 +598,9 @@ response is (fn [e context] ...) where e is an Event, and context is a hash-map 
     (reset! current-filename (:current-filename @current-profile))
     (make-ui)
     (load-file (str "src" File/separator "brevis" File/separator "ui" File/separator "keybinds.clj"))
-    (when-not (empty? (:current-filename @current-profile))      
-      (.setText (:text-area ew) (slurp @current-filename)))))
+    (add-content-tab-from-filename @current-filename params)
+    #_(when-not (empty? (:current-filename @current-profile))      
+       (.setText (:text-area ew) (slurp @current-filename)))))
 
 (when (find-ns 'ccw.complete)
   (-main))
