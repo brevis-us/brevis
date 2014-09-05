@@ -153,7 +153,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn get-text-from-tab
   "Return the text from a tab."
   [tab-idx]
-  (let [component (.getTabComponentAt (:tabbed-panel @editor-window) tab-idx)]
+  (let [component (.getComponentAt (:tabbed-panel @editor-window) tab-idx)]
     (.getText (.getTextArea component))))
   
 (defn current-tab-index
@@ -161,9 +161,14 @@ Copyright 2012, 2013 Kyle Harrington"
   []
   (.getSelectedIndex (:tabbed-panel @editor-window)))
 
+(defn current-tab-filename
+  "Return the filename corresponding to the current tab."
+  []
+  (.getToolTipTextAt (:tabbed-panel @editor-window) (current-tab-index)))
+
 (defn a-save [e]
   (let [tab-idx (current-tab-index)]
-    (spit (.getToolTipTextAt (:tabbed-panel @editor-window) tab-idx)
+    (spit (current-tab-filename)
           (get-text-from-tab tab-idx))))
 
 (defn a-save-as [e]
@@ -229,6 +234,12 @@ Copyright 2012, 2013 Kyle Harrington"
     #_(write-value-repl (:value (last response-vals)))
     #_(println (:value (last response-vals)))
     #_(with-out-str (pprint (doall response-vals)))))
+
+(declare set-REPL-to-current-tab)
+(defn a-set-REPL-to-project
+  "Setup the repl for the current project."
+  [e]
+  (set-REPL-to-current-tab))
 
 (defn a-eval-file
   "Evaluate a file."
@@ -354,7 +365,7 @@ Copyright 2012, 2013 Kyle Harrington"
            a-paste (action :handler a-paste :name "Paste" :tip "Paste text from the clipboard.")
            a-cut (action :handler a-cut :name "Cut" :tip "Cut text to the clipboard.")
            a-save-as (action :handler a-save-as :name "Save As" :tip "Save the current file.")
-           a-eval-file (action :handler a-eval-file :name "Evaluate" :tip "Evaluate the current file.")
+           a-eval-file (action :handler a-eval-file :name "Evaluate" :tip "Evaluate the current file.")           
            a-projects (map #(action :handler (make-a-active-project %)
                                     :name (str (:group %) "/" (:name %))
                                     :tip (str (:group %) "/" (:name %)))
@@ -535,6 +546,7 @@ Copyright 2012, 2013 Kyle Harrington"
         action-cut (action :handler a-cut :name "Cut" :tip "Cut text to the clipboard.")
         action-save-as (action :handler a-save-as :name "Save As" :tip "Save the current file.")
         action-eval-file (action :handler a-eval-file :name "Evaluate" :tip "Evaluate the current file.")
+        action-set-REPL-to-project (action :handler a-set-REPL-to-project :name "Restart project REPL" :tip "Restart REPL for current file's project.")
         action-restart-brevis
         (action :handler (fn [e]
                            (System/exit 1))
@@ -547,7 +559,7 @@ Copyright 2012, 2013 Kyle Harrington"
         menus (menubar
                 :items [(menu :text "File" :items [action-new action-open action-save action-save-as action-close-tab action-exit])
                         (menu :text "Edit" :items [action-copy action-cut action-paste])
-                        (menu :text "Run" :items [action-eval-file])
+                        (menu :text "Run" :items [action-set-REPL-to-project action-eval-file])
                         (menu :text "Projects" :items (into [] action-projects))
                         (menu :text "Git" :items [])
                         (menu :text "Brevis" :items [action-restart-brevis]) 
@@ -609,6 +621,40 @@ Copyright 2012, 2013 Kyle Harrington"
         (doseq [filename (:open-files saved-state)]
           (add-content-tab-from-filename filename @content-pane-params))))))
 
+(defn is-directory-leiningen-project?
+  "Return true if a directory represents a leiningen project."
+  [directory]
+  (some #(= "project.clj" (.getName %))
+        (file-seq (file directory))))
+
+(defn set-REPL-to-current-tab
+  "Setup the REPL for the project corresponding to the current tab."
+  []
+  (when @repl
+    (let [{:keys [server connection client]} @repl]
+      (nrepl.server/stop-server server)))
+  (when-let [tab-idx (current-tab-index)]    
+    (let [filename (current-tab-filename)
+          path (string/split filename (re-pattern (java.util.regex.Pattern/quote File/separator)))
+          paths (loop [rem (butlast path)
+                       paths []]
+                  (if-not (empty? rem)
+                    (recur (butlast rem) 
+                           (conj paths (string/join File/separator rem)))
+                    paths))
+          project-dir (some is-directory-leiningen-project?
+                            paths)]
+      (if-not project-dir
+        (println "File is not within a valid Leiningen project.")
+        (let [project (project/read (str (:current-project @current-profile) File/separator "project.clj"))
+              repl-cfg {:host (repl/repl-host project)
+                        :port (repl/repl-port project)}
+              repl-server (nrepl.server/start-server :port 59258)
+              repl-connection (nrepl/connect :port 59258)
+              repl-client (nrepl/client repl-connection Long/MAX_VALUE)]
+          (reset! repl {:server repl-server
+                        :connection repl-connection
+                        :client repl-client}))))))
 
 (defn -main 
   "Start from command line."
