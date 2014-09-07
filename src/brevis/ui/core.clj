@@ -36,7 +36,8 @@ Copyright 2012, 2013 Kyle Harrington"
     [leiningen.repl :as repl]
     [leiningen.core.project :as project]
     [leiningen.core.eval :as eval]
-    [leiningen.core.main :as lein-main])
+    [leiningen.core.main :as lein-main]
+    [clj-jgit.porcelain :as porcelain])
   (:use [clojure.java.io :only [file]] 
         [clojure.pprint]
         [seesaw.util :only [illegal-argument to-seq check-args
@@ -46,7 +47,6 @@ Copyright 2012, 2013 Kyle Harrington"
         [seesaw core font color graphics chooser mig tree]
         [brevis.ui.profile])
   (:gen-class
-    :name brevis.ui.BrevisUICore
     ;:init init
     :main main))
 
@@ -124,12 +124,17 @@ Copyright 2012, 2013 Kyle Harrington"
     (.getSelectedFile chooser))))
 
 (defn a-new [e]
-  (let [selected (select-file)] 
+  (let [tab-idx (.getSelectedIndex (:tabbed-panel @editor-window))
+        current-filename (.getToolTipTextAt (:tabbed-panel @editor-window) tab-idx)
+        current-file (file current-filename)]
+    (when-let [selected (if current-filename
+                          (select-file (.getParent current-file))
+                          (select-file))]      
     (if (.exists (file selected))
       (alert "File already exists.")
       (do #_(set-current-file selected)
           (.setText (:text-area (get-editor)) "")
-          #_(set-status "Created a new file.")))))
+          #_(set-status "Created a new file."))))))
 
 (defn is-open?
   "Check if a file is already open."
@@ -368,15 +373,15 @@ Copyright 2012, 2013 Kyle Harrington"
            a-cut (action :handler a-cut :name "Cut" :tip "Cut text to the clipboard.")
            a-save-as (action :handler a-save-as :name "Save As" :tip "Save the current file.")
            a-eval-file (action :handler a-eval-file :name "Evaluate" :tip "Evaluate the current file.")           
-           a-projects (map #(action :handler (make-a-active-project %)
-                                    :name (str (:group %) "/" (:name %))
-                                    :tip (str (:group %) "/" (:name %)))
-                           (:projects @current-profile))
+           #_a-projects #_(map #(action :handler (make-a-active-project %)
+                                       :name (str (:group %) "/" (:name %))
+                                       :tip (str (:group %) "/" (:name %)))
+                              (:projects @current-profile))
            menus (menubar
                    :items [(menu :text "File" :items [a-new a-open a-save a-save-as a-exit])
                            (menu :text "Edit" :items [a-copy a-cut a-paste])
                            (menu :text "Run" :items [a-eval-file])
-                           (menu :text "Projects" :items (into [] a-projects))
+                           #_(menu :text "Projects" :items (into [] a-projects))
                            (menu :text "Git" :items [])
                            #_(menu :text "My Project" :items [(action :handler (fn [e] nil) :name "Open a project")
                                                              (action :handler (fn [e] nil) :name "in")
@@ -538,6 +543,51 @@ Copyright 2012, 2013 Kyle Harrington"
     {:project-tree pt
      :scrollable browser}))
 
+(defn is-directory-git-repo?
+  "Return true if a directory represents a leiningen project."
+  [directory]
+  (some #(= ".git" (.getName %))
+        (file-seq (file directory))))
+
+(defn get-git-repo-path
+  "Get the git repository path for the current file/project"
+  []
+  (let [filename (current-tab-filename)
+        path (string/split filename (re-pattern (java.util.regex.Pattern/quote File/separator)))
+        paths (loop [rem (butlast path)
+                     paths []]
+                (if-not (empty? rem)
+                  (recur (butlast rem) 
+                         (conj paths (string/join File/separator rem)))
+                  paths))]
+    (some #(when (is-directory-git-repo? %) %)
+          paths)))
+
+#_(defn get-git-identity
+   "Get current git identity."
+   []
+   (let [gitconfig (string/split-lines (slurp (str (System/getProperty "user.home") File/separator ".gitconfig")))
+         ssh-prv (slurp (str (System/getProperty "user.home") File/separator ".ssh/id_rsa"))
+         ssh-pub (slurp (str (System/getProperty "user.home") File/separator ".ssh/id_rsa.pub"))]
+     {:gitconfig gitconfig
+      :ssh-prv ssh-prv
+      :ssh-pub ssh-pub}))
+
+(defn a-git-pull
+  "Pull from project's git repository."
+  [e]
+  (println "pull")
+  #_(if-let [repo-path (get-git-repo-path)]
+     (apply porcelain/with-identity (get-git-identity)
+            (porcelain/with-repo repo-path
+              (porcelain/git-pull repo)))
+     (println "Not inside a git repo.")))    
+
+(defn a-git-commit-push
+  "Commit and push to a project's git repository."
+  [e]
+  (println "commit and push."))
+
 (defn make-ui
   "Make a multi-widget UI."
   []
@@ -557,16 +607,18 @@ Copyright 2012, 2013 Kyle Harrington"
                            (System/exit 1))
                 :name "Restart Brevis"
                 :tip "Completely restarts the application")
-        action-projects (map #(action :handler (make-a-active-project %)
-                                      :name (str (:group %) "/" (:name %))
-                                      :tip (str (:group %) "/" (:name %)))
-                             (:projects @current-profile))
+        #_action-projects #_(map #(action :handler (make-a-active-project %)
+                                         :name (str (:group %) "/" (:name %))
+                                         :tip (str (:group %) "/" (:name %)))
+                                (:projects @current-profile))
+        action-git-pull (action :handler a-git-pull :name "Git pull" :tip "Pull from project's git repository.")
+        action-git-commit-push (action :handler a-git-commit-push :name "Git commit+push" :tip "Commit and push to project's git repository.")
         menus (menubar
                 :items [(menu :text "File" :items [action-new action-open action-save action-save-as action-close-tab action-exit])
                         (menu :text "Edit" :items [action-copy action-cut action-paste])
                         (menu :text "Run" :items [action-set-REPL-to-project action-eval-file])
-                        (menu :text "Projects" :items (into [] action-projects))
-                        (menu :text "Git" :items [])
+                        #_(menu :text "Projects" :items (into [] action-projects))
+                        (menu :text "Git" :items [action-git-pull action-git-commit-push])
                         (menu :text "Brevis" :items [action-restart-brevis]) 
                         #_(menu :text "My Project" :items [(action :handler (fn [e] nil) :name "Open a project")
                                                           (action :handler (fn [e] nil) :name "in")

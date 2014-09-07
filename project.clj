@@ -1,4 +1,4 @@
-(defproject brevis "0.9.29"
+(defproject brevis "0.9.30"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "http://brevis.us"
   :license {:name "General Public License v3"
@@ -16,7 +16,7 @@
                  
                  ;; Project management & utils
                  [leiningen "2.3.4"]
-                 [clj-jgit "0.3.9"]
+                 [clj-jgit "0.7.6"]
                  [me.raynes/conch "0.6.0"]
                  
                  ;; Physics packages                 
@@ -50,6 +50,9 @@
   ;:manifest {"SplashScreen-Image" "brevis_splash.gif"}
   :javadoc-opts {:package-names ["brevis" "brevis.graphics" "brevis.plot"]}
   :profiles {:headless {:jvm-opts ["-DbrevisHeadless=true"]}
+             :BrIDE {:main brevis.ui.core
+                     :aot [brevis.ui.core]
+                     :uberjar-name "BrIDE.jar"}
              :brevis.example.swarm {:main brevis.example.swarm
                                     :aot :all
                                     :uberjar-name "brevis.example.swarm-STANDALONE.jar"}}
