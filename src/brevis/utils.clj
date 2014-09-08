@@ -17,7 +17,9 @@ Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.utils
   (:require [me.raynes.conch :refer [programs with-programs let-programs]])
-  (:import [brevis Engine])
+  (:import [brevis Engine]
+           [java.io FileInputStream FileOutputStream
+            ObjectInputStream ObjectOutputStream])
   (:use [brevis globals]
         [brevis.physics core utils]))
 
@@ -61,15 +63,30 @@ otherwise it should be a function that returns true/false"
   []
   (swap! *gui-state* assoc :display-fps false))
 
-#_(defn save-simulation-state
-   "[EXPERIMENTAL:PROBABLY WONT SAVE WHAT YOU NEED] Save the state of the simulation to filename."
-   [filename]
-   #_(mkdir (str filename "_brevis"))
-   (spit filename
+(defn save-simulation-state
+  "[EXPERIMENTAL: be very afraid] Save the state of the simulation to filename."
+  [filename]
+  #_(mkdir (str filename "_brevis"))
+  #_(spit filename
          (with-out-str
            (doseq [obj (all-objects)]
              (println (str obj))))
-         :append true))
+         :append true)
+  (try 
+    (let [fos (FileOutputStream. filename)
+          out (ObjectOutputStream. fos)]
+      (.writeObject out @*java-engine*))
+    (catch Exception e (do (.printStackTrace e) (str "caught exception: " (.getMessage e) )))))
+
+(defn load-simulation-state
+  "[EXPERIMENTAL: be very afraid] Load a saved simulation state from filename."
+  [filename]
+  (try 
+    (let [fis (FileInputStream. filename)
+          in (ObjectInputStream. fis)
+          engine (cast Engine (.readObject in @*java-engine*))]
+      (reset! *java-engine* engine))
+    (catch Exception e (str "caught exception: " (.getMessage e)))))
 
 (defn disable-skybox
   "Disable rendering of the skybox."
@@ -85,3 +102,4 @@ otherwise it should be a function that returns true/false"
   "Files must contain: front, left, back, right, up, down"
   [files]
   (.changeSkybox brevis.graphics.basic-3D/*sky* files))
+

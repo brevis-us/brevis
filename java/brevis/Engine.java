@@ -17,6 +17,9 @@
 
 package brevis;
 
+import java.io.IOException;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,21 +55,42 @@ import clojure.lang.PersistentVector;
 import duyn.algorithm.nearestneighbours.FastKdTree;
 import duyn.algorithm.nearestneighbours.PrioNode;
 
-public class Engine {	
+public class Engine implements Serializable {	
 	
 	/*
 	 * Callback classes. 
 	 */
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5209150139378668298L;
+
 	// Compute the update after DT amount of time for object with UID
-	public static class UpdateHandler {
+	public static class UpdateHandler implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 7301251223848548305L;
+
 		public BrObject update( Engine engine, Long uid, Double dt ) {
 			BrObject obj = engine.objects.get( uid );
 			return obj;
 		}
+		private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+			 out.defaultWriteObject();
+		}
+			     
+	 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+	 		in.defaultReadObject();
+	 	}
 	}
 	
-	public static class GlobalUpdateHandler {
+	public static class GlobalUpdateHandler implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 5310171212429743564L;
 		public Long priority = (long) 0;
 		public void update( Engine engine ) {			
 		}
@@ -76,6 +100,13 @@ public class Engine {
 		public void setPriority( Long priority2 ) {
 			priority = priority2;
 		}
+		private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+			 out.defaultWriteObject();
+		}
+			     
+	 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+	 		in.defaultReadObject();
+	 	}
 	}
 	
 	// All collisions are pairwise now.
@@ -86,11 +117,23 @@ public class Engine {
 		}
 	}*/
 	
-	public static class CollisionHandler {
+	public static class CollisionHandler implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -5029373761039142328L;
+
 		public clojure.lang.PersistentVector collide( Engine engine, BrObject subj, BrObject othr, Double dt) {
 			clojure.lang.PersistentVector v = clojure.lang.PersistentVector.create( subj, othr );						
 			return v;
 		}
+		private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+			 out.defaultWriteObject();
+		}
+			     
+	 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+	 		in.defaultReadObject();
+	 	}
 	}
 	
 	/* 
@@ -138,19 +181,31 @@ public class Engine {
 	// enableParallel
 	public boolean brevisParallel = false;
 	
-	public BrKDTree<BrKDNode> spaceTree = null;
+	public transient BrKDTree<BrKDNode> spaceTree = null;
 	
-	public ReentrantLock lock = new ReentrantLock();
+	public transient ReentrantLock lock = new ReentrantLock();
 	
 	/* Methods: */	
 	
-	class GUHComparator implements Comparator<GlobalUpdateHandler> {
+	class GUHComparator implements Comparator<GlobalUpdateHandler>, Serializable {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 8745204900496801037L;
 
 		@Override
 		public int compare(GlobalUpdateHandler gh1, GlobalUpdateHandler gh2) {
 			return (int) ( gh1.priority - gh2.priority );
 		}
 		
+		private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+			 out.defaultWriteObject();
+		}
+			     
+	 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+	 		in.defaultReadObject();
+	 	}
 	}
 	
 	public Engine() {
@@ -807,4 +862,18 @@ public class Engine {
 	public boolean getParallel() {
 		return brevisParallel;
 	}
+	
+	/* Serialization stuff */
+	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+		 out.defaultWriteObject();
+	}
+		     
+ 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+ 		in.defaultReadObject();
+ 	}
+		 
+ 	/* private void readObjectNoData() throws ObjectStreamException {
+ 		
+ 	}*/
+		     
 }

@@ -17,10 +17,14 @@
 
 package brevis;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.Vector;
 
 //import javax.vecmath.Vector3d;
 //import javax.vecmath.Vector3f;
+
+
 
 
 
@@ -34,7 +38,11 @@ import org.ode4j.ode.DSpace;
 import org.ode4j.ode.DWorld;
 import org.ode4j.ode.OdeHelper;
 
-public class BrPhysics {
+public class BrPhysics implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1347085003075216668L;
 	public DWorld world;
 	public DSpace space;
 	public DJointGroup contactGroup;
@@ -111,5 +119,13 @@ public class BrPhysics {
 	/* Empty the current contact group. Probably want to do this before each simulation step. */
 	public void clearContactGroup() {
 		contactGroup.clear();
+	}
+	
+	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+		 out.defaultWriteObject();
+	}
+		     
+	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
 	}
 }

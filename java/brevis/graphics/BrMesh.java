@@ -19,6 +19,7 @@ package brevis.graphics;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,9 +39,13 @@ import org.lwjgl.util.vector.Vector3f;
  * BufferedReader br = new BufferedReader(fr);
  */
 
-public class BrMesh {
+public class BrMesh implements Serializable {
 	
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7412159215339192242L;
 	public ArrayList<float[]> vertexsets = new ArrayList<float[]>(); // Vertex Coordinates
 	public ArrayList<float[]> vertexsetsnorms = new ArrayList<float[]>(); // Vertex Coordinates Normals
 	public ArrayList<float[]> vertexsetstexs = new ArrayList<float[]>(); // Vertex Coordinates Textures
@@ -435,5 +440,13 @@ public class BrMesh {
 		faces.clear();
 		facestexs.clear();
 		facesnorms.clear();
+	}
+	
+	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+		 out.defaultWriteObject();
+	}
+		     
+	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
 	}
 }

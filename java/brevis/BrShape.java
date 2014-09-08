@@ -20,7 +20,9 @@ package brevis;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.FloatBuffer;
@@ -39,7 +41,12 @@ import org.ode4j.ode.OdeHelper;
 
 import brevis.graphics.BrMesh;
 
-public class BrShape {
+public class BrShape implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1469388870902925210L;
+
 	public enum BrShapeType {
 		BOX, SPHERE, CONE, CYLINDER, MESH,
 		// Unit meshes for optimized rendering
@@ -469,6 +476,14 @@ public class BrShape {
 	public void destroy() {
 		mesh.destroy();
 		
+	}
+	
+	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+		 out.defaultWriteObject();
+	}
+		     
+	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
 	}
 	
 }

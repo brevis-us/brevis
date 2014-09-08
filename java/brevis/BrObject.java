@@ -20,6 +20,7 @@ package brevis;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -54,7 +55,12 @@ import brevis.BrShape.BrShapeType;
 
 //public class BrObject {
 //public class BrObject implements clojure.lang.IRecord {
-public class BrObject implements clojure.lang.IPersistentMap {
+public class BrObject implements clojure.lang.IPersistentMap, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5143539083266175610L;
+
 	private int dstPixelFormat = SGL.GL_RGBA8;
 	
 	public Long uid;
@@ -576,5 +582,14 @@ public class BrObject implements clojure.lang.IPersistentMap {
 		geom.destroy();		
 	}
 
+	/* Serialization stuff */
+	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+		 out.defaultWriteObject();
+	}
+		     
+	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+	}
+	
 	
 }
