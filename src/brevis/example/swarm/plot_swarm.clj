@@ -52,7 +52,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn bird?
   "Is a thing a bird?"
   [thing]
-  (= (get-type thing) "bird"))
+  (= (get-type thing) :bird))
 
 (defn random-bird-position
   "Returns a random valid bird position."
