@@ -64,6 +64,28 @@ public class BrMesh implements Serializable {
 	public float farpoint = 0;		// z-
 	public float nearpoint = 0;		// z+
 	
+	public BrMesh clone()  {
+		/* Create a copy of this mesh */
+		BrMesh m = new BrMesh();
+		
+		m.vertexsets = vertexsets;
+		m.vertexsetsnorms = vertexsetsnorms;
+		m.vertexsetstexs = vertexsetstexs;
+		
+		m.faces = faces;
+		m.facestexs = facestexs;
+		m.facesnorms = facesnorms;
+		
+		m.toppoint = toppoint;
+		m.bottompoint = bottompoint;
+		m.leftpoint = leftpoint;
+		m.rightpoint = rightpoint;
+		m.farpoint = farpoint;
+		m.nearpoint = nearpoint;
+		
+		return m;
+	}
+	
 	public String toString() {
 		String s = "#BrMesh{ :numpolys " + numpolys + ", :toppoint " + toppoint +
 				", :bottompoint " + bottompoint + ", :leftpoint " + leftpoint +

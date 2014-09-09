@@ -16,7 +16,8 @@
 Copyright 2012, 2013 Kyle Harrington"
 
 (ns brevis.shape.mesh
-  (:import [brevis BrShape])
+  (:import [brevis BrShape]
+           [brevis.graphics BrMesh])
   (:use [brevis.vector]
         [brevis.shape.core]
         [brevis.graphics multithread]))        
@@ -38,3 +39,18 @@ Copyright 2012, 2013 Kyle Harrington"
   (BrShape/createMeshFromBrMesh mesh)
   #_(BrShape. filename)
   #_(BrShape/loadMesh (BrShape.) filename))
+
+(defn num-vertices
+  "Return the number of vertices in a mesh."
+  [mesh]
+  (.numVertices ^BrMesh mesh))
+
+(defn get-vertex
+  "Return a vertex on a mesh."
+  [mesh idx]
+  (.getVertex ^BrMesh mesh ^int idx))
+
+(defn set-vertex
+  "Return a vertex on a mesh."
+  [mesh idx v]
+  (.setVertex ^BrMesh mesh ^int idx ^floats v))

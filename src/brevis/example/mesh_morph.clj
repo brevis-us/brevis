@@ -49,12 +49,12 @@ Copyright 2012, 2013 Kyle Harrington"
   (when @mesh-obj-uuid
     (let [shape (get-shape (get-object @mesh-obj-uuid))
           mesh (get-mesh shape)]
-      (dotimes [i (.numVertices mesh)]
-        (let [vert (.getVertex  mesh i)]
+      (dotimes [i (num-vertices mesh)]
+        (let [vert (get-vertex mesh i)]
           #_(println vert)
           (when (pos? (aget vert 0))
             (aset vert 0 (float (* (aget vert 0) smoosh-factor)))
-            (.setVertex  mesh i vert))))
+            (set-vertex mesh i vert))))
       (regen-mesh mesh))))
 
 (add-global-update-handler 90 smoosh-mesh)
