@@ -442,6 +442,58 @@ public class BrMesh implements Serializable {
 		facesnorms.clear();
 	}
 	
+	public int numVertices() {
+		return vertexsets.size();
+	}
+	
+	public float[] getVertex( int idx ) {
+		return vertexsets.get( idx );
+	}
+	
+	public void setVertex( int idx, float[] newV ) {
+		vertexsets.set( idx , newV );
+	}
+	
+	public float[] getVertexNorm( int idx ) {
+		return vertexsetsnorms.get( idx );
+	}
+	
+	public void setVertexNorm( int idx, float[] newV ) {
+		vertexsetsnorms.set( idx,  newV );
+	}
+	
+	public float[] getVertexTex( int idx ) {
+		return vertexsetstexs.get( idx );
+	}
+	
+	public void setVertexTex( int idx, float[] newV ) {
+		vertexsetstexs.set( idx, newV );
+	}
+	
+	public int[] getFace( int idx ) {
+		return faces.get(idx);
+	}
+	
+	public void setFace( int idx, int[] newV ) {
+		faces.set( idx, newV );
+	}
+	
+	public int[] getFaceTex( int idx ) {
+		return facestexs.get(idx);
+	}
+	
+	public void setFaceTex( int idx, int[] newV ) {
+		facestexs.set( idx, newV );
+	}
+	
+	public int[] getFaceNorm( int idx ) {
+		return facesnorms.get(idx);
+	}
+	
+	public void setFaceNorm( int idx, int[] newV ) {
+		facesnorms.set( idx, newV );
+	}
+	
 	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
 		 out.defaultWriteObject();
 	}

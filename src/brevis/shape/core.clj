@@ -106,3 +106,8 @@ Copyright 2012, 2013 Kyle Harrington"
                     (Color. 0.9 0.9 0.9 1.0)
                     (Color. 0.8 0.8 0.8 1.0)))))
      tex)))	                
+
+(defn get-mesh
+  "Return a shape's mesh."
+  [shp]
+  (.getMesh shp))

@@ -15,12 +15,12 @@
                                                                                                                                                                                      
 Copyright 2012, 2013 Kyle Harrington"
 
-(ns brevis.example.mesh
+(ns brevis.example.mesh-morph
   (:gen-class)
   (:use [brevis.graphics.basic-3D]
         [brevis.physics collision core space utils]
-        [brevis.shape box mesh]
-        [brevis core osd vector camera utils]))
+        [brevis.shape box mesh core]
+        [brevis core osd vector camera utils display]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Mesh demo
@@ -29,6 +29,8 @@ Copyright 2012, 2013 Kyle Harrington"
 ;; ## Globals
 
 (def mesh-file "bunny.obj")
+(def smoosh-factor 0.95)
+(def mesh-obj-uuid (atom nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Make our mesh object
@@ -40,6 +42,22 @@ Copyright 2012, 2013 Kyle Harrington"
                     :color (vec4 1 0 0 1)
                     :shape (create-mesh mesh-file true (vec3 10 10 10))})
         position))
+
+(defn smoosh-mesh
+  "Global updater for smooshing the mesh."
+  []
+  (when @mesh-obj-uuid
+    (let [shape (get-shape (get-object @mesh-obj-uuid))
+          mesh (get-mesh shape)]
+      (dotimes [i (.numVertices mesh)]
+        (let [vert (.getVertex  mesh i)]
+          #_(println vert)
+          (when (pos? (aget vert 0))
+            (aset vert 0 (float (* (aget vert 0) smoosh-factor)))
+            (.setVertex  mesh i vert))))
+      (regen-mesh mesh))))
+
+(add-global-update-handler 90 smoosh-mesh)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## brevis control code
@@ -58,7 +76,9 @@ Copyright 2012, 2013 Kyle Harrington"
   (set-neighborhood-radius 250)
   (default-display-text)
   #_(add-object (move (make-floor 500 500) (vec3 0 -10 0)))
-  (add-object (make-real-mesh (vec3 0 25 0))))
+  (let [obj (make-real-mesh (vec3 0 25 0))]
+    (reset! mesh-obj-uuid (get-uid obj))
+    (add-object obj)))
 
 ;; Start zee macheen
 (defn -main [& args]
