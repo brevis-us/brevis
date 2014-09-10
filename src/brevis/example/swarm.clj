@@ -41,7 +41,7 @@ Copyright 2012, 2013 Kyle Harrington"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds (atom 100))
+(def num-birds (atom 500))
 
 (def avoidance-distance (atom 10))
 (def boundary 250)
