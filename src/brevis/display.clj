@@ -16,22 +16,31 @@
 Copyright 2012, 2013 Kyle Harrington"     
 
 (ns brevis.display
-  (:use [brevis globals]
+  (:use [brevis globals image]
         [brevis.graphics multithread])
+  (:require [clojure.java.io :as io])
   (:import (java.awt AWTException Robot Rectangle Toolkit)
            (java.awt.geom AffineTransform)
            (java.awt.image AffineTransformOp BufferedImage)
            (java.nio ByteBuffer)
            (java.io File IOException)
            (javax.imageio ImageIO)
-           (brevis.graphics Basic3D)))
+           (brevis.graphics Basic3D))
+    (:import [java.awt.image BufferedImage]
+           [javax.imageio ImageIO]))
 
-(defn screenshot
+(defn screenshot 
    "Take a screenshot."
    [filename]
    (begin-with-graphics-thread)
    (Basic3D/screenshot filename)
    (end-with-graphics-thread))  
+
+;(defn screenshot-hack; won't compile any changes/ cannot find sourcepath- Tim 9/8/2014
+;  "Take a screenshot."
+;  [filename]
+;  (write-image (str filename ".png") (screenshot-image)))
+
 
 (defn screenshot-image
    "Take a screenshot and return an image (BufferedImage for now)."

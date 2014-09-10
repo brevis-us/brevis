@@ -22,7 +22,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (:use [brevis.graphics.basic-3D]
         [brevis.physics collision core space utils]
         [brevis.shape box sphere cone]
-        [brevis core osd vector camera utils display]))
+        [brevis core osd vector camera utils display image]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Swarm
@@ -41,13 +41,21 @@ Copyright 2012, 2013 Kyle Harrington"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds (atom 500))
+(def num-birds (atom 100))
 
 (def avoidance-distance (atom 10))
 (def boundary 250)
 
 (def speed 25)
 (def max-acceleration 10)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;## Taking screenshots - temporary fix - Tim S. 9/8/2014
+
+(defn screenshot-hack
+  "Take a screenshot."
+  [filename]
+  (write-image (str filename ".png") (screenshot-image)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Birds
