@@ -16,8 +16,9 @@
 Copyright 2012, 2013 Kyle Harrington"     
 
 (ns brevis.display
-  (:use [brevis globals]
+  (:use [brevis globals image]
         [brevis.graphics multithread])
+  (:require [clojure.java.io :as io])
   (:import (java.awt AWTException Robot Rectangle Toolkit)
            (java.awt.geom AffineTransform)
            (java.awt.image AffineTransformOp BufferedImage)
@@ -26,12 +27,6 @@ Copyright 2012, 2013 Kyle Harrington"
            (javax.imageio ImageIO)
            (brevis.graphics Basic3D BrMesh)))
 
-(defn screenshot
-   "Take a screenshot."
-   [filename]
-   (begin-with-graphics-thread)
-   (Basic3D/screenshot filename)
-   (end-with-graphics-thread))  
 
 (defn screenshot-image
    "Take a screenshot and return an image (BufferedImage for now)."
@@ -41,9 +36,16 @@ Copyright 2012, 2013 Kyle Harrington"
      (end-with-graphics-thread)
      img))
 
+(defn screenshot
+    "Take a screenshot."
+    [filename]
+    (write-image (str filename ".png") (screenshot-image)))
+
 (defn regen-mesh
   "Regenerate a mesh's openGL list."
   [msh]
   (begin-with-graphics-thread)
   (.opengldrawtolist ^BrMesh msh)
   (end-with-graphics-thread))
+
+
