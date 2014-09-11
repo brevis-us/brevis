@@ -50,14 +50,6 @@ Copyright 2012, 2013 Kyle Harrington"
 (def max-acceleration 10)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;## Taking screenshots - temporary fix - Tim S. 9/8/2014
-
-(defn screenshot-hack
-  "Take a screenshot."
-  [filename]
-  (write-image (str filename ".png") (screenshot-image)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Birds
 
 (defn bird?

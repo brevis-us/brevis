@@ -29,18 +29,6 @@ Copyright 2012, 2013 Kyle Harrington"
     (:import [java.awt.image BufferedImage]
            [javax.imageio ImageIO]))
 
-(defn screenshot 
-   "Take a screenshot."
-   [filename]
-   (begin-with-graphics-thread)
-   (Basic3D/screenshot filename)
-   (end-with-graphics-thread))  
-
-;(defn screenshot-hack; won't compile any changes/ cannot find sourcepath- Tim 9/8/2014
-;  "Take a screenshot."
-;  [filename]
-;  (write-image (str filename ".png") (screenshot-image)))
-
 
 (defn screenshot-image
    "Take a screenshot and return an image (BufferedImage for now)."
@@ -49,3 +37,10 @@ Copyright 2012, 2013 Kyle Harrington"
    (let [img (Basic3D/screenshotImage)]     
      (end-with-graphics-thread)
      img))
+
+(defn screenshot
+    "Take a screenshot."
+    [filename]
+    (write-image (str filename ".png") (screenshot-image)))
+
+
