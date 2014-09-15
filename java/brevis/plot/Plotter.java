@@ -33,6 +33,8 @@ public class Plotter extends ApplicationFrame {
 	 */
 	private static final long serialVersionUID = 4224772067055836525L;
 
+	ChartPanel chartPanel;
+	
 	/**
      * A demonstration application showing how to create a simple time series 
      * chart.  This example uses monthly data.
@@ -41,7 +43,7 @@ public class Plotter extends ApplicationFrame {
      */
     public Plotter(String title, XYDataset dataset) {
         super(title);
-        ChartPanel chartPanel = (ChartPanel) createDemoPanel( dataset );
+        chartPanel = (ChartPanel) createDemoPanel( dataset );
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
         chartPanel.setMouseZoomable(true, false);
         setContentPane(chartPanel);

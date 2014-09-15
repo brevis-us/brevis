@@ -84,7 +84,7 @@ Copyright 2012-2014 Kyle Harrington"
       (.pack plotter)
       (RefineryUtilities/positionFrameRandomly plotter)
       (.setVisible plotter true)      
-      (add-global-update-handler 4 handler-fn))))
+      (add-global-update-handler 4 handler-fn)))); should keep track of plotters in the engine or somewhere and delete then when the window is destroyed
 
 (defn add-scatter-handler
   "Add a plot handler. Remove assumes you want to remove the min x, value, this is best for timeseries"

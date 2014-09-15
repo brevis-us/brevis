@@ -12,7 +12,7 @@
   :dependencies [;; Essential
                  [org.clojure/clojure "1.6.0"]                 
                  [org.clojure/math.numeric-tower "0.0.4"]
-                 [clj-random "0.1.6"]         
+                 [clj-random "0.1.7"]         
                  
                  ;; Project management & utils
                  [leiningen "2.3.4"]

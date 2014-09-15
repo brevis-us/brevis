@@ -2,3 +2,10 @@
 target/*
 docs/*
 /bin/
+javadoc
+docs
+*.png
+*.jar
+*.csv
+*.jnlp
+*.ser
