@@ -20,7 +20,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (ns brevis.core;graphics.core;; was just brevis.core
   (:use [brevis.init]; ew.....
         [brevis globals utils input osd display vector]
-        [brevis.graphics basic-3D multithread]
+        [brevis.graphics basic-3D multithread visual-overlays]
         [brevis.physics core space utils]
         [brevis.shape core box sphere cone])       
   (:require [clojure.math.numeric-tower :as math])
@@ -100,6 +100,8 @@ Copyright 2012, 2013 Kyle Harrington"
     (doseq [obj objs]
       (when (drawable? obj) ;; add a check to see if the object is in view
        (draw-shape obj)))    
+    (doseq [vo @visual-overlays]      
+      (draw-visual-overlay vo))
     (Display/update)        
     (Display/sync 100)
     (end-with-graphics-thread)
