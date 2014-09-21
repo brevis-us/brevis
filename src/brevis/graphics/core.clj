@@ -99,7 +99,9 @@ Copyright 2012, 2013 Kyle Harrington"
     #_(use-camera (:camera @*gui-state*))
     (doseq [obj objs]
       (when (drawable? obj) ;; add a check to see if the object is in view
-       (draw-shape obj)))    
+       (draw-shape obj)
+       #_(draw-shape-shadow obj)
+       ))    
     (doseq [vo @visual-overlays]      
       (draw-visual-overlay vo))
     (Display/update)        

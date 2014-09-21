@@ -187,7 +187,4 @@ so we only modify bird1."
     (start-nogui initialize-simulation)
     (start-gui initialize-simulation)))
 
-;; For autostart with Counterclockwise in Eclipse
-(when (find-ns 'ccw.complete)
-(-main))
-;(-main :nogui)
+(autostart-in-repl -main)

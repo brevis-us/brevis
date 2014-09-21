@@ -114,3 +114,11 @@ Copyright 2012, 2013 Kyle Harrington"
   ([initialize update]    
 	  (simulation-loop
 	   {:init initialize, :update update})))      
+
+(defn autostart-in-repl
+  "Autostart a function if we're in a REPL environment."
+  [fn]
+  ;; For autostart with Counterclockwise in Eclipse
+  (when (or (find-ns 'ccw.complete)
+            (find-ns 'brevis.ui.core))
+    (fn)))

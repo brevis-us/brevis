@@ -731,8 +731,6 @@ public class Basic3D {
 	    }
 	      
 	    return image;
-    }
-
-    
+    }    
     
 }

@@ -202,6 +202,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn a-copy  [e] (.copy (:text-area (get-editor))))
 (defn a-cut   [e] (.cut (:text-area (get-editor))))
 (defn a-paste [e] (.paste (:text-area (get-editor))))
+;(defn a-find [e] (.paste (:text-area (get-editor))))
 
 (def repl-output (atom []))
 (def repl-input (atom []))

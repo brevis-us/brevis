@@ -87,7 +87,5 @@ Copyright 2012, 2013 Kyle Harrington"
     (start-nogui initialize-simulation)
     (start-gui initialize-simulation)))
 
-;; For autostart with Counterclockwise in Eclipse
-(when (find-ns 'ccw.complete)
-  (-main))
+(autostart-in-repl -main)
 

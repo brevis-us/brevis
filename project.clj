@@ -42,7 +42,7 @@
                  
                  ;; UI packages
                  [seesaw "1.4.4"]
-                 [com.fifesoft/rsyntaxtextarea "2.5.2"]
+                 [com.fifesoft/rsyntaxtextarea "2.5.3"]
                  ]
   ;:javac-options ["-target" "1.6" "-source" "1.6" "-Xlint:-options"]
   :aot [#_clojure.main brevis.ui.core brevis.example.swarm]        

@@ -50,7 +50,6 @@ Copyright 2012, 2013 Kyle Harrington"
   (init-world)
   (init-view)  
   
-  #_(set-camera-information (vec3 -10.0 57.939613 -890.0) (vec4 1.0 0.0 0.0 0.0))
   (set-camera-information (vec3 0.0 -27.036232 -30.0) (vec4 1.0 0.0 0.0 0.0))
   (disable-collisions)
   
@@ -67,7 +66,5 @@ Copyright 2012, 2013 Kyle Harrington"
     (start-nogui initialize-simulation)
     (start-gui initialize-simulation)))
 
-;; For autostart with Counterclockwise in Eclipse
-(when (find-ns 'ccw.complete)
-  (-main))
+(autostart-in-repl -main)
 
