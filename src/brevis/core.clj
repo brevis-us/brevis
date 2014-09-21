@@ -120,5 +120,5 @@ Copyright 2012, 2013 Kyle Harrington"
   [fn]
   ;; For autostart with Counterclockwise in Eclipse
   (when (or (find-ns 'ccw.complete)
-            (find-ns 'brevis.ui.core))
+            #_(find-ns 'brevis.ui.core))
     (fn)))
