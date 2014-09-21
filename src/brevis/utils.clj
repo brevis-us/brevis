@@ -103,3 +103,8 @@ otherwise it should be a function that returns true/false"
   [files]
   (.changeSkybox brevis.graphics.basic-3D/*sky* files))
 
+(defn add-destroy-hook
+  "Add a destroy hook called on window close."
+  [fn]
+  (swap! destroy-hooks conj fn))
+

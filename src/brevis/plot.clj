@@ -27,7 +27,10 @@ Copyright 2012-2014 Kyle Harrington"
            (java.awt Color)
            (brevis.plot Plotter))
   (:use [brevis.physics.utils]; for add-update-handler
+        [brevis utils]
         [brevis.random]))
+
+;(def plot-handlers (atom []))
 
 (defn make-xy-dataset
   "Convert a hash-map or vector of pairs into a plottable XY dataset."
@@ -80,7 +83,8 @@ Copyright 2012-2014 Kyle Harrington"
                          (.remove ^XYSeries (first (:series plot-data)) 
                            (.getMinX (first (:series plot-data)))))
                        (let [[x y] (xy-fn)]
-                         (.addOrUpdate ^XYSeries (first (:series plot-data)) x y)))]    
+                         (.addOrUpdate ^XYSeries (first (:series plot-data)) x y)))]
+      (add-destroy-hook (fn [] (.dispose plotter)))              
       (.pack plotter)
       (RefineryUtilities/positionFrameRandomly plotter)
       (.setVisible plotter true)      
@@ -105,7 +109,8 @@ Copyright 2012-2014 Kyle Harrington"
                           (.remove (first (:series plot-data)) 
                             (.getMinX (first (:series plot-data)))))
                        #_(let [[x y] (xy-fn)]
-                          (.addOrUpdate (first (:series plot-data)) x y)))]    
+                          (.addOrUpdate (first (:series plot-data)) x y)))]
+      (add-destroy-hook (fn [] (.dispose plotter)))        
       (.pack plotter)
       (RefineryUtilities/positionFrameRandomly plotter)
       (.setVisible plotter true)      

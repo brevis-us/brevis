@@ -167,9 +167,10 @@ Copyright 2012, 2013 Kyle Harrington"
             (display)
               )
           (recur (inc step))))))
+  (doseq [dh @destroy-hooks] (dh))    
   (Keyboard/destroy)
   (Mouse/destroy)
-  (Display/destroy)
+  (Display/destroy)  
   ;; Should call system/exit if not using UI
   (when-not 
     (or (find-ns 'ccw.complete)

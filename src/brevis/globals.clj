@@ -36,6 +36,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (def #^:dynamic *screenshot-filename* (atom nil))
 (def #^:dynamic *simulation-state* (atom {}))
 (def #^:dynamic *graphics* (atom {}))
+(def destroy-hooks (atom []))
 
 ;(def #^:dynamic *brevis-params* (atom {}))
 ;(def #^:dynamic *brevis-state* (atom {}))
