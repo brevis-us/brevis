@@ -69,11 +69,13 @@ This namespace was first contributed by Alex Bardasu.
   "Takes a set of params(argmap), a configFileName, and the output
 parameters to be used in the output log, then generates the
 appropriate configuration file to be passed to the hpc."
-  [argmap configFileName namespace expName basedir]
+  [argmap configFileName namespace expName basedir profile]
   (let [out-str (str
                   "#!/bin/sh\n"
+                  "source /etc/profile;\n"
                   "cd " basedir ";\n"
-                  "lein run -m "
+                  "lein " (if profile (str "with-profile " profile " ") "") 
+                  "run -m "
                   namespace
                   #_expName
                   " "
@@ -88,17 +90,17 @@ appropriate configuration file to be passed to the hpc."
 (defn launch-config
   "Launches an experiment from the configuration file numruns times."
   [username server expName configFile numruns duration]
-  (let [command (str "bsub -W " duration " -J " expName "[1-" (str numruns) "] " configFile)]
+  (let [command (str "source /etc/profile; bsub -W " duration " -J " expName "[1-" (str numruns) "] sh " configFile)]
         #_(str "bsub " optArgs " -t 1-" (str numruns) " -N " expName " " configFile)
     (when debug (println "launch-config:" command))
     (remote-command username server command)))
 
 (defn start-runs
-  [argmaps namespace expName username server numruns source destination duration]
+  [argmaps namespace expName username server numruns source destination duration profile]
   (loop [conf 0
          argmaps argmaps]
     (when-not (empty? argmaps)
-          (gen-config (first argmaps) (str "job_" expName "_" conf ".sh") namespace expName (str destination expName))
+          (gen-config (first argmaps) (str "job_" expName "_" conf ".sh") namespace expName (str destination expName) profile)
           (recur (inc conf)
                  (rest argmaps))))
   (upload-files username server (str source "/") (str destination expName "/"))

@@ -15,7 +15,7 @@
                                                                                                                                                                                      
 Copyright 2012, 2013 Kyle Harrington"
 
-(ns brevis.example.mesh-morph
+(ns brevis.example.mesh.mesh-morph
   (:gen-class)
   (:use [brevis.graphics.basic-3D]
         [brevis.physics collision core space utils]

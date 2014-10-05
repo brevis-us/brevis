@@ -180,10 +180,6 @@ public class BrShape implements Serializable {
 		}	
 	}
 	
-	public void draw() {
-		
-	}
-	
 	public String getType() {
 		if( type == BrShapeType.BOX ) {
 			return "box";

@@ -20,11 +20,18 @@ package brevis.graphics;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
+
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL15.*;
+import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL30.*;
+
 
 /**
  * derived from code by:
@@ -62,7 +69,7 @@ public class BrMesh implements Serializable {
 	public float leftpoint = 0;		// x-
 	public float rightpoint = 0;	// x+
 	public float farpoint = 0;		// z-
-	public float nearpoint = 0;		// z+
+	public float nearpoint = 0;		// z+	
 	
 	public BrMesh clone()  {
 		/* Create a copy of this mesh */

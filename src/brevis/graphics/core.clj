@@ -79,6 +79,7 @@ Copyright 2012, 2013 Kyle Harrington"
   []
   (begin-with-graphics-thread)
   (when (Display/wasResized) (.setDimensions (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
+  (Basic3D/generateTextureCoordinates)
   (Basic3D/initFrame (:camera @*gui-state*))
   (when-not (:disable-skybox @*gui-state*)
     (draw-sky))
@@ -97,17 +98,44 @@ Copyright 2012, 2013 Kyle Harrington"
     #_(gl-matrix-mode :modelview)
     #_(gl-load-identity-matrix)
     #_(use-camera (:camera @*gui-state*))
+    
+    ; Calculates shadows 
+    #_(Basic3D/initShadows (:camera @*gui-state*))
+    #_(doseq [obj objs]
+       (when (drawable? obj) ;; add a check to see if the object is in view
+        (draw-shape obj)
+        #_(draw-shape-shadow obj)
+        ))
+    #_(Basic3D/finishShadows)
+    ; Second pass    
     (doseq [obj objs]
       (when (drawable? obj) ;; add a check to see if the object is in view
        (draw-shape obj)
        #_(draw-shape-shadow obj)
        ))    
+    ; Third pass
+    #_(doseq [obj objs]
+       (when (drawable? obj) ;; add a check to see if the object is in view
+        (draw-shape obj)
+        #_(draw-shape-shadow obj)
+        ))
     (doseq [vo @visual-overlays]      
-      (draw-visual-overlay vo))
+      (draw-visual-overlay vo))        
     (Display/update)        
     (Display/sync 100)
     (end-with-graphics-thread)
     ))
+
+#_(defn display
+    "Render all objects."
+    []  
+    (begin-with-graphics-thread)
+    (Basic3D/displayEngine @*java-engine* (:camera @*gui-state*))
+    (doseq [vo @visual-overlays]      
+      (draw-visual-overlay vo))        
+    (Display/update)        
+    (Display/sync 100)
+    (end-with-graphics-thread))
 
 (defn simulate
   "Simulation loop."
@@ -150,7 +178,8 @@ Copyright 2012, 2013 Kyle Harrington"
              (empty-simulation)
              (swap! *gui-state* dissoc :reset-simulation))
           ;(update [1 1] {})
-          (init-display)
+          (when display?
+            (init-display))
           (update [(* step (get-dt)) (get-dt)] {})
           (dosync (ref-set fps (inc @fps)))
           (when (and (:display-fps @*gui-state*)
