@@ -14,6 +14,8 @@
     along with brevis.  If not, see <http://www.gnu.org/licenses/>.                                                                                                          
                                                                                                                                                                                      
 Copyright 2012-2014 Kyle Harrington
+
+This namespace was first contributed by Alex Bardasu.
 "
 
 (ns brevis.distributed-computing.lsf
@@ -27,7 +29,7 @@ Copyright 2012-2014 Kyle Harrington
 ;; (ssh call)
 ;; Later: hook class that lets you listen to system signals -> dump to serialized files
 
-(def debug true)
+(def debug false)
 (programs ssh)
 
 #_(defn local-command
@@ -142,24 +144,24 @@ appropriate configuration file to be passed to the hpc."
 (defn start-run-array
   [argmaps namespace expName username server numruns source destination duration profile-name]
   (let [command-list (for [run-id (range numruns)
-                           argmap argmaps]
+                           argmap argmaps]; this could be a good time to insert unique random seeds
                        (gen-command argmap namespace (str destination expName) profile-name))
         command-filename (str expName "_commands.sh")
         job-filename (str expName "_job.sh")
         max-jobs 1000]
     ;; Write command list
     (spit command-filename
-          (string/join "\n" command-list))
+          (string/join "\n" command-list)); this could be a good time to insert unique random seeds
     ;; Write command list job
     (if (> (count command-list) max-jobs)
       (spit job-filename
-            (str "#!/bin/bash\n"
+            (str "#!/bin/bash\n source ~/.bashrc\n"
                  (string/join "\n"
-                              (for [rep (ceil (/ (count command-list) max-jobs))]
-                                (str "sed -n -e ''$(($LSB_JOBINDEX+" rep  "*" max-jobs "))'p' """ command-filename " | sh")))))
+                              (for [rep (range (ceil (/ (count command-list) max-jobs)))]
+                                (str "sed -n -e ''$(($LSB_JOBINDEX+" rep  "*" max-jobs "))'p' """ (str destination expName "/" command-filename) " | sh")))))
       (spit job-filename
-            (str "#!/bin/bash                                                                                                                                                                                             
-sed -n -e \"$LSB_JOBINDEX p\" " command-filename " | sh")))
+            (str "#!/bin/bash\n source ~/.bashrc\n                                                                                                                                                                                         
+sed -n -e \"$LSB_JOBINDEX p\" " (str destination expName "/" command-filename) " | sh")))
     (upload-files username server (str source "/") (str destination expName "/"))
     (println "Uploaded files.")
     (Thread/sleep 2)

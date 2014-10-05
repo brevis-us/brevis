@@ -39,7 +39,7 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn screenshot
     "Take a screenshot."
     [filename]
-    (write-image (str filename ".png") (screenshot-image)))
+    (write-image filename (screenshot-image)))
 
 (defn regen-mesh
   "Regenerate a mesh's openGL list."
