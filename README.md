@@ -9,6 +9,10 @@ Chat: #brevis@irc.freenode.net
   
 by Kyle Harrington (kharrin3@bidmc.harvard.edu), 2011-2014.
    http://kyleharrington.com
+   
+# Current Brevis version:
+
+[![Clojars Project](http://clojars.org/brevis/latest-version.svg)](http://clojars.org/brevis)
       
 # Citing:
 
