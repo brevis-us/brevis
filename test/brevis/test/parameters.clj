@@ -13,37 +13,13 @@
     You should have received a copy of the GNU General Public License                                                                                                                
     along with brevis.  If not, see <http://www.gnu.org/licenses/>.                                                                                                          
                                                                                                                                                                                      
-Copyright 2012-2014 Kyle Harrington
-"
+Copyright 2012, 2013 Kyle Harrington"
 
-(ns brevis.parameters
-  (:use [brevis.random]))
+(ns brevis.test.parameters
+  (:use [clojure.test]
+        [brevis parameters]))
 
-(def params (atom {}))
-
-(defn set-param
-  "Set the value of a parameter."
-  [param val]
-  (swap! params assoc param val))
-
-(defn get-param
-  "Get the value of a parameter."
-  [param]
-  (get @params param))
-
-#_(defn set-random-seed
-   "Set the random seed."
-   [random-seed]
-   (set-param :random-seed
-              (str "[" (random-seed-to-string random-seed) "]")))
-   
-(defn print-params
-  "Print the current parameter map."
-  ([]
-    (print-params @params))
-  ([ps]
-    (doseq [[k v] ps]
-      (cond (= k :random-seed)
-            (println k (str "[" (random-seed-to-string v) "]"))
-            :else
-            (println k v)))))
+(deftest test-set-param
+  (let [v 42]
+    (set-param :test v)
+    (is (= (get-param :test) v))))

@@ -1,4 +1,4 @@
-(defproject brevis "0.9.37"
+(defproject brevis "0.9.38"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "http://brevis.us"
   :license {:name "General Public License v3"
@@ -17,7 +17,7 @@
                  ;; Project management & utils
                  [leiningen "2.3.4"]
                  [clj-jgit "0.7.6"]
-                 [me.raynes/conch "0.6.0"]
+                 [me.raynes/conch "0.8.0"]
                  
                  ;; Physics packages                 
                  [org.ode4j/core "0.2.9"]
@@ -27,8 +27,6 @@
                  ;; Graphics packages (3D rendering)
                  [kephale/lwjgl "2.9.0"]
                  [kephale/lwjgl-natives "2.9.0"]
-                 ;[org.lwjgl.lwjgl/lwjgl-platform "2.9.1" :classifier "natives-osx" :native-prefix ""]
-                 ;[org.lwjgl.lwjgl/lwjgl "2.9.1"]
                  [kephale/slick-util "1.0.1"]
                  [org.l33tlabs.twl/pngdecoder "1.0"]          
                  
