@@ -47,3 +47,21 @@ Copyright 2012-2014 Kyle Harrington
             (println k (str "[" (random-seed-to-string v) "]"))
             :else
             (println k v)))))
+
+(defn params-from-argseq
+  "Load params from a sequence of arguments. Autoconverts strings, so this can be risky."
+  [args]
+  (let [;; First put everything into a map                                                                                                                                                                                                                                                                                 
+        argmap (apply hash-map
+                      (mapcat #(vector (read-string (first %)) (second %))
+                              (partition 2 args)))
+        ;; Then read-string on *some* args, but ignore others                                                                                                                                                                                                                                                              
+        argmap (apply hash-map
+                      (apply concat
+                             (for [[k v] argmap]
+                               [k (cond (= k :output-directory) v
+                                        :else (read-string v))])))   
+        random-seed (if (:random-seed argmap)
+                      (byte-array (map byte (read-string (:random-seed argmap)))) 
+                      (generate-random-seed))]
+    (swap! params merge argmap)))
