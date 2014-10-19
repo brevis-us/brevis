@@ -88,7 +88,7 @@ Copyright 2012-2014 Kyle Harrington"
       (.pack plotter)
       (RefineryUtilities/positionFrameRandomly plotter)
       (.setVisible plotter true)      
-      (add-global-update-handler 4 handler-fn)))); should keep track of plotters in the engine or somewhere and delete then when the window is destroyed
+      (add-global-update-handler priority handler-fn)))); should keep track of plotters in the engine or somewhere and delete then when the window is destroyed
 
 (defn add-scatter-handler
   "Add a plot handler. Remove assumes you want to remove the min x, value, this is best for timeseries"
@@ -114,5 +114,35 @@ Copyright 2012-2014 Kyle Harrington"
       (.pack plotter)
       (RefineryUtilities/positionFrameRandomly plotter)
       (.setVisible plotter true)      
-      (add-global-update-handler 4 handler-fn))))
+      (add-global-update-handler priority handler-fn))))
 
+#_(defn make-histogram-dataset
+   "Convert a vector of elements into a plottable histogram dataset."
+   ([data] (make-histogram-dataset data (gensym "dataset")))
+   ([data dataset-name]
+     (let [dataset (SimpleHistogramDataset. dataset-name (into (double-array)
+                                                               data))]
+       {:series [dataset]})))
+
+(defn add-histogram-handler
+  "Add a plot handler. Plots a lazy histogram, requires numbers."
+  [x-fn & {:keys [priority
+                  title]
+           :or {title "Brevis"
+                priority 100}}]
+  (when-not (System/getProperty "brevisHeadless")
+    (let [plot-data (make-xy-dataset [] title)
+          plotter (brevis.plot.Plotter. title (:data-collection plot-data))
+          handler-fn (fn []                       
+                       (let [xs (x-fn)
+                             hist (frequencies xs)]
+                         (.clear ^XYSeries (first (:series plot-data)))
+                         (doseq [[k v] hist]
+                           (.add ^XYSeries (first (:series plot-data)) 
+                             ^double (double k) ^double (double v)))))]
+      (.setLinesVisible (.renderer plotter) false)
+      (add-destroy-hook (fn [] (.dispose plotter)))              
+      (.pack plotter)
+      (RefineryUtilities/positionFrameRandomly plotter)
+      (.setVisible plotter true)      
+      (add-global-update-handler priority handler-fn))))

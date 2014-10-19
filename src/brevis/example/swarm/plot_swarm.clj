@@ -19,7 +19,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (:use [brevis.graphics.basic-3D]
         [brevis.physics collision core space utils]
         [brevis.shape box sphere cone]
-        [brevis core osd vector plot]))
+        [brevis core osd vector plot random]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Swarm
@@ -66,10 +66,11 @@ Copyright 2012, 2013 Kyle Harrington"
 (defn make-bird
   "Make a new bird with the specified program. At the specified location."
   [position]  
-  (move (make-real {:type :bird
-                    :color (vec4 1 0 0 1)
-                    :shape (create-cone 2.2 1.5)})
-        position))
+  (assoc (move (make-real {:type :bird
+                           :color (vec4 1 0 0 1)
+                           :shape (create-cone 2.2 1.5)})
+               position)
+         :trait (lrand-int 3)))
   
 (defn random-bird
   "Make a new random bird."
@@ -133,7 +134,8 @@ Copyright 2012, 2013 Kyle Harrington"
   "Collision between two birds. This is called on [bird1 bird2] and [bird2 bird1] independently
 so we only modify bird1."
   [bird1 bird2]  
-  [(set-color bird1 (vec4 (rand) (rand) (rand) 1))
+  [(assoc (set-color bird1 (vec4 (lrand) (lrand) (lrand) 1))
+          :trait (lrand-int 3))
    bird2])
 
 (defn land
@@ -177,7 +179,13 @@ so we only modify bird1."
            avg-distance (/ (apply + distances) (count distances))]
        [(* (get-time) (get-dt)) avg-distance]))
    :interval 200
-   :title "Avg dist from centroid")  
+   :title "Avg dist from centroid")
+ 
+ (add-histogram-handler
+   (fn [] 
+     (let [birds (filter bird? (all-objects))]
+       (map :trait birds)))
+   :title "random traits")
   )
 
 ;; Start zee macheen
