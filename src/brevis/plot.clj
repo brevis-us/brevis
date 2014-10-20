@@ -35,7 +35,7 @@ Copyright 2012-2014 Kyle Harrington"
 (defn make-xy-dataset
   "Convert a hash-map or vector of pairs into a plottable XY dataset."
   ([data] (make-xy-dataset data (gensym "dataset")))
-  ([data dataset-name] (make-xy-dataset data (gensym "dataset") false false))
+  ([data dataset-name] (make-xy-dataset data dataset-name false false))
   ([data dataset-name auto-sort allow-duplicates]
     (let [xyseries (XYSeries. dataset-name auto-sort allow-duplicates)]
       (doseq [[k v] data]
@@ -146,3 +146,44 @@ Copyright 2012-2014 Kyle Harrington"
       (RefineryUtilities/positionFrameRandomly plotter)
       (.setVisible plotter true)      
       (add-global-update-handler priority handler-fn))))
+
+(defn make-multiseries-xy-dataset
+  "Convert a hash-map or vector of pairs into a plottable XY dataset."
+  ([n] (make-multiseries-xy-dataset n (repeatedly n #(gensym "dataset"))))
+  ([n dataset-names] (make-multiseries-xy-dataset n dataset-names false false))
+  ([n dataset-names auto-sort allow-duplicates]
+    (let [xyseries (map #(XYSeries. % auto-sort allow-duplicates) dataset-names)]
+      (let [xycoll (XYSeriesCollection.)]
+        (doseq [s xyseries]
+          (.addSeries xycoll ^XYSeries s)) 
+        {:data-collection xycoll
+         :series (into [] xyseries)}))))
+
+(defn add-multiplot-handler
+  "Add a plot handler. Remove assumes you want to remove the min x, value, this is best for timeseries"
+  [& {:keys [interval
+             title
+             priority
+             xy-fns]
+      :or {interval 200
+           title "Brevis"
+           priority 100
+           xy-fns []}}]
+  (when-not (System/getProperty "brevisHeadless")
+    (let [n (count xy-fns)
+          plot-data (make-multiseries-xy-dataset n (for [k (range n)] (str title " " k)))
+          plotter (brevis.plot.Plotter. title (:data-collection plot-data))
+          handler-fn (fn []
+                       (dotimes [k (count xy-fns)]
+                         (let [series (nth (:series plot-data) k)
+                               xy-fn (nth xy-fns k)]
+                           (when (> (.getItemCount series) interval)                              
+                             (.remove ^XYSeries series
+                               (.getMinX series)))
+                           (let [[x y] (xy-fn)]
+                             (.addOrUpdate ^XYSeries series x y)))))]
+      (add-destroy-hook (fn [] (.dispose plotter)))              
+      (.pack plotter)
+      (RefineryUtilities/positionFrameRandomly plotter)
+      (.setVisible plotter true)      
+      (add-global-update-handler priority handler-fn)))); should keep track of plotters in the engine or somewhere and delete then when the window is destroyed
