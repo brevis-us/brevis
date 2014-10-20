@@ -28,8 +28,6 @@ Copyright 2012-2014 Kyle Harrington
 ;; (ssh call)
 ;; Later: hook class that lets you listen to system signals -> dump to serialized files
 
-(def debug false)
-
 (defn gen-config
   "Takes a set of params(argmap), a configFileName, and the output
 parameters to be used in the output log, then generates the
