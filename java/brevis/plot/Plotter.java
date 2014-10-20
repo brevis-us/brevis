@@ -83,6 +83,7 @@ public class Plotter extends ApplicationFrame {
         plot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
         plot.setDomainCrosshairVisible(true);
         plot.setRangeCrosshairVisible(true);
+        plot.setRangeZeroBaselineVisible(false);
         
         XYItemRenderer r = plot.getRenderer();
         if (r instanceof XYLineAndShapeRenderer) {
