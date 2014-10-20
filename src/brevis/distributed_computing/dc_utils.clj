@@ -23,6 +23,7 @@ Copyright 2012-2014 Kyle Harrington
             [clojure.string :as string])
   (:import [java.io]))
 
+(def debug false)
 (programs ssh)
 
 #_(defn local-command
