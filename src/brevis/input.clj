@@ -52,10 +52,16 @@ input-class: indicates the class of input. Currently supports (:key-press, :mous
 (defn default-input-handlers
   "Define the default input handlers."
   []
-  (swap! *gui-state* assoc :keyspeed 5)
+  (swap! *gui-state* assoc :keyspeed 1)
   (add-input-handler :key-press
                      {:key-id "I"}
                      #(swap! *gui-state* assoc :fullscreen (not (:fullscreen @*gui-state*))))
+  (add-input-handler :key-press
+                     {:key-id "Q"}
+                     #(swap! *gui-state* update-in [:keyspeed] (partial * 1.1)))
+  (add-input-handler :key-press
+                     {:key-id "E"}
+                     #(swap! *gui-state* update-in [:keyspeed] (partial * 0.9)))
   #_(add-input-handler :key-press
                      {:key-id "W"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 true false false false false false))

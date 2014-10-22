@@ -125,7 +125,7 @@ public class BrMesh implements Serializable {
 		boolean firstpass = true;
 
 		for( Vector3f v : verts ) {
-			float[] coords = new float[4];
+			float[] coords = new float[3];
 			coords[0] = v.x;
 			coords[1] = v.y;
 			coords[2] = v.z;
@@ -214,7 +214,7 @@ public class BrMesh implements Serializable {
 				newline = newline.trim();
 				if (newline.length() > 0) {
 					if (newline.charAt(0) == 'v' && newline.charAt(1) == ' ') {
-						float[] coords = new float[4];
+						float[] coords = new float[3];
 						String[] coordstext = new String[4];
 						coordstext = newline.split("\\s+");
 						for (int i = 1;i < coordstext.length;i++) {
@@ -312,7 +312,7 @@ public class BrMesh implements Serializable {
 		float zshift = (nearpoint - farpoint) /2f;
 		
 		for (int i=0; i < vertexsets.size(); i++) {
-			float[] coords = new float[4];
+			float[] coords = new float[3];
 			
 			coords[0] = ((float[])(vertexsets.get(i)))[0] - leftpoint - xshift;
 			coords[1] = ((float[])(vertexsets.get(i)))[1] - bottompoint - yshift;
