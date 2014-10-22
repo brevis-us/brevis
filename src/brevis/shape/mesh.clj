@@ -54,3 +54,13 @@ Copyright 2012, 2013 Kyle Harrington"
   "Return a vertex on a mesh."
   [mesh idx v]
   (.setVertex ^BrMesh mesh ^int idx ^floats v))
+
+(defn num-faces
+  "Return the number of faces in a mesh."
+  [mesh]
+  (.numFaces ^BrMesh mesh))
+
+(defn get-face
+  "Return a face on a mesh."
+  [mesh idx]
+  (.getFace ^BrMesh mesh ^int idx))

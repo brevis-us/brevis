@@ -499,6 +499,10 @@ public class BrMesh implements Serializable {
 		vertexsetstexs.set( idx, newV );
 	}
 	
+	public int numFaces() {
+		return faces.size();
+	}
+	
 	public int[] getFace( int idx ) {
 		return faces.get(idx);
 	}
