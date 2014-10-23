@@ -770,6 +770,11 @@ public class Engine implements Serializable {
 		//System.out.println( "addObject " + UID + " " + obj );
 	}
 	
+	synchronized public void setObject( Long UID, BrObject obj ) {
+		objects.put( UID, obj );
+		//System.out.println( "addObject " + UID + " " + obj );
+	}
+	
 	public void deleteObject( Long UID ) {
 		deletedObjects.add( UID );
 	}

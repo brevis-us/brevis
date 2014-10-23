@@ -100,9 +100,14 @@ Copyright 2012, 2013 Kyle Harrington"
   (seq (.allObjectUIDsByType ^Engine @*java-engine* (name type))))
 
 (defn set-object
-  "Set the object at UID to a new version."
-  [^Long uid ^BrObject new-obj]
-  (.addObject ^Engine @*java-engine* uid new-obj))
+  "Set the object at UID to a new version.
+Set key :now? to true, to set a current object (make sure you mean it)"
+  [^Long uid ^BrObject new-obj 
+   & {:keys [:now?]
+      :or {:now? false}}]
+  (if now?
+    (.setObject ^Engine @*java-engine* uid new-obj)
+    (.addObject ^Engine @*java-engine* uid new-obj)))
 
 (defn get-object
   "Return the object by UID"

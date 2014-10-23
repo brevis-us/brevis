@@ -249,7 +249,8 @@ are removed from the simulation. (deprecated)"
     (when-not @*java-engine*
       (reset! *java-engine*
               (Engine.)))
-    (when @*java-engine*
+    (when (and @*java-engine*
+               (not (:paused @*gui-state*)))
       (.updateWorld @*java-engine*)
       #_(.updateWorld @*java-engine* (double dt)))
     state))

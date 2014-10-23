@@ -42,6 +42,8 @@ public class BrInput {
 		 */
 		public boolean test() {
 			boolean ret = false;
+			//Mouse.poll();
+			//Keyboard.poll();
 			if( mouseType ) {				
 				return Mouse.isButtonDown( mouseButton );
 			} else if( keyboardType ) {
@@ -88,13 +90,21 @@ public class BrInput {
 	
 	/**
 	 * Check input state and call activated input handlers
+	 * This version can miss keys, and trigger multiple times
 	 */
 	public void pollInput( Engine engine ) {
+		//Keyboard.poll();
+		//Mouse.poll();
 		for( Map.Entry<InputType,InputHandler> entry : inputHandlers.entrySet() ) {
 			if( entry.getKey().test() ) {
 				entry.getValue().trigger( engine );
+				
 			}
 		}
+	}
+	
+	public static boolean isRepeatEvent() {
+		return Keyboard.isRepeatEvent();
 	}
 	
 	public void addInputHandler( InputType it, InputHandler ih ) {

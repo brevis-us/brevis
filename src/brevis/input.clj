@@ -16,7 +16,8 @@
 Copyright 2012, 2013 Kyle Harrington"     
 
 (ns brevis.input
-  (:import (brevis BrInput))
+  (:import (brevis BrInput)
+           (org.lwjgl.input Keyboard))
   (:use [brevis globals display utils osd vector]
         [brevis.physics utils]))
 
@@ -53,6 +54,8 @@ input-class: indicates the class of input. Currently supports (:key-press, :mous
   "Define the default input handlers."
   []
   (swap! *gui-state* assoc :keyspeed 1)
+  ;(Keyboard/enableRepeatEvents false)
+  ;(println "repeat keys?" (Keyboard/areRepeatEventsEnabled))
   (add-input-handler :key-press
                      {:key-id "I"}
                      #(swap! *gui-state* assoc :fullscreen (not (:fullscreen @*gui-state*))))
@@ -62,6 +65,14 @@ input-class: indicates the class of input. Currently supports (:key-press, :mous
   (add-input-handler :key-press
                      {:key-id "E"}
                      #(swap! *gui-state* update-in [:keyspeed] (partial * 0.9)))
+  (add-input-handler :key-press
+                     {:key-id "X"}
+                     (let [timer (atom 0)]
+                       (fn []
+                         (when (> (- (java.lang.System/nanoTime) @timer) 1000000000) 
+                           #_(println "hit pause" (:paused @*gui-state*) @timer (- (java.lang.System/nanoTime) @timer))
+                           (reset! timer (java.lang.System/nanoTime))
+                           (swap! *gui-state* update-in [:paused] #(not %))))))
   #_(add-input-handler :key-press
                      {:key-id "W"}
                      #(.processKeyboard (:camera @*gui-state*) keyspeed 1 true false false false false false))
