@@ -81,7 +81,11 @@ Copyright 2012-2014 Kyle Harrington"
           handler-fn (fn []
                        (when (> (.getItemCount (first (:series plot-data))) interval)                              
                          (.remove ^XYSeries (first (:series plot-data)) 
-                           (.getMinX (first (:series plot-data)))))
+                           (.getMinX ^XYSeries (first (:series plot-data))))
+                         (let [miny (.getMinY ^XYSeries (first (:series plot-data)))
+                               maxy (.getMaxY ^XYSeries (first (:series plot-data)))]
+                           
+                           (.setYRange ^Plotter plotter miny maxy)))
                        (let [[x y] (xy-fn)]
                          (.addOrUpdate ^XYSeries (first (:series plot-data)) x y)))]
       (add-destroy-hook (fn [] (.dispose plotter)))              

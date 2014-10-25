@@ -52,6 +52,10 @@ public class Plotter extends ApplicationFrame {
         setContentPane(chartPanel);
     }
     
+    public void setYRange( double min, double max ) {
+    	plot.getRangeAxis().setRange( min, max );
+    }
+    
     /**
      * Creates a chart.
      * 
@@ -84,6 +88,8 @@ public class Plotter extends ApplicationFrame {
         plot.setDomainCrosshairVisible(true);
         plot.setRangeCrosshairVisible(true);
         plot.setRangeZeroBaselineVisible(false);
+        plot.getRangeAxis().setAutoRange( true );
+        
         
         XYItemRenderer r = plot.getRenderer();
         if (r instanceof XYLineAndShapeRenderer) {
