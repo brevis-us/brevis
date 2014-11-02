@@ -169,7 +169,7 @@ Copyright 2012-2014 Kyle Harrington"
              title
              priority
              xy-fns
-             legend]
+             legends]
       :or {interval 200
            title "Brevis"
            priority 100
