@@ -561,10 +561,27 @@ public class Engine implements Serializable {
 	 			ArrayList<BrKDNode> searchNbrs = spaceTree.searchByDistance( arryloc, neighborhoodRadius );
 	 			Iterator<BrKDNode> itr = searchNbrs.iterator();
 	 			
+	 			double closestDistance = 99999999;//maybe dangerous?
+	 			long closestUID = 0;
+	 			boolean foundClosest = false;	 				 		
+	 			
+	 			Vector3f diff = new Vector3f();
 	 			while( itr.hasNext() ) {
 	 				BrKDNode nbr = itr.next();
 	 				nbrs.add( nbr.UID );
+	 				Vector3f.sub( objects.get( nbr.UID ).position, obj.position, diff );	 				
+	 				double ldiff = diff.length();
+	 				if ( ( ldiff < closestDistance ) && ( nbr.UID != obj.uid ) ) {
+	 					closestDistance = ldiff;
+	 					closestUID = nbr.UID;
+	 					foundClosest = true;
+	 				}
 	 			}
+	 			
+	 			if( foundClosest )
+	 				obj.closestNeighbor = closestUID;
+	 			else
+	 				obj.closestNeighbor = (long) 0;
 	 			
 	 			//System.out.println( "Neighbors of " + obj + " " + nbrs.size() );
 	 			obj.nbrs = nbrs;

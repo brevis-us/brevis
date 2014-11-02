@@ -116,7 +116,9 @@ Copyright 2012, 2013 Kyle Harrington"
                           (nth nbrs 
                                (reduce #(if (< (nth bird-dists %1) (nth bird-dists %2)) %1 %2) (range (count bird-dists)))))
         
-        closest-bird (first nbrs)
+        ;closest-bird (first nbrs)
+        
+        closest-bird (get-closest-neighbor bird)
         
         new-acceleration (if-not closest-bird
                            ;; No neighbor, move randomly
@@ -200,7 +202,7 @@ so we only modify bird1."
   (set-dt 1)
   (set-neighborhood-radius 250)
   (default-display-text)
-  (add-object (move (make-floor 500 500) (vec3 0 (- boundary) 0)))
+  ;(add-object (move (make-floor 500 500) (vec3 0 (- boundary) 0)))
   (dotimes [_ @num-birds]
     (add-object (random-bird))))
 

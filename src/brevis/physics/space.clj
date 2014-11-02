@@ -37,6 +37,7 @@ Copyright 2012, 2013 Kyle Harrington"
   (begin-with-graphics-thread)
   #_(GL32/glFenceSync GL32/GL_SYNC_GPU_COMMANDS_COMPLETE 0)  
   (let [uid (long (hash (gensym)))        ;; might not be safe
+        uid (if (zero? uid) (inc uid) uid); 0 is used as a NIL UID
         obj (assoc obj        
 			         :uid uid
 			         :real true

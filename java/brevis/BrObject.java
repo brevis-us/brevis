@@ -77,6 +77,8 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 	public Texture texture;	
 	public Object data;
 	
+	public Long closestNeighbor;
+	
 	//public Matrix4d transform;
 	
 	public HashMap<Object,Object> myMap;
@@ -182,6 +184,10 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 	
 	public Vector<Long> getNeighbors() {
 		return nbrs;
+	}
+	
+	public Long getClosestNeighbor() {
+		return closestNeighbor;
 	}
 	
 	public void clearNeighbors() {

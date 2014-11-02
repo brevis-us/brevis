@@ -286,6 +286,13 @@ axis is the axis about which the joint rotates"
        (map #(get-object %)
             (filter (partial not= obj-uid) nbrs)))))
 
+(defn get-closest-neighbor
+   "Return the objects of a neighborhood."
+   [^BrObject obj]
+   (let [nbr-uid (.getClosestNeighbor obj)]
+     (when-not (or (nil? nbr-uid) (zero? nbr-uid))
+       (get-object nbr-uid))))
+
 (defn set-neighborhood-radius
   "Set the neighborhood radius."
   [new-radius]
