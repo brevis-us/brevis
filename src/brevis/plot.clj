@@ -168,14 +168,17 @@ Copyright 2012-2014 Kyle Harrington"
   [& {:keys [interval
              title
              priority
-             xy-fns]
+             xy-fns
+             legend]
       :or {interval 200
            title "Brevis"
            priority 100
-           xy-fns []}}]
+           xy-fns []
+           legends []}}]
   (when-not (System/getProperty "brevisHeadless")
     (let [n (count xy-fns)
-          plot-data (make-multiseries-xy-dataset n (for [k (range n)] (str title " " k)))
+          legends (if (empty? legends) (for [k (range n)] (str title " " k)) legends)
+          plot-data (make-multiseries-xy-dataset n legends)
           plotter (brevis.plot.Plotter. title (:data-collection plot-data))
           handler-fn (fn []
                        (dotimes [k (count xy-fns)]
@@ -191,3 +194,4 @@ Copyright 2012-2014 Kyle Harrington"
       (RefineryUtilities/positionFrameRandomly plotter)
       (.setVisible plotter true)      
       (add-global-update-handler priority handler-fn)))); should keep track of plotters in the engine or somewhere and delete then when the window is destroyed
+
