@@ -1,8 +1,8 @@
-(defproject brevis "0.9.51"
+(defproject brevis "0.9.52"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "http://brevis.us"
-  :license {:name "General Public License v3"
-            :url "http://www.gnu.org/licenses/"}
+  :license {:name "Apache License v2"
+            :url "http://www.apache.org/licenses/LICENSE-2.0"}
   ;:jvm-opts ^:replace ["-Xmx4g" "-splash:resources/brevis_splash.gif" "-XX:+UseParallelGC"]; "-Xdock:name=Brevis"  
   ;:jvm-opts ^:replace ["-Xmx4g" #_"-XX:+UseParallelGC"]; "-Xdock:name=Brevis"
   ;:jvm-opts ^:replace ["-XX:+UseG1GC" "-Xmx4g" "-XX:-UseGCOverheadLimit"]  
@@ -20,7 +20,7 @@
                  [me.raynes/conch "0.8.0"]
                  
                  ;; Physics packages                 
-                 [org.ode4j/core "0.2.9"]
+                 [org.ode4j/core "0.2.9"]; 0.3.0 introduced threading issues that are causing issues
                  [org.ode4j/demo "0.2.9"]
                  [com.nitayjoffe.thirdparty.net.robowiki.knn/knn-benchmark "0.1"]                 
                  
@@ -35,7 +35,7 @@
                  [org.jfree/jfreechart "1.0.17"]
                  
                  ;; Math packages
-                 [com.googlecode.efficient-java-matrix-library/ejml "0.24"]
+                 [com.googlecode.efficient-java-matrix-library/ejml "0.24"]; 0.26
                  [org.flatland/ordered "1.5.2"]
                  
                  ;; UI packages

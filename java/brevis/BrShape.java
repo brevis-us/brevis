@@ -1,19 +1,3 @@
-/*
- * brevis is free software: you can redistribute it and/or modify                                                                                                           
-    it under the terms of the GNU General Public License as published by                                                                                                             
-    the Free Software Foundation, either version 3 of the License, or                                                                                                                
-    (at your option) any later version.                                                                                                                                              
-                                                                                                                                                                                     
-    brevis is distributed in the hope that it will be useful,                                                                                                                
-    but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                   
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                                                                                                    
-    GNU General Public License for more details.                                                                                                                                     
-                                                                                                                                                                                     
-    You should have received a copy of the GNU General Public License                                                                                                                
-    along with brevis.  If not, see <http://www.gnu.org/licenses/>.                                                                                                          
-                                                                                                                                                                                     
-	Copyright 2012, 2013 Kyle Harrington
- */
 
 package brevis;
 
@@ -32,6 +16,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GLContext;
+import org.lwjgl.util.glu.Sphere;
 import org.lwjgl.util.vector.Vector3f;
 import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DMass;
@@ -64,6 +49,7 @@ public class BrShape implements Serializable {
 	public int idxBID = -1;
 	public int numIdx = 0;
 	public BrMesh mesh = null;
+	public Object data = null;
 	
 	public Vector3f center;
 	
@@ -118,6 +104,8 @@ public class BrShape implements Serializable {
 			//dim = new Vector3d( mesh.getXWidth(), mesh.getYHeight(), mesh.getZDepth() );
 			dim = new Vector3f( 1, 1, 1 );
 			//System.out.println( dim );
+		} else if( type == BrShapeType.SPHERE ) {
+			data = new Sphere();
 		} else {
 			createMesh( withGraphics );
 			if( mesh != null ) {

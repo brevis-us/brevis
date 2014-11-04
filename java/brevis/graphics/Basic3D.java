@@ -1,19 +1,4 @@
-/*
- * brevis is free software: you can redistribute it and/or modify                                                                                                           
-    it under the terms of the GNU General Public License as published by                                                                                                             
-    the Free Software Foundation, either version 3 of the License, or                                                                                                                
-    (at your option) any later version.                                                                                                                                              
-                                                                                                                                                                                     
-    brevis is distributed in the hope that it will be useful,                                                                                                                
-    but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                   
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                                                                                                    
-    GNU General Public License for more details.                                                                                                                                     
-                                                                                                                                                                                     
-    You should have received a copy of the GNU General Public License                                                                                                                
-    along with brevis.  If not, see <http://www.gnu.org/licenses/>.                                                                                                          
-                                                                                                                                                                                     
-	Copyright 2012, 2013 Kyle Harrington
- */
+
 
 package brevis.graphics;
 import java.awt.image.BufferedImage;
@@ -397,9 +382,10 @@ public class Basic3D {
 	
 	static public void drawSphere(float r, int stack, int string) {
 
-		Sphere s = new Sphere();
+		//Sphere s = new Sphere();
 	
-		s.draw(r, stack, string);
+		//s.draw(r, stack, string);
+		
 
 	}
 
@@ -633,63 +619,9 @@ public class Basic3D {
 	// some from nehe lesson 27    
 	//static public void drawShape( BrObject obj, double xrot, double yrot, double zrot, double xoff, double yoff, double zoff, double[] lp, Vector3d dim ) {
     //static public void drawShape( BrObject obj, double[] lp, Vector3f dim ) {
-    static public void drawShape( BrObject obj, Vector3f dim ) {
-		//float Minv[] = new float[16];
-        //float wlp[] = new float[4];        
-		
-		/*ByteBuffer byteBuffer;
-		ByteBuffer floatBuffer;
-		floatBuffer = ByteBuffer.allocateDirect(64);
-        floatBuffer.order(ByteOrder.nativeOrder());
-        byteBuffer = ByteBuffer.allocateDirect(16);
-        byteBuffer.order(ByteOrder.nativeOrder());*/
-		
-        // Clear Color Buffer, Depth Buffer, Stencil Buffer
-        //GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_STENCIL_BUFFER_BIT);
-
-        // calculate light's position relative to local coordinate system
-        // dunno if this is the best way to do it, but it actually works
-        // if u find another aproach, let me know ;)
-
-        // we build the inversed matrix by doing all the actions in reverse order
-        // and with reverse parameters (notice -xrot, -yrot, -ObjPos[], etc.)
-        //GL11.glLoadIdentity();                                   // Reset Matrix
-        //GL11.glTranslatef((float) pos.x, (float) pos.y, (float) pos.z);      // Position The Object
-        //GL11.glRotatef((float) rot.w, rot.x, rot.y, rot.z);
-        //GL11.glRotatef((float) -zrot, 0.0f, 0.0f, 1.0f);                 // Rotate By -yrot On Y Axis
-        //GL11.glRotatef((float) -yrot, 0.0f, 1.0f, 0.0f);                 // Rotate By -yrot On Y Axis
-        //GL11.glRotatef((float) -xrot, 1.0f, 0.0f, 0.0f);                 // Rotate By -xrot On X Axis
-        //GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX,(FloatBuffer)floatBuffer.asFloatBuffer().put(Minv).flip());              // Retrieve ModelView Matrix (Stores In Minv)
-        /*lp[0] = lightPos[0];                                // Store Light Position X In lp[0]
-        lp[1] = lightPos[1];                                // Store Light Position Y In lp[1]
-        lp[2] = lightPos[2];                                // Store Light Position Z In lp[2]
-        lp[3] = lightPos[3];                                // Store Light Direction In lp[3]*/
-        
-        //vMatMult(Minv, lp);                                 // We Store Rotated Light Vector In 'lp' Array
-        
-        //Vector3f vObjPos = obj.getPosition();        
+    static public void drawShape( BrObject obj, Vector3f dim ) {     
     	Vector3f vObjPos = new Vector3f();
     	Vector3f.add( obj.getPosition(), obj.getShape().center, vObjPos );
-    	
-        //float[] objPos = { (float) vObjPos.x, (float) vObjPos.y, (float) vObjPos.z, 0 };
-        //float[] objPos = { (float) vObjPos.x, (float) vObjPos.y, (float) vObjPos.z, 0 };
-        
-        /*GL11.glTranslatef(-objPos[0], -objPos[1], -objPos[2]);   // Move Negative On All Axis Based On ObjPos[] Values (X, Y, Z)
-        GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX,(FloatBuffer)floatBuffer.asFloatBuffer().put(Minv).flip());              // Retrieve ModelView Matrix From Minv
-        wlp[0] = 0.0f;                                      // World Local Coord X To 0
-        wlp[1] = 0.0f;                                      // World Local Coord Y To 0
-        wlp[2] = 0.0f;                                      // World Local Coord Z To 0
-        wlp[3] = 1.0f;
-        vMatMult(Minv, wlp);                                // We Store The Position Of The World Origin Relative To The
-                                                            // Local Coord. System In 'wlp' Array
-        lp[0] += wlp[0];                                    // Adding These Two Gives Us The
-        lp[1] += wlp[1];                                    // Position Of The Light Relative To
-        lp[2] += wlp[2];                                    // The Local Coordinate System
-
-        GL11.glColor4f(0.7f, 0.4f, 0.0f, 1.0f);                  // Set Color To An Orange
-        GL11.glLoadIdentity();                                   // Reset Modelview Matrix
-        //GL11.glTranslatef(0.0f, 0.0f, -20.0f);                   // Zoom Into The Screen 20 Units
-        drawGLRoom();                                       // Draw The Room*/
         
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
         
@@ -721,7 +653,8 @@ public class Basic3D {
         }        
         
         // Render primitives directly with vertex commands       
-        if( obj.getShape().mesh == null || ( obj.getShape().getType() == "box" ) ) {
+        if( ( obj.getShape().mesh == null ) ||
+        	( obj.getShape().getType() == "box" ) ) {
         //if( obj.getShape().mesh == null ) {
         	//System.out.println( "NO MESH " + obj.type );
 	        if( obj.getShape().getType() == "box" )
@@ -731,7 +664,8 @@ public class Basic3D {
 	        else if( obj.getShape().getType() == "cylinder" )
 	        	drawCylinder( (float)dim.x, (float)dim.y, (float)dim.y, (int)dim.z, 25 );
 	        else
-	        	drawSphere( (float)dim.x, (int)dim.y, 20);
+	        	drawSphere( (float)dim.x, 25, 20);
+	        	//( (Sphere)obj.getShape().data ).draw( (float)dim.x, 25, 20);
         } else {
         	//GL11.glScaled( dim.x, dim.y, dim.z );
         	obj.getShape().mesh.opengldraw();
