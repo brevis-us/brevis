@@ -222,11 +222,20 @@ public class Engine implements Serializable {
 			HashMap<String,Object> o2map = (HashMap<String,Object>)o2.getBody().getData();
 			Long uid1 = (Long)o1map.get("uid");
 			Long uid2 = (Long)o2map.get("uid");
-			SimpleEntry<Long,Long> p1 = new SimpleEntry<Long,Long>( uid1, uid2 );
-			SimpleEntry<Long,Long> p2 = new SimpleEntry<Long,Long>( uid2, uid1 );
+			
+			// Only add one collisions, and sort them small to big
+			if( uid1 < uid2 ) 
+				Engine.globalCollisions.add( new SimpleEntry<Long,Long>( uid1, uid2 ) );
+			else
+				Engine.globalCollisions.add( new SimpleEntry<Long,Long>( uid2, uid1 ) );
+			
+			
+			// This used to add 2
+			//SimpleEntry<Long,Long> p1 = new SimpleEntry<Long,Long>( uid1, uid2 );
+			//SimpleEntry<Long,Long> p2 = new SimpleEntry<Long,Long>( uid2, uid1 );
 			//System.out.println( "collision callback " + p1 + " " + p2  + " " + o1map + " " + o2map );
-			Engine.globalCollisions.add( p1 );
-			Engine.globalCollisions.add( p2 );
+			//Engine.globalCollisions.add( p1 );
+			//Engine.globalCollisions.add( p2 );
 			
 			/*if (physicsEnabled) {
 				// Also do a physics collision?
@@ -471,30 +480,46 @@ public class Engine implements Serializable {
 	public void handleCollisions( double dt ) {
 		lock.lock();  // block until condition holds
 	     try {
-	    	 collisions = globalCollisions;
+	    	collisions = globalCollisions;
+	    	// It might be reasonable to shuffle here
 	 		
 	 		//HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
-	 		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();		
+	 		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();
+	 		updatedObjects.putAll(objects);	 	
 	 		
-	 		// An object may be involved in multiple computations, therefore we first duplicate all objects and use
-	 		// these.
-	 		for( Entry<Long, BrObject> entry : objects.entrySet() ) {
-	 			updatedObjects.put( entry.getKey(), entry.getValue() );
-	 		}
+	 		//System.out.println( "handleCollisions " + collisions );	 		
 	 		
-	 		//System.out.println( "handleCollisions " + collisions );
 	 		for( SimpleEntry<Long,Long> entry: collisions ) {
 	 			BrObject subj = updatedObjects.get( entry.getKey() );
 	 			BrObject othr = updatedObjects.get( entry.getValue() );
+	 			
+	 			// If the colliding objects both still exist
 	 			if( subj != null && othr != null ) {
 	 				SimpleEntry<String,String> typeEntry = new SimpleEntry<String,String>(subj.type,othr.type);
+	 				
+	 				// Find the corresponding collision handler
 	 				CollisionHandler ch = collisionHandlers.get( typeEntry );
 	 				
+	 				// Collisions are only inserted into the list once, so let's check the opposite type ordering for another collision handler if we cant find one 
+	 				if( ch == null ) {
+	 					ch = collisionHandlers.get( new SimpleEntry<String,String>(othr.type,subj.type) );
+	 					if( ch != null ) {
+	 						BrObject tmp = subj;
+	 						subj = othr;
+	 						othr = tmp;
+	 					}
+	 				}
+	 				
 	 				//System.out.println( "collision " + subj + " " + othr + " " + ch + " " + typeEntry + " " + collisionHandlers );				
+	 				//System.out.println( "collision " + subj.type + " " + othr.type + " " + ch + " " + typeEntry + " " + collisionHandlers );				
 	 				if( ch != null ) {
+	 					//System.out.println( "Collision handler found " );
 	 					PersistentVector pair = ch.collide( this, subj, othr, dt );
 	 					BrObject newSubj = (BrObject) pair.get(0);
+	 					BrObject newOthr = (BrObject) pair.get(1);
+	 					// Need to avoid calling on the same key-value pair twice
 	 					updatedObjects.put( entry.getKey() , newSubj );
+	 					updatedObjects.put( entry.getValue() , newOthr);
 	 				}
 	 			}
 	 		}

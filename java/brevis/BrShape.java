@@ -111,6 +111,7 @@ public class BrShape implements Serializable {
 			if( mesh != null ) {
 				mesh.rescaleMesh( (float)dim.x, (float)dim.y, (float)dim.z, withGraphics );
 			}
+			dim = new Vector3f( 1, 1, 1 );
 		}
 				
 		computeCenter();
@@ -202,7 +203,7 @@ public class BrShape implements Serializable {
 		} else if( type == BrShapeType.CYLINDER ) {
 			m.setSphere(density, dim.x);
 		} else if( type == BrShapeType.MESH ) {
-			m.setSphere(density, 1 );
+			m.setSphere(density, dim.x );
 		}
 		return m;
 	}
@@ -406,7 +407,7 @@ public class BrShape implements Serializable {
 			return OdeHelper.createBox( space, dim.x, dim.y, dim.z );		
 		default:
 		case SPHERE:
-			return OdeHelper.createSphere( space, 1 );			
+			return OdeHelper.createSphere( space, dim.x );			
 		}		
 	}
 	

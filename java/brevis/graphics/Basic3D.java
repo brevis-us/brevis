@@ -145,7 +145,7 @@ public class Basic3D {
 		light1.setPosition(new float[] { 50.0f, 200.0f, 50.0f, 0.0f }  );
 		
         GL11.glShadeModel(GL11.GL_SMOOTH);                            // Enable Smooth Shading
-        GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.5f);               // Black Background
+        GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);               // Black Background
         GL11.glClearDepth(1.0f);                                 // Depth Buffer Setup
         GL11.glClearStencil(0);                                  // Stencil Buffer Setup
         GL11.glEnable(GL11.GL_DEPTH_TEST);                            // Enables Depth Testing
@@ -161,7 +161,7 @@ public class Basic3D {
         light1.enable();
         sky = new BrSky();
         
-        GL11.glClearColor(0.1f, 1.0f, 0.5f, 1.0f);               // Set Clear Color (Greenish Color)
+        GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);            
         GL11.glViewport(0,0,width,height);                           // Reset The Current Viewport
 
         GL11.glMatrixMode(GL11.GL_PROJECTION);                            // Select The Projection Matrix
@@ -382,9 +382,9 @@ public class Basic3D {
 	
 	static public void drawSphere(float r, int stack, int string) {
 
-		//Sphere s = new Sphere();
+		Sphere s = new Sphere();
 	
-		//s.draw(r, stack, string);
+		s.draw(r, stack, string);
 		
 
 	}
@@ -650,6 +650,7 @@ public class Basic3D {
         	GL11.glBindTexture(GL11.GL_TEXTURE_2D, obj.getTextureId() );
         } else {
         	GL11.glDisable(GL11.GL_TEXTURE_2D);
+        	 setColor( (float)obj.color.x, (float)obj.color.y, (float)obj.color.z, (float)obj.color.w );
         }        
         
         // Render primitives directly with vertex commands       

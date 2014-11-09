@@ -20,7 +20,7 @@
   ([data] (make-xy-dataset data (gensym "dataset")))
   ([data dataset-name] (make-xy-dataset data dataset-name false false))
   ([data dataset-name auto-sort allow-duplicates]
-    (let [xyseries (XYSeries. dataset-name auto-sort allow-duplicates)]
+    (let [^XYSeries xyseries (XYSeries. dataset-name auto-sort allow-duplicates)]
       (doseq [[k v] data]
         (.addOrUpdate xyseries k v))
       (let [xycoll (XYSeriesCollection. xyseries)]
