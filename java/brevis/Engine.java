@@ -226,7 +226,7 @@ public class Engine implements Serializable {
 			// Only add one collisions, and sort them small to big
 			if( uid1 < uid2 ) 
 				Engine.globalCollisions.add( new SimpleEntry<Long,Long>( uid1, uid2 ) );
-			else
+			else if( uid2 > uid1 )
 				Engine.globalCollisions.add( new SimpleEntry<Long,Long>( uid2, uid1 ) );
 			
 			
