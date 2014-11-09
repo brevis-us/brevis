@@ -17,7 +17,7 @@ import org.newdawn.slick.util.ResourceLoader;
 
 //import edu.fhooe.mtd360.watershader.render.Renderer;
 
-// from http://code.google.com/p/lwjgl-water-shader/
+// some from http://code.google.com/p/lwjgl-water-shader/
 public class BrSky {
 
 	public Vector<Texture> textures;
@@ -34,13 +34,15 @@ public class BrSky {
 		textures.clear();
 		//load textures
 		try {
-			//textures.add(TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("resources/img/skybox/front.jpg"),GL11.GL_LINEAR));			
-			textures.add(TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("img/skybox/front.jpg"),GL11.GL_LINEAR));						
+			//textures.add(TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("resources/img/skybox/front.jpg"),GL11.GL_LINEAR));
+
+			textures.add(TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("img/skybox/front.jpg"),GL11.GL_LINEAR));
 			textures.add(TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("img/skybox/left.jpg"),GL11.GL_LINEAR));
 			textures.add(TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("img/skybox/back.jpg"),GL11.GL_LINEAR));
 			textures.add(TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("img/skybox/right.jpg"),GL11.GL_LINEAR));
-			textures.add(TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("img/skybox/up.jpg"),GL11.GL_LINEAR));
-			textures.add(TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("img/skybox/down.jpg"),GL11.GL_LINEAR));
+			textures.add(TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("img/skybox/up.jpg"),GL11.GL_LINEAR));			
+			textures.add(TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("img/skybox/down.jpg"),GL11.GL_LINEAR));			
+			textures.add(TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("img/skybox/down.jpg"),GL11.GL_LINEAR));			
 		} catch (IOException e) {
 			throw new RuntimeException("skybox loading error");
 		}
@@ -87,7 +89,7 @@ public class BrSky {
 //	                GL_RGB, GL_UNSIGNED_BYTE, data );
 	    
 	    // Render the front quad
-	    //clampToEdge();
+	    clampToEdge();
 	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(0).getTextureID());
 	    GL11.glBegin(GL11.GL_QUADS);
 		    GL11.glNormal3f(0f, 0f, 1f);
@@ -98,7 +100,7 @@ public class BrSky {
 	    GL11.glEnd();
 
 	    // Render the left quad
-	    //clampToEdge();
+	    clampToEdge();
 	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(1).getTextureID());
 	    GL11.glBegin(GL11.GL_QUADS);
 		    GL11.glNormal3f(1f, 0f, 0f);
@@ -109,7 +111,7 @@ public class BrSky {
 	    GL11.glEnd();
 	    
 	    // Render the back quad
-	    //clampToEdge();
+	    clampToEdge();
 	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(2).getTextureID());
 	    GL11.glBegin(GL11.GL_QUADS);
 		    GL11.glNormal3f(0f, 0f, -1f);
@@ -120,7 +122,7 @@ public class BrSky {
 	    GL11.glEnd();
 	    
 	    // Render the right quad
-	    //clampToEdge();	    
+	    clampToEdge();	    
 	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(3).getTextureID());
 	    GL11.glBegin(GL11.GL_QUADS);
 		    GL11.glNormal3f(-1f, 0f, 0f);
@@ -131,7 +133,7 @@ public class BrSky {
 	    GL11.glEnd();
 	    
 	    // Render the top quad
-	    //clampToEdge();
+	    clampToEdge();
 	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(4).getTextureID());
 	    GL11.glBegin(GL11.GL_QUADS);
 		    GL11.glNormal3f(0f, -1f, 0f);
@@ -142,7 +144,7 @@ public class BrSky {
 	    GL11.glEnd();
 	    
 	    // Render the bottom quad
-	    //clampToEdge();
+	    clampToEdge();
 	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(5).getTextureID());
 	    GL11.glBegin(GL11.GL_QUADS);
 		    GL11.glNormal3f(0f, 1f, 0f);
@@ -157,7 +159,7 @@ public class BrSky {
 	    GL11.glPopMatrix();
 	}
 
-	//clamp textures, that edges get dont create a line in between
+	//clamp textures, so edges get dont create a line in between
 	private void clampToEdge() {
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
