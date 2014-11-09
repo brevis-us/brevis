@@ -60,3 +60,18 @@
   "Move the n-th light."
   [n pos]
   (Basic3D/lightMove (int n) (float-array pos)))
+
+(defn disable-skybox
+  "Disable rendering of the skybox."
+  []
+  (swap! *gui-state* assoc :disable-skybox true))
+
+(defn enable-skybox
+  "Enable rendering of the skybox."
+  []
+  (swap! *gui-state* dissoc :disable-skybox))
+
+(defn change-skybox
+  "Files must contain: front, left, back, right, up, down"
+  [files]
+  (.changeSkybox brevis.graphics.basic-3D/*sky* files))

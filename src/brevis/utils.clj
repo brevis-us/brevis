@@ -71,21 +71,6 @@ otherwise it should be a function that returns true/false"
       (reset! *java-engine* engine))
     (catch Exception e (str "caught exception: " (.getMessage e)))))
 
-(defn disable-skybox
-  "Disable rendering of the skybox."
-  []
-  (swap! *gui-state* assoc :disable-skybox true))
-
-(defn enable-skybox
-  "Enable rendering of the skybox."
-  []
-  (swap! *gui-state* dissoc :disable-skybox))
-
-(defn change-skybox
-  "Files must contain: front, left, back, right, up, down"
-  [files]
-  (.changeSkybox brevis.graphics.basic-3D/*sky* files))
-
 (defn add-destroy-hook
   "Add a destroy hook called on window close."
   [fn]
