@@ -11,7 +11,7 @@
 ;; (ssh call)
 ;; Later: hook class that lets you listen to system signals -> dump to serialized files
 
-(def debug false)
+;(def debug false)
 
 (defn gen-config
   ;; Takes a set of params(argmap), a configFileName,

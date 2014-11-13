@@ -86,8 +86,8 @@
   "Set the object at UID to a new version.
 Set key :now? to true, to set a current object (make sure you mean it)"
   [^Long uid ^BrObject new-obj 
-   & {:keys [:now?]
-      :or {:now? false}}]
+   & {:keys [now?]
+      :or {now? false}}]
   (if now?
     (.setObject ^Engine @*java-engine* uid new-obj)
     (.addObject ^Engine @*java-engine* uid new-obj)))

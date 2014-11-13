@@ -138,11 +138,10 @@
 ;; ## Collision handling
 ;;
 ;; Collision functions take [collider collidee] and return [collider collidee]
-;;   Both can be modified; however, two independent collisions are actually computed [a b] and [b a].
+;; This is only called once per pair of colliding objects.
 
 (defn bump
-  "Collision between two birds. This is called on [bird1 bird2] and [bird2 bird1] independently
-so we only modify bird1."
+  "Collision between two birds."
   [bird1 bird2]  
   [(set-color bird1 (vec4 (rand) (rand) (rand) 1))
    bird2])
