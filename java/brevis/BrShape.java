@@ -457,6 +457,10 @@ public class BrShape implements Serializable {
 	public static BrShape createCylinder( double length, double radius, boolean withGraphics ) {
 		return ( new BrShape( BrShapeType.CYLINDER, new Vector3f( (float)length, (float)radius, (float)25 ), withGraphics ));	// last element of vector is # of sides or stacks (depending on renderer)
 	}
+	
+	public static BrShape createCylinder( double length, double radius1, double radius2, boolean withGraphics ) {
+		return ( new BrShape( BrShapeType.CYLINDER, new Vector3f( (float)length, (float)radius1, (float)radius2 ), withGraphics ));	// last element of vector is # of sides or stacks (depending on renderer)
+	}
 
 	public void destroy() {
 		mesh.destroy();
