@@ -52,10 +52,24 @@
    [^Vector4f v1 ^Vector4f v2] (Vector4f/sub v1 v2 nil))
 
 (defn div
-  "Divide a Vector3f by a scalar."
+  "Divide a vector by a scalar."
   [v s]
   (let [vr (if (vec3? v) ^Vector3f (Vector3f. v) ^Vector4f (Vector4f. v))]             
     (.scale vr (double (/ s)))
+    vr))
+
+(defn div-vec3
+  "Divide a Vector3f by a scalar."
+  [v s]
+  (let [^Vector3f vr (Vector3f. v)]
+    (.scale vr ^double (double (/ s)))
+    vr))
+
+(defn div-vec4
+  "Divide a Vector4f by a scalar."
+  [v s]
+  (let [^Vector4f vr (Vector4f. v)]
+    (.scale vr ^double (double (/ s)))
     vr))
     
 (defn add
@@ -81,6 +95,20 @@
     (.scale vr (double s))
     vr))
 
+(defn mul-vec3
+  "Multiply a Vector3f by a scalar."
+  [v s]
+  (let [^Vector3f vr (Vector3f. v)]
+    (.scale vr ^double (double s))
+    vr))
+
+(defn mul-vec4
+  "Multiply a Vector4f by a scalar."
+  [v s]
+  (let [^Vector4f vr (Vector4f. v)]
+    (.scale vr ^double (double s))
+    vr))
+
 (defn elmul
   "Multiply a Vector3f by a scalar."
   [v w]
@@ -88,6 +116,24 @@
     (.setX vr (double (* (.x w) (.x v))))
     (.setY vr (double (* (.y w) (.y v))))
     (.setZ vr (double (* (.z w) (.z v))))
+    vr))
+
+(defn elmul-vec3
+  "Multiply a Vector3f by a scalar."
+  [^Vector3f v ^Vector3f w]
+  (let [^Vector3f vr (Vector3f. v)]
+    (.setX vr ^double (double (* (.x w) (.x v))))
+    (.setY vr ^double (double (* (.y w) (.y v))))
+    (.setZ vr ^double (double (* (.z w) (.z v))))
+    vr))
+
+(defn elmul-vec4
+  "Multiply a Vector3f by a scalar."
+  [^Vector4f v ^Vector4f w]
+  (let [^Vector4f vr (Vector4f. v)]
+    (.setX vr ^double (double (* (.x w) (.x v))))
+    (.setY vr ^double (double (* (.y w) (.y v))))
+    (.setZ vr ^double (double (* (.z w) (.z v))))
     vr))
 
 (defn dot
