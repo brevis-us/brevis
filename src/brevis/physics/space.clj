@@ -158,14 +158,14 @@
 
 (defn update-object-kinematics
   "Update the kinematics of an object by applying acceleration and velocity for an infinitesimal amount of time."
-  [obj dt]
+  [^BrObject obj dt]
   (let [newvel (add (get-velocity obj)
                     (mul (get-acceleration obj) dt))
         m (get-double-mass obj);0.05
         f (mul (get-acceleration obj)
                m)]; f = ma    
     #_(println "update-object-kinematics" (get-uid obj) (get-position obj))    
-    (.addForce (get-body obj) (.x f) (.y f) (.z f))
+    (.addForce ^org.ode4j.ode.DBody (get-body obj) (.x f) (.y f) (.z f))
     obj))
 
 (defn make-floor
@@ -184,7 +184,7 @@
 
 (defn init-world  "Return a map of ODE physics for 1 world. (Now does some brevis in it too)"  []
   (when @*java-engine*
-    (.clearSimulation @*java-engine*))  (let [world (doto (OdeHelper/createWorld)     
+    (.clearSimulation ^Engine @*java-engine*))  (let [world (doto (OdeHelper/createWorld)     
 (.setGravity 0 0 0)                                                                                   
 #_(.setGravity 0 -9.81 0))        space (OdeHelper/createHashSpace)        contact-group (OdeHelper/createJointGroup)]
     (reset! *physics* {:world world                             :space space                       :contact-group contact-group
@@ -234,7 +234,7 @@ are removed from the simulation. (deprecated)"
               (Engine.)))
     (when (and @*java-engine*
                (not (:paused @*gui-state*)))
-      (.updateWorld @*java-engine*)
+      (.updateWorld ^Engine @*java-engine*)
       #_(.updateWorld @*java-engine* (double dt)))
     state))
 
@@ -246,7 +246,7 @@ are removed from the simulation. (deprecated)"
               (Engine.)));; resetting loses handler class  instances
   #_(reset! *java-engine*
               (Engine.))
-  (.initWorld @*java-engine*))
+  (.initWorld ^Engine @*java-engine*))
 
 #_(defn update-world
    "Update the world. (deprecated)"
@@ -310,7 +310,7 @@ are removed from the simulation. (deprecated)"
   "Return all neighbors along a line."
   [point dir radius]
   #_(println point dir radius @*java-engine*)
-  (let [objs  (seq (.objectsAlongLine @*java-engine* (double-array point) (double-array dir) radius))
+  (let [objs  (seq (.objectsAlongLine ^Engine @*java-engine* (double-array point) (double-array dir) radius))
         adjacent objs 
         #_(filter #(< (distance-obj-to-line % (apply vec3 point) (apply vec3 dir)) 
                      radius) objs)]

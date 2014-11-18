@@ -38,7 +38,7 @@
 (defn drawable?
   "Is an object drawable?"
   [obj]
-  (.isDrawable obj))
+  (.isDrawable ^brevis.BrObject obj))
 
 ;; ## Start a brevis instance
 
@@ -52,7 +52,7 @@
        (.x (:camera @*gui-state*))
        (.y (:camera @*gui-state*))
        (.z (:camera @*gui-state*)))
-    (.draw *sky* 
+    (.draw ^brevis.graphics.BrSky *sky* 
       (:camera @*gui-state*))
     #_(.draw *sky*)))
 
@@ -60,7 +60,7 @@
   "Initialize the display before we do updates."
   []
   (begin-with-graphics-thread)
-  (when (Display/wasResized) (.setDimensions (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
+  (when (Display/wasResized) (.setDimensions ^brevis.graphics.BrCamera (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
   (Basic3D/generateTextureCoordinates)
   (Basic3D/initFrame (:camera @*gui-state*))
   (when-not (:disable-skybox @*gui-state*)
@@ -155,7 +155,7 @@
       (when-not (:close-requested @*gui-state*)
         #_(println "Closing application.")
         (do
-          (.pollInput (:input @*gui-state*) @*java-engine*)
+          (.pollInput ^brevis.BrInput (:input @*gui-state*) ^Engine @*java-engine*)
           #_(when (:reset-simulation @*gui-state*)
              (empty-simulation)
              (swap! *gui-state* dissoc :reset-simulation))

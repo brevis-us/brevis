@@ -9,7 +9,9 @@
   ([]
      (create-cylinder 1 1))
   ([length radius]
+    (create-cylinder length radius radius))
+  ([length radius1 radius2]
     (begin-with-graphics-thread)
-    (let [result (BrShape/createCylinder length radius (:gui @brevis.globals/*gui-state*))]
+    (let [result (BrShape/createCylinder length radius1 radius2 (:gui @brevis.globals/*gui-state*))]
       (end-with-graphics-thread)
       result)))

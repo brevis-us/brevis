@@ -1,7 +1,8 @@
 (ns brevis.shape.core
   (:import [java.awt.image BufferedImage]
            [java.awt Color])
-  (:use [brevis vector]))  
+  (:use [brevis vector])
+  (:import [org.lwjgl.util.vector Vector3f Vector4f]))  
 
 (defn compute-normal
   "Compute the normal for some vertices of an arbitrary polygon."
@@ -24,15 +25,15 @@
 (defn get-shape 
   "Return the shape of an object."
   [obj]
-  (.getShape obj))
+  (.getShape ^brevis.BrObject obj))
 
 (defn resize-shape
   "Change the dimension of an object's shape."
   [obj new-dim]
-  (.resize (.getShape obj) new-dim)
+  (.resize ^brevis.BrShape (.getShape ^brevis.BrObject obj) new-dim)
   obj)
 
 (defn get-mesh
   "Return a shape's mesh."
   [shp]
-  (.getMesh shp))
+  (.getMesh ^brevis.BrShape shp))

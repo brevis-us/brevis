@@ -389,11 +389,23 @@ public class Basic3D {
 
 	}
 
-	static public void drawCylinder(float baseRadius, float topRadius, float height, int slices, int stacks) {
+	/*static public void drawCylinder(float baseRadius, float topRadius, float height, int slices, int stacks) {
 
 		Cylinder c = new Cylinder();
 	
 		c.draw(baseRadius, topRadius, height, slices, stacks);
+		
+		//System.out.println(baseRadius + " " + topRadius + " " + height + " " + slices + " " + stacks);
+
+	}*/
+	
+	static public void drawCylinder(float baseRadius, float topRadius, float height, int slices, int stacks, Cylinder data) {
+
+		//Cylinder c = new Cylinder();
+	
+		data.draw(baseRadius, topRadius, height, slices, stacks);
+		
+		//System.out.println(baseRadius + " " + topRadius + " " + height + " " + slices + " " + stacks);
 
 	}
 	
@@ -653,19 +665,26 @@ public class Basic3D {
         	 setColor( (float)obj.color.x, (float)obj.color.y, (float)obj.color.z, (float)obj.color.w );
         }        
         
+        int numSlices = 25;
+        int numStacks = 25;
+        
         // Render primitives directly with vertex commands       
         if( ( obj.getShape().mesh == null ) ||
-        	( obj.getShape().getType() == "box" ) ) {
+        		( obj.getShape().getType() == "box" ) || 
+        		( obj.getShape().getType() == "cone" ) || 
+        		( obj.getShape().getType() == "cylinder" ) ) {
         //if( obj.getShape().mesh == null ) {
         	//System.out.println( "NO MESH " + obj.type );
-	        if( obj.getShape().getType() == "box" )
+        	obj.getShape().opengldraw();
+	        /*if( obj.getShape().getType() == "box" )
 	        	drawBox( 1, 1, 1 );
+	        	
 	        else if( obj.getShape().getType() == "cone" )
-	        	drawCylinder( (float)dim.x, (float)0.01, (float)dim.y, (int)dim.z, 25 );
+	        	drawCylinder( (float)dim.y, (float)0.0001, (float)dim.x, numSlices, numStacks, (Cylinder)obj.getShape().data );
 	        else if( obj.getShape().getType() == "cylinder" )
-	        	drawCylinder( (float)dim.x, (float)dim.y, (float)dim.y, (int)dim.z, 25 );
+	        	drawCylinder( (float)dim.y, (float)dim.z, (float)dim.x, numSlices, numStacks, (Cylinder)obj.getShape().data );
 	        else
-	        	drawSphere( (float)dim.x, 25, 20);
+	        	drawSphere( (float)dim.x, 25, 20);*/
 	        	//( (Sphere)obj.getShape().data ).draw( (float)dim.x, 25, 20);
         } else {
         	//GL11.glScaled( dim.x, dim.y, dim.z );

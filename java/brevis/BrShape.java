@@ -14,8 +14,10 @@ import java.nio.IntBuffer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBVertexBufferObject;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GLContext;
+import org.lwjgl.util.glu.Cylinder;
 import org.lwjgl.util.glu.Sphere;
 import org.lwjgl.util.vector.Vector3f;
 import org.ode4j.ode.DGeom;
@@ -56,6 +58,8 @@ public class BrShape implements Serializable {
 	// Make final?
 	public static BrMesh unitCone = null;	
 	public static BrMesh unitSphere = null;	
+	
+	private int objectlist;
 	
 	public void resize( Vector3f newDim ) {
 		dim = newDim;
@@ -106,6 +110,15 @@ public class BrShape implements Serializable {
 			//System.out.println( dim );
 		} else if( type == BrShapeType.SPHERE ) {
 			data = new Sphere();
+			opengldrawtolist();
+		} else if( type == BrShapeType.CYLINDER ) {
+			data = new Cylinder();
+			opengldrawtolist();
+		} else if( type == BrShapeType.CONE ) {
+			data = new Cylinder();
+			opengldrawtolist();
+		} else if( type == BrShapeType.BOX ) {
+			opengldrawtolist();
 		} else {
 			createMesh( withGraphics );
 			if( mesh != null ) {
@@ -473,6 +486,98 @@ public class BrShape implements Serializable {
 		     
 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
 		in.defaultReadObject();
+	}
+	
+	// Drawing
+	
+	static public void drawBox(float w, float h, float d) {
+		GL11.glBegin(GL11.GL_QUADS);
+			// Front
+			GL11.glNormal3f(0f, 0f, 1f);
+			GL11.glTexCoord2f(0.0f, 0.0f); GL11.glVertex3f(-w, -h,  d);  // Bottom Left
+			GL11.glTexCoord2f(1.0f, 0.0f); GL11.glVertex3f( w, -h,  d);  // Bottom Right
+			GL11.glTexCoord2f(1.0f, 1.0f); GL11.glVertex3f( w,  h,  d);  // Top Right
+			GL11.glTexCoord2f(0.0f, 1.0f); GL11.glVertex3f(-w,  h,  d);  // Top Left
+		    // Back 
+			GL11.glNormal3f(0f, 0f, -1f);
+			GL11.glTexCoord2f(1.0f, 0.0f); GL11.glVertex3f(-w, -h, -d);  // Bottom Right
+			GL11.glTexCoord2f(1.0f, 1.0f); GL11.glVertex3f(-w,  h, -d);  // Top Right
+			GL11.glTexCoord2f(0.0f, 1.0f); GL11.glVertex3f( w,  h, -d);  // Top Left
+			GL11.glTexCoord2f(0.0f, 0.0f); GL11.glVertex3f( w, -h, -d);  // Bottom Left 
+		    // Top 
+			GL11.glNormal3f(0f, -1f, 0f);
+			GL11.glTexCoord2f(0.0f, 1.0f); GL11.glVertex3f(-w,  h, -d);  // Top Left
+			GL11.glTexCoord2f(0.0f, 0.0f); GL11.glVertex3f(-w,  h,  d);  // Bottom Left 
+			GL11.glTexCoord2f(1.0f, 0.0f); GL11.glVertex3f( w,  h,  d);  // Bottom Right 
+			GL11.glTexCoord2f(1.0f, 1.0f); GL11.glVertex3f( w,  h, -d);  // Top Right 
+		    // Bottom 
+			GL11.glNormal3f(0f, 1f, 0f);
+			GL11.glTexCoord2f(1.0f, 1.0f); GL11.glVertex3f(-w, -h, -d);  // Top Right
+			GL11.glTexCoord2f(0.0f, 1.0f); GL11.glVertex3f( w, -h, -d);  // Top Left 
+			GL11.glTexCoord2f(0.0f, 0.0f); GL11.glVertex3f( w, -h,  d);  // Bottom Left 
+			GL11.glTexCoord2f(1.0f, 0.0f); GL11.glVertex3f(-w, -h,  d);  // Bottom Right
+		    // Right 
+			GL11.glNormal3f(-1f, 0f, 0f);
+			GL11.glTexCoord2f(1.0f, 0.0f); GL11.glVertex3f( w, -h, -d);  // Bottom Right
+			GL11.glTexCoord2f(1.0f, 1.0f); GL11.glVertex3f( w,  h, -d);  // Top Right 
+			GL11.glTexCoord2f(0.0f, 1.0f); GL11.glVertex3f( w,  h,  d);  // Top Left 
+			GL11.glTexCoord2f(0.0f, 0.0f); GL11.glVertex3f( w, -h,  d);  // Bottom Left 
+		    // Left 
+			GL11.glNormal3f(1f, 0f, 0f);
+			GL11.glTexCoord2f(0.0f, 0.0f); GL11.glVertex3f(-w, -h, -d);  // Bottom Left
+			GL11.glTexCoord2f(1.0f, 0.0f); GL11.glVertex3f(-w, -h,  d);  // Bottom Right 
+			GL11.glTexCoord2f(1.0f, 1.0f); GL11.glVertex3f(-w,  h,  d);  // Top Right
+		    GL11.glTexCoord2f(0.0f, 1.0f); GL11.glVertex3f(-w,  h, -d);  // Top Left 
+		
+		    GL11.glEnd();
+	
+		
+
+		//System.out.println( "I wish I was printing a box of " + w + "," + h + "," + d + " dimensions ");
+	}
+	
+	static public void drawSphere(float r, int stack, int string) {
+
+		Sphere s = new Sphere();
+	
+		s.draw(r, stack, string);
+		
+
+	}
+
+	static public void drawCylinder(float baseRadius, float topRadius, float height, int slices, int stacks) {
+
+		Cylinder c = new Cylinder();
+	
+		c.draw(baseRadius, topRadius, height, slices, stacks);
+		
+		//System.out.println(baseRadius + " " + topRadius + " " + height + " " + slices + " " + stacks);
+
+	}	
+	
+	public void opengldrawtolist() {
+		
+		int numSlices = 25;
+		int numStacks = 25;
+		
+		this.objectlist = GL11.glGenLists(1);
+		
+		GL11.glNewList(objectlist,GL11.GL_COMPILE);
+		
+		if( getType() == "box" )
+        	drawBox( 1, 1, 1 );
+        else if( getType() == "cone" )
+        	drawCylinder( (float)dim.y, (float)0.0001, (float)dim.x, numSlices, numStacks );
+        else if( getType() == "cylinder" )
+        	drawCylinder( (float)dim.y, (float)dim.z, (float)dim.x, numSlices, numStacks );
+        else
+        	drawSphere( (float)dim.x, 25, 20);
+		
+		GL11.glEndList();
+	}
+	
+	public void opengldraw() {
+		GL11.glCallList(objectlist);
 	}
 	
 }

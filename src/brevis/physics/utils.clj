@@ -52,13 +52,13 @@
 (defn add-object
   "Add an object to the current world."
   [^BrObject obj]
-  (.addObject @*java-engine* (get-uid obj) obj) 
+  (.addObject ^brevis.Engine @*java-engine* (get-uid obj) ^BrObject obj) 
   obj)
 
 (defn del-object
   "Add an object to the current world."
   [^BrObject obj]
-  (.deleteObject @*java-engine* (get-uid obj)))
+  (.deleteObject ^brevis.Engine @*java-engine* (get-uid obj)))
 
 (defn add-update-handler
   "Associate an update function with a type."
@@ -67,7 +67,7 @@
              (update [#^brevis.Engine engine #^Long uid #^Double dt]
                (let [obj (.getObject engine uid)]
                  (handler-fn obj))))]
-    (.addUpdateHandler @*java-engine* (str (name type)) uh)))
+    (.addUpdateHandler ^brevis.Engine @*java-engine* (str (name type)) uh)))
 
 (defn add-global-update-handler
   "Add a global update handler with specified priority."
@@ -75,7 +75,7 @@
   (let [gh (proxy [brevis.Engine$GlobalUpdateHandler] []
              (update [#^brevis.Engine engine]
                (handler-fn)))]
-    (.addGlobalUpdateHandler @*java-engine* priority gh)))
+    (.addGlobalUpdateHandler ^brevis.Engine @*java-engine* priority gh)))
 
 (defn all-object-uids-by-type
   "Return the collection of all UIDs."
@@ -279,12 +279,12 @@ axis is the axis about which the joint rotates"
 (defn set-neighborhood-radius
   "Set the neighborhood radius."
   [new-radius]
-  (.setNeighborhoodRadius @*java-engine* (double new-radius)))
+  (.setNeighborhoodRadius ^Engine @*java-engine* (double new-radius)))
 
 (defn get-neighborhood-radius
   "Get the neighborhood radius."
   []
-  (.getNeighborhoodRadius @*java-engine*))
+  (.getNeighborhoodRadius ^Engine @*java-engine*))
 
 
 #_(defn radians

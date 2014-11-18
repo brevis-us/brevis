@@ -46,6 +46,7 @@
   :aot [#_clojure.main brevis.ui.core]; brevis.example.swarm]        
   :main ^:skip-aot brevis.Launcher
   ;:manifest {"SplashScreen-Image" "brevis_splash.gif"}
+  :warn-on-reflection true
   :javadoc-opts {:package-names ["brevis" "brevis.graphics" "brevis.plot"]}
   :profiles {:headless {:jvm-opts ["-DbrevisHeadless=true"]}
              :BrIDE {:main brevis.ui.core
