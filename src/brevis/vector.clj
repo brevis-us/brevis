@@ -21,12 +21,12 @@
 
 (defn vec4-to-vec3
   "convert a vec4 to a vec3"
-  [^Vector3f v]
+  [^Vector4f v]
   (vec3 (.x v) (.y v) (.z v)))
 
 (defn vec3-to-vec4
   "Convert a vec3 to a vec4 by padding the 4th dim with 1."
-  [^Vector4f v]
+  [^Vector3f v]
   (vec4 (.x v) (.y v) (.z v) 1))
 
 (defn sub
