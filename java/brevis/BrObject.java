@@ -261,6 +261,10 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 		//shape.createVBOFromMesh();
 	}
 	
+	/*public void makeAbstract( Engine e ) {
+		
+	}*/
+	
 	public void setColor( Vector4f c ) {
 		color = c;
 	}

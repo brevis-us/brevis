@@ -25,6 +25,8 @@
    "Make a roulette wheel from an array [currently assume positive entries only]."
    [v selection-strength]
    (let [v (map #(+ 1 (- selection-strength) (* selection-strength %)) v)
+         min-v (apply min v)
+         v (map #(+ min-v %) v)
          sum (apply + v)
          probs (map #(/ % sum) v)]
          ;probs-sum (apply + probs)

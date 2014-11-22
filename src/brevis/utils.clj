@@ -235,6 +235,6 @@ otherwise it should be a function that returns true/false"
         brobj (BrObject.)]    
     (.setUID brobj uid)
     (.setType brobj (str (name (:type obj))))    
-    (.makeAbstract brobj @*java-engine*)
+    ;(.makeAbstract brobj @*java-engine*)
     brobj))
 
