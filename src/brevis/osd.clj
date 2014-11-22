@@ -1,9 +1,9 @@
 (ns brevis.osd
   (:import (java.awt Font)
            (org.newdawn.slick TrueTypeFont Color))
-  (:use [brevis globals]
+  (:use [brevis globals utils]
         [brevis.graphics multithread]
-        [brevis.physics utils]))
+        #_[brevis.physics utils]))
 
 (defn osd
   "Write an onscreen message. Generally should be of the form:

@@ -480,8 +480,8 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 		Vector3f f = new Vector3f( acceleration );
 		f.scale( (float) getDoubleMass() );
 		getBody().addForce( f.x, f.y, f.z );
-		//orient( new Vector3f(0,0,1), getVelocity() );
-		orient( new Vector3f(0,1,0), getVelocity() );
+		orient( new Vector3f(0,0,1), getVelocity() );
+		//orient( new Vector3f(0,1,0), getVelocity() );
 		//orient( new Vector3f(1,0,0), getForce() );
 		//System.out.println( "Object " + uid + " force " + f );
 	}

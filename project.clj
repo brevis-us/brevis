@@ -1,4 +1,4 @@
-(defproject brevis "0.9.60"
+(defproject brevis "0.9.61"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "http://brevis.us"
   :license {:name "Apache License v2"
@@ -46,7 +46,7 @@
   :aot [#_clojure.main brevis.ui.core]; brevis.example.swarm]        
   :main ^:skip-aot brevis.Launcher
   ;:manifest {"SplashScreen-Image" "brevis_splash.gif"}
-  :warn-on-reflection true
+  ;:warn-on-reflection true
   :javadoc-opts {:package-names ["brevis" "brevis.graphics" "brevis.plot"]}
   :profiles {:headless {:jvm-opts ["-DbrevisHeadless=true"]}
              :BrIDE {:main brevis.ui.core

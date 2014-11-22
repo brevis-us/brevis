@@ -4,7 +4,7 @@
   (:import (org.lwjgl.util.vector Vector3f Vector4f))
   (:import java.lang.Math)  
   (:import (brevis Engine BrPhysics BrObject))
-  (:use [brevis vector math]
+  (:use [brevis vector math utils]
         [brevis.shape core box]        
         [brevis.graphics multithread]
         [brevis.physics core]))
@@ -24,99 +24,12 @@
   []
   (.getJoints ^Engine @*java-engine*))
 
-(defn get-time
-  "Return the current time."
-  []
-  (.getTime ^Engine @*java-engine*))
-
-(defn get-steps
-  "Return the number of timesteps taken thus far. steps*dt==time"
-  []
-  (.getSteps ^Engine @*java-engine*))
-
-(defn get-wall-time
-  "Return the elapsed wall-clock time."
-  []
-  (.getWallTime ^Engine @*java-engine*))
-
-(defn get-uid
-  "Return the UID of an object."
-  [^BrObject obj]
-  (.getUID obj))
-
 (defn get-mass 
   "Return the mass object for an object."
   [^BrObject obj]
   (.getMass obj))
 
-(defn add-object
-  "Add an object to the current world."
-  [^BrObject obj]
-  (.addObject ^brevis.Engine @*java-engine* (get-uid obj) ^BrObject obj) 
-  obj)
 
-(defn del-object
-  "Add an object to the current world."
-  [^BrObject obj]
-  (.deleteObject ^brevis.Engine @*java-engine* (get-uid obj)))
-
-(defn add-update-handler
-  "Associate an update function with a type."
-  [type handler-fn]
-  (let [uh (proxy [brevis.Engine$UpdateHandler] []
-             (update [#^brevis.Engine engine #^Long uid #^Double dt]
-               (let [obj (.getObject engine uid)]
-                 (handler-fn obj))))]
-    (.addUpdateHandler ^brevis.Engine @*java-engine* (str (name type)) uh)))
-
-(defn add-global-update-handler
-  "Add a global update handler with specified priority."
-  [priority handler-fn]
-  (let [gh (proxy [brevis.Engine$GlobalUpdateHandler] []
-             (update [#^brevis.Engine engine]
-               (handler-fn)))]
-    (.addGlobalUpdateHandler ^brevis.Engine @*java-engine* priority gh)))
-
-(defn all-object-uids-by-type
-  "Return the collection of all UIDs."
-  [type]
-  (seq (.allObjectUIDsByType ^Engine @*java-engine* (name type))))
-
-(defn set-object
-  "Set the object at UID to a new version.
-Set key :now? to true, to set a current object (make sure you mean it)"
-  [^Long uid ^BrObject new-obj 
-   & {:keys [now?]
-      :or {now? false}}]
-  (if now?
-    (.setObject ^Engine @*java-engine* uid new-obj)
-    (.addObject ^Engine @*java-engine* uid new-obj)))
-
-(defn get-object
-  "Return the object by UID"
-  [^Long uid]
-  (.getObject ^Engine @*java-engine* uid))
-
-(defn add-parallel-update-handler
-  "Associate an update function with a type."
-  [type handler-fn]
-  (add-global-update-handler 0
-                             (fn []
-                                (let [uids (all-object-uids-by-type type)
-                                      agents (map #(agent % :error-handler (fn [agnt except] (println except))) uids)
-                                      f (fn [uid]
-                                          (let [obj (get-object uid)]
-                                            (set-object uid
-                                                        (handler-fn obj))))]
-                                      (dorun (map #(send % f) agents))
-                                      (apply await agents)
-                                      (doall (map deref agents))))
-                             #_(fn []
-                                (let [uids (all-object-uids-by-type type)]
-                                  (doall (pmap #(let [obj (get-object %)]
-                                                 (set-object %
-                                                             (handler-fn obj)))
-                                              uids))))))
 
 #_(defn param-label
   "Convert a string into an ODE param label."
@@ -186,18 +99,6 @@ axis is the axis about which the joint rotates"
   [^BrObject obj]
   (.getVelocity obj))
 
-(defn all-objects
-  "Return the collection of all objects."
-  []
-  (seq (.allObjects ^Engine @*java-engine*)))
-
-(defn all-object-uids
-  "Return the collection of all UIDs."
-  []
-  (seq (.allObjectUIDs ^Engine @*java-engine*)))
-
-
-
 (defn get-acceleration
   "Return the acceleration of an object."
   [^BrObject obj]
@@ -244,14 +145,6 @@ axis is the axis about which the joint rotates"
   "Return an object's geometry structure."
   [obj]
   (.getGeom obj))
-
-(defn get-dt
-  []
-  (.getDT ^Engine @*java-engine*))
-
-(defn set-dt
-  [new-dt]
-  (.setDT ^Engine @*java-engine* new-dt))
 
 (defn obj-distance
   "Return the distance between two objects, this is preferable because faster lookups can be standardized."
@@ -333,13 +226,6 @@ axis is the axis about which the joint rotates"
   [^BrObject obj]
   (.getTexture obj))
 
-(defn get-type
-  "Return the type of an object."
-  [^BrObject obj]
-  ;; This should be done properly during make-real instead of faked here
-  (keyword (.getType obj))
-  #_(.getType obj))
-
 (defn set-texture
   "set the texture of an object."
   [obj new-tex]  
@@ -354,37 +240,6 @@ axis is the axis about which the joint rotates"
   [obj new-tex-img]
   (.setTextureImage obj new-tex-img)
   obj)
-
-(defn enable-collisions
-  "Enable collision handling"
-  []
-  (.setCollisionsEnabled @*java-engine* true))
-
-(defn disable-collisions
-  "Disable collision handling"
-  []
-  (.setCollisionsEnabled @*java-engine* false))
-
-(defn enable-neighborhoods
-  "Enable neighborhood detection"
-  []
-  (.setNeighborhoodsEnabled @*java-engine* true))
-
-(defn disable-neighborhoods
-  "Disable neighborhood detection."
-  []
-  (.setNeighborhoodsEnabled @*java-engine* false))
-
-(defn get-current-simulation-rate
-  "Return the current rate of simulation."
-  []  
-  (.getCurrentSimulationRate @*java-engine*))
-
-(defn empty-simulation
-  "Empty everything from the simulated world."
-  []
-  (doseq [obj (all-objects)]
-    (del-object obj)))
 
 #_(defn get-closest-object
    "Return the closest object to a vector from a list of objects."
