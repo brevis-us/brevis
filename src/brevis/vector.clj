@@ -1,6 +1,4 @@
 (ns brevis.vector
-  #_(:import [org.ejml.data DenseMatrix64F]
-           [org.ejml.ops CommonOps])
   (:use [brevis.math])
   (:import [org.lwjgl.util.vector Vector3f Vector4f]))
 
@@ -18,6 +16,11 @@
   "Make a Vector4f"
   [^double x ^double y ^double z ^double w]
   (Vector4f. x y z w))
+
+(defn vec4?
+  "Test if this is a vec4."
+  [v]
+  (= (class v) org.lwjgl.util.vector.Vector4f))
 
 (defn vec4-to-vec3
   "convert a vec4 to a vec3"
