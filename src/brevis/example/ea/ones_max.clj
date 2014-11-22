@@ -32,19 +32,22 @@
                             (when terminate?
                               (write-plot-to-file (first (all-plotters)) "ones_max_fitness.png"))
                             terminate?))
+        :initialize-population-fn (fn []
+                                    (add-multiplot-handler
+                                      :xy-fns [(fn [] 
+                                                 (let [v (map :fitness (all-objects))]
+                                                   [(* (get-time) (get-dt)) (apply max v)]))
+                                               (fn [] 
+                                                 (let [v (map :fitness (all-objects))]
+                                                   [(* (get-time) (get-dt)) (/ (apply + v) (count v))]))]
+                                      :interval 200
+                                      :legends ["best" "average"]
+                                      :title "Fitness")
+                                    (initialize-population))
         :mutate-genome-fn (fn [x] 
                             (for [el x] (if (zero? (lrand-int 100)) (not el) el))))
 
-(add-multiplot-handler
-    :xy-fns [(fn [] 
-               (let [v (map :fitness (all-objects))]
-                 [(* (get-time) (get-dt)) (apply max v)]))
-             (fn [] 
-               (let [v (map :fitness (all-objects))]
-                 [(* (get-time) (get-dt)) (/ (apply + v) (count v))]))]
-    :interval 200
-    :legends ["best" "average"]
-    :title "Fitness")
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## brevis control code

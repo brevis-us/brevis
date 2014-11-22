@@ -79,7 +79,9 @@
   
   (set-dt 1)
   
-  (initialize-population)
+  (if (get-param :initialize-population-fn)
+    ((get-param :initialize-population-fn))
+    (initialize-population))
   
   (if (get-param :termination-fn)
     (add-terminate-trigger (get-param :termination-fn))  
