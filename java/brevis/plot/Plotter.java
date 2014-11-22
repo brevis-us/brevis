@@ -1,12 +1,14 @@
 package brevis.plot;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 
 import javax.swing.JPanel;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.plot.PlotOrientation;
@@ -36,6 +38,7 @@ public class Plotter extends ApplicationFrame {
 	public ChartPanel chartPanel;
 	public XYPlot plot;
 	public XYLineAndShapeRenderer renderer;
+	JFreeChart chart;
 	
 	/**
      * A demonstration application showing how to create a simple time series 
@@ -66,7 +69,7 @@ public class Plotter extends ApplicationFrame {
     private JFreeChart createChart(XYDataset dataset) {
 
         //JFreeChart chart = ChartFactory.createTimeSeriesChart(
-    	JFreeChart chart = ChartFactory.createXYLineChart(
+    	chart = ChartFactory.createXYLineChart(
             "Brevis plot",  // title
             "",             // x-axis label
             "",   // y-axis label
@@ -117,5 +120,16 @@ public class Plotter extends ApplicationFrame {
         return new ChartPanel(chart);
     }  
 
+    /**
+     * Write a plot to file
+     * type is png or pdf (only png works now)
+     * @throws IOException 
+     */
+    public void writeToFile( String filename, String type, int width, int height ) throws IOException {
+    	if( type == "png" )
+    		ChartUtilities.saveChartAsPNG( new java.io.File(filename), chart, width, height);
+    	
+    }
+    
 }
 

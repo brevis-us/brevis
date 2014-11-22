@@ -13,7 +13,7 @@
         [brevis utils]
         [brevis.random]))
 
-;(def plot-handlers (atom []))
+(def plotters (atom []))
 
 (defn make-xy-dataset
   "Convert a hash-map or vector of pairs into a plottable XY dataset."
@@ -26,29 +26,6 @@
       (let [xycoll (XYSeriesCollection. xyseries)]
         {:data-collection xycoll
          :series [xyseries]}))))
-
-(defn make-xy-plot
-  "Just make me a friggin XY plot!"
-  [data]
-  (let [plotter (brevis.plot.Plotter. "my title" (:data-collection (make-xy-dataset data)))]
-    (.pack plotter)
-    (RefineryUtilities/centerFrameOnScreen plotter)
-    (.setVisible plotter true)
-    plotter))
-
-(defn example-plotter
-  "Do an example plot."
-  []
-  (let [;dataset (example-dataset)
-        ;chart (example-chart dataset)
-        xrange (range 0 10 0.1)
-        yrange (map #(java.lang.Math/sin %) xrange)
-        plotter (brevis.plot.Plotter. "my title" (make-xy-dataset (zipmap xrange yrange)))]
-    (.pack plotter)
-    (RefineryUtilities/centerFrameOnScreen plotter)
-    (.setVisible plotter true)))
-
-#_(example-plotter)
 
 (defn add-plot-handler
   "Add a plot handler. Remove assumes you want to remove the min x, value, this is best for timeseries"
@@ -71,6 +48,7 @@
                            (.setYRange ^Plotter plotter miny maxy)))
                        (let [[x y] (xy-fn)]
                          (.addOrUpdate ^XYSeries (first (:series plot-data)) x y)))]
+      (swap! plotters conj plotter)
       (add-destroy-hook (fn [] (.dispose plotter)))              
       (.pack plotter)
       (RefineryUtilities/positionFrameRandomly plotter)
@@ -97,6 +75,7 @@
                             (.getMinX (first (:series plot-data)))))
                        #_(let [[x y] (xy-fn)]
                           (.addOrUpdate (first (:series plot-data)) x y)))]
+      (swap! plotters conj plotter)
       (add-destroy-hook (fn [] (.dispose plotter)))        
       (.pack plotter)
       (RefineryUtilities/positionFrameRandomly plotter)
@@ -127,6 +106,7 @@
                          (doseq [[k v] hist]
                            (.add ^XYSeries (first (:series plot-data)) 
                              ^double (double k) ^double (double v)))))]
+      (swap! plotters conj plotter)
       (.setLinesVisible (.renderer plotter) false)
       (add-destroy-hook (fn [] (.dispose plotter)))              
       (.pack plotter)
@@ -172,9 +152,20 @@
                                (.getMinX series)))
                            (let [[x y] (xy-fn)]
                              (.addOrUpdate ^XYSeries series x y)))))]
+      (swap! plotters conj plotter)      
       (add-destroy-hook (fn [] (.dispose plotter)))              
       (.pack plotter)
       (RefineryUtilities/positionFrameRandomly plotter)
       (.setVisible plotter true)      
       (add-global-update-handler priority handler-fn)))); should keep track of plotters in the engine or somewhere and delete then when the window is destroyed
 
+(defn all-plotters
+  "Return all plots that exist so they can be poked at."
+  []
+  @plotters)
+
+(defn write-plot-to-file
+  "Write a plot to file."
+  [plotter filename]
+  (.writeToFile ^Plotter plotter filename "png" 640 480))
+  

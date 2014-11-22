@@ -56,12 +56,14 @@
 (defn report-population
   "Report on the state of the population."
   []
-  (let [best (apply (partial max-key :fitness) (all-objects))
+  (if (get-param :report-fn)
+    ((get-param :report-fn))
+    (let [best (apply (partial max-key :fitness) (all-objects))
         fitnesses (map :fitness (all-objects))]
-    (println "Generation" (get-time))
-    (println "Best genome:" (:genome best))
-    (println "Best fitness:" (:fitness best))
-    (println "Avg fitness:" (float (/ (apply + fitnesses) (count fitnesses))))))
+      (println "Generation" (get-time))
+      (println "Best genome:" (:genome best))
+      (println "Best fitness:" (:fitness best))
+      (println "Avg fitness:" (float (/ (apply + fitnesses) (count fitnesses)))))))
 
 (add-global-update-handler 90 update-population)
 (add-global-update-handler 91 report-population)
