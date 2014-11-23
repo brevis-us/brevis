@@ -17,11 +17,11 @@
       (fn [point]
         (let [AP (sub-vec3 point A)
               BP (sub-vec3 point B)]
-          (when (and (>= (dot AP AB) 0)
-                     (>= (dot BP BA) 0))
-            (let [ap-dot-ab (dot AP AB)
+          (when (and (>= (dot-vec3 AP AB) 0)
+                     (>= (dot-vec3 BP BA) 0))
+            (let [ap-dot-ab (dot-vec3 AP AB)
                   t (/ ap-dot-ab ab2)]
-              (let [^Vector3f Pcore (add A (mul AB t))
+              (let [^Vector3f Pcore (add-vec3 A (mul-vec3 AB t))
                     ^Vector3f Dcore (sub-vec3 point Pcore)
                     d-core (length-vec3 Dcore)]
                 (< d-core r))))))))

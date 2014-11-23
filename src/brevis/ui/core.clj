@@ -28,6 +28,7 @@
                             to-dimension to-insets to-url try-cast
                             cond-doto to-mnemonic-keycode]]
         [seesaw core font color graphics chooser mig tree]
+        [brevis.utils]
         [brevis.ui.profile])
   (:gen-class
     ;:init init
@@ -750,6 +751,8 @@
     #_(add-content-tab-from-filename @current-filename params)
     #_(when-not (empty? (:current-filename @current-profile))      
        (.setText (:text-area ew) (slurp @current-filename)))))
+
+;(autostart-in-repl -main)
 
 #_(when (find-ns 'ccw.complete)
    (-main))

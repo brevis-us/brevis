@@ -2,6 +2,8 @@
   (:use [brevis.math])
   (:import [org.lwjgl.util.vector Vector3f Vector4f]))
 
+; Perhaps these could be multimethods
+
 (defn vec3
   "Make a Vector3f"
   [^double x ^double y ^double z]
@@ -91,6 +93,34 @@
         (recur (rest vs)
                (add v (first vs)))))))
 
+(defn add-vec3
+  "Add Vector3f's"
+  ([v]
+    v)
+  ([v1 v2]
+    (Vector3f/add ^Vector3f v1 ^Vector3f v2 nil))
+  ([v1 v2 & vs]
+    (loop [vs vs
+           v (add v1 v2)]
+      (if (empty? vs)
+        v
+        (recur (rest vs)
+               (add v (first vs)))))))
+
+(defn add-vec4
+  "Add Vector4f's"
+  ([v]
+    v)
+  ([v1 v2]
+    (Vector4f/add ^Vector4f v1 ^Vector4f v2 nil))
+  ([v1 v2 & vs]
+    (loop [vs vs
+           v (add v1 v2)]
+      (if (empty? vs)
+        v
+        (recur (rest vs)
+               (add v (first vs)))))))
+
 (defn mul
   "Multiply a Vector3f by a scalar."
   [v s]
@@ -145,6 +175,16 @@
   (if (vec3? v1) 
     (Vector3f/dot ^Vector3f v1 ^Vector3f v2) 
     (Vector4f/dot ^Vector4f v1 ^Vector4f v2))) 
+
+(defn dot-vec3
+  "Dot product of 2 vectors."
+  [v1 v2]
+  (Vector3f/dot ^Vector3f v1 ^Vector3f v2))
+
+(defn dot-vec4
+  "Dot product of 2 vectors."
+  [v1 v2]
+  (Vector4f/dot ^Vector4f v1 ^Vector4f v2))
 
 (defn length
   "Return the length of a vector."
@@ -212,12 +252,42 @@
   [v]
   (if (vec3? v) (.x ^Vector3f v) (.x ^Vector4f v)))
 
+(defn x-val-vec3
+  "Return the x-value of a vector."
+  [v]
+  (.x ^Vector3f v))
+
+(defn x-val-vec4
+  "Return the x-value of a vector."
+  [v]
+  (.x ^Vector4f v))
+
 (defn y-val
   "Return the y-value of a vector."
   [v]
   (if (vec3? v) (.y ^Vector3f v) (.y ^Vector4f v)))
 
+(defn y-val-vec3
+  "Return the y-value of a vector."
+  [v]
+  (.y ^Vector3f v))
+
+(defn y-val-vec4
+  "Return the y-value of a vector."
+  [v]
+  (.y ^Vector4f v))
+
 (defn z-val
   "Return the z-value of a vector."
   [v]
   (if (vec3? v) (.z ^Vector3f v) (.z ^Vector4f v)))
+
+(defn z-val-vec3
+  "Return the z-value of a vector."
+  [v]
+  (.z ^Vector3f v))
+
+(defn z-val-vec4
+  "Return the z-value of a vector."
+  [v]
+  (.z ^Vector4f v))
