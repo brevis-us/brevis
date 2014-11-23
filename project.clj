@@ -1,4 +1,4 @@
-(defproject brevis "0.9.66"
+(defproject brevis "0.9.67"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "http://brevis.us"
   :license {:name "Apache License v2"
@@ -43,7 +43,7 @@
                  [com.fifesoft/rsyntaxtextarea "2.5.3"]
                  ]
   ;:javac-options ["-target" "1.6" "-source" "1.6" "-Xlint:-options"]
-  :aot [#_clojure.main brevis.ui.core]; brevis.example.swarm]        
+  ;:aot [#_clojure.main brevis.ui.core]; brevis.example.swarm]        
   :main ^:skip-aot brevis.Launcher
   ;:manifest {"SplashScreen-Image" "brevis_splash.gif"}
   ;:warn-on-reflection true

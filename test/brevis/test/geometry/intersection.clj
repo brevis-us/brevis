@@ -12,3 +12,12 @@
     (is (cylinder-contains? (vec3 5 0 0))) 
     ))
 
+(deftest test-sphere-contains?-maker
+  (let [sphere-contains? (sphere-contains?-maker (vec3 0 0 0) 5)]
+    (is (sphere-contains? (vec3 0 0 0)))
+    (is (not (sphere-contains? (vec3 6 0 0))))
+    (is (sphere-contains? (vec3 5 0 0))) 
+    (is (not (sphere-contains? (vec3 0 0 6)))) 
+    (is (sphere-contains? (vec3 0 0 5))) 
+    ))
+
