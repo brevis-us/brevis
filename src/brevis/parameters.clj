@@ -47,3 +47,14 @@
                       (byte-array (map byte (read-string (:random-seed argmap)))) 
                       (generate-random-seed))]
     (swap! params merge argmap)))
+
+(defn write-params
+  "Write the current params to the specified file. May not work happily with all param types yet."
+  [filename]
+  (spit filename @params))
+
+(defn read-params
+  "Read the params from the specified file. May not work happily with all param types yet."
+  [filename]
+  (let [in-params (slurp filename)]
+    (reset! params (load-string in-params))))

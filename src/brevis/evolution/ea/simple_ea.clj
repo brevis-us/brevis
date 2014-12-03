@@ -88,5 +88,5 @@
     (add-terminate-trigger (get-param :max-generations))))
 
 ;; Start zee macheen
-(defn -main [& args]
-  (start-nogui initialize-simulation))
+#_(defn -main [& args]
+   (start-nogui initialize-simulation))
