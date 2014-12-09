@@ -85,7 +85,7 @@ appropriate configuration file to be passed to the hpc."
     (remote-command username server command)))
 
 (defn start-run-array
-  [argmaps namespace expName username server numruns source destination duration profile-name]
+  [argmaps namespace expName username server numruns source destination duration profile-name with-cleanup]
   (let [command-list (for [run-id (range numruns)
                            argmap argmaps]; this could be a good time to insert unique random seeds
                        (gen-command argmap namespace (str destination expName) profile-name))
@@ -109,7 +109,9 @@ sed -n -e \"$LSB_JOBINDEX p\" " (str destination expName "/" command-filename) "
     (println "Uploaded files.")
     (Thread/sleep 2)
     (println "Remotely configuring project.")
-    (remote-command username server (str "cd " destination expName "; lein clean; lein compile;"))
+    (when with-cleanup
+      (println "Cleanup!")
+      (remote-command username server (str "cd " destination expName "; lein clean; lein compile;")))
     (println "Configuration complete.")
     (launch-array username server expName (str destination expName "/" job-filename) (min max-jobs (count command-list)) duration)
     (println "All runs submitted.")))
