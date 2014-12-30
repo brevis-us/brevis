@@ -149,7 +149,7 @@ sed -n -e \"$LSB_JOBINDEX p\" " (str destination expName "/" command-filename) "
 sed -n -e \"$LSB_JOBINDEX p\" " (str destination expName "/" command-filename) " | sh")))
      (if copy-entire-project
        (upload-files username server (str source "/") (str destination expName "/"))
-       (let [to-copy ["src" "project.clj" "resources"]]
+       (let [to-copy ["src" "project.clj" "resources" command-filename job-filename]]
          (doseq [f to-copy]           
            (upload-files username server (str source "/" f) (str destination expName "/")))))
      (println "Uploaded files.")
