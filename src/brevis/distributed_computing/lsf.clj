@@ -117,7 +117,8 @@ sed -n -e \"$LSB_JOBINDEX p\" " (str destination expName "/" command-filename) "
      (println "All runs submitted.")))
 
 (defn start-run-array
-   [argmaps namespace username server & {:keys [expName numruns source destination duration profile-name with-cleanup enable-job-output]
+   [argmaps namespace username server & {:keys [expName numruns source destination duration profile-name with-cleanup enable-job-output
+                                                copy-entire-project]
             :or {expName (str "brevis_experiment_" (System/nanoTime)) 
                  numruns 1
                  source "./"
@@ -125,7 +126,8 @@ sed -n -e \"$LSB_JOBINDEX p\" " (str destination expName "/" command-filename) "
                  duration "1:00"
                  profile-name "cluster"
                  with-cleanup false
-                 enable-job-output true}}]
+                 enable-job-output true
+                 copy-entire-project true}}]
    (let [command-list (for [run-id (range numruns)
                             argmap argmaps]; this could be a good time to insert unique random seeds
                         (gen-command argmap namespace (str destination expName) profile-name))
@@ -145,7 +147,11 @@ sed -n -e \"$LSB_JOBINDEX p\" " (str destination expName "/" command-filename) "
        (spit job-filename
              (str "#!/bin/bash\n source ~/.bashrc\n                                                                                                                                                                                         
 sed -n -e \"$LSB_JOBINDEX p\" " (str destination expName "/" command-filename) " | sh")))
-     (upload-files username server (str source "/") (str destination expName "/"))
+     (if copy-entire-project
+       (upload-files username server (str source "/") (str destination expName "/"))
+       (let [to-copy ["src" "project.clj" "resources"]]
+         (doseq [f to-copy]           
+           (upload-files username server (str source "/" f) (str destination expName "/")))))
      (println "Uploaded files.")
      (Thread/sleep 2)
      (println "Remotely configuring project.")
