@@ -78,40 +78,80 @@ appropriate configuration file to be passed to the hpc."
 
 (defn launch-array
   "Launches an experiment from the configuration file numruns times."
-  [username server expName jobFile numjobs duration]
-  (let [command (str "source /etc/profile; bsub -W " duration " -J " expName "[1-" (str numjobs) "] sh " jobFile)]
+  [username server expName jobFile numjobs duration enable-job-output]
+  (let [command (str "source /etc/profile; bsub " (when-now enable-job-output "-o /dev/null ") "-W " duration " -J " expName "[1-" (str numjobs) "] sh " jobFile)]
         #_(str "bsub " optArgs " -t 1-" (str numruns) " -N " expName " " configFile)
     (when debug (println "launch-config:" command))
     (remote-command username server command)))
 
-(defn start-run-array
-  [argmaps namespace expName username server numruns source destination duration profile-name with-cleanup]
-  (let [command-list (for [run-id (range numruns)
-                           argmap argmaps]; this could be a good time to insert unique random seeds
-                       (gen-command argmap namespace (str destination expName) profile-name))
-        command-filename (str expName "_commands.sh")
-        job-filename (str expName "_job.sh")
-        max-jobs 1000]
-    ;; Write command list
-    (spit command-filename
-          (string/join "\n" command-list)); this could be a good time to insert unique random seeds
-    ;; Write command list job
-    (if (> (count command-list) max-jobs)
-      (spit job-filename
-            (str "#!/bin/bash\n source ~/.bashrc\n"
-                 (string/join "\n"
-                              (for [rep (range (ceil (/ (count command-list) max-jobs)))]
-                                (str "sed -n -e ''$(($LSB_JOBINDEX+" rep  "*" max-jobs "))'p' """ (str destination expName "/" command-filename) " | sh")))))
-      (spit job-filename
-            (str "#!/bin/bash\n source ~/.bashrc\n                                                                                                                                                                                         
+#_(defn start-run-array
+   [argmaps namespace expName username server numruns source destination duration profile-name with-cleanup enable-job-output]
+   (let [command-list (for [run-id (range numruns)
+                            argmap argmaps]; this could be a good time to insert unique random seeds
+                        (gen-command argmap namespace (str destination expName) profile-name))
+         command-filename (str expName "_commands.sh")
+         job-filename (str expName "_job.sh")
+         max-jobs 1000]
+     ;; Write command list
+     (spit command-filename
+           (string/join "\n" command-list)); this could be a good time to insert unique random seeds
+     ;; Write command list job
+     (if (> (count command-list) max-jobs)
+       (spit job-filename
+             (str "#!/bin/bash\n source ~/.bashrc\n"
+                  (string/join "\n"
+                               (for [rep (range (ceil (/ (count command-list) max-jobs)))]
+                                 (str "sed -n -e ''$(($LSB_JOBINDEX+" rep  "*" max-jobs "))'p' """ (str destination expName "/" command-filename) " | sh")))))
+       (spit job-filename
+             (str "#!/bin/bash\n source ~/.bashrc\n                                                                                                                                                                                         
 sed -n -e \"$LSB_JOBINDEX p\" " (str destination expName "/" command-filename) " | sh")))
-    (upload-files username server (str source "/") (str destination expName "/"))
-    (println "Uploaded files.")
-    (Thread/sleep 2)
-    (println "Remotely configuring project.")
-    (when with-cleanup
-      (println "Cleanup!")
-      (remote-command username server (str "cd " destination expName "; lein clean; lein compile;")))
-    (println "Configuration complete.")
-    (launch-array username server expName (str destination expName "/" job-filename) (min max-jobs (count command-list)) duration)
-    (println "All runs submitted.")))
+     (upload-files username server (str source "/") (str destination expName "/"))
+     (println "Uploaded files.")
+     (Thread/sleep 2)
+     (println "Remotely configuring project.")
+     (when with-cleanup
+       (println "Cleanup!")
+       (remote-command username server (str "cd " destination expName "; lein clean; lein compile;")))
+     (println "Configuration complete.")
+     (launch-array username server expName (str destination expName "/" job-filename) (min max-jobs (count command-list)) duration enable-job-output)
+     (println "All runs submitted.")))
+
+(defn start-run-array
+   [argmaps namespace username server & {:keys [expName numruns source destination duration profile-name with-cleanup enable-job-output]
+            :or {expName (str "brevis_experiment_" (System/nanoTime)) 
+                 numruns 1
+                 source "./"
+                 destination "~/"
+                 duration "1:00"
+                 profile-name "cluster"
+                 with-cleanup false
+                 enable-job-output true}}]
+   (let [command-list (for [run-id (range numruns)
+                            argmap argmaps]; this could be a good time to insert unique random seeds
+                        (gen-command argmap namespace (str destination expName) profile-name))
+         command-filename (str expName "_commands.sh")
+         job-filename (str expName "_job.sh")
+         max-jobs 1000]
+     ;; Write command list
+     (spit command-filename
+           (string/join "\n" command-list)); this could be a good time to insert unique random seeds
+     ;; Write command list job
+     (if (> (count command-list) max-jobs)
+       (spit job-filename
+             (str "#!/bin/bash\n source ~/.bashrc\n"
+                  (string/join "\n"
+                               (for [rep (range (ceil (/ (count command-list) max-jobs)))]
+                                 (str "sed -n -e ''$(($LSB_JOBINDEX+" rep  "*" max-jobs "))'p' """ (str destination expName "/" command-filename) " | sh")))))
+       (spit job-filename
+             (str "#!/bin/bash\n source ~/.bashrc\n                                                                                                                                                                                         
+sed -n -e \"$LSB_JOBINDEX p\" " (str destination expName "/" command-filename) " | sh")))
+     (upload-files username server (str source "/") (str destination expName "/"))
+     (println "Uploaded files.")
+     (Thread/sleep 2)
+     (println "Remotely configuring project.")
+     (when with-cleanup
+       (println "Cleanup!")
+       (remote-command username server (str "cd " destination expName "; lein clean; lein compile;")))
+     (println "Configuration complete.")
+     (launch-array username server expName (str destination expName "/" job-filename) (min max-jobs (count command-list)) duration enable-job-output)
+     (println "All runs submitted.")))
