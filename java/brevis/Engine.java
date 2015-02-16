@@ -314,6 +314,7 @@ public class Engine implements Serializable {
 	 */
 	public void updateObjects( double dt ) {
 		lock.lock();  // block until condition holds
+		//System.out.println( getTime() );
 	     try {
 	    	//HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
 	 		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();
@@ -332,8 +333,12 @@ public class Engine implements Serializable {
 	 			BrObject newObj = obj;
 	 			if( uh != null ) {
 	 				//System.out.println( "--" + getTime() + " updating object " + entry.getKey() );
-	 				newObj = uh.update( this, entry.getKey(), dt );				
+	 				//System.out.println( obj );
+	 				//System.out.println( "Updating");	 				
+	 				newObj = uh.update( this, entry.getKey(), dt );
+	 				//System.out.println( newObj );
 	 			} 
+	 			//System.out.println( "Updated");
 	 			//else System.out.println( "--" + getTime() + " not updating object " + entry.getKey() + " " + entry.getValue().type );
 	 			
 	 			Boolean kh = updateKinematics.get( obj.type );
@@ -345,6 +350,8 @@ public class Engine implements Serializable {
 	 			updatedObjects.put( entry.getKey(), newObj );
 	 		}
 	 		objects = updatedObjects;
+	 		//System.out.println( "DupdateObjects " + objects.keySet() );
+	 		//System.out.println( getTime() );
 	     } finally {
 	       lock.unlock();
 	     }		
@@ -846,6 +853,16 @@ public class Engine implements Serializable {
 	
 	public Collection<BrObject> allObjects() {
 		return objects.values();
+	}
+	
+	public Collection<BrObject> allObjects(boolean includeAdded) {
+		if( includeAdded ) {
+			Collection<BrObject> res = objects.values();
+			res.addAll( addedObjects.values() );
+			return res;
+		}
+		else
+			return objects.values();
 	}
 	
 	public BrObject getObject( Long UID ) {

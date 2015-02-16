@@ -99,8 +99,11 @@ Set key :now? to true, to set a current object (make sure you mean it)"
 
 (defn all-objects
   "Return the collection of all objects."
-  []
-  (seq (.allObjects ^Engine @*java-engine*)))
+  [& {:keys [include-added?]
+     :or {include-added? false}}]
+  (if include-added?
+    (seq (.allObjects ^Engine @*java-engine* true))
+    (seq (.allObjects ^Engine @*java-engine*))))
 
 (defn all-object-uids
   "Return the collection of all UIDs."
