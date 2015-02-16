@@ -556,24 +556,25 @@ public class BrShape implements Serializable {
 	}	
 	
 	public void opengldrawtolist() {
-		
-		int numSlices = 25;
-		int numStacks = 25;
-		
-		this.objectlist = GL11.glGenLists(1);
-		
-		GL11.glNewList(objectlist,GL11.GL_COMPILE);
-		
-		if( getType() == "box" )
-        	drawBox( 1, 1, 1 );
-        else if( getType() == "cone" )
-        	drawCylinder( (float)dim.y, (float)0.0001, (float)dim.x, numSlices, numStacks );
-        else if( getType() == "cylinder" )
-        	drawCylinder( (float)dim.y, (float)dim.z, (float)dim.x, numSlices, numStacks );
-        else
-        	drawSphere( (float)dim.x, 25, 20);
-		
-		GL11.glEndList();
+		if( System.getProperty("brevisHeadless") == null || System.getProperty("brevisHeadless") == "false" ) {
+			int numSlices = 25;
+			int numStacks = 25;
+			
+			this.objectlist = GL11.glGenLists(1);
+			
+			GL11.glNewList(objectlist,GL11.GL_COMPILE);
+			
+			if( getType() == "box" )
+	        	drawBox( 1, 1, 1 );
+	        else if( getType() == "cone" )
+	        	drawCylinder( (float)dim.y, (float)0.0001, (float)dim.x, numSlices, numStacks );
+	        else if( getType() == "cylinder" )
+	        	drawCylinder( (float)dim.y, (float)dim.z, (float)dim.x, numSlices, numStacks );
+	        else
+	        	drawSphere( (float)dim.x, 25, 20);
+			
+			GL11.glEndList();
+		}
 	}
 	
 	public void opengldraw() {
