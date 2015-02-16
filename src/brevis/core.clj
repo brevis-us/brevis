@@ -77,11 +77,11 @@
            t 0
            twrite 0
            wallwrite (java.lang.System/nanoTime)]
-      (when (> t (+ twrite write-interval))
-        (let [fps (double (/ (- t twrite) (- (java.lang.System/nanoTime) wallwrite) 0.0000000001))]
-          (println "Walltime" (java.lang.System/nanoTime) 
-                   "Simulation time" t
-                   "FPS" fps)))
+      #_(when (> t (+ twrite write-interval))
+         (let [fps (double (/ (- t twrite) (- (java.lang.System/nanoTime) wallwrite) 0.0000000001))]
+           (println "Walltime" (java.lang.System/nanoTime) 
+                    "Simulation time" t
+                    "FPS" fps)))
       (if (or (:terminated? state)
               (:close-requested @*gui-state*));; shouldnt be using gui state for this
         (do (println "Halting.")
