@@ -857,7 +857,8 @@ public class Engine implements Serializable {
 	
 	public Collection<BrObject> allObjects(boolean includeAdded) {
 		if( includeAdded ) {
-			Collection<BrObject> res = objects.values();
+			Collection<BrObject> res = new HashSet<BrObject>();
+			res.addAll( objects.values() );
 			res.addAll( addedObjects.values() );
 			return res;
 		}
