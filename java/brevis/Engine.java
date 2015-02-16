@@ -476,6 +476,9 @@ public class Engine implements Serializable {
 					synchronizeObjects();
 				}
 			}
+		} catch (Exception e) {
+			System.out.println( "Exception in globalUpdateHandlers:" );
+			e.printStackTrace();
 		} finally {
 			lock.unlock();
 		}
