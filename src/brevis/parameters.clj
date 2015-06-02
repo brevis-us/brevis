@@ -1,7 +1,7 @@
 (ns brevis.parameters
   (:use [brevis.random]))
 
-(def params (atom {}))
+(def params (atom {:close-on-terminate true}))
 
 (defn set-param
   "Set the value of a parameter."

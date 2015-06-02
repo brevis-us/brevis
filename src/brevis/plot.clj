@@ -144,7 +144,7 @@
           plot-data (make-multiseries-xy-dataset n legends)
           plotter (brevis.plot.Plotter. title (:data-collection plot-data))
           handler-fn (fn []
-                       (dotimes [k (count xy-fns)]
+                       (dotimes [k (min (count xy-fns) interval)]
                          (let [series (nth (:series plot-data) k)
                                xy-fn (nth xy-fns k)]
                            (when (> (.getItemCount series) interval)                              

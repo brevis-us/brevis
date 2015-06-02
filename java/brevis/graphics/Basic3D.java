@@ -702,9 +702,9 @@ public class Basic3D {
 	}   
     
     static public void drawLine(Vector3f source, Vector3f destination, Vector4f color) {
-        GL11.glColor3f( color.x, color.y, color.z );
+        
         GL11.glBegin(GL11.GL_LINE_STRIP);
-
+        GL11.glColor3f( color.x, color.y, color.z );
         GL11.glVertex3f( source.x, source.y, source.z );
         GL11.glVertex3f( destination.x, destination.y, destination.z );
         GL11.glEnd();

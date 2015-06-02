@@ -284,8 +284,9 @@ public class Engine implements Serializable {
 	 * Apply all insertions/deletions
 	 */
 	public void synchronizeObjects() {
-		lock.lock();  // block until condition holds
+		
 	     try {
+	    	 lock.lock();  // block until condition holds
 	    	//System.out.println( "synchronizeObjects del: " + deletedObjects.size() + " add: " + addedObjects.size() );
 	 		// Remove deleted objects
 	 		for( Long uid : deletedObjects ) {
@@ -300,6 +301,9 @@ public class Engine implements Serializable {
 	 		// Add newly created objects
 	 		objects.putAll( addedObjects );
 	 		addedObjects = new HashMap<Long,BrObject>();
+	     } catch (Exception e) {
+	            //do something clever with the exception
+	            System.out.println(e.getMessage());
 	     } finally {
 	       lock.unlock();
 	     }

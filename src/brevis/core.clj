@@ -1,6 +1,6 @@
 (ns brevis.core
   (:use [brevis.init]; ew.....
-        [brevis globals utils input osd display vector]
+        [brevis globals utils input osd display vector parameters]
         [brevis.graphics basic-3D multithread]
         [brevis.physics core space utils]
         [brevis.shape core box sphere cone])       
@@ -82,7 +82,8 @@
            (println "Walltime" (java.lang.System/nanoTime) 
                     "Simulation time" t
                     "FPS" fps)))
-      (if (or (:terminated? state)
+      (if (or (and (:terminated? state)
+                   (:close-on-terminate @params))
               (:close-requested @*gui-state*));; shouldnt be using gui state for this
         (do (println "Halting.")
           state
