@@ -71,7 +71,7 @@
   "Render all objects."
   []  
   (begin-with-graphics-thread)
-  #_(when (Display/wasResized) (.setDimensions (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
+  (when (Display/wasResized) (.setDimensions (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
   (let [objs (all-objects)]    
     #_(Basic3D/initFrame (:camera @*gui-state*))
     #_(when-not (:disable-skybox @*gui-state*)

@@ -74,7 +74,7 @@ public final class BrKDTree<X extends BrKDNode> {
 	// any points that actually intersect.
 	private double[] contentMax = null, contentMin = null;
 
-	private static final int DEFAULT_BUCKET_SIZE = 10;
+	private static final int DEFAULT_BUCKET_SIZE = 5;
 
 	public BrKDTree() {
 		this(DEFAULT_BUCKET_SIZE);

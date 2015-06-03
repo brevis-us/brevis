@@ -93,9 +93,9 @@ public class BrCamera {
 		this.aspectRatio = ( width/height > 1 ? width/height : height/width );
 		GL11.glViewport(0,0,(int)width,(int)height);                           // Reset The Current Viewport
 		
-		GLU.gluPerspective(fov,
+		/*GLU.gluPerspective(fov,
                 (float) width / (float) height,
-                nearClippingPlane, farClippingPlane);
+                nearClippingPlane, farClippingPlane);*/
 	}
 
 	public void processMouse( float dx, float dy, float mouseSpeed) {
