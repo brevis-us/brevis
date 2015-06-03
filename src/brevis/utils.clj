@@ -122,7 +122,8 @@ Set key :now? to true, to set a current object (make sure you mean it)"
   "Return the type of an object."
   [^BrObject obj]
   ;; This should be done properly during make-real instead of faked here
-  (keyword (.getType obj))
+  ^clojure.lang.Keyword (.getType obj)
+  #_(keyword (.getType obj))
   #_(.getType obj))
 
 (defn enable-collisions

@@ -48,7 +48,8 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 	private int dstPixelFormat = SGL.GL_RGBA8;
 	
 	public Long uid;
-	public String type;
+	//public String type;
+	public clojure.lang.Keyword type;
 	public Vector3f acceleration;
 	public Vector3f velocity;
 	public Vector3f position;
@@ -104,7 +105,8 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 	
 	public BrObject() {
 		uid = (long)-1;
-		type = "Unassigned";
+		//type = "Unassigned";
+		type = clojure.lang.Keyword.intern( clojure.lang.Symbol.create( "Unassigned" ) );
 		acceleration = new Vector3f( 0, 0, 0 );
 		velocity = new Vector3f( 0, 0, 0 );
 		position = new Vector3f( 0, 0, 0 );
@@ -154,7 +156,11 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 		uid = UID;
 	}
 	
-	public String getType() {
+	/*public String getType() {
+		return type;
+	}*/
+	
+	public Object getType() {
 		return type;
 	}
 	
@@ -163,7 +169,8 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 	}
 	
 	public void setType( String newType ) {
-		type = newType;
+		type = clojure.lang.Keyword.intern( clojure.lang.Symbol.create( newType ) );
+		//type = newType;
 	}
 	
 	public Vector<Long> getNeighbors() {
@@ -248,7 +255,7 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 		body.setMass( mass );
 		HashMap<String,Object> bodymap = new HashMap<String,Object>();
 		bodymap.put( "uid", uid );
-		bodymap.put( "type", type );
+		bodymap.put( "type", ((Keyword)type).getName() );// or toString
 		body.setData( bodymap );
 		
 		geom = shape.createGeom( e.physics.getSpace() );

@@ -125,8 +125,8 @@ public class Engine implements Serializable {
 	 */
 	
 	// updateHandlers
-	protected HashMap<String,UpdateHandler> updateHandlers;
-	protected HashMap<String,Boolean> updateKinematics;
+	protected HashMap<clojure.lang.Keyword,UpdateHandler> updateHandlers;
+	protected HashMap<clojure.lang.Keyword,Boolean> updateKinematics;
 	protected PriorityQueue<GlobalUpdateHandler> globalUpdateHandlers; 
 	// dt
 	public double dt = 1.0;
@@ -149,7 +149,7 @@ public class Engine implements Serializable {
 	protected HashSet<Long> deletedObjects;
 	
 	// collisionHandlers
-	protected HashMap< SimpleEntry<String,String>, CollisionHandler > collisionHandlers;
+	protected HashMap< SimpleEntry<clojure.lang.Keyword,clojure.lang.Keyword>, CollisionHandler > collisionHandlers;
 	// collisions
 	protected HashSet< SimpleEntry<Long,Long> > collisions;
 	// DEPRECATED: temporary variable for boostrapped version
@@ -193,15 +193,15 @@ public class Engine implements Serializable {
 	}
 	
 	public Engine() {
-		updateHandlers = new HashMap<String,UpdateHandler>();		
-		updateKinematics = new HashMap<String,Boolean>();		
+		updateHandlers = new HashMap<clojure.lang.Keyword,UpdateHandler>();		
+		updateKinematics = new HashMap<clojure.lang.Keyword,Boolean>();		
 		physics = new BrPhysics();
 		//objects = new HashMap<Long,BrObject>();
 		objects = new ConcurrentHashMap<Long,BrObject>();
 		addedObjects = new HashMap<Long,BrObject>();
 		deletedObjects = new HashSet<Long>();
 		
-		collisionHandlers = new HashMap< SimpleEntry<String,String>, CollisionHandler >();
+		collisionHandlers = new HashMap< SimpleEntry<clojure.lang.Keyword,clojure.lang.Keyword>, CollisionHandler >();
 		collisions = new HashSet< SimpleEntry<Long,Long> >();
 		globalCollisions = new HashSet< SimpleEntry<Long,Long> >();
 		
@@ -304,6 +304,7 @@ public class Engine implements Serializable {
 	     } catch (Exception e) {
 	            //do something clever with the exception
 	            System.out.println(e.getMessage());
+	            e.printStackTrace();
 	     } finally {
 	       lock.unlock();
 	     }
@@ -317,9 +318,10 @@ public class Engine implements Serializable {
 	 * Call individual update functions
 	 */
 	public void updateObjects( double dt ) {
-		lock.lock();  // block until condition holds
+		
 		//System.out.println( getTime() );
 	     try {
+	    	 lock.lock();  // block until condition holds
 	    	//HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
 	 		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();
 	 		
@@ -356,6 +358,10 @@ public class Engine implements Serializable {
 	 		objects = updatedObjects;
 	 		//System.out.println( "DupdateObjects " + objects.keySet() );
 	 		//System.out.println( getTime() );
+	     } catch (Exception e) {
+	            //do something clever with the exception
+	            System.out.println(e.getMessage());
+	            e.printStackTrace();
 	     } finally {
 	       lock.unlock();
 	     }		
@@ -466,8 +472,9 @@ public class Engine implements Serializable {
 	 * Call individual update functions
 	 */
 	public void globalUpdateObjects( boolean preIndividual ) {
-		lock.lock();
+		
 		try {
+			lock.lock();
 			for( GlobalUpdateHandler gh : globalUpdateHandlers ) {
 				//System.out.println( "guh " + gh );
 				if( preIndividual && gh.getPriority() < 0 ) {
@@ -492,8 +499,9 @@ public class Engine implements Serializable {
 	 * Respond to all computed collisions
 	 */
 	public void handleCollisions( double dt ) {
-		lock.lock();  // block until condition holds
+		
 	     try {
+	    	 lock.lock();  // block until condition holds
 	    	collisions = globalCollisions;
 	    	// It might be reasonable to shuffle here
 	 		
@@ -509,14 +517,14 @@ public class Engine implements Serializable {
 	 			
 	 			// If the colliding objects both still exist
 	 			if( subj != null && othr != null ) {
-	 				SimpleEntry<String,String> typeEntry = new SimpleEntry<String,String>(subj.type,othr.type);
+	 				SimpleEntry<clojure.lang.Keyword,clojure.lang.Keyword> typeEntry = new SimpleEntry<clojure.lang.Keyword,clojure.lang.Keyword>((clojure.lang.Keyword)subj.type,(clojure.lang.Keyword)othr.type);
 	 				
 	 				// Find the corresponding collision handler
 	 				CollisionHandler ch = collisionHandlers.get( typeEntry );
 	 				
 	 				// Collisions are only inserted into the list once, so let's check the opposite type ordering for another collision handler if we cant find one 
 	 				if( ch == null ) {
-	 					ch = collisionHandlers.get( new SimpleEntry<String,String>(othr.type,subj.type) );
+	 					ch = collisionHandlers.get( new SimpleEntry<clojure.lang.Keyword,clojure.lang.Keyword>((clojure.lang.Keyword)othr.type,(clojure.lang.Keyword)subj.type) );
 	 					if( ch != null ) {
 	 						BrObject tmp = subj;
 	 						subj = othr;
@@ -539,6 +547,8 @@ public class Engine implements Serializable {
 	 		}
 	 		objects = updatedObjects;
 	 		collisions.clear();
+	     } catch( Exception e ) {
+	    	e.printStackTrace(); 
 	     } finally {
 	       lock.unlock();
 	     }		
@@ -550,8 +560,9 @@ public class Engine implements Serializable {
 	 * KD tree implementation
 	 */
 	public void updateNeighborhoods() {
-		lock.lock();  // block until condition holds
+		
 	     try {
+	    	 lock.lock();  // block until condition holds
 	 		//HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
 	 		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();
 	 		
@@ -611,6 +622,8 @@ public class Engine implements Serializable {
 	 			updatedObjects.put( entry.getKey(), obj );
 	 		}
 	 		objects = updatedObjects;
+	     } catch( Exception e) {
+	    	e.printStackTrace(); 
 	     } finally {
 	       lock.unlock();
 	     }	
@@ -821,7 +834,7 @@ public class Engine implements Serializable {
 	
 	public void addUpdateHandler( String type, UpdateHandler uh ) {
 		System.out.println( "Adding update handler for type: " + type );
-		updateHandlers.put( type,  uh );
+		updateHandlers.put( clojure.lang.Keyword.intern( clojure.lang.Symbol.create( type ) ),  uh );
 	}
 	
 	public void addGlobalUpdateHandler( Long priority, GlobalUpdateHandler gh ) {
@@ -832,11 +845,12 @@ public class Engine implements Serializable {
 	
 	public void enableUpdateKinematics( String type ) {
 		//System.out.println( type );
-		updateKinematics.put( type, true );
+		updateKinematics.put( clojure.lang.Keyword.intern( clojure.lang.Symbol.create( type ) ), true );
 	}
 	
 	public void addCollisionHandler( String typea, String typeb, CollisionHandler ch ) {
-		SimpleEntry<String,String> typeEntry = new SimpleEntry<String,String>( typea, typeb );
+		SimpleEntry<clojure.lang.Keyword,clojure.lang.Keyword> typeEntry = new SimpleEntry<clojure.lang.Keyword,clojure.lang.Keyword>( clojure.lang.Keyword.intern( clojure.lang.Symbol.create( typea ) ), 
+				clojure.lang.Keyword.intern( clojure.lang.Symbol.create( typeb ) ) );
 		collisionHandlers.put( typeEntry,  ch );
 	}
 	
@@ -846,7 +860,7 @@ public class Engine implements Serializable {
 		return v;
 	}
 	
-	public Vector<Long> allObjectUIDsByType( String type ) {
+	public Vector<Long> allObjectUIDsByType( clojure.lang.Keyword type ) {
 		Vector<Long> v = new Vector<Long>();
 		
 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
