@@ -73,6 +73,8 @@
   (begin-with-graphics-thread)
   (when (Display/wasResized) (.setDimensions (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
   (let [objs (all-objects)]    
+    (GL11/glEnable GL11/GL_BLEND)
+    (GL11/glBlendFunc GL11/GL_SRC_ALPHA GL11/GL_ONE_MINUS_SRC_ALPHA)
     #_(Basic3D/initFrame (:camera @*gui-state*))
     #_(when-not (:disable-skybox @*gui-state*)
        (draw-sky))

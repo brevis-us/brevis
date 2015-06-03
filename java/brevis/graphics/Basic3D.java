@@ -672,7 +672,7 @@ public class Basic3D {
         if( ( obj.getShape().mesh == null ) ||
         		( obj.getShape().getType() == "box" ) || 
         		( obj.getShape().getType() == "cone" ) || 
-        		( obj.getShape().getType() == "cylinder" ) ) {
+        		( obj.getShape().getType() == "cylinder" ) ) {         		//( obj.getShape().getType() == "sphere" ) || 
         //if( obj.getShape().mesh == null ) {
         	//System.out.println( "NO MESH " + obj.type );
         	obj.getShape().opengldraw();

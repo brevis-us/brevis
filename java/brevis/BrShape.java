@@ -80,7 +80,8 @@ public class BrShape implements Serializable {
 		if( type == BrShapeType.BOX ) {
 			center = new Vector3f( ( dim.x / 2f) , ( dim.y / 2f ), ( dim.z / 2f ) );
 		} else if( type == BrShapeType.SPHERE ) {
-			center = new Vector3f( dim.x, dim.x, dim.x );
+			//center = new Vector3f( dim.x, dim.x, dim.x );
+			center = new Vector3f( 0, 0, 0 );
 		} else {
 			center = new Vector3f( 0, 0, 0 );
 		}
