@@ -11,7 +11,7 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.vecmath.Point3f;
+//import javax.vecmath.Point3f;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
@@ -577,7 +577,7 @@ public class BrMesh implements Serializable {
 			if( k != sourceFace ) {
 			//if( k % ( faces.size() / 100 ) == 0 )
 			//	System.out.println( "." + k );
-			Point3f I = new Point3f();
+			//Point3f I = new Point3f();
 	        Vector3f    u, v, n;
 	        Vector3f    w;
 	        float     r, a, b;
