@@ -70,7 +70,7 @@ public class Plotter extends ApplicationFrame {
 
         //JFreeChart chart = ChartFactory.createTimeSeriesChart(
     	chart = ChartFactory.createXYLineChart(
-            "Brevis plot",  // title
+            "",  // title
             "",             // x-axis label
             "",   // y-axis label
             dataset,            // data

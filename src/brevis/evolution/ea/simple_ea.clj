@@ -66,26 +66,26 @@
       (println "Avg fitness:" (float (/ (apply + fitnesses) (count fitnesses)))))))
 
 (add-global-update-handler 90 update-population)
-(add-global-update-handler 91 report-population)
+;(add-global-update-handler 91 report-population)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## brevis control code
 
-(defn initialize-simulation
-  "This is the function where you add everything to the world."
-  []  
-  (disable-neighborhoods)
-  (disable-collisions)
+#_(defn initialize-simulation
+   "This is the function where you add everything to the world."
+   []  
+   (disable-neighborhoods)
+   (disable-collisions)
   
-  (set-dt 1)
+   (set-dt 1)
   
-  (if (get-param :initialize-population-fn)
-    ((get-param :initialize-population-fn))
-    (initialize-population))
+   (if (get-param :initialize-population-fn)
+     ((get-param :initialize-population-fn))
+     (initialize-population))
   
-  (if (get-param :termination-fn)
-    (add-terminate-trigger (get-param :termination-fn))  
-    (add-terminate-trigger (get-param :max-generations))))
+   (if (get-param :termination-fn)
+     (add-terminate-trigger (get-param :termination-fn))  
+     (add-terminate-trigger (get-param :max-generations))))
 
 ;; Start zee macheen
 #_(defn -main [& args]

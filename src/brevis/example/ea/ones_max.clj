@@ -52,5 +52,25 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## brevis control code
 
+(defn initialize-simulation
+  "This is the function where you add everything to the world."
+  []  
+  (disable-neighborhoods)
+  (disable-collisions)
+  
+  (set-dt 1)
+  
+  (if (get-param :initialize-population-fn)
+    ((get-param :initialize-population-fn))
+    (initialize-population))
+  
+  (if (get-param :termination-fn)
+    (add-terminate-trigger (get-param :termination-fn))  
+    (add-terminate-trigger (get-param :max-generations))))
+
+;; Start zee macheen
+(defn -main [& args]
+  (start-nogui initialize-simulation))
+
 (autostart-in-repl -main)
 
