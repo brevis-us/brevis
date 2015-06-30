@@ -36,8 +36,8 @@
                          (select-with-method selection-method key-fn population))]
           selected)
         :else; roulette
-        (let [wheel (make-roulette-wheel (map key-fn population) (if (:selection-strength selection-method) 
-                                                                   (:selection-strength selection-method) 1))
+        (let [wheel (make-roulette-wheel (map key-fn population) #_(if (:selection-strength selection-method) 
+                                                                    (:selection-strength selection-method) 1))
               selected (for [k (range n)]      
                          (let [idx (roulette wheel)]
                            (nth population idx)))]

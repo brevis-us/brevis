@@ -11,6 +11,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.List;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBVertexBufferObject;
@@ -153,6 +154,15 @@ public class BrShape implements Serializable {
 		computeCenter();
 		//loadMesh( filename, isResource, withGraphics );
 	}
+	
+	BrShape( List<Vector3f> verts ) {
+		type = BrShapeType.MESH;
+		loadMesh( verts );
+		dim = new Vector3f( 1, 1, 1 );
+		computeCenter();
+	}
+	
+	
 	
 	BrShape( BrMesh inMesh ) {
 		type = BrShapeType.MESH;
@@ -364,6 +374,26 @@ public class BrShape implements Serializable {
 		loadMesh( filename, isResource, withGraphics );
 	}
 	
+	public void loadMesh( List<Vector3f> verts ) {
+		try {
+			mesh = new BrMesh( verts );			
+					
+			if( mesh.numpolygons() == 0 ) {
+				System.out.println("Found 0 faces when loading vert series." );
+			}
+			
+			// this is actually size
+			//dim = new Vector3d( mesh.getXWidth(), mesh.getYHeight(), mesh.getZDepth() );
+			
+			// this is being used for scale
+			dim = new Vector3f( 1, 1, 1 );
+			
+			//mesh.opengldrawtolist();
+		} catch( Exception e ) {
+			e.printStackTrace();
+		}
+	}	
+	
 	public void loadMesh( String filename, boolean isResource, boolean withGraphics ) {
 		try {
 			if( isResource )
@@ -446,6 +476,12 @@ public class BrShape implements Serializable {
 		//System.out.println( filename );
 		//return ( new BrShape( filename, isResource, withGraphics ) );
 		return ( new BrShape( filename, isResource, withGraphics, dim ) );
+	}
+	
+	public static BrShape createMeshFromTriangles( List<Vector3f> verts ) {
+		//System.out.println( filename );
+		//return ( new BrShape( filename, isResource, withGraphics ) );
+		return ( new BrShape( verts ) );
 	}
 	
 	public static BrShape createSphere( double r, boolean withGraphics ) {

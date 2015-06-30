@@ -23,8 +23,8 @@
 
 (defn make-roulette-wheel
    "Make a roulette wheel from an array [currently assume positive entries only]."
-   [v selection-strength]
-   (let [v (map #(+ 1 (- selection-strength) (* selection-strength %)) v)
+   [v]
+   (let [;v (map #(+ 1 (- selection-strength) (* selection-strength %)) v)
          min-v (apply min v)
          v (map #(+ min-v %) v)
          sum (apply + v)
@@ -47,7 +47,7 @@
              n]
       :or {selection-strength nil
            n 1}}]  
-  (let [wheel (make-roulette-wheel (map key-fn population) (if selection-strength selection-strength 1))
+  (let [wheel (make-roulette-wheel (map key-fn population) #_(if selection-strength selection-strength 1))
         selected (for [k (range n)]      
                    (let [idx (roulette wheel)]
                      (nth population idx)))]
