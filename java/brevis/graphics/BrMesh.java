@@ -156,10 +156,12 @@ public class BrMesh implements Serializable {
 		for( int k = 0; k < verts.size(); k+=3 ) {
 			p1.set( verts.get(k).x, verts.get(k).y, verts.get(k).z );
 			p2.set( verts.get(k+1).x, verts.get(k+1).y, verts.get(k+1).z );
+			//p3.set( verts.get(k+2).x, verts.get(k+2).y, verts.get(k+2).z );
 			p3.set( verts.get(k+2).x, verts.get(k+2).y, verts.get(k+2).z );
 			Vector3f.sub(p1, p2, edge1);
 			Vector3f.sub(p1, p3, edge2);			
 			Vector3f.cross( edge1, edge2, veccross );
+			//Vector3f.cross( edge2, edge1, veccross );
 			//normals.add( new Vector3f( veccross ) ); 
 			//normals.add( new Vector3f( veccross ) ); 
 			//normals.add( new Vector3f( veccross ) );
@@ -363,6 +365,7 @@ public class BrMesh implements Serializable {
 					float normtempx = ((float[])vertexsetsnorms.get(tempfacesnorms[w] - 1))[0];
 					float normtempy = ((float[])vertexsetsnorms.get(tempfacesnorms[w] - 1))[1];
 					float normtempz = ((float[])vertexsetsnorms.get(tempfacesnorms[w] - 1))[2];
+					//GL11.glNormal3f(normtempx, normtempy, normtempz);
 					GL11.glNormal3f(normtempx, normtempy, normtempz);
 				}
 				

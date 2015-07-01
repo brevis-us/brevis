@@ -41,7 +41,7 @@
         destination (if (vec3? (:destination vo))
                       (:destination vo)
                       (get-position (get-object (:destination vo))))
-        color (if (:color vo) (:color vo) (vec4 1 1 1 1))]
+        color (if (:color vo) (:color vo) (vec4 1 1 1 1))]    
     (Basic3D/drawLine source destination color)))
 
 (defn draw-visual-overlay

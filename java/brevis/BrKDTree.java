@@ -427,7 +427,7 @@ public final class BrKDTree<X extends BrKDNode> {
 			}*/
 
 			if (cur.isTree()) {
-				searchTree(query, cur, stack);
+				searchTreeDistance(query, cur, stack, distance_sq);
 			} else {
 				searchLeafByDistance(query, cur, results, distance_sq);
 			}
@@ -452,6 +452,33 @@ public final class BrKDTree<X extends BrKDNode> {
 				System.out.println( "Not within distance " + distance + " " + exD + " " + query[0] + "," + query[1] + "," + query[2] + " " +
 						ex.domain[0] + "," + ex.domain[1] + "," + ex.domain[2] );
 			}*/
+		}
+	}
+	
+	private static <X extends BrKDNode> void
+	searchTreeDistance(double[] query, BrKDTree<X> tree,
+		Deque<SearchStackEntry<X>> stack, double distance_threshold)
+	{
+		BrKDTree<X> nearTree = tree.left, farTree = tree.right;
+		//if (query[tree.splitDim] > tree.split) { // This needs to do distance on the min/max of tree
+		if ( java.lang.Math.abs( query[tree.splitDim] - tree.split )< distance_threshold) { // This needs to do distance on the min/max of tree
+			nearTree = tree.right;
+			farTree = tree.left;
+		}
+
+		// These variables let us skip empty sub-trees
+		boolean nearEmpty = nearTree.contentMin == null;
+		boolean farEmpty = farTree.contentMin == null;
+
+		// Add nearest sub-tree to stack later so we descend it
+		// first. This is likely to constrict our max distance
+		// sooner, resulting in less visited nodes
+		if (!farEmpty) {
+			stack.addLast(new SearchStackEntry<X>(true, farTree));
+		}
+
+		if (!nearEmpty) {
+			stack.addLast(new SearchStackEntry<X>(true, nearTree));
 		}
 	}
 	

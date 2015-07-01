@@ -1,4 +1,4 @@
-(defproject brevis "0.9.88"
+(defproject brevis "0.9.89"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "http://brevis.us"
   :license {:name "Apache License v2"
@@ -48,6 +48,7 @@
   ;:manifest {"SplashScreen-Image" "brevis_splash.gif"}
   ;:warn-on-reflection true
   :javadoc-opts {:package-names ["brevis" "brevis.graphics" "brevis.plot"]}
+  :javac-options ["-target" "1.6" "-source" "1.6" "-Xlint:-options"]
   :profiles {:headless {:jvm-opts ["-DbrevisHeadless=true"]}
              :BrIDE {:main brevis.ui.core
                      :aot [brevis.ui.core]

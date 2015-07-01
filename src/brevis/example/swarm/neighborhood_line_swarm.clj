@@ -7,13 +7,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds 50)
+(def num-birds 250)
 
 (def avoidance-distance (atom 10))
 (def boundary 250)
 
-(def speed 25)
-(def max-acceleration 10)
+(def speed 5)
+(def max-acceleration 1)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Birds
@@ -35,7 +35,7 @@
   [position]  
   (move (make-real {:type :bird
                     :color (vec4 1 0 0 1)
-                    :shape (create-cone 2.2 1.5)})
+                    :shape (create-cone 8.2 2.5)})
         position))
   
 (defn random-bird
@@ -48,6 +48,13 @@
   [v]  
   (if (> (length v) max-acceleration)
     (mul (div v (length v)) max-acceleration)
+    v))
+
+(defn bound-velocity
+  "Keeps the acceleration within a reasonable range."
+  [v]  
+  (if (> (length v) speed)
+    (mul (div v (length v)) speed)
     v))
 
 (defn periodic-boundary
@@ -88,16 +95,18 @@
         new-acceleration (if (zero? (length new-acceleration))
                            new-acceleration
                            (mul new-acceleration (/ 1 (length new-acceleration))))]
-    (set-acceleration
-      (if (or (> (java.lang.Math/abs (x-val bird-pos)) boundary) 
-              (> (java.lang.Math/abs (y-val bird-pos)) boundary) 
-              (> (java.lang.Math/abs (z-val bird-pos)) boundary)) 
-        (move bird (periodic-boundary bird-pos) #_(vec3 0 25 0))
-        bird)
-      (bound-acceleration
-        new-acceleration
-        #_(add (mul (get-acceleration bird) 0.5)
-             (mul new-acceleration speed))))))
+    (set-velocity
+      (set-acceleration
+        (if (or (> (java.lang.Math/abs (x-val bird-pos)) boundary) 
+                (> (java.lang.Math/abs (y-val bird-pos)) boundary) 
+                (> (java.lang.Math/abs (z-val bird-pos)) boundary)) 
+          (move bird (periodic-boundary bird-pos) #_(vec3 0 25 0))
+          bird)
+        (bound-acceleration
+          new-acceleration
+          #_(add (mul (get-acceleration bird) 0.5)
+               (mul new-acceleration speed))))
+      (bound-velocity (get-velocity bird)))))
 
 (enable-kinematics-update :bird); This tells the simulator to move our objects
 (add-update-handler :bird fly); This tells the simulator how to update these objects
@@ -106,7 +115,8 @@
 (add-global-update-handler 10
                            (fn []
                              (reset! visual-overlays [])
-                             (let [rand-bird (lrand-nth (filter bird? (all-objects)))]
+                             ;(let [rand-bird (lrand-nth (filter bird? (all-objects)))]
+                             (doseq [rand-bird (filter bird? (all-objects))]
                                (doseq [nbr (get-neighbor-objects rand-bird)]
                                  (add-line (get-uid rand-bird) (get-uid nbr))))))
 

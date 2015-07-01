@@ -142,7 +142,9 @@ public class Basic3D {
 		//displayCamera = new BrCamera( view_xyz[0], view_xyz[1], view_xyz[2], view_hpr[0], view_hpr[1], view_hpr[2], fov, width, height, near, far );
         
 		//light1.setPosition( new float[]{ 1.0f, 0.4f, 1.0f, 0.0f } );
-		light1.setPosition(new float[] { 50.0f, 200.0f, 50.0f, 0.0f }  );
+		//light1.setPosition(new float[] { 50.0f, 200.0f, 50.0f, 0.0f }  );
+		
+		light1.setPosition(new float[] { light_position.get(0), light_position.get(1), light_position.get(2), light_position.get(3) }  );
 		
         GL11.glShadeModel(GL11.GL_SMOOTH);                            // Enable Smooth Shading
         GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);               // Black Background
@@ -703,9 +705,12 @@ public class Basic3D {
     
     static public void drawLine(Vector3f source, Vector3f destination, Vector4f color) {
         
-        GL11.glBegin(GL11.GL_LINE_STRIP);
+    	GL11.glColor3f( color.x, color.y, color.z );
+        GL11.glBegin(GL11.GL_LINE_STRIP);        
+    	//GL11.glBegin(GL11.GL_LINE);        
         GL11.glColor3f( color.x, color.y, color.z );
         GL11.glVertex3f( source.x, source.y, source.z );
+        GL11.glColor3f( color.x, color.y, color.z );
         GL11.glVertex3f( destination.x, destination.y, destination.z );
         GL11.glEnd();
     }
