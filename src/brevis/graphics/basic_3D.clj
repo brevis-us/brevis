@@ -58,8 +58,8 @@
 
 (defn move-light
   "Move the n-th light."
-  [n pos]
-  (Basic3D/lightMove (int n) (float-array pos)))
+  [n ^org.lwjgl.util.vector.Vector4f pos]
+  (Basic3D/lightMove (int n) (float-array [(.x pos) (.y pos) (.z pos) (.w pos)])))
 
 (defn disable-skybox
   "Disable rendering of the skybox."
