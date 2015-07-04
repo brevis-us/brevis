@@ -1,4 +1,4 @@
-(defproject brevis "0.9.91"
+(defproject brevis "0.9.92"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "http://brevis.us"
   :license {:name "Apache License v2"
@@ -20,8 +20,8 @@
                  [me.raynes/conch "0.8.0"]
                  
                  ;; Physics packages                 
-                 [org.ode4j/core "0.2.9"]; 0.3.0 introduced threading issues that are causing issues
-                 [org.ode4j/demo "0.2.9"]
+                 [org.ode4j/core "0.2.8"]; 0.3.0 introduced threading issues that are causing issues
+                 [org.ode4j/demo "0.2.8"]
                  [com.nitayjoffe.thirdparty.net.robowiki.knn/knn-benchmark "0.1"]                 
                  
                  ;; Graphics packages (3D rendering)
