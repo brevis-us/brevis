@@ -1,4 +1,4 @@
-(ns brevis.example.mesh.spinning-lights
+(ns brevis.example.mesh.mesh
   (:gen-class)
   (:use [brevis.graphics.basic-3D]
         [brevis.physics collision core space utils]
