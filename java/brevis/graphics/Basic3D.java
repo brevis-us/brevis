@@ -674,10 +674,12 @@ public class Basic3D {
         if( ( obj.getShape().mesh == null ) ||
         		( obj.getShape().getType() == "box" ) || 
         		( obj.getShape().getType() == "cone" ) || 
-        		( obj.getShape().getType() == "cylinder" ) ) {         		//( obj.getShape().getType() == "sphere" ) || 
+        		( obj.getShape().getType() == "cylinder" )
+        		) {         		//( obj.getShape().getType() == "sphere" ) || 
         //if( obj.getShape().mesh == null ) {
         	//System.out.println( "NO MESH " + obj.type );
         	obj.getShape().opengldraw();
+        	
 	        /*if( obj.getShape().getType() == "box" )
 	        	drawBox( 1, 1, 1 );
 	        	
@@ -706,8 +708,7 @@ public class Basic3D {
     static public void drawLine(Vector3f source, Vector3f destination, Vector4f color) {
         
     	GL11.glColor3f( color.x, color.y, color.z );
-        GL11.glBegin(GL11.GL_LINE_STRIP);        
-    	//GL11.glBegin(GL11.GL_LINE);        
+        GL11.glBegin(GL11.GL_LINE_STRIP);              
         GL11.glColor3f( color.x, color.y, color.z );
         GL11.glVertex3f( source.x, source.y, source.z );
         GL11.glColor3f( color.x, color.y, color.z );
