@@ -55,7 +55,7 @@ public class Basic3D {
     static public int width = 640;
     static public int height = 480;        
     
-    private static final FloatBuffer light_position =  BufferUtils.createFloatBuffer(4);
+    /*private static final FloatBuffer light_position =  BufferUtils.createFloatBuffer(4);
 	private static final FloatBuffer light_ambient = BufferUtils.createFloatBuffer(4);
 	private static final FloatBuffer light_diffuse = BufferUtils.createFloatBuffer(4);
 	private static final FloatBuffer light_specular = BufferUtils.createFloatBuffer(4);
@@ -65,12 +65,18 @@ public class Basic3D {
 		light_ambient.put(new float[]{ 0.5f, 0.5f, 0.5f, 1.0f }).flip();
 		light_diffuse.put(new float[] { 1.0f, 1.0f, 1.0f, 1.0f }).flip();
 		light_specular.put(new float[] { 1.0f, 1.0f, 1.0f, 1.0f }).flip();
-	}
+	}*/
     
     static private float[] view_xyz = new float[3];	// position x,y,z
 	static private float[] view_hpr = new float[3];	// heading, pitch, roll (degrees)
     
-	static BrLight light1 = new BrLight();// should probably have a light array
+	//static BrLight light1 = new BrLight();// should probably have a light array
+	
+	static ArrayList<BrLight> lights = new ArrayList<BrLight>();
+	static { 
+		lights.add( new BrLight( 0 ) );
+	}
+	
 	static BrSky sky;
 	//static BrCamera displayCamera;// This is the BrCamera that gets the main GL context
 	
@@ -80,10 +86,31 @@ public class Basic3D {
 	private static int shadowFrameBuffer;
 	private static int shadowRenderBuffer;
 	
+	public static void addLight( ) {
+		lights.add( new BrLight( lights.size() ) );
+	}
+	
 	public static void lightMove( int lightNum, float[] position ) {
 		//light_position.put( position ).flip();
-		light1.setPosition( position );
+		//light1.setPosition( position );
+		lights.get(lightNum).setPosition( position );
 	}	
+	
+	public static float[] lightPosition( int lightNum ) {
+		return lights.get(lightNum).getPosition();
+	}
+	
+	public static void lightDiffuse( int lightNum, float[] color) {
+		lights.get(lightNum).setDiffuse( color );
+	}
+	
+	public static void lightSpecular( int lightNum, float[] color) {
+		lights.get(lightNum).setSpecular( color );
+	}
+	
+	public static void lightAmbient( int lightNum, float[] color) {
+		lights.get(lightNum).setAmbient( color );
+	}
 	
 	private static void setUpFrameBufferObject() {
 		final int MAX_RENDERBUFFER_SIZE = glGetInteger(GL_MAX_RENDERBUFFER_SIZE);
@@ -144,7 +171,7 @@ public class Basic3D {
 		//light1.setPosition( new float[]{ 1.0f, 0.4f, 1.0f, 0.0f } );
 		//light1.setPosition(new float[] { 50.0f, 200.0f, 50.0f, 0.0f }  );
 		
-		light1.setPosition(new float[] { light_position.get(0), light_position.get(1), light_position.get(2), light_position.get(3) }  );
+		//light1.setPosition(new float[] { light_position.get(0), light_position.get(1), light_position.get(2), light_position.get(3) }  );
 		
         GL11.glShadeModel(GL11.GL_SMOOTH);                            // Enable Smooth Shading
         GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);               // Black Background
@@ -160,7 +187,10 @@ public class Basic3D {
         GL11.glEnable(GL11.GL_POLYGON_SMOOTH);
    
         
-        light1.enable();
+        //light1.enable();
+        for( BrLight light : lights ) {
+        	light.enable();
+        }
         sky = new BrSky();
         
         GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);            
@@ -206,7 +236,10 @@ public class Basic3D {
 		// setup viewport
 		//displayCamera.setupFrame();		
 		
-		light1.enable();
+		//light1.enable();		
+		for( BrLight light : lights ) {
+			light.enable();
+		}
 		
 		GL11.glColor3f (1.0f, 1.0f, 1.0f);
 
@@ -242,7 +275,8 @@ public class Basic3D {
     	glPushMatrix();
     	glLoadIdentity();
     	// Have the 'shadow camera' look toward [0, 0, 0] and be location at the light's position.
-    	float[] lp = light1.getPosition();
+    	//float[] lp = light1.getPosition();
+    	float[] lp = lights.get(0).getPosition();
     	gluLookAt(lp[0], lp[1], lp[2], 0, 0, 0, 0, 1, 0);
     	glGetFloat(GL_MODELVIEW_MATRIX, lightModelView);
     	// Set the view port to the shadow map dimensions so no part of the shadow is cut off.
@@ -816,7 +850,8 @@ public class Basic3D {
          * at [0, 0, 0]. Using the Pythagorean theorem, the distance is calculated by taking the square-root of the
          * sum of each of the components of the light position squared.
          */
-        float [] lightpos = light1.getPosition();
+        //float [] lightpos = light1.getPosition();
+        float [] lightpos = lights.get(0).getPosition();
         float lightToSceneDistance = (float) Math.sqrt(lightpos[0] * lightpos[0] +
                 lightpos[1] * lightpos[1] +
                 lightpos[2] * lightpos[2] );

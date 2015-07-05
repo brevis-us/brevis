@@ -56,10 +56,30 @@
   (Basic3D/castShadow (.getMesh (.getShape obj)) (double-array [0 1 0 0]))
   )
 
+(defn add-light
+  "Add a GL light."
+  []
+  (Basic3D/addLight))
+
 (defn move-light
   "Move the n-th light."
   [n ^org.lwjgl.util.vector.Vector4f pos]
   (Basic3D/lightMove (int n) (float-array [(.x pos) (.y pos) (.z pos) (.w pos)])))
+
+(defn light-diffuse 
+  "Set the diffuse lighting for a GlLight"
+  [n ^org.lwjgl.util.vector.Vector4f col]
+  (Basic3D/lightDiffuse (int n) (float-array [(.x col) (.y col) (.z col) (.w col)])))
+
+(defn light-specular
+  "Set the specular lighting for a GlLight"
+  [n ^org.lwjgl.util.vector.Vector4f col]
+  (Basic3D/lightSpecular (int n) (float-array [(.x col) (.y col) (.z col) (.w col)])))
+
+(defn light-ambient
+  "Set the ambient lighting for a GlLight"
+  [n ^org.lwjgl.util.vector.Vector4f col]
+  (Basic3D/lightAmbient (int n) (float-array [(.x col) (.y col) (.z col) (.w col)])))
 
 (defn disable-skybox
   "Disable rendering of the skybox."

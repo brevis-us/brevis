@@ -50,7 +50,7 @@
           (- (rand h) (/ h 2)))))
 
 (defn make-bird
-  "Make a new bird with the specified program. At the specified location."
+  "Make a new bird. At the specified location."
   [position]  
   (move (make-real {:type :bird
                     :color (vec4 1 0 0 1)

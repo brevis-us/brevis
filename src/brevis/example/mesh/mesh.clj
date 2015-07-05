@@ -24,20 +24,6 @@
                     :shape (create-mesh mesh-file true (vec3 10 10 10))})
         position))
 
-(def light-radius 100)
-
-(defn spin-light
-  "Global updater for smooshing the mesh."
-  [] 
-  (let [theta (* 2 java.lang.Math/PI (lrand))
-        psi (* 2 java.lang.Math/PI (lrand))]
-  (move-light 1 (vec4 (* light-radius (java.lang.Math/sin theta) (java.lang.Math/cos psi))
-                      (* light-radius (java.lang.Math/sin theta) (java.lang.Math/sin psi))
-                      (* light-radius (java.lang.Math/cos theta))
-                      0))))
-
-(add-global-update-handler 90 spin-light)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## brevis control code
 
