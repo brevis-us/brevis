@@ -131,7 +131,8 @@
     (Display/setTitle "Brevis")
     (Display/setVSyncEnabled true)
     (Display/setResizable true)
-    (Display/create)
+    ;(Display/create)
+    (Display/create (org.lwjgl.opengl.PixelFormat. 8 24 0 8));/*Alpha Bits*/8, /*Depth bits*/ 8, /*Stencil bits*/ 0, /*samples*/8
     (catch LWJGLException e
         (.printStackTrace e)))
   ;; For multithreaded graphics

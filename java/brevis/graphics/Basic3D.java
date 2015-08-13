@@ -181,9 +181,11 @@ public class Basic3D {
         GL11.glDepthFunc(GL11.GL_LEQUAL);                             // The Type Of Depth Testing To Do
         //GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST);  // Really Nice Perspective Calculations
         
-        GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_FASTEST);
+        //GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_FASTEST);
+        GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST);
         GL11.glEnable(GL11.GL_LINE_SMOOTH);
-        GL11.glHint(GL11.GL_POLYGON_SMOOTH_HINT, GL11.GL_FASTEST);
+        //GL11.glHint(GL11.GL_POLYGON_SMOOTH_HINT, GL11.GL_FASTEST);
+        GL11.glHint(GL11.GL_POLYGON_SMOOTH_HINT, GL11.GL_NICEST);
         GL11.glEnable(GL11.GL_POLYGON_SMOOTH);
    
         
@@ -251,6 +253,9 @@ public class Basic3D {
 		GL11.glMatrixMode (GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
 		displayCamera.setupFrame();		
+		
+		GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		
 		sky.draw( displayCamera );
 		
