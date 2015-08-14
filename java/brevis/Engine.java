@@ -26,13 +26,23 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.ejml.data.DenseMatrix64F;
+
+
+
+
+
+//import org.ejml.data.DenseMatrix64F;
 import org.lwjgl.util.vector.Vector3f;
 import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DJointGroup;
 import org.ode4j.ode.DSpace;
 import org.ode4j.ode.DWorld;
 import org.ode4j.ode.OdeHelper;
+import org.ojalgo.access.Access2D.Builder;
+//import org.ojalgo.access.Access2D.Factory;
+import org.ojalgo.matrix.BasicMatrix;
+import org.ojalgo.matrix.BasicMatrix.Factory;
+import org.ojalgo.matrix.PrimitiveMatrix;
 
 import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
 import clojure.lang.PersistentVector;
@@ -906,7 +916,32 @@ public class Engine implements Serializable {
 	public BrPhysics getPhysics() {
 		return physics;
 	}	
+		
+	public BasicMatrix pairwiseObjectDistances() {				
+		final Factory<PrimitiveMatrix> tmpFactory = PrimitiveMatrix.FACTORY;
+		
+		final Builder<PrimitiveMatrix> tmpBuilder = tmpFactory.getBuilder( objects.size(), objects.size() );
+
+        ArrayList<Long> objKeys = new ArrayList<Long>( objects.keySet() );
+		for( int k = 0; k < objects.size(); k++ ) {
+			BrObject thisObj = objects.get( objKeys.get( k ) );
+			for( int j = 0; j < objects.size(); j++ ) {
+				double val = 0;
+				if( k == j ) val = 0;
+				else {
+					val = thisObj.distanceTo( objects.get( objKeys.get( j ) ) );
+				}
+				tmpBuilder.set(k,j,val);
+				tmpBuilder.set(j,k,val);
+			}
+		}
+        
+        return tmpBuilder.build();
+		
+			
+	}
 	
+	/* EJML version
 	public DenseMatrix64F pairwiseObjectDistances() {
 		DenseMatrix64F dists = new DenseMatrix64F( objects.size(), objects.size() );
 		ArrayList<Long> objKeys = new ArrayList<Long>( objects.keySet() );
@@ -923,7 +958,7 @@ public class Engine implements Serializable {
 			}
 		}
 		return dists;		
-	}
+	}*/
 	
 	public void setParallel( boolean newParallel ) {
 		brevisParallel = newParallel;

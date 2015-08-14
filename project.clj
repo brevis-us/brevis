@@ -1,4 +1,4 @@
-(defproject brevis "0.9.95"
+(defproject brevis "0.9.96"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "http://brevis.us"
   :license {:name "Apache License v2"
@@ -35,7 +35,8 @@
                  [org.jfree/jfreechart "1.0.17"]
                  
                  ;; Math packages
-                 [com.googlecode.efficient-java-matrix-library/ejml "0.24"]; 0.26
+                 ;[com.googlecode.efficient-java-matrix-library/ejml "0.24"]; 0.26
+                 [org.ojalgo/ojalgo "37.1"]; 38 requries java8
                  [org.flatland/ordered "1.5.2"]
                  
                  ;; UI packages
