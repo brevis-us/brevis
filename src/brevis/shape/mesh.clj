@@ -48,6 +48,18 @@
   [mesh idx]
   (.getFace ^BrMesh mesh ^int idx))
 
+(defn get-face-normal
+  "Return the normal for a face."
+  [mesh idx]
+  (apply vec3 (.getFaceNormal ^BrMesh mesh ^int idx)))
+
+(defn get-face-center
+  "Return the center point of a face."
+  [mesh idx]
+  (let [face (map dec (get-face mesh idx))
+        verts (map (comp (partial apply vec3) (partial get-vertex mesh)) face)]
+    (mul-vec3 (apply add-vec3 verts) (/ 3))))
+
 (defn create-mesh-from-triangles
   "Create a mesh from a list of triangles, sequences of 3 vertices describing each triangle."
   [triangles]

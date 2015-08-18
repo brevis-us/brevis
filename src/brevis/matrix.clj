@@ -231,9 +231,14 @@ the specified axis."
   (.get m r c))
 
 (defn matrix-to-seq
-  "Return a seq of a matrix."
+  "Return a flat seq of a matrix."
   [^BasicMatrix m]
   (seq (.toListOfElements m)))
+
+(defn seq-to-matrix
+ "Return a matrix"
+ [r c coll]
+ (MatrixUtils/collectionToMatrix r c coll))
 
 (defn divide
   "Divide by a scalar."
