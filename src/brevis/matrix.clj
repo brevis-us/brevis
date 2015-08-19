@@ -116,7 +116,7 @@ the specified axis."
   (.multiplyRight m1 m2)); this needs to change to .multiply when switching to v38
 
 (defn elmult
-  "Matrix multiply"
+  "Matrix multiply by elements"
   [^BasicMatrix m1 ^BasicMatrix m2]
   (.multiplyElements m1 m2))
 
