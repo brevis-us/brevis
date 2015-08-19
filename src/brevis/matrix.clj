@@ -269,3 +269,10 @@ the specified axis."
   "Return the Frobenius norm. The Frobenius norm is the square root of the sum of the squares of each element, or the square root of the sum of the square of the singular values."
   [^BasicMatrix m]
   (.getFrobeniusNorm m))
+
+(defn matrix-map
+  "Map a function over a matrix."
+  [f mat]
+  (seq-to-matrix (matrix-height mat) (matrix-width mat) (map f (matrix-to-seq mat))))
+
+

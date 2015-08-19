@@ -31,6 +31,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 
 
+
 //import org.ejml.data.DenseMatrix64F;
 import org.lwjgl.util.vector.Vector3f;
 import org.ode4j.ode.DGeom;
@@ -45,6 +46,7 @@ import org.ojalgo.matrix.BasicMatrix.Factory;
 import org.ojalgo.matrix.PrimitiveMatrix;
 
 import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
+import clojure.lang.Keyword;
 import clojure.lang.PersistentVector;
 import duyn.algorithm.nearestneighbours.FastKdTree;
 import duyn.algorithm.nearestneighbours.PrioNode;
@@ -971,11 +973,13 @@ public class Engine implements Serializable {
 	/* Serialization stuff */
 	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
 		 out.defaultWriteObject();
+		 // Write handlers
+		 // Write objects
 	}
 		     
  	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
  		in.defaultReadObject();
- 	}
+ 	} 	 	
 		 
  	/* private void readObjectNoData() throws ObjectStreamException {
  		
