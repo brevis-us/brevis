@@ -69,8 +69,8 @@ public class Natives {
     
     protected static void extractNativeLib(String sysName, String name) throws IOException{
         String fullname = System.mapLibraryName(name);
-        //System.out.println( fullname + " " + fullname.contains( "dylib" ) );
-        if( fullname.contains( "dylib" )  )
+        //System.out.println( "extractNativeLib " + fullname + " " + fullname.contains( "dylib" ) + " " + sysName );
+        if( sysName.equalsIgnoreCase("macosx") && fullname.contains( "dylib" )  )
         	fullname = fullname.replace( "dylib", "jnilib" );
         //System.out.println( fullname + " " + fullname.contains( "dylib" ) );
 

@@ -26,7 +26,7 @@
 
 (def num-birds (atom 500))
 
-(def avoidance-distance (atom 10))
+(def avoidance-distance (atom 25))
 (def boundary 250)
 
 (def speed 5)
@@ -192,7 +192,7 @@
   #_(disable-skybox)
   
   (set-dt 1)
-  (set-neighborhood-radius 250)
+  (set-neighborhood-radius 50)
   (default-display-text)
   ;(add-object (move (make-floor 500 500) (vec3 0 (- boundary) 0)))
   (dotimes [_ @num-birds]
