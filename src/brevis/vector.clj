@@ -79,6 +79,8 @@
     
 (defn add
   "Add Vector3f's"
+  #_([]
+     nil)
   ([v]
     v)
   ([v1 v2]
@@ -95,6 +97,8 @@
 
 (defn add-vec3
   "Add Vector3f's"
+  ([]
+    (vec3 0 0 0))
   ([v]
     v)
   ([v1 v2]
@@ -109,6 +113,8 @@
 
 (defn add-vec4
   "Add Vector4f's"
+   ([]
+    (vec4 0 0 0 0))
   ([v]
     v)
   ([v1 v2]

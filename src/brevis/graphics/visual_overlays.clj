@@ -1,3 +1,4 @@
+; Beware that using this namespace requires evil use ordering (i.e. lwjgl has to be loaded before loading this NS). This issue should get fixed eventually.
 (ns brevis.graphics.visual-overlays
   (:use [brevis globals utils input osd display vector]
         [brevis.graphics basic-3D multithread]
@@ -32,6 +33,14 @@
               :destination destination}]
     (swap! visual-overlays conj line)))
 
+(defn add-filled-polygon
+  "Create a 3D filled polygon. should take vec3 or uuid, only vec3 for now"
+  [points]
+  (let [vo {:type :filled-polygon
+            :visible? true
+            :points points}]
+    (swap! visual-overlays conj vo)))
+
 (defn draw-line
   "Draw a line described as a visual overlay map."
   [vo]
@@ -44,8 +53,15 @@
         color (if (:color vo) (:color vo) (vec4 1 1 1 1))]    
     (Basic3D/drawLine source destination color)))
 
+(defn draw-filled-polygon
+  "Draw a filled polygon."
+  [points]
+  (Basic3D/drawFilledPolygon points))
+
 (defn draw-visual-overlay
   "draw a visual overlay."
   [vo]
   (cond (= (:type vo) :line)
-        (draw-line vo)))
+        (draw-line vo)
+        (= (:type vo) :filled-polygon)
+        (draw-filled-polygon (:points vo))))
