@@ -284,3 +284,13 @@ the specified axis."
   "Select the rows by index. Takes a sequence of row indices starting with 0 to numRows - 1"
   [^BasicMatrix mat indices]
   (.selectRows mat (int-array indices)))
+
+(defn merge-columns
+  "Appends input matrix to the bottom of target. This is destructive"
+  [^BasicMatrix target ^BasicMatrix input]
+  (.mergeColumns target input))
+
+(defn merge-rows
+  "Appends input matrix to the right of target. This is destructive"
+  [^BasicMatrix target ^BasicMatrix input]
+  (.mergeRows target input))
