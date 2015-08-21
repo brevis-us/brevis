@@ -210,16 +210,21 @@
   [^BasicMatrix target ^BasicMatrix input]
   (.mergeRows target input))
 
-(defn column-marginal
-  "sums all rows"
-  [matrix]
-  (let [height (matrix-height matrix)
-        width (matrix-width matrix)]
-    (seq-to-matrix 1 width (map #(apply + %) (partition height (matrix-to-seq matrix))))))
+(defn sum-rows
+  "sums all rows, returns 1 row"
+  [mat]
+  (let [height (matrix-height mat)
+        width (matrix-width mat)]
+    (seq-to-matrix 1 width (map #(apply + %) (partition height (matrix-to-seq mat))))))
 
-(defn row-marginal
-  "sums all columns"
-  [matrix]
-  (let [height (matrix-height matrix)
-        width (matrix-width matrix)]
-    (seq-to-matrix height 1 (map #(apply + %) (partition width (matrix-to-seq (transpose matrix)))))))
+(defn sum-columns
+  "sums all columns, returns 1 column"
+  [mat]
+  (let [height (matrix-height mat)
+        width (matrix-width mat)]
+    (seq-to-matrix height 1 (map #(apply + %) (partition width (matrix-to-seq (transpose mat)))))))
+
+(defn sum-matrix
+  "sums all elements of a matrix, returns clojure float"
+  [mat]
+  (apply + (matrix-to-seq mat)))
