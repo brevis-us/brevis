@@ -37,16 +37,9 @@
 (defn sub
    "Wrap's Vector3f sub."
    [v1 v2]
-   #_((if (vec3? v1) Vector3f/sub Vector4f/sub)
-     v1 v2 nil)
    (if (vec3? v1) 
      (Vector3f/sub ^Vector3f v1 ^Vector3f v2 nil)
      (Vector4f/sub ^Vector4f v1 ^Vector4f v2 nil)))
-
-#_(defn sub
-   "Wrap's Vector3f sub."
-   ([^Vector3f v1 ^Vector3f v2] (Vector3f/sub v1 v2 nil))
-   ([^Vector4f v1 ^Vector4f v2] (Vector4f/sub v1 v2 nil)))
 
 (defn sub-vec3
    "Wrap's Vector3f sub. Should be a little faster than normal sub"
@@ -105,11 +98,11 @@
     (Vector3f/add ^Vector3f v1 ^Vector3f v2 nil))
   ([v1 v2 & vs]
     (loop [vs vs
-           v (add v1 v2)]
+           v (add-vec3 v1 v2)]
       (if (empty? vs)
         v
         (recur (rest vs)
-               (add v (first vs)))))))
+               (add-vec3 v (first vs)))))))
 
 (defn add-vec4
   "Add Vector4f's"
@@ -121,11 +114,11 @@
     (Vector4f/add ^Vector4f v1 ^Vector4f v2 nil))
   ([v1 v2 & vs]
     (loop [vs vs
-           v (add v1 v2)]
+           v (add-vec4 v1 v2)]
       (if (empty? vs)
         v
         (recur (rest vs)
-               (add v (first vs)))))))
+               (add-vec4 v (first vs)))))))
 
 (defn mul
   "Multiply a Vector3f by a scalar."

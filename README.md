@@ -1,13 +1,11 @@
 # brevis
 
-[![Join the chat at https://gitter.im/kephale/brevis](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kephale/brevis?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 brevis, an open-source, functional scientific and artificial life simulator.
 
 brevis is a 3D scientific, artificial life and complex systems simulator where simulations are written in the functional programming language Clojure. 
 	
 On the web:   http://brevis.us
-Chat: #brevis@irc.freenode.net
+Chat: [![Join the chat at https://gitter.im/kephale/brevis](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kephale/brevis?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
   
 by Kyle Harrington (kharrin3@bidmc.harvard.edu), 2011-2014.
    http://kyleharrington.com
