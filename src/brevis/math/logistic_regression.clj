@@ -1,6 +1,6 @@
 (ns brevis.logistic-regression
-    (:use [brevis.math matrix]))
-
+    (:use [brevis.math matrix]
+          [brevis random]))
 
 (defn sigmoid
   "Hyperbolic-tangent function."
@@ -10,10 +10,22 @@
 (defn theta-rand
   "Returns number between -1 & 1."
   []
-  (let [switch (rand-int 2)]
+  (let [switch (lrand-int 2)]
     (if (= switch 0)
       (rand)
-      (unchecked-negate (rand)))))
+      (unchecked-negate (lrand)))))
+
+(defn normalize-data ;should this be abs?
+  "subtracts mean vector from all row vectors"
+  [mat]
+  (let [height (matrix-height mat)
+        width (matrix-width mat)
+        mean-vector (map #(/ % height) (matrix-to-seq (sum-rows mat)))
+        normalized-data (seq-to-matrix width height
+                                       (for [x1 (partition width (matrix-to-seq mat))]
+                                         (map #(- %1 %2) x1 mean-vector)))
+        ]
+    normalized-data))
 
 (defn theta-init
   "Random m x n matrix with all element values between -1 & 1."
@@ -22,16 +34,18 @@
 
 (defn logistic-regression
   "Logistic regression. x feature matrix, y label vector."
-  [x y]
-  (let [num-features (matrix-width x)]
-    (loop [stop 0
-           theta (theta-init num-features)
+  ([x y stop] (logistic-regression x y stop (theta-init (matrix-width x))))
+  ([x y stop theta-start]
+    (loop [start 0
+           theta theta-start
            ]
-      (if (= stop 500)
+      (if (= stop start)
         theta
-        (recur (inc stop)
+        (recur (inc start)
                (matrix-mult x 
                             (transpose (sub y 
-                                            (matrix-map sigmoid 
+                                            (matrix-pmap sigmoid 
                                                         (matrix-mult (transpose theta) 
                                                                      x))))))))))
+
+
