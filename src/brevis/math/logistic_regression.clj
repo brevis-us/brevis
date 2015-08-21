@@ -1,5 +1,5 @@
 (ns brevis.logistic-regression
-    (:use [brevis matrix]))
+    (:use [brevis.math matrix]))
 
 
 (defn sigmoid
