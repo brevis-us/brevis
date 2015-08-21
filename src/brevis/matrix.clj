@@ -275,4 +275,12 @@ the specified axis."
   [f mat]
   (seq-to-matrix (matrix-height mat) (matrix-width mat) (map f (matrix-to-seq mat))))
 
+(defn select-columns 
+  "Select the columns by index. Takes a sequence of column indices starting with 0 to numColumns - 1"
+  [^BasicMatrix mat indices]
+  (.selectColumns mat (int-array indices)))
 
+(defn select-rows
+  "Select the rows by index. Takes a sequence of row indices starting with 0 to numRows - 1"
+  [^BasicMatrix mat indices]
+  (.selectRows mat (int-array indices)))

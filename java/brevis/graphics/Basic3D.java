@@ -9,6 +9,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -753,6 +754,16 @@ public class Basic3D {
         GL11.glColor3f( color.x, color.y, color.z );
         GL11.glVertex3f( destination.x, destination.y, destination.z );
         GL11.glEnd();
+    }
+    
+    static public void drawFilledPolygon( List<Vector3f> points ) {
+    	GL11.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    	GL11.glBegin( GL11.GL_POLYGON );
+    	for( Vector3f point : points ) {
+    		GL11.glColor3f( 1, 1, 1 );
+    		GL11.glVertex3f( point.x, point.y, point.z);
+    	}
+    	GL11.glEnd();
     }
     
     public static void screenshot( String filename ) throws LWJGLException {

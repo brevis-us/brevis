@@ -69,9 +69,11 @@ public class Natives {
     
     protected static void extractNativeLib(String sysName, String name) throws IOException{
         String fullname = System.mapLibraryName(name);
-        //System.out.println( "extractNativeLib " + fullname + " " + fullname.contains( "dylib" ) + " " + sysName );
+        //System.out.println( "extractNativeLib " + fullname + " " + fullname.contains( "dylib" ) + " " + sysName + " " + sysName.equalsIgnoreCase("macosx") );
         if( sysName.equalsIgnoreCase("macosx") && fullname.contains( "dylib" )  )
         	fullname = fullname.replace( "dylib", "jnilib" );
+        //if( sysName.equalsIgnoreCase("macosx") && fullname.contains( "jnilib" )  )
+        	//fullname = fullname.replace( "jnilib", "dylib" );
         //System.out.println( fullname + " " + fullname.contains( "dylib" ) );
 
         //String path = "target/native/"+sysName+"/" + fullname;
@@ -81,6 +83,7 @@ public class Natives {
         
         // This is about where to find the native lib in the classpath
         String path = "target/native/"+sysName+"/" + fullname;
+        //String path = getNativeBaseDirectory() +"/" + fullname;
         //InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
         InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(fullname);
         //InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(System.getProperty("user.dir") + "/" + path);
@@ -94,7 +97,11 @@ public class Natives {
             return;
         }
         
-        String localPath = getNativeBaseDirectory() + fullname;
+        String localname = null;
+        if( sysName.equalsIgnoreCase("macosx") && fullname.contains( "jnilib" )  )
+        	localname = fullname.replace( "jnilib", "dylib" );
+        //String localPath = getNativeBaseDirectory() + fullname;
+        String localPath = getNativeBaseDirectory() + localname;
         File targetFile = new File(localPath);
 		targetFile.getParentFile().mkdirs();// Make sure the directory exists
         try {
