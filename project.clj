@@ -1,4 +1,4 @@
-(defproject brevis "0.9.104"
+(defproject brevis "0.9.105"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "http://brevis.us"
   :license {:name "Apache License v2"
@@ -29,6 +29,7 @@
                  [kephale/lwjgl-natives "2.9.0"]
                  [kephale/slick-util "1.0.1"]
                  [org.l33tlabs.twl/pngdecoder "1.0"]          
+                 [funimage "0.1.66"]
                  
                  ;; Plotting 
                  [org.jfree/jcommon "1.0.21"]
