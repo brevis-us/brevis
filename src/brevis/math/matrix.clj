@@ -185,6 +185,11 @@
   [f mat]
   (seq-to-matrix (matrix-height mat) (matrix-width mat) (map f (matrix-to-seq mat))))
 
+(defn matrix-pmap
+  "Map a function over a matrix."
+  [f mat]
+  (seq-to-matrix (matrix-height mat) (matrix-width mat) (pmap f (matrix-to-seq mat))))
+
 (defn select-columns 
   "Select the columns by index. Takes a sequence of column indices starting with 0 to numColumns - 1"
   [^BasicMatrix mat indices]
@@ -204,3 +209,22 @@
   "Appends input matrix to the right of target. This is destructive"
   [^BasicMatrix target ^BasicMatrix input]
   (.mergeRows target input))
+
+(defn sum-rows
+  "sums all rows, returns 1 row"
+  [mat]
+  (let [height (matrix-height mat)
+        width (matrix-width mat)]
+    (seq-to-matrix 1 width (map #(apply + %) (partition height (matrix-to-seq mat))))))
+
+(defn sum-columns
+  "sums all columns, returns 1 column"
+  [mat]
+  (let [height (matrix-height mat)
+        width (matrix-width mat)]
+    (seq-to-matrix height 1 (map #(apply + %) (partition width (matrix-to-seq (transpose mat)))))))
+
+(defn sum-matrix
+  "sums all elements of a matrix, returns clojure float"
+  [mat]
+  (apply + (matrix-to-seq mat)))
