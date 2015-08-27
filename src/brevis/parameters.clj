@@ -64,4 +64,4 @@
   ([]
     (get-param-map (keys @params)))
   ([ks]
-    (select-keys @params param)))
+    (select-keys @params ks)))
