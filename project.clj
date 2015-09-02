@@ -1,4 +1,4 @@
-(defproject brevis "0.9.106"
+(defproject brevis "0.9.107"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "http://brevis.us"
   :license {:name "Apache License v2"
@@ -36,7 +36,8 @@
                  [org.jfree/jfreechart "1.0.17"]
                  
                  ;; Math packages
-                 [org.ojalgo/ojalgo "37.1"]; 38 requries java8
+                 ;[org.ojalgo/ojalgo "37.1"]; 38 requries java8
+                 [org.ojalgo/ojalgo "38.2"]; 38 requries java8
                  [org.flatland/ordered "1.5.2"]
                  
                  ;; UI packages
@@ -49,7 +50,7 @@
   ;:manifest {"SplashScreen-Image" "brevis_splash.gif"}
   ;:warn-on-reflection true
   :javadoc-opts {:package-names ["brevis" "brevis.graphics" "brevis.plot"]}
-  :javac-options ["-target" "1.6" "-source" "1.6" "-Xlint:-options"]
+  :javac-options ["-target" "1.8" "-source" "1.8" "-Xlint:-options"]
   :profiles {:headless {:jvm-opts ["-DbrevisHeadless=true"]}
              :BrIDE {:main brevis.ui.core
                      :aot [brevis.ui.core]
