@@ -146,7 +146,7 @@
   (seq (.toListOfElements m)))
 
 (defn seq-to-matrix
- "Return a matrix"
+ "Return a matrix. Collection will be read in order of top-down, left-right (i.e. coll is read as column by column)"
  [r c coll]
  (MatrixUtils/collectionToMatrix r c coll))
 
@@ -228,3 +228,40 @@
   "sums all elements of a matrix, returns clojure float"
   [mat]
   (apply + (matrix-to-seq mat)))
+
+;; Solving
+
+(defn linear-solve
+  "Solve a linear system."
+  [lhs rhs]
+  (.solve lhs rhs))
+
+;; Decompositions
+
+(defn singular-value-decomposition
+  "From ojAlgo:
+   Singular Value: [A] = [Q1][D][Q2]T Decomposes [A] into [Q1], [D] and [Q2] where:
+[Q1] is an orthogonal matrix. The columns are the left, orthonormal, singular vectors of [this]. Its columns are the eigenvectors of [A][A]T, and therefore has the same number of rows as [this].
+[D] is a diagonal matrix. The elements on the diagonal are the singular values of [this]. It is either square or has the same dimensions as [this]. The singular values of [this] are the square roots of the nonzero eigenvalues of [A][A]T and [A]T[A] (they are the same)
+[Q2] is an orthogonal matrix. The columns are the right, orthonormal, singular vectors of [this]. Its columns are the eigenvectors of [A][A]T, and therefore has the same number of rows as [this] has columns.
+[this] = [Q1][D][Q2]T
+A singular values decomposition always exists."
+  [A]
+  (let [sv (org.ojalgo.matrix.decomposition.SingularValue/make A)
+        success? (.decompose sv A)]
+    (when success?
+      {:condition (.getCondition sv)
+       :D (.getD sv)
+       :frobenius-norm (.getFrobeniusNorm sv)
+       ;:ky-fan-norm-fn #(.getKyFanNorm sv %)
+       :operator-norm (.getOperatorNorm sv)
+       :Q1 (.getQ1 sv)
+       :Q2 (.getQ2 sv)
+       :rank (.getRank sv)
+       :singular-values (.getSingularValues sv)
+       :trace-norm (.getTraceNorm sv)
+       :ordered? (.isOrdered sv)})))
+
+#_(let [m (seq-to-matrix 4 5 [1 0 0 0  0 0 0 4  0 3 0 0  0 0 0 0  2 0 0 0])]
+   (singular-value-decomposition m)); example matrix from wikipedia svd
+  

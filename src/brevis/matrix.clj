@@ -4,13 +4,8 @@
   (:import [org.lwjgl.util.vector Vector3f Vector4f Matrix4f]
            [java.nio FloatBuffer]
            [org.lwjgl BufferUtils]
-           #_[org.ejml.data DenseMatrix64F]
-           #_[org.ejml.ops CommonOps]
-           #_[org.ejml.alg.dense.mult MatrixVectorMult]
            [org.ojalgo.matrix BasicMatrix PrimitiveMatrix]
-           [brevis.math MatrixUtils]
-           )
-  #_(:import [javax.vecmath Vector3d Vector4d Matrix4d]))
+           [brevis.math MatrixUtils]))
 
 (defonce x-axis (vector/vec3 1 0 0))
 (defonce y-axis (vector/vec3 0 1 0))
@@ -93,5 +88,3 @@ the specified axis."
          (+ (* t x y) (* s z)) (+ (* t y y) c) (- (* t y z) (* s x)) 0
          (- (* t x z) (* s y)) (+ (* t y z) (* s x)) (+ (* t z z) c) 0
          0 0 0 1))))
-
-

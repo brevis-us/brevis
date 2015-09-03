@@ -58,3 +58,10 @@
   [filename]
   (let [in-params (slurp filename)]
     (reset! params (load-string in-params))))
+
+(defn get-param-map
+  "Get a map of parameters, maybe a subset specified by keys."
+  ([]
+    (get-param-map (keys @params)))
+  ([ks]
+    (select-keys @params ks)))
