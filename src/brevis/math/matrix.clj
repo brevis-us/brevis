@@ -186,7 +186,7 @@
   (seq-to-matrix (matrix-height mat) (matrix-width mat) (map f (matrix-to-seq mat))))
 
 (defn matrix-pmap
-  "Map a function over a matrix."
+  "Map a function over a matrix in parallel."
   [f mat]
   (seq-to-matrix (matrix-height mat) (matrix-width mat) (pmap f (matrix-to-seq mat))))
 
