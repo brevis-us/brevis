@@ -1,4 +1,4 @@
-(defproject brevis "0.9.108"
+(defproject brevis "0.9.109"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "http://brevis.us"
   :license {:name "Apache License v2"
@@ -19,17 +19,17 @@
                  [clj-jgit "0.7.6"]
                  [me.raynes/conch "0.8.0"]
                  
-                 ;; Physics packages                 
+                 ;; Images and Physics packages      
+                 [funimage "0.1.66"]
                  [org.ode4j/core "0.2.8"]; 0.3.0 introduced threading issues that are causing issues
                  [org.ode4j/demo "0.2.8"]; 0.2.9 forces java7
-                 [com.nitayjoffe.thirdparty.net.robowiki.knn/knn-benchmark "0.1"]                 
+                 [com.nitayjoffe.thirdparty.net.robowiki.knn/knn-benchmark "0.1"]; funimage can handle this          
                  
                  ;; Graphics packages (3D rendering)
                  [kephale/lwjgl "2.9.0"]
                  [kephale/lwjgl-natives "2.9.0"]
                  [kephale/slick-util "1.0.1"]
-                 [org.l33tlabs.twl/pngdecoder "1.0"]          
-                 [funimage "0.1.66"]
+                 ;[org.l33tlabs.twl/pngdecoder "1.0"]          
                  
                  ;; Plotting 
                  [org.jfree/jcommon "1.0.21"]
@@ -37,7 +37,7 @@
                  
                  ;; Math packages
                  ;[org.ojalgo/ojalgo "37.1"]; 38 requries java8
-                 [org.ojalgo/ojalgo "38.2"]; 38 requries java8
+                 [org.ojalgo/ojalgo "38.2"]
                  [org.flatland/ordered "1.5.2"]
                  
                  ;; UI packages

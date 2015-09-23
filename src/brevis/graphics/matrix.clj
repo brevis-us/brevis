@@ -1,6 +1,7 @@
 (ns brevis.graphics.matrix
   (:use [brevis math])
-  (:require [brevis.vector :as vector])
+  (:require [brevis.vector :as vector]
+            [brevis.graphics.matrix :as m])
   (:import [org.lwjgl.util.vector Vector3f Vector4f Matrix4f]
            [java.nio FloatBuffer]
            [org.lwjgl BufferUtils]
@@ -97,7 +98,7 @@ the specified axis."
         v2 (let [tmp [0 0 0]] 
              (assoc tmp imin 1) 
              (map #(* dt %) tmp))
-        v3 (v/vec3-to-seq (v/cross (apply v/vec3 normal) (apply v/vec3 v2)))]
+        v3 (vector/vec3-to-seq (vector/cross (apply vector/vec3 normal) (apply vector/vec3 v2)))]
     (m/mat4 (first normal) (first v2) (first v3) 0
             (second normal) (second v2) (second v3) 0
             (last normal) (last v2) (last v3) 0

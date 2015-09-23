@@ -325,8 +325,11 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
     } 
 	
 	public void setTextureImage(BufferedImage newTexture) {
+		//Generally a good idea to enable texturing first
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+
 		//texture = newTexture;
-		int textureID = InternalTextureLoader.createTextureID();
+		int textureID = GL11.glGenTextures();
 		TextureImpl timp = new TextureImpl("NORESOURCE", GL11.GL_TEXTURE_2D, textureID);
 		
 		ImageIOImageData iiid = new ImageIOImageData();
