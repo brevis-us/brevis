@@ -168,19 +168,19 @@
     (.addForce ^org.ode4j.ode.DBody (get-body obj) (.x f) (.y f) (.z f))
     obj))
 
-(defn make-floor
-  "Make a floor object."
-  [w h]  
-  (set-texture (move (make-real {:color (vec4 0.8 0.8 0.8 1)
-                                 :shininess 80
-                                 :type :floor
-                                 :density 8050
-                                 :hasShadow false
-                                 ;                    :texture *checkers*
-                                 :shape (create-box w 0.1 h)})
-                     (vec3 0 -3 0))
-               "img/checker_large.png"
-               #_(clojure.java.io/resource "img/checker_large.png")))
+#_(defn make-floor
+   "Make a floor object."
+   [w h]  
+   (set-texture (move (make-real {:color (vec4 0.8 0.8 0.8 1)
+                                  :shininess 80
+                                  :type :floor
+                                  :density 8050
+                                  :hasShadow false
+                                  ;                    :texture *checkers*
+                                  :shape (create-box w 0.1 h)})
+                      (vec3 0 -3 0))
+                "img/checker_large.png"
+                #_(clojure.java.io/resource "img/checker_large.png")))
 
 (defn init-world  "Return a map of ODE physics for 1 world. (Now does some brevis in it too)"  []
   (when @*java-engine*
@@ -198,11 +198,16 @@
                                  :environment environment))
         (add-object floor)        
         (:objects environment))))
-(defn reset-world  "Reset the *physics* global."  []  (loop []    (when (pos? (.getNumGeoms (:space @*physics*)))      (.remove (:space *physics*) (.getGeom (:space @*physics*) 0))      (recur)))  (let [[floor floor-joint] (make-floor)
-        environment {:objects [floor]
-                     :joints [floor-joint]}]    (reset! *physics* (assoc @*physics*
-                             :environment environment
-                             :time 0)))) 
+#_(defn reset-world  "Reset the *physics* global."  []  (loop []    (when (pos? (.getNumGeoms (:space @*physics*)))      (.remove (:space *physics*) (.getGeom (:space @*physics*) 0))      (recur)))  (let [[floor floor-joint] (make-floor)
+         environment {:objects [floor]
+                      :joints [floor-joint]}]    (reset! *physics* (assoc @*physics*
+                              :environment environment
+                              :time 0))))
+
+(defn reset-world  "Reset the *physics* global."  []  (loop []    (when (pos? (.getNumGeoms (:space @*physics*)))      (.remove (:space *physics*) (.getGeom (:space @*physics*) 0))      (recur)))  (let [environment {:objects []
+                      :joints []}]    (reset! *physics* (assoc @*physics*
+                              :environment environment
+                              :time 0))))
 
 (defn increment-physics-time
   "Increment the physics time by dt"

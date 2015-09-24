@@ -221,26 +221,6 @@ axis is the axis about which the joint rotates"
   [^BrObject obj]
   (.getDoubleMass obj))
 
-(defn get-texture
-  "Return the texture of an object."
-  [^BrObject obj]
-  (.getTexture obj))
-
-(defn set-texture
-  "set the texture of an object."
-  [obj new-tex]  
-  (begin-with-graphics-thread)
-  (when (:gui @brevis.globals/*gui-state*);; for now textures shouldn't matter without graphics, they may eventually though  
-    (.setTexture obj new-tex) )
-  (end-with-graphics-thread)
-  obj)  
-
-(defn set-texture-image
-  "set the texture of an object to a bufferedimage."
-  [obj new-tex-img]
-  (.setTextureImage obj new-tex-img)
-  obj)
-
 #_(defn get-closest-object
    "Return the closest object to a vector from a list of objects."
    [pos objs]

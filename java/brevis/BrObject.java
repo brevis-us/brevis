@@ -16,6 +16,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
 
+// Shouldn't be any opengl stuff in here actually
+
 import org.newdawn.slick.opengl.ImageIOImageData;
 import org.newdawn.slick.opengl.InternalTextureLoader;
 import org.newdawn.slick.opengl.Texture;
@@ -59,7 +61,7 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 	public Vector4f rotation;
 	public Vector4f color;
 	//public BufferedImage texture;	
-	public Texture texture;	
+	public Texture texture = null;	
 	public Object data;
 	
 	public Long closestNeighbor;
@@ -325,9 +327,19 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
     } 
 	
 	public void setTextureImage(BufferedImage newTexture) {
+		//Generally a good idea to enable texturing first
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+
+		TextureImpl timp;
+		int textureID;
 		//texture = newTexture;
-		int textureID = InternalTextureLoader.createTextureID();
-		TextureImpl timp = new TextureImpl("NORESOURCE", GL11.GL_TEXTURE_2D, textureID);
+		if( texture == null ) {
+			textureID = GL11.glGenTextures();
+			timp = new TextureImpl("NORESOURCE", GL11.GL_TEXTURE_2D, textureID);
+		} else {
+			timp = (TextureImpl) texture;
+			textureID = timp.getTextureID();
+		}
 		
 		ImageIOImageData iiid = new ImageIOImageData();
 				

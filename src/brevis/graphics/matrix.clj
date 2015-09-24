@@ -1,6 +1,7 @@
-(ns brevis.matrix
+(ns brevis.graphics.matrix
   (:use [brevis math])
-  (:require [brevis.vector :as vector])
+  (:require [brevis.vector :as vector]
+            [brevis.graphics.matrix :as m])
   (:import [org.lwjgl.util.vector Vector3f Vector4f Matrix4f]
            [java.nio FloatBuffer]
            [org.lwjgl BufferUtils]
@@ -88,3 +89,17 @@ the specified axis."
          (+ (* t x y) (* s z)) (+ (* t y y) c) (- (* t y z) (* s x)) 0
          (- (* t x z) (* s y)) (+ (* t y z) (* s x)) (+ (* t z z) c) 0
          0 0 0 1))))
+
+(defn normal-to-rotation-matrix
+  "Convert a normal vector, vector as a sequence"
+  [normal]
+  (let [imin (reduce #(if (< (java.lang.Math/abs (nth normal %1)) (java.lang.Math/abs (nth normal %2))) %1 %2) (range 3))
+        dt (nth normal imin)
+        v2 (let [tmp [0 0 0]] 
+             (assoc tmp imin 1) 
+             (map #(* dt %) tmp))
+        v3 (vector/vec3-to-seq (vector/cross (apply vector/vec3 normal) (apply vector/vec3 v2)))]
+    (m/mat4 (first normal) (first v2) (first v3) 0
+            (second normal) (second v2) (second v3) 0
+            (last normal) (last v2) (last v3) 0
+            0 0 0 1)))    

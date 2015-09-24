@@ -2,12 +2,16 @@
 
 package brevis.graphics;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.nio.IntBuffer;
 import java.util.HashMap;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
+import org.newdawn.slick.opengl.renderer.SGL;
 import org.newdawn.slick.util.ResourceLoader;
 
 public class BrTexture {
@@ -25,4 +29,6 @@ public class BrTexture {
 											ResourceLoader.getResourceAsStream( filename ), 
 											GL11.GL_LINEAR );
 	}
+	
+	
 }

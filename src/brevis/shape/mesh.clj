@@ -68,4 +68,8 @@
     (end-with-graphics-thread)
     result))
 
-
+(defn bounding-box
+  "Return the bounding box of a mesh as 2 corners."
+  [mesh]
+  {:max (vec3 (.rightpoint mesh) (.toppoint mesh) (.nearpoint mesh))
+   :min (vec3 (.leftpoint mesh) (.bottompoint mesh) (.farpoint mesh))})

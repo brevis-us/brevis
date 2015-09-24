@@ -180,7 +180,7 @@ public class Basic3D {
         GL11.glClearStencil(0);                                  // Stencil Buffer Setup
         GL11.glEnable(GL11.GL_DEPTH_TEST);                            // Enables Depth Testing
         GL11.glDepthFunc(GL11.GL_LEQUAL);                             // The Type Of Depth Testing To Do
-        //GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST);  // Really Nice Perspective Calculations
+        GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST);  // Really Nice Perspective Calculations
         
         //GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_FASTEST);
         GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST);
@@ -231,17 +231,24 @@ public class Basic3D {
 		GL11.glDisable (GL11.GL_TEXTURE_GEN_T);
 		GL11.glShadeModel (GL11.GL_FLAT);
 		GL11.glEnable (GL11.GL_DEPTH_TEST);
-		GL11.glDepthFunc (GL11.GL_LESS);
-		//GL11.glEnable (GL11.GL_CULL_FACE);
-		//GL11.glCullFace (GL11.GL_BACK);
+		//GL11.glDepthFunc (GL11.GL_LESS);
+		GL11.glDepthFunc (GL11.GL_LEQUAL);
+		
+		GL11.glEnable (GL11.GL_CULL_FACE);
+		GL11.glCullFace (GL11.GL_BACK);
 		//GL11.glFrontFace (GL11.GL_CCW);
 
 		// setup viewport
 		//displayCamera.setupFrame();		
 		
 		//light1.enable();		
+		GL11.glMatrixMode (GL11.GL_MODELVIEW);
+		GL11.glLoadIdentity();
+		GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST);
 		for( BrLight light : lights ) {
 			light.enable();
+			//float[] pos = light.getPosition();
+			//System.out.println( "Light " + light + " position " + pos[0] + ", " +  pos[1] + ", " +  pos[2] + "" );
 		}
 		
 		GL11.glColor3f (1.0f, 1.0f, 1.0f);
@@ -253,6 +260,7 @@ public class Basic3D {
 		// go to GL_MODELVIEW matrix mode and set the camera
 		GL11.glMatrixMode (GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
+		//displayCamera.setDimensions( Display.getWidth(), Display.getHeight() );
 		displayCamera.setupFrame();		
 		
 		GL11.glEnable(GL11.GL_BLEND);
@@ -481,7 +489,7 @@ public class Basic3D {
             GL11.glRotatef (r, 1,0,0);
             GL11.glRotatef (p, 0,1,0);
             GL11.glRotatef (-h, 0,0,1);
-            GL11.glTranslatef (-x,-y,-z);
+            GL11.glTranslatef (-x,-y,-z);            
     }   
     
     // ow the static pain
@@ -681,6 +689,8 @@ public class Basic3D {
         
         GL11.glPushMatrix();
         //GL11.glColor4d( obj.color.x, obj.color.y, obj.color.z, obj.color.w );
+        
+        // This is needed but shouldn't be?
         setColor( (float)obj.color.x, (float)obj.color.y, (float)obj.color.z, (float)obj.color.w );
                 
         GL11.glTranslatef( vObjPos.x, vObjPos.y, vObjPos.z );      // Position The Object
@@ -707,8 +717,6 @@ public class Basic3D {
         	 setColor( (float)obj.color.x, (float)obj.color.y, (float)obj.color.z, (float)obj.color.w );
         }        
         
-        int numSlices = 25;
-        int numStacks = 25;
         
         // Render primitives directly with vertex commands       
         if( ( obj.getShape().mesh == null ) ||
