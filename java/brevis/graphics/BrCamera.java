@@ -93,6 +93,13 @@ public class BrCamera {
 		this.aspectRatio = ( width/height > 1 ? width/height : height/width );
 		GL11.glViewport(0,0,(int)width,(int)height);                           // Reset The Current Viewport
 		
+		GL11.glMatrixMode(GL11.GL_PROJECTION);                            // Select The Projection Matrix
+        GL11.glLoadIdentity();                                       // Reset The Projection Matrix
+        
+        GLU.gluPerspective(45.0f,
+                (float) width / (float) height,
+                0.05f, 100.0f);
+		
 		/*GLU.gluPerspective(fov,
                 (float) width / (float) height,
                 nearClippingPlane, farClippingPlane);*/

@@ -180,7 +180,7 @@ public class Basic3D {
         GL11.glClearStencil(0);                                  // Stencil Buffer Setup
         GL11.glEnable(GL11.GL_DEPTH_TEST);                            // Enables Depth Testing
         GL11.glDepthFunc(GL11.GL_LEQUAL);                             // The Type Of Depth Testing To Do
-        //GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST);  // Really Nice Perspective Calculations
+        GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST);  // Really Nice Perspective Calculations
         
         //GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_FASTEST);
         GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST);
@@ -259,7 +259,8 @@ public class Basic3D {
 
 		// go to GL_MODELVIEW matrix mode and set the camera
 		GL11.glMatrixMode (GL11.GL_MODELVIEW);
-		//GL11.glLoadIdentity();
+		GL11.glLoadIdentity();
+		//displayCamera.setDimensions( Display.getWidth(), Display.getHeight() );
 		displayCamera.setupFrame();		
 		
 		GL11.glEnable(GL11.GL_BLEND);

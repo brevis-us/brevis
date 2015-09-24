@@ -71,53 +71,56 @@
   "Render all objects."
   []  
   (begin-with-graphics-thread)
-  (when (Display/wasResized) (.setDimensions (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
+  (when (Display/wasResized) 
+    (.setDimensions (:camera @*gui-state*) 
+      (float (Display/getWidth)) (float (Display/getHeight))))
   (let [objs (all-objects)]    
     (GL11/glClear (bit-or GL11/GL_COLOR_BUFFER_BIT
-                          GL11/GL_DEPTH_BUFFER_BIT))
+                          GL11/GL_DEPTH_BUFFER_BIT
+                          GL11/GL_STENCIL_BUFFER_BIT))
     (GL11/glEnable GL11/GL_BLEND)
     (GL11/glBlendFunc GL11/GL_SRC_ALPHA GL11/GL_ONE_MINUS_SRC_ALPHA)
-    
-    #_(do (GL11/glMatrixMode GL11/GL_PROJECTION);                            // Select The Projection Matrix
-       (GL11/glLoadIdentity);                                       // Reset The Projection Matrix        
-       (org.lwjgl.util.glu.GLU/gluPerspective 45.0
-                           (float (/ (Display/getWidth) (Display/getHeight)))
-                           0.05 100.0))
         
     #_(Basic3D/initFrame (:camera @*gui-state*))
     (when-not (:disable-skybox @*gui-state*)
      (draw-sky))
-    #_(update-display-text)
-    #_(gl-matrix-mode :modelview)
-    #_(gl-load-identity-matrix)
-    #_(use-camera (:camera @*gui-state*))
     
-    ; Calculates shadows 
-    #_(Basic3D/initShadows (:camera @*gui-state*))
-    #_(doseq [obj objs]
+    (GL11/glCullFace GL11/GL_BACK);
+    (GL11/glEnable GL11/GL_CULL_FACE)
+    (GL11/glDepthMask true)
+    (GL11/glEnable GL11/GL_DEPTH_TEST )
+    
+     #_(update-display-text)
+     #_(gl-matrix-mode :modelview)
+     #_(gl-load-identity-matrix)
+     #_(use-camera (:camera @*gui-state*))
+    
+     ; Calculates shadows 
+     #_(Basic3D/initShadows (:camera @*gui-state*))
+     #_(doseq [obj objs]
+        (when (drawable? obj) ;; add a check to see if the object is in view
+         (draw-shape obj)
+         #_(draw-shape-shadow obj)
+         ))
+     #_(Basic3D/finishShadows)
+     ; Second pass    
+     (doseq [obj (reverse objs)]
        (when (drawable? obj) ;; add a check to see if the object is in view
         (draw-shape obj)
         #_(draw-shape-shadow obj)
-        ))
-    #_(Basic3D/finishShadows)
-    ; Second pass    
-    (doseq [obj (reverse objs)]
-      (when (drawable? obj) ;; add a check to see if the object is in view
-       (draw-shape obj)
-       #_(draw-shape-shadow obj)
-       ))    
-    ; Third pass
-    #_(doseq [obj objs]
-       (when (drawable? obj) ;; add a check to see if the object is in view
-        (draw-shape obj)
-        #_(draw-shape-shadow obj)
-        ))
-    (doseq [vo @visual-overlays]      
-      (draw-visual-overlay vo))        
-    (Display/update)        
-    (Display/sync 100)
-    (end-with-graphics-thread)
-    ))
+        ))    
+     ; Third pass
+     #_(doseq [obj objs]
+        (when (drawable? obj) ;; add a check to see if the object is in view
+         (draw-shape obj)
+         #_(draw-shape-shadow obj)
+         ))
+     (doseq [vo @visual-overlays]      
+       (draw-visual-overlay vo))        
+     (Display/update)        
+     (Display/sync 60)
+     (end-with-graphics-thread)
+     ))
 
 #_(defn display
     "Render all objects."

@@ -71,8 +71,7 @@ public class BrSky {
 		
 		GL11.glPushMatrix();
 		
-		GL11.glDisable (GL11.GL_CULL_FACE);
-		GL11.glCullFace (GL11.GL_BACK);
+		GL11.glDisable (GL11.GL_CULL_FACE);		
 		
 		GL11.glLoadIdentity();
 		cam.setupFrame();
@@ -162,10 +161,10 @@ public class BrSky {
 	    GL11.glPopAttrib();
 	    GL11.glPopMatrix();
 	    
-	    GL11.glDepthMask( false );
-	    GL11.glEnable( GL11.GL_DEPTH_TEST );
-	    GL11.glEnable (GL11.GL_CULL_FACE);
-		GL11.glCullFace (GL11.GL_BACK);
+	    //GL11.glDepthMask( false );
+	    //GL11.glEnable( GL11.GL_DEPTH_TEST );
+	    //GL11.glEnable (GL11.GL_CULL_FACE);
+		//GL11.glCullFace (GL11.GL_BACK);
 	}
 
 	//clamp textures, so edges get dont create a line in between
