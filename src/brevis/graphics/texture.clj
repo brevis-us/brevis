@@ -25,7 +25,6 @@
 (defn set-texture-image
   "set the texture of an object to a bufferedimage."
   [obj new-tex-img]
-  (println obj new-tex-img)
   (begin-with-graphics-thread)
   ;when? see set-texture
   (.setTextureImage ^brevis.BrObject obj new-tex-img)
