@@ -91,6 +91,8 @@ public class BrSky {
 //			gluBuild2DMipmaps( GL_TEXTURE_2D, 3, width, height,
 //	                GL_RGB, GL_UNSIGNED_BYTE, data );
 	    
+	    //System.out.println( "sky texture info " + textures.get(0).getWidth() + "," + textures.get(0).getHeight() + "\t" + textures.get(0).getTextureWidth() + "," + textures.get(0).getTextureHeight() + "\t" + textures.get(0).getImageWidth() + "," + textures.get(0).getImageHeight() );
+	    
 	    // Render the front quad
 	    clampToEdge();
 	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(0).getTextureID());

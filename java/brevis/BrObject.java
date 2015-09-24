@@ -16,6 +16,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
 
+// Shouldn't be any opengl stuff in here actually
+
 import org.newdawn.slick.opengl.ImageIOImageData;
 import org.newdawn.slick.opengl.InternalTextureLoader;
 import org.newdawn.slick.opengl.Texture;
