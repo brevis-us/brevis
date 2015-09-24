@@ -59,7 +59,7 @@
 (defn all-object-uids-by-type
   "Return the collection of all UIDs."
   [type]
-  (seq (.allObjectUIDsByType ^Engine @*java-engine* (name type))))
+  (seq (.allObjectUIDsByType ^Engine @*java-engine* type)))
 
 (defn set-object
   "Set the object at UID to a new version.

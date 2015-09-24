@@ -71,12 +71,16 @@ public class BrSky {
 		
 		GL11.glPushMatrix();
 		
+		GL11.glDisable (GL11.GL_CULL_FACE);
+		GL11.glCullFace (GL11.GL_BACK);
+		
 		GL11.glLoadIdentity();
 		cam.setupFrame();
 		//GL11.glTranslatef(Renderer.camPosX, Renderer.camPosY, -Renderer.camPosZ);
 		//GL11.glTranslatef( x, y, z );
 		GL11.glPushAttrib(GL11.GL_ENABLE_BIT);		
 	    GL11.glDisable(GL11.GL_DEPTH_TEST);
+	    GL11.glDepthMask( false );
 	    GL11.glDisable(GL11.GL_LIGHTING);
 	    GL11.glDisable(GL11.GL_BLEND);
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);
@@ -92,7 +96,7 @@ public class BrSky {
 	    clampToEdge();
 	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(0).getTextureID());
 	    GL11.glBegin(GL11.GL_QUADS);
-		    GL11.glNormal3f(0f, 0f, 1f);
+		    GL11.glNormal3f(0f, 0f, -1f);
 			GL11.glTexCoord2f(0.0f, 0.0f); GL11.glVertex3f(-SkyboxUnit, -SkyboxUnit,  SkyboxUnit);  // Bottom Left
 			GL11.glTexCoord2f(1.0f, 0.0f); GL11.glVertex3f( SkyboxUnit, -SkyboxUnit,  SkyboxUnit);  // Bottom Right
 			GL11.glTexCoord2f(1.0f, 1.0f); GL11.glVertex3f( SkyboxUnit,  SkyboxUnit,  SkyboxUnit);  // Top Right
@@ -103,7 +107,7 @@ public class BrSky {
 	    clampToEdge();
 	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(1).getTextureID());
 	    GL11.glBegin(GL11.GL_QUADS);
-		    GL11.glNormal3f(1f, 0f, 0f);
+		    GL11.glNormal3f(-1f, 0f, 0f);
 			GL11.glTexCoord2f(0.0f, 0.0f); GL11.glVertex3f(-SkyboxUnit, -SkyboxUnit, -SkyboxUnit);  // Bottom Left
 			GL11.glTexCoord2f(1.0f, 0.0f); GL11.glVertex3f(-SkyboxUnit, -SkyboxUnit,  SkyboxUnit);  // Bottom Right 
 			GL11.glTexCoord2f(1.0f, 1.0f); GL11.glVertex3f(-SkyboxUnit,  SkyboxUnit,  SkyboxUnit);  // Top Right
@@ -114,7 +118,7 @@ public class BrSky {
 	    clampToEdge();
 	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(2).getTextureID());
 	    GL11.glBegin(GL11.GL_QUADS);
-		    GL11.glNormal3f(0f, 0f, -1f);
+		    GL11.glNormal3f(0f, 0f, 1f);
 			GL11.glTexCoord2f(1.0f, 0.0f); GL11.glVertex3f(-SkyboxUnit, -SkyboxUnit, -SkyboxUnit);  // Bottom Right
 			GL11.glTexCoord2f(1.0f, 1.0f); GL11.glVertex3f(-SkyboxUnit,  SkyboxUnit, -SkyboxUnit);  // Top Right
 			GL11.glTexCoord2f(0.0f, 1.0f); GL11.glVertex3f( SkyboxUnit,  SkyboxUnit, -SkyboxUnit);  // Top Left
@@ -125,7 +129,7 @@ public class BrSky {
 	    clampToEdge();	    
 	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(3).getTextureID());
 	    GL11.glBegin(GL11.GL_QUADS);
-		    GL11.glNormal3f(-1f, 0f, 0f);
+		    GL11.glNormal3f(1f, 0f, 0f);
 			GL11.glTexCoord2f(1.0f, 0.0f); GL11.glVertex3f( SkyboxUnit, -SkyboxUnit, -SkyboxUnit);  // Bottom Right
 			GL11.glTexCoord2f(1.0f, 1.0f); GL11.glVertex3f( SkyboxUnit,  SkyboxUnit, -SkyboxUnit);  // Top Right 
 			GL11.glTexCoord2f(0.0f, 1.0f); GL11.glVertex3f( SkyboxUnit,  SkyboxUnit,  SkyboxUnit);  // Top Left 
@@ -136,7 +140,7 @@ public class BrSky {
 	    clampToEdge();
 	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(4).getTextureID());
 	    GL11.glBegin(GL11.GL_QUADS);
-		    GL11.glNormal3f(0f, -1f, 0f);
+		    GL11.glNormal3f(0f, 1f, 0f);
 			GL11.glTexCoord2f(0.0f, 1.0f); GL11.glVertex3f(-SkyboxUnit,  SkyboxUnit, -SkyboxUnit);  // Top Left
 			GL11.glTexCoord2f(0.0f, 0.0f); GL11.glVertex3f(-SkyboxUnit,  SkyboxUnit,  SkyboxUnit);  // Bottom Left 
 			GL11.glTexCoord2f(1.0f, 0.0f); GL11.glVertex3f( SkyboxUnit,  SkyboxUnit,  SkyboxUnit);  // Bottom Right 
@@ -147,7 +151,7 @@ public class BrSky {
 	    clampToEdge();
 	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(5).getTextureID());
 	    GL11.glBegin(GL11.GL_QUADS);
-		    GL11.glNormal3f(0f, 1f, 0f);
+		    GL11.glNormal3f(0f, -1f, 0f);
 			GL11.glTexCoord2f(1.0f, 1.0f); GL11.glVertex3f(-SkyboxUnit, -SkyboxUnit, -SkyboxUnit);  // Top Right
 			GL11.glTexCoord2f(0.0f, 1.0f); GL11.glVertex3f( SkyboxUnit, -SkyboxUnit, -SkyboxUnit);  // Top Left 
 			GL11.glTexCoord2f(0.0f, 0.0f); GL11.glVertex3f( SkyboxUnit, -SkyboxUnit,  SkyboxUnit);  // Bottom Left 
@@ -157,6 +161,11 @@ public class BrSky {
 	    // Restore enable bits and matrix
 	    GL11.glPopAttrib();
 	    GL11.glPopMatrix();
+	    
+	    GL11.glDepthMask( false );
+	    GL11.glEnable( GL11.GL_DEPTH_TEST );
+	    GL11.glEnable (GL11.GL_CULL_FACE);
+		GL11.glCullFace (GL11.GL_BACK);
 	}
 
 	//clamp textures, so edges get dont create a line in between

@@ -63,8 +63,8 @@
   (when (Display/wasResized) (.setDimensions ^brevis.graphics.BrCamera (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
   (Basic3D/generateTextureCoordinates)
   (Basic3D/initFrame (:camera @*gui-state*))
-  (when-not (:disable-skybox @*gui-state*)
-    (draw-sky))
+  #_(when-not (:disable-skybox @*gui-state*)
+     (draw-sky))
   (end-with-graphics-thread))
 
 (defn display
@@ -73,11 +73,20 @@
   (begin-with-graphics-thread)
   (when (Display/wasResized) (.setDimensions (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
   (let [objs (all-objects)]    
+    (GL11/glClear (bit-or GL11/GL_COLOR_BUFFER_BIT
+                          GL11/GL_DEPTH_BUFFER_BIT))
     (GL11/glEnable GL11/GL_BLEND)
     (GL11/glBlendFunc GL11/GL_SRC_ALPHA GL11/GL_ONE_MINUS_SRC_ALPHA)
+    
+    #_(do (GL11/glMatrixMode GL11/GL_PROJECTION);                            // Select The Projection Matrix
+       (GL11/glLoadIdentity);                                       // Reset The Projection Matrix        
+       (org.lwjgl.util.glu.GLU/gluPerspective 45.0
+                           (float (/ (Display/getWidth) (Display/getHeight)))
+                           0.05 100.0))
+        
     #_(Basic3D/initFrame (:camera @*gui-state*))
-    #_(when-not (:disable-skybox @*gui-state*)
-       (draw-sky))
+    (when-not (:disable-skybox @*gui-state*)
+     (draw-sky))
     #_(update-display-text)
     #_(gl-matrix-mode :modelview)
     #_(gl-load-identity-matrix)
@@ -92,7 +101,7 @@
         ))
     #_(Basic3D/finishShadows)
     ; Second pass    
-    (doseq [obj objs]
+    (doseq [obj (reverse objs)]
       (when (drawable? obj) ;; add a check to see if the object is in view
        (draw-shape obj)
        #_(draw-shape-shadow obj)

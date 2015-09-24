@@ -342,6 +342,8 @@ public class BrMesh implements Serializable {
 		
 		this.objectlist = GL11.glGenLists(1);
 		
+		//GL11.glDisable(GL11.GL_TEXTURE_2D);
+		
 		GL11.glNewList(objectlist,GL11.GL_COMPILE);
 		for (int i=0;i<faces.size();i++) {
 			int[] tempfaces = (int[])(faces.get(i));
