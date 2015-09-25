@@ -604,7 +604,7 @@ public class BrShape implements Serializable {
 			GL11.glNewList(objectlist,GL11.GL_COMPILE);
 			
 			if( getType() == "box" )
-	        	drawBox( 1, 1, 1 );
+	        	drawBox( 0.5f, 0.5f, 0.5f );
 	        else if( getType() == "cone" )
 	        	drawCylinder( (float)dim.y, (float)0.0001, (float)dim.x, numSlices, numStacks );
 	        else if( getType() == "cylinder" )

@@ -83,18 +83,27 @@
 (defn periodic-boundary
   "Change a position according to periodic boundary conditions."
   [pos]
-  (let [x (x-val pos)
-        y (y-val pos)
-        z (z-val pos)]
-    (vec3 (cond (> x boundary) (- (mod x boundary) boundary)
-                (< x (- boundary)) (mod (- x) boundary)
-                :else x)
-          (cond (> y boundary) (- (mod y boundary) boundary)
-                (< y (- boundary)) (mod (- y) boundary)
-                :else y)
-          (cond (> z boundary) (- (mod z boundary) boundary)
-                (< z (- boundary)) (mod (- z) boundary)
-                :else z))))
+  (let [x (x-val-vec3 pos)
+        y (y-val-vec3 pos)
+        z (z-val-vec3 pos)]
+    (vec3 (loop [x x] (cond (> x boundary) (recur (- x (* 2 boundary)))
+                            (< x (- boundary)) (recur (+ x (* 2 boundary)))
+                            :else x))
+          (loop [y y] (cond (> y boundary) (recur (- y (* 2 boundary)))
+                            (< y (- boundary)) (recur (+ y (* 2 boundary)))
+                            :else y))
+          (loop [z z] (cond (> z boundary) (recur (- z (* 2 boundary)))
+                            (< z (- boundary)) (recur (+ z (* 2 boundary)))
+                            :else z)))
+    #_(vec3 (cond (> x boundary) (- (mod x boundary) boundary)
+                 (< x (- boundary)) (mod (- x) boundary)
+                 :else x)
+           (cond (> y boundary) (- (mod y boundary) boundary)
+                 (< y (- boundary)) (mod (- y) boundary)
+                 :else y)
+           (cond (> z boundary) (- (mod z boundary) boundary)
+                 (< z (- boundary)) (mod (- z) boundary)
+                 :else z))))
 
 (defn fly
   "Change the acceleration of a bird."
@@ -106,8 +115,7 @@
         
         new-acceleration (if-not closest-bird
                            ;; No neighbor, move randomly
-                           (elmul (vec3 (- (rand) 0.5) (- (rand) 0.5) (- (rand) 0.5))
-                                  (mul bird-pos -1.0))
+                           (vec3 (- (lrand) 0.5) (- (lrand) 0.5) (- (lrand) 0.5))
                            (let [dvec (sub bird-pos (get-position closest-bird)) 
                                  len (length dvec)]
                              (add (sub (get-velocity closest-bird) (get-velocity bird)); velocity matching
@@ -116,23 +124,21 @@
                                     dvec
                                     ;; If too close to neighbor, move away
                                     (add (mul dvec -1.0)
-                                         (vec3 (rand 0.1) (rand 0.1) (rand 0.1)))))));; add a small random delta so we don't get into a loop                                    
+                                         (vec3 (lrand 0.1) (lrand 0.1) (lrand 0.1)))))));; add a small random delta so we don't get into a loop                                    
         new-acceleration (if (zero? (length new-acceleration))
                            new-acceleration
-                           (mul new-acceleration (/ 1 (length new-acceleration))))]
-    (set-velocity
-      (set-acceleration
-        (if (or (> (java.lang.Math/abs (x-val bird-pos)) boundary) 
-                (> (java.lang.Math/abs (y-val bird-pos)) boundary) 
-                (> (java.lang.Math/abs (z-val bird-pos)) boundary)) 
-          (move bird (periodic-boundary bird-pos) #_(vec3 0 25 0))
-          bird)
-        (bound-acceleration
-          new-acceleration
-          #_(add (mul (get-acceleration bird) 0.5)
-               (mul new-acceleration speed))))
-      (bound-velocity (get-velocity bird)))
-      ))
+                           (mul new-acceleration (/ 1 (length new-acceleration))))]    
+    (if (or (> (java.lang.Math/abs (x-val bird-pos)) boundary) 
+            (> (java.lang.Math/abs (y-val bird-pos)) boundary) 
+            (> (java.lang.Math/abs (z-val bird-pos)) boundary)) 
+      (set-velocity (set-acceleration (move bird (periodic-boundary bird-pos) #_(vec3 0 25 0))
+                                      (vec3 (- (lrand) 0.5) (- (lrand) 0.5) (- (lrand) 0.5)))
+                    (vec3 (- (lrand) 0.5) (- (lrand) 0.5) (- (lrand) 0.5)))
+      (set-velocity (set-acceleration bird
+                                      (bound-acceleration
+                                        new-acceleration))
+                    (bound-velocity (get-velocity bird))))
+    ))
 
 (enable-kinematics-update :bird); This tells the simulator to move our objects
 (add-update-handler :bird fly); This tells the simulator how to update these objects
