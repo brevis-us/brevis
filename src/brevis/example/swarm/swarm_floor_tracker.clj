@@ -111,19 +111,20 @@
   (let [nbrs (filter bird? (get-neighbor-objects bird))      
         bird-pos (get-position bird)
                 
-        closest-bird (get-closest-neighbor bird)
+        closest-bird (when-not (empty? nbrs)
+                       (get-closest-neighbor bird))
         
         new-acceleration (if-not closest-bird
                            ;; No neighbor, move randomly
                            (vec3 (- (lrand) 0.5) (- (lrand) 0.5) (- (lrand) 0.5))
-                           (let [dvec (sub bird-pos (get-position closest-bird)) 
-                                 len (length dvec)]
+                           (let [dvec (sub-vec3 bird-pos (get-position closest-bird)) 
+                                 len (length-vec3 dvec)]
                              (add (sub (get-velocity closest-bird) (get-velocity bird)); velocity matching
                                   (if (<= len @avoidance-distance)
                                     ;; If far from neighbor, get closer
                                     dvec
                                     ;; If too close to neighbor, move away
-                                    (add (mul dvec -1.0)
+                                    (add-vec3 (mul-vec3 dvec -1.0)
                                          (vec3 (lrand 0.1) (lrand 0.1) (lrand 0.1)))))));; add a small random delta so we don't get into a loop                                    
         new-acceleration (if (zero? (length new-acceleration))
                            new-acceleration

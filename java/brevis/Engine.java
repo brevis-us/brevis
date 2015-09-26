@@ -592,8 +592,6 @@ public class Engine implements Serializable {
 	 			spaceTree.add( n );
 	 		}		
 	 		
-	 		int nResults = 10;
-	 		
 	 		// Loop over everyone and cache their neighborhood (this could be made lazy)
 	 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
 	 			BrObject obj = entry.getValue();
@@ -611,18 +609,27 @@ public class Engine implements Serializable {
 	 			long closestUID = 0;
 	 			boolean foundClosest = false;	 				 		
 	 			
+	 			//System.out.println( "---" + obj.uid + "---" );
+	 			
 	 			Vector3f diff = new Vector3f();
 	 			while( itr.hasNext() ) {
 	 				BrKDNode nbr = itr.next();
 	 				nbrs.add( nbr.UID );
-	 				Vector3f.sub( objects.get( nbr.UID ).position, obj.position, diff );	 				
+	 				diff = Vector3f.sub( objects.get( nbr.UID ).getPosition(), obj.getPosition(), diff );	 				
 	 				double ldiff = diff.length();
 	 				if ( ( ldiff < closestDistance ) && ( nbr.UID != obj.uid ) ) {
 	 					closestDistance = ldiff;
 	 					closestUID = nbr.UID;
 	 					foundClosest = true;
 	 				}
+	 				
+		 			//System.out.println( nbr.UID + " : " + ldiff + " [ " + diff  + " ] { " + objects.get( nbr.UID ).getPosition() );
 	 			}
+	 			
+	 			//System.out.println( "Closest: " + closestDistance );
+	 			//System.out.println( "Closest: " + closestUID );
+	 			
+	 			//System.out.println( "---END " + obj.uid + "---" );
 	 			
 	 			if( foundClosest )
 	 				obj.closestNeighbor = closestUID;
@@ -742,6 +749,11 @@ public class Engine implements Serializable {
 			synchronizeObjects();
 		}
 		
+		if( neighborhoodsEnabled ) {
+			updateNeighborhoods();
+			synchronizeObjects();
+		}
+		
 		// Global update handlers < 0 run before individual object updates
 		//System.out.println( " pre globalupdate ");
 		globalUpdateObjects( true );
@@ -763,11 +775,6 @@ public class Engine implements Serializable {
 		
 		if( collisionsEnabled ) {
 			handleCollisions( dt );
-			synchronizeObjects();
-		}
-		
-		if( neighborhoodsEnabled ) {
-			updateNeighborhoods();
 			synchronizeObjects();
 		}
 		
