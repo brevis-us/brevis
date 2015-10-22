@@ -23,7 +23,7 @@
 (defn matrix-mult
   "Matrix multiply"
   [^BasicMatrix m1 ^BasicMatrix m2]
-  (.multiplyRight m1 m2)); this needs to change to .multiply when switching to v38
+  (.multiply m1 m2)); switched from .multiplyRight when switching to v38
 
 (defn elmult
   "Matrix multiply by elements"
