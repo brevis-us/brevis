@@ -22,10 +22,20 @@
     num
     (unchecked-negate num)))
 
-(defn csv-to-matrix
+(defn csv-to-nest-seq
   [path]
-  (map #(seq (clojure.string/split % #", "))
-       (clojure.string/split-lines (slurp path))))
+  (let
+    [data (map #(seq (clojure.string/split % #", "))
+               (clojure.string/split-lines (slurp path)))
+     
+     width (count (first data))
+       
+     output (partition width (map #(let [el (read-string %)]
+                                     (if (number? el)
+                                       el
+                                       %))
+                                  (flatten data)))]
+    output))
 
 (defn nest-seq-to-csv
   [seq path]
@@ -138,7 +148,7 @@
          :centroids (rvec-seq-sort new-means )
          ;:old-centroids means
          :iterations iterations
-         ;:distance mean-distance
+         :distance mean-distance
          }
         (recur (inc iterations)
                new-means))))))
@@ -154,10 +164,11 @@
       (if (= stop iteration)
         theta
         (recur (inc iteration)
-               (matrix-mult x 
-                            (transpose (sub y 
-                                            (matrix-pmap sigmoid 
-                                                        (matrix-mult (transpose theta) 
-                                                                     x))))))))))
+               (matrix-mult (transpose x) 
+                            (sub y 
+                                 (matrix-pmap sigmoid 
+                                             (matrix-mult x 
+                                                          theta
+                                                          )))))))))
 
 
