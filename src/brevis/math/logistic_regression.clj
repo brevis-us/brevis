@@ -1,4 +1,4 @@
-(ns brevis.logistic-regression
+(ns brevis.math.logistic-regression
     (:use [brevis.math matrix]
           [brevis random]))
 
