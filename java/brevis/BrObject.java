@@ -1,13 +1,22 @@
 
 package brevis;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,6 +26,16 @@ import java.util.Set;
 import java.util.Vector;
 
 // Shouldn't be any opengl stuff in here actually
+
+
+import java.awt.image.ComponentColorModel;
+
+
+
+
+
+
+
 
 import org.newdawn.slick.opengl.ImageIOImageData;
 import org.newdawn.slick.opengl.InternalTextureLoader;
@@ -35,9 +54,12 @@ import org.lwjgl.opengl.*;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
+import com.sun.org.apache.xalan.internal.xsltc.runtime.Hashtable;
+
 import clojure.lang.*;
 import brevis.Utils;
 import brevis.BrShape.BrShapeType;
+import ij.*;
 
 //public class BrObject {
 //public class BrObject implements clojure.lang.IRecord {
@@ -344,6 +366,258 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 		ImageIOImageData iiid = new ImageIOImageData();
 				
         ByteBuffer buffer = iiid.imageToByteBuffer( newTexture, false, false, null );        
+
+        int width;
+        int height;
+        int texWidth;
+        int texHeight;
+
+        boolean hasAlpha;
+
+        width = newTexture.getWidth();
+        height = newTexture.getHeight();
+        hasAlpha = newTexture.getColorModel().hasAlpha();
+
+        /*texWidth = (int) Math.pow( 2, Math.ceil( Math.log( texture.getTextureWidth() ) / Math.log( 2 ) ) );
+        texHeight = (int) Math.pow( 2, Math.ceil( Math.log( texture.getTextureHeight() ) / Math.log( 2 ) ) );*/
+               
+        texWidth = (int) Math.pow( 2, Math.ceil( Math.log( width ) / Math.log( 2 ) ) );
+        texHeight = (int) Math.pow( 2, Math.ceil( Math.log( height ) / Math.log( 2 ) ) );
+              
+        int srcPixelFormat = hasAlpha ? GL11.GL_RGBA : GL11.GL_RGB;
+        int componentCount = hasAlpha ? 4 : 3;
+        
+        int minFilter = 0;//scale?
+        int magFilter = 0;
+        
+        timp.setAlpha( hasAlpha );
+        timp.setHeight( height );
+        timp.setWidth( width );
+        timp.setTextureID( textureID );
+        timp.setTextureHeight( texHeight );
+        timp.setTextureWidth( texWidth );                       
+        
+        //System.out.println( "setTextureimage " + width + " " + height + " " + hasAlpha + " " + texWidth + " " + texHeight );
+        
+        timp.setTextureData(srcPixelFormat, componentCount, minFilter, magFilter, buffer);        
+        
+        GL13.glActiveTexture( GL13.GL_TEXTURE0 );
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureID); 
+        
+        GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
+        
+        /*IntBuffer temp = BufferUtils.createIntBuffer(16);
+        GL11.glGetInteger(SGL.GL_MAX_TEXTURE_SIZE, temp);
+        int max = temp.get(0);
+        if ((texWidth > max) || (texHeight > max)) {
+                try {
+					throw new IOException("Attempt to allocate a texture to big for the current hardware");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+        }*/
+        
+        IntBuffer temp = BufferUtils.createIntBuffer(16);
+        GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE, temp);
+        int max = temp.get(0);
+        if ((texWidth > max) || (texHeight > max)) {
+                try {
+					throw new IOException("Attempt to allocate a texture to big for the current hardware");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+        }
+        
+        //}
+        /*
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, minFilter); 
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, magFilter); */
+        
+        
+        // produce a texture from the byte buffer
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 
+                      0, 
+                      dstPixelFormat, 
+                      get2Fold(width), 
+                      get2Fold(height), 
+                      0, 
+                      srcPixelFormat, 
+                      GL11.GL_UNSIGNED_BYTE, 
+                      buffer);   
+        GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
+                
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
+        
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
+        
+        //System.out.println( texture );
+        //System.out.println( timp );
+        
+        texture = timp;
+				        
+	}
+	
+	// slick2d stuff
+	
+	/** The colour model including alpha for the GL image */
+    private static final ColorModel glAlphaColorModel = 
+    		new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB),
+	            new int[] {8,8,8,8},
+	            true,
+	            false,
+	            ComponentColorModel.TRANSLUCENT,
+	            DataBuffer.TYPE_BYTE);
+    
+    /** The colour model for the GL image */
+    private static final  ColorModel glColorModel =
+    		new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB),
+                new int[] {8,8,8,0},
+                false,
+                false,
+                ComponentColorModel.OPAQUE,
+                DataBuffer.TYPE_BYTE);
+	
+	/**
+	 * Implement of transform copy area for 1.4
+	 * 
+	 * @param image The image to copy
+ 	 * @param x The x position to copy to
+	 * @param y The y position to copy to
+	 * @param width The width of the image
+	 * @param height The height of the image
+	 * @param dx The transform on the x axis
+	 * @param dy The transform on the y axis
+	 */
+	private void copyArea(BufferedImage image, int x, int y, int width, int height, int dx, int dy) {
+		Graphics2D g = (Graphics2D) image.getGraphics();
+		
+		g.drawImage(image.getSubimage(x, y, width, height),x+dx,y+dy,null);
+	}
+    
+	/*public ByteBuffer impToByteBuffer( ImagePlus imp ) {		
+		
+		BufferedImage image = imp.getBufferedImage();		
+		boolean flipped = false;
+		boolean forceAlpha = false;
+		
+		int[] transparent = null;
+		
+		 ByteBuffer imageBuffer = null; 
+	        WritableRaster raster;
+	        BufferedImage texImage;
+	        
+	        int texWidth = 2;
+	        int texHeight = 2;
+	        
+	        // find the closest power of 2 for the width and height
+	        // of the produced texture
+
+	        while (texWidth < image.getWidth()) {
+	            texWidth *= 2;
+	        }
+	        while (texHeight < image.getHeight()) {
+	            texHeight *= 2;
+	        }
+	        
+	        int width = image.getWidth();
+	        int height = image.getHeight();
+	        int depth = 24;
+	        
+	        // create a raster that can be used by OpenGL as a source
+	        // for a texture
+	        boolean useAlpha = image.getColorModel().hasAlpha() || forceAlpha; 
+	        
+	        if (useAlpha) {
+	        	depth = 32;
+	            raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE,texWidth,texHeight,4,null);
+	            texImage = new BufferedImage(glAlphaColorModel,raster,false,new Hashtable());
+	        } else {
+	        	depth = 24;
+	            raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE,texWidth,texHeight,3,null);
+	            texImage = new BufferedImage(glColorModel,raster,false,new Hashtable());
+	        }
+	            
+	        // copy the source image into the produced image
+	        Graphics2D g = (Graphics2D) texImage.getGraphics();
+	        
+	        // only need to blank the image for mac compatibility if we're using alpha
+	        if (useAlpha) {
+		        g.setColor(new Color(0f,0f,0f,0f));
+		        g.fillRect(0,0,texWidth,texHeight);
+	        }
+	        
+	        if (flipped) {
+	        	g.scale(1,-1);
+	        	g.drawImage(image,0,-height,null);
+	        } else {
+	        	g.drawImage(image,0,0,null);
+	        }
+	        
+	        boolean edging = true;
+	        if (edging) {
+		        if (height < texHeight - 1) {
+		        	copyArea(texImage, 0, 0, width, 1, 0, texHeight-1);
+		        	copyArea(texImage, 0, height-1, width, 1, 0, 1);
+		        }
+		        if (width < texWidth - 1) {
+		        	copyArea(texImage, 0,0,1,height,texWidth-1,0);
+		        	copyArea(texImage, width-1,0,1,height,1,0);
+		        }
+	        }
+	        
+	        // build a byte buffer from the temporary image 
+	        // that be used by OpenGL to produce a texture.
+	        byte[] data = ((DataBufferByte) texImage.getRaster().getDataBuffer()).getData(); 
+	        
+	        if (transparent != null) {
+		        for (int i=0;i<data.length;i+=4) {
+		        	boolean match = true;
+		        	for (int c=0;c<3;c++) {
+		        		int value = data[i+c] < 0 ? 256 + data[i+c] : data[i+c];
+		        		if (value != transparent[c]) {
+		        			match = false;
+		        		}
+		        	}
+		  
+		        	if (match) {
+		         		data[i+3] = 0;
+		           	}
+		        }
+	        }
+	        
+	        imageBuffer = ByteBuffer.allocateDirect(data.length); 
+	        imageBuffer.order(ByteOrder.nativeOrder()); 
+	        imageBuffer.put(data, 0, data.length); 
+	        imageBuffer.flip();
+	        g.dispose();	
+	        return imageBuffer; 
+	}*/
+	
+	public void setTextureImp(ImagePlus imp) {
+		//Generally a good idea to enable texturing first
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		
+		BufferedImage newTexture = imp.getBufferedImage();
+
+		TextureImpl timp;
+		int textureID;
+		//texture = newTexture;
+		if( texture == null ) {
+			textureID = GL11.glGenTextures();
+			timp = new TextureImpl("NORESOURCE", GL11.GL_TEXTURE_2D, textureID);
+		} else {
+			timp = (TextureImpl) texture;
+			textureID = timp.getTextureID();
+		}
+		
+		ImageIOImageData iiid = new ImageIOImageData();
+				
+        ByteBuffer buffer = iiid.imageToByteBuffer( newTexture, false, false, null );
+		//ByteBuffer buffer = impToByteBuffer( imp );
 
         int width;
         int height;

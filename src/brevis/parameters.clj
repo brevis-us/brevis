@@ -45,7 +45,7 @@
                                         :else (read-string v))])))   
         random-seed (if (:random-seed argmap)
                       (byte-array (map byte (read-string (:random-seed argmap)))) 
-                      (generate-random-seed))]
+                      (generate-random-seed))]    
     (swap! params merge argmap)))
 
 (defn write-params

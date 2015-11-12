@@ -15,6 +15,7 @@
        :mutation-probability 0.9
        :init-genome-fn (fn [] nil)
        :mutate-genome-fn (fn [x] x)
+       :best-selector max-key
        :selection-method {:method :tournament-max
                           :tournament-size 17})
 
@@ -58,14 +59,14 @@
   []
   (if (get-param :report-fn)
     ((get-param :report-fn))
-    (let [best (apply (partial max-key :fitness) (all-objects))
+    (let [best (apply (partial (get-param :best-selector) :fitness) (all-objects))
         fitnesses (map :fitness (all-objects))]
       (println "Generation" (get-time))
       (println "Best genome:" (:genome best))
       (println "Best fitness:" (:fitness best))
       (println "Avg fitness:" (float (/ (apply + fitnesses) (count fitnesses)))))))
 
-(add-global-update-handler 90 update-population)
+;(add-global-update-handler 90 update-population)
 ;(add-global-update-handler 91 report-population)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
