@@ -1,6 +1,6 @@
 (ns brevis.example.swarm.swarm-floor-tracker
   (:gen-class)
-  (:use [funimage imp]
+  (:use [funimage imp utils]
         [brevis.graphics basic-3D texture]
         [brevis.physics collision core space utils]
         [brevis.shape box sphere cone]
@@ -8,10 +8,10 @@
 
 ;; ## Globals
 
-(def num-birds (atom 500))
+(def num-birds (atom 100))
 
-(def avoidance-distance (atom 25))
-(def boundary 250)
+(def avoidance-distance (atom 150))
+(def boundary 512)
 
 (def speed 5)
 (def max-acceleration 10)
@@ -23,13 +23,13 @@
    "Make a floor object."
    [w h]
    (move (make-real {:color (vec4 0.8 0.8 0.8 1)
-                                   :shininess 80
-                                   :type :floor
-                                   :density 8050
-                                   :hasShadow false
-                                   ;                    :texture *checkers*
-                                   :shape (create-box w 0.1 h)})
-                       (vec3 0 -3 0)))
+                     :shininess 80
+                     :type :floor
+                     :density 8050
+                     :hasShadow false
+                     ;                    :texture *checkers*
+                     :shape (create-box w 0.1 h)})
+         (vec3 0 -3 0)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Birds
@@ -94,16 +94,7 @@
                             :else y))
           (loop [z z] (cond (> z boundary) (recur (- z (* 2 boundary)))
                             (< z (- boundary)) (recur (+ z (* 2 boundary)))
-                            :else z)))
-    #_(vec3 (cond (> x boundary) (- (mod x boundary) boundary)
-                 (< x (- boundary)) (mod (- x) boundary)
-                 :else x)
-           (cond (> y boundary) (- (mod y boundary) boundary)
-                 (< y (- boundary)) (mod (- y) boundary)
-                 :else y)
-           (cond (> z boundary) (- (mod z boundary) boundary)
-                 (< z (- boundary)) (mod (- z) boundary)
-                 :else z))))
+                            :else z)))))
 
 (defn fly
   "Change the acceleration of a bird."
@@ -155,14 +146,16 @@
             x (max 0 (min (get-width @floor-imp) (x-val-vec3 pos))) 
             y (- (dec (get-height @floor-imp))
                  (max 0 (min (get-height @floor-imp) (y-val-vec3 pos))))
-            delta 25]        
+            delta 1.0]        
         (reset! floor-imp (put-pixel-double @floor-imp x y  
-                                            (mod (+ (get-pixel-unsafe @floor-imp x y) delta)
-                                                 255)))))
+                                            (+ (get-pixel-float @floor-imp x y) delta)
+                                                 ))))
     (show-imp @floor-imp)
     (set-object (get-uid floor-obj)
-                (set-texture-image floor-obj
-                                   (.getBufferedImage @floor-imp)))
+                (set-texture-imp floor-obj
+                                    @floor-imp)
+                #_(set-texture-image floor-obj
+                                    (.getBufferedImage @floor-imp)))
     )))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -195,22 +188,8 @@
   ;(swap! brevis.globals/*gui-state* assoc :gui false)
   (init-world)
   (init-view)  
-  
-  #_(change-skybox
-     ["img/night_skybox/front.jpg"
-      "img/night_skybox/left.jpg"
-      "img/night_skybox/back.jpg"
-      "img/night_skybox/right.jpg"
-      "img/night_skybox/up.jpg"
-      "img/night_skybox/down.jpg"])
-  ;(swap! brevis.globals/*gui-state* assoc :gui false)
-  #_(.moveFromLook (:camera @brevis.globals/*gui-state*) 0 100 0)
-  #_(set-dt 0.1)
-  
-  #_(set-camera-information (vec3 -10.0 -50.0 -200.0) (vec4 1.0 0.0 0.0 0.0))
+
   (set-camera-information (vec3 -10.0 57.939613 -890.0) (vec4 1.0 0.0 0.0 0.0))
-  
-  #_(disable-skybox)
   
   (add-object
     (let [color-vec4 (vec4 1 1 1 1)
@@ -236,10 +215,13 @@
   (reset! floor 
           (make-floor (* 2 boundary)
                       (* 2 boundary)))
+  (start-imagej "/Applications/Fiji.app/plugins")
   (reset! floor-imp 
           (create-imp :width (* 2 boundary) 
                       :height (* 2 boundary)
-                      :type "8-bit")) 
+                      ;:type "8-bit"
+                      :type "32-bit"
+                      )) 
   (add-object (move @floor (vec3 (- boundary) (- boundary) (- boundary))))
   (dotimes [_ @num-birds]
     (add-object (random-bird))))

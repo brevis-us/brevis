@@ -32,6 +32,15 @@
   (end-with-graphics-thread)
   obj)
 
+(defn set-texture-imp
+  "set the texture of an object to a bufferedimage."
+  [obj new-tex-img]
+  (begin-with-graphics-thread)
+  ;when? see set-texture
+  (.setTextureImp ^brevis.BrObject obj new-tex-img)
+  (end-with-graphics-thread)
+  obj)
+
 (defn get-next-pow2
   "Get the next power of 2 above the number."
   [v]
