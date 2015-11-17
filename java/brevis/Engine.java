@@ -222,7 +222,7 @@ public class Engine implements Serializable {
 		
 		simulationStart = System.nanoTime();
 		
-		spaceTree = new BrKDTree<BrKDNode>();
+		spaceTree = new BrKDTree<BrKDNode>(10);
 	}
 	
 	public static class BrevisCollision implements DGeom.DNearCallback {

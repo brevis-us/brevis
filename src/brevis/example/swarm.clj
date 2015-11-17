@@ -25,9 +25,10 @@
 ;; ## Globals
 
 (def num-birds (atom 500))
+;(def num-birds (atom 2000))
 
 (def avoidance-distance (atom 25))
-(def boundary 250)
+(def boundary 1000)
 
 (def speed 5)
 (def max-acceleration 10)
@@ -42,12 +43,10 @@
 
 (defn random-bird-position
   "Returns a random valid bird position."
-  []
-  (let [w @num-birds
-        h w]
-    (vec3 (- (rand w) (/ w 2)) 
-          (+ 59.5 (rand 10));; having this bigger than the neighbor radius will help with speed due to neighborhood computation
-          (- (rand h) (/ h 2)))))
+  [] 
+  (vec3 (- (rand boundary) (/ boundary 2)) 
+        (- (rand boundary) (/ boundary 2)) 
+        (- (rand boundary) (/ boundary 2))))
 
 (defn make-bird
   "Make a new bird. At the specified location."
@@ -95,7 +94,7 @@
 (defn fly
   "Change the acceleration of a bird."
   [bird]
-  (let [nbrs (filter bird? (get-neighbor-objects bird))      
+  (let [;nbrs (filter bird? (get-neighbor-objects bird))      
         ;tmp (println (count nbrs))
         ;tmp (do (doseq [nbr nbrs] (print (get-position nbr))) (println)) 
         bird-pos (get-position bird)
@@ -139,6 +138,8 @@
                (mul new-acceleration speed))))
       (bound-velocity (get-velocity bird)))
       ))
+
+;(add-global-update-handler 10 (fn [] (println (get-time) (System/nanoTime))))
 
 (enable-kinematics-update :bird); This tells the simulator to move our objects
 (add-update-handler :bird fly); This tells the simulator how to update these objects
