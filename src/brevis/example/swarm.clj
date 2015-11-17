@@ -25,10 +25,11 @@
 ;; ## Globals
 
 (def num-birds (atom 500))
-;(def num-birds (atom 2000))
+;(def num-birds (atom 10000))
 
 (def avoidance-distance (atom 25))
-(def boundary 1000)
+;(def boundary 1000)
+(def boundary 200)
 
 (def speed 5)
 (def max-acceleration 10)
@@ -139,7 +140,7 @@
       (bound-velocity (get-velocity bird)))
       ))
 
-;(add-global-update-handler 10 (fn [] (println (get-time) (System/nanoTime))))
+(add-global-update-handler 10 (fn [] (println (get-time) (System/nanoTime))))
 
 (enable-kinematics-update :bird); This tells the simulator to move our objects
 (add-update-handler :bird fly); This tells the simulator how to update these objects

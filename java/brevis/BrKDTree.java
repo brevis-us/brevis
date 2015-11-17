@@ -405,8 +405,8 @@ public final class BrKDTree<X extends BrKDNode> {
 		//final SearchState<X> state = new SearchState<X>(nResults);
 		//final FastBinaryHeap<X> results = new FastBinaryHeap<X>(
 		//		nResults, 4, FastBinaryHeap.MAX);
-		//final ArrayList<X> results = new ArrayList<X>(nResults);
-		ArrayList<X> results = new ArrayList<X>();
+		final ArrayList<X> results = new ArrayList<X>(nResults);
+		//ArrayList<X> results = new ArrayList<X>();
 		
 		double distance_sq = distance * distance; // easier than taking sqrt for every entry
 		
@@ -414,6 +414,9 @@ public final class BrKDTree<X extends BrKDNode> {
 			new ArrayDeque<SearchStackEntry<X>>();
 		if (tree.contentMin != null)
 			stack.addLast(new SearchStackEntry<X>(false, tree));
+		
+		boolean wasadded = false;
+		int position = 0;
 //TREE_WALK:
 		while (!stack.isEmpty()) {
 			final SearchStackEntry<X> entry = stack.removeLast();
@@ -425,18 +428,23 @@ public final class BrKDTree<X extends BrKDNode> {
 				if ( distance > state.results.peek().priority )
 					continue TREE_WALK;
 			}*/
-
+			wasadded = false;
 			if (cur.isTree()) {
 				searchTreeDistance(query, cur, stack, distance_sq);
 			} else {
-				searchLeafByDistance(query, cur, results, distance_sq);
+				// Auto extend (slow)
+				//searchLeafByDistance(query, cur, results, distance_sq);
+				wasadded = searchLeafByDistance(query, cur, results, distance_sq, position);
+				if( wasadded ) position = position + 1;
 			}
-		}		
+		}				
 
-		return results;
+		//return results;
+		return (ArrayList<X>) results.subList( 0, position );
 	}
 	
-	private static <X extends BrKDNode> void
+	// Extends array list	
+	/*private static <X extends BrKDNode> void
 	searchLeafByDistance(double[] query, BrKDTree<X> leaf, ArrayList<X> results, double distance) {
 		double exD = Double.NaN;
 		for(X ex : leaf.data) {
@@ -448,11 +456,27 @@ public final class BrKDTree<X extends BrKDNode> {
 			if ( exD < distance ) {
 				//System.out.println( "Within distance " + distance + " " + exD );
 				results.add(ex);
-			} /*else {
-				System.out.println( "Not within distance " + distance + " " + exD + " " + query[0] + "," + query[1] + "," + query[2] + " " +
-						ex.domain[0] + "," + ex.domain[1] + "," + ex.domain[2] );
-			}*/
+			}
 		}
+	}*/
+	
+	private static <X extends BrKDNode> boolean
+	searchLeafByDistance(double[] query, BrKDTree<X> leaf, ArrayList<X> results, double distance, int position) {
+		double exD = Double.NaN;
+		for(X ex : leaf.data) {
+			exD = Double.NaN;
+			if (!leaf.singularity || Double.isNaN(exD)) {
+				exD = distanceSqFrom(query, ex.domain);
+			}
+
+			if ( exD < distance ) {
+				//System.out.println( "Within distance " + distance + " " + exD );
+				//results.add(ex);
+				results.set( position, ex );
+				return true;
+			} 		
+		}
+		return false;
 	}
 	
 	private static <X extends BrKDNode> void
