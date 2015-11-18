@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
@@ -25,6 +26,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantLock;
+
 
 
 
@@ -602,7 +604,7 @@ public class Engine implements Serializable {
 	 			
 	 			//Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.search( arryloc, nResults);
 	 			//Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.searchByDistance( arryloc, neighborhoodRadius );
-	 			ArrayList<BrKDNode> searchNbrs = spaceTree.searchByDistance( arryloc, neighborhoodRadius );
+	 			List<BrKDNode> searchNbrs = spaceTree.searchByDistance( arryloc, neighborhoodRadius );
 	 			Iterator<BrKDNode> itr = searchNbrs.iterator();
 	 			
 	 			double closestDistance = 99999999;//maybe dangerous?

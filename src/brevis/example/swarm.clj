@@ -138,7 +138,7 @@
       (bound-velocity (get-velocity bird)))
       ))
 
-(add-global-update-handler 10 (fn [] (println (get-time) (System/nanoTime))))
+;(add-global-update-handler 10 (fn [] (println (get-time) (System/nanoTime))))
 
 (enable-kinematics-update :bird); This tells the simulator to move our objects
 (add-update-handler :bird fly); This tells the simulator how to update these objects
