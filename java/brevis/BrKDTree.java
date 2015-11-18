@@ -401,12 +401,12 @@ public final class BrKDTree<X extends BrKDNode> {
 	//private static <X extends BrKDNode> Iterable<PrioNode<X>>
 	private static <X extends BrKDNode> ArrayList<X>
 	searchByDistance(BrKDTree<X> tree, double[] query, double distance) {
-		int nResults = tree.data.size();
+		int nResults = ( tree.data.size() > 0 ? tree.data.size() : 1 ); 
 		//final SearchState<X> state = new SearchState<X>(nResults);
 		//final FastBinaryHeap<X> results = new FastBinaryHeap<X>(
 		//		nResults, 4, FastBinaryHeap.MAX);
 		final ArrayList<X> results = new ArrayList<X>(nResults);
-		//ArrayList<X> results = new ArrayList<X>();
+		//ArrayList<X> results = new ArrayList<X>();			
 		
 		double distance_sq = distance * distance; // easier than taking sqrt for every entry
 		
@@ -433,18 +433,18 @@ public final class BrKDTree<X extends BrKDNode> {
 				searchTreeDistance(query, cur, stack, distance_sq);
 			} else {
 				// Auto extend (slow)
-				//searchLeafByDistance(query, cur, results, distance_sq);
-				wasadded = searchLeafByDistance(query, cur, results, distance_sq, position);
+				searchLeafByDistance(query, cur, results, distance_sq);
+				//wasadded = searchLeafByDistance(query, cur, results, distance_sq, position);
 				if( wasadded ) position = position + 1;
 			}
 		}				
 
-		//return results;
-		return (ArrayList<X>) results.subList( 0, position );
+		return results;
+		//return (ArrayList<X>) results.subList( 0, position );
 	}
 	
 	// Extends array list	
-	/*private static <X extends BrKDNode> void
+	private static <X extends BrKDNode> void
 	searchLeafByDistance(double[] query, BrKDTree<X> leaf, ArrayList<X> results, double distance) {
 		double exD = Double.NaN;
 		for(X ex : leaf.data) {
@@ -458,9 +458,10 @@ public final class BrKDTree<X extends BrKDNode> {
 				results.add(ex);
 			}
 		}
-	}*/
+	}
 	
-	private static <X extends BrKDNode> boolean
+	// array version
+	/*private static <X extends BrKDNode> boolean
 	searchLeafByDistance(double[] query, BrKDTree<X> leaf, ArrayList<X> results, double distance, int position) {
 		double exD = Double.NaN;
 		for(X ex : leaf.data) {
@@ -477,7 +478,7 @@ public final class BrKDTree<X extends BrKDNode> {
 			} 		
 		}
 		return false;
-	}
+	}*/
 	
 	private static <X extends BrKDNode> void
 	searchTreeDistance(double[] query, BrKDTree<X> tree,

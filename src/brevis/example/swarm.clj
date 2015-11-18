@@ -1,7 +1,5 @@
 (ns brevis.example.swarm
-  (:gen-class
-    :name brevis.example.BrevisExampleSwarm
-    :main main)
+  (:gen-class)
   (:use [brevis.graphics.basic-3D]
         [brevis.physics collision core space utils]
         [brevis.shape box sphere cone]
@@ -24,12 +22,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds (atom 500))
-;(def num-birds (atom 10000))
+;(def num-birds (atom 500))
+(def num-birds (atom 10000))
 
 (def avoidance-distance (atom 25))
-;(def boundary 1000)
-(def boundary 200)
+(def boundary 1000)
+;(def boundary 200)
 
 (def speed 5)
 (def max-acceleration 10)
@@ -125,7 +123,7 @@
                                          (vec3 (rand 0.1) (rand 0.1) (rand 0.1)))))));; add a small random delta so we don't get into a loop                                    
         new-acceleration (if (zero? (length new-acceleration))
                            new-acceleration
-                           (mul new-acceleration (/ 1 (length new-acceleration))))]
+                           (mul new-acceleration (/ 1 (length new-acceleration))))]    
     (set-velocity
       (set-acceleration
         (if (or (> (java.lang.Math/abs (x-val bird-pos)) boundary) 
@@ -208,14 +206,3 @@
     (start-gui initialize-simulation)))
 
 (autostart-in-repl -main)
-
-;; Java interop
-
-(defn -init
-  "Init function to be used as a constructor."
-  ([]
-    (-init 500 10))
-  ([init-num-birds init-avoidance-distance]
-    (reset! num-birds init-num-birds)
-    (reset! avoidance-distance init-avoidance-distance)))
-
