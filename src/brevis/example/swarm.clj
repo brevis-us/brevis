@@ -22,12 +22,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-;(def num-birds (atom 500))
-(def num-birds (atom 10000))
+(def num-birds (atom 500))
+;(def num-birds (atom 2000))
 
 (def avoidance-distance (atom 25))
-(def boundary 1000)
-;(def boundary 200)
+;(def boundary 1000)
+(def boundary 300)
 
 (def speed 5)
 (def max-acceleration 10)
@@ -188,6 +188,8 @@
   
   #_(set-camera-information (vec3 -10.0 -50.0 -200.0) (vec4 1.0 0.0 0.0 0.0))
   (set-camera-information (vec3 -10.0 57.939613 -890.0) (vec4 1.0 0.0 0.0 0.0))
+  
+  ;(.setParallel *java-engine* true)
   
   #_(disable-skybox)
   
