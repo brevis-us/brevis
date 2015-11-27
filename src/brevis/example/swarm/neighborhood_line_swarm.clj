@@ -145,6 +145,18 @@ so we only modify bird1."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## brevis control code
 
+(defn make-floor
+   "Make a floor object."
+   [w h]
+   (move (make-real {:color (vec4 0.8 0.8 0.8 1)
+                     :shininess 80
+                     :type :floor
+                     :density 8050
+                     :hasShadow false
+                     ;                    :texture *checkers*
+                     :shape (create-box w 0.1 h)})
+         (vec3 0 -3 0)))
+
 (defn initialize-simulation
   "This is the function where you add everything to the world."
   []  
