@@ -136,7 +136,7 @@
 
 (defn simulate
   "Simulation loop."
-  [initialize update & input-handlers]
+  [initialize update initialize-input-handlers]
   (Display/setLocation (/ (- (.getWidth (Display/getDisplayMode)) (.width (:camera @*gui-state*))) 2)
                        (/ (- (.getHeight (Display/getDisplayMode)) (.height (:camera @*gui-state*))) 2))
   (try 
@@ -160,10 +160,11 @@
   (try 
     (reset! *gui-state* (assoc @*gui-state* :input (BrInput.)))
     (catch LWJGLException e
-      (.printStackTrace e)))
-  (if (empty? input-handlers);; hack for custom input handlers
-    (default-input-handlers)
-    ((first input-handlers)))
+      (.printStackTrace e)))  
+  #_(if (empty? input-handlers);; hack for custom input handlers
+     (default-input-handlers)
+     ((first input-handlers)))
+  (initialize-input-handlers)
   (let [startTime (ref (java.lang.System/nanoTime))
         fps (ref 0)
         display? true]

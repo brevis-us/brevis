@@ -32,6 +32,16 @@ input-class: indicates the class of input. Currently supports (:key-press, :mous
   []
   (BrInput/getMouseDY))
 
+(defn get-mouse-x
+  "Return the current X position of the mouse."
+  []
+  (BrInput/getMouseX))
+
+(defn get-mouse-y
+  "Return the current Y position of the mouse."
+  []
+  (BrInput/getMouseY))
+
 #_(def keyspeed 10)
 (defn default-input-handlers
   "Define the default input handlers."

@@ -177,6 +177,7 @@ public class Engine implements Serializable {
 	public boolean neighborhoodsEnabled = true;
 	
 	// enableParallel
+	//public boolean brevisParallel = false;
 	public boolean brevisParallel = false;
 	
 	public transient BrKDTree<BrKDNode> spaceTree = null;
@@ -651,6 +652,100 @@ public class Engine implements Serializable {
 
 	}
 	
+	/* updateNeighborhoods
+	 * Update the neighborhoods of all objects
+	 * KD tree implementation
+	 */
+	public void parallelUpdateNeighborhoods() {
+		
+	     try {
+	    	 lock.lock();  // block until condition holds
+	 		//HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
+	 		final ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();
+	 		
+	 		//spaceTree = new BrKDTree<BrKDNode>();//lazy
+	 		spaceTree.clear();
+	 		
+	 		// Add everyone to the KD tree
+	 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
+	 			BrObject obj = entry.getValue();
+	 			//Vector3f pos = obj.getPosition();
+	 			Vector3f pos = new Vector3f();
+	 			pos = Vector3f.add( obj.getPosition(), obj.getShape().center, pos);
+	 			double[] arryloc = { pos.x, pos.y, pos.z };
+	 			BrKDNode n = new BrKDNode( arryloc, entry.getKey() );
+	 			spaceTree.add( n );
+	 		}		
+	 		
+	 		// Loop over everyone and cache their neighborhood
+	 		int brevisNumThreads = 8;
+	 		ExecutorService exec = Executors.newFixedThreadPool( brevisNumThreads );
+	 		try {
+	 		    for( final Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
+	 		        exec.submit(new Runnable() {
+	 		            @Override
+	 		            public void run() {
+	 		            	BrObject obj = entry.getValue();
+	 			 			Vector<Long> nbrs = new Vector<Long>();
+	 			 			
+	 			 			Vector3f pos = obj.getPosition();
+	 			 			double[] arryloc = { pos.x, pos.y, pos.z };
+	 			 			
+	 			 			//Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.search( arryloc, nResults);
+	 			 			//Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.searchByDistance( arryloc, neighborhoodRadius );
+	 			 			List<BrKDNode> searchNbrs = spaceTree.searchByDistance( arryloc, neighborhoodRadius );
+	 			 			Iterator<BrKDNode> itr = searchNbrs.iterator();
+	 			 			
+	 			 			double closestDistance = 99999999;//maybe dangerous?
+	 			 			long closestUID = 0;
+	 			 			boolean foundClosest = false;	 				 		
+	 			 			
+	 			 			//System.out.println( "---" + obj.uid + "---" );
+	 			 			
+	 			 			Vector3f diff = new Vector3f();
+	 			 			while( itr.hasNext() ) {
+	 			 				BrKDNode nbr = itr.next();
+	 			 				nbrs.add( nbr.UID );
+	 			 				diff = Vector3f.sub( objects.get( nbr.UID ).getPosition(), obj.getPosition(), diff );	 				
+	 			 				double ldiff = diff.length();
+	 			 				if ( ( ldiff < closestDistance ) && ( nbr.UID != obj.uid ) ) {
+	 			 					closestDistance = ldiff;
+	 			 					closestUID = nbr.UID;
+	 			 					foundClosest = true;
+	 			 				}
+	 			 				
+	 				 			//System.out.println( nbr.UID + " : " + ldiff + " [ " + diff  + " ] { " + objects.get( nbr.UID ).getPosition() );
+	 			 			}
+	 			 			
+	 			 			//System.out.println( "Closest: " + closestDistance );
+	 			 			//System.out.println( "Closest: " + closestUID );
+	 			 			
+	 			 			//System.out.println( "---END " + obj.uid + "---" );
+	 			 			
+	 			 			if( foundClosest )
+	 			 				obj.closestNeighbor = closestUID;
+	 			 			else
+	 			 				obj.closestNeighbor = (long) 0;
+	 			 			
+	 			 			//System.out.println( "Neighbors of " + obj + " " + nbrs.size() );
+	 			 			obj.nbrs = nbrs;
+	 			 			updatedObjects.put( entry.getKey(), obj );
+	 		            }
+	 		        });
+	 		    }
+	 		} finally {
+	 		    exec.shutdown();
+	 		}
+	 		objects = updatedObjects;
+	     } catch( Exception e) {
+	    	e.printStackTrace(); 
+	     } finally {
+	       lock.unlock();
+	     }	
+
+	}
+	
+	
 	/*(defn distance-obj-to-line
 			  "Distance of an object to a line."*/
 	public double distanceToLine( Vector3f testPoint, Vector3f linePoint, Vector3f direction ) {
@@ -752,7 +847,11 @@ public class Engine implements Serializable {
 		}
 		
 		if( neighborhoodsEnabled ) {
-			updateNeighborhoods();
+			if( brevisParallel ) {
+				parallelUpdateNeighborhoods();
+			} else {
+				updateNeighborhoods();
+			}
 			synchronizeObjects();
 		}
 		
@@ -971,7 +1070,7 @@ public class Engine implements Serializable {
 		return dists;		
 	}*/
 	
-	public void setParallel( boolean newParallel ) {
+	public void setParallel( java.lang.Boolean newParallel ) {
 		brevisParallel = newParallel;
 	}
 	

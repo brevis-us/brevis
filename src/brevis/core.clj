@@ -47,7 +47,9 @@
   "Start the simulation with a GUI."
   ([initialize]
     (start-gui initialize java-update-world))    
-  ([initialize update & input-handlers]
+  ([initialize update]
+    (start-gui initialize update default-input-handlers))
+  ([initialize update input-handlers]
     (reset! *gui-message-board* (sorted-map))
     ;; Load graphics dependencies now
     #_(import (org.lwjgl.opengl SharedDrawable)
@@ -56,16 +58,16 @@
              (org.lwjgl BufferUtils LWJGLException Sys))    
     (use 'brevis.graphics.core)
     ;;
-    (when (.contains (System/getProperty "os.name") "indows");; this was from the Penumbra days, can probably be removed
-      (reset! enable-display-text false))
+    #_(when (.contains (System/getProperty "os.name") "indows");; this was from the Penumbra days, can probably be removed
+       (reset! enable-display-text false))
 	  (reset! *app-thread*
-           (if-not (empty? input-handlers)
-             (Thread. (fn [] (simulate initialize update (first input-handlers))))
-             (Thread. (fn []
-                        (simulate initialize update)))))
+           (Thread. (fn [] (simulate initialize update input-handlers)))
+           #_(if (empty? input-handlers)             
+              (Thread. (fn [] (simulate initialize update)))
+              (Thread. (fn [] (simulate initialize update input-handlers)))))
    (.start @*app-thread*)))
 
-;; ## Non-graphical simulation loop (may need updating)
+;; ## Non-graphical simulation loop (may need updating) (comment may need updating)
 
 (defn simulation-loop
   "A simulation loop with no graphics."

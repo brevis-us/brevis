@@ -73,6 +73,14 @@ public class BrInput {
 		return Mouse.getDY();
 	}
 	
+	static public int getMouseX() {
+		return Mouse.getX();
+	}
+	
+	static public int getMouseY() {
+		return Mouse.getY();
+	}
+	
 	public static class InputHandler {
 		public void trigger( Engine engine ) {
 			System.out.println( "InputHandler triggered." );
