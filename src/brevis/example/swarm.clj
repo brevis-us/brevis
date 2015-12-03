@@ -1,5 +1,6 @@
 (ns brevis.example.swarm
   (:gen-class)
+  #_(:use [brevis.ns everything])
   (:use [brevis.graphics.basic-3D]
         [brevis.physics collision core space utils]
         [brevis.shape box sphere cone]
@@ -195,7 +196,7 @@
   
   (set-dt 1)
   (set-neighborhood-radius 50)
-  (default-display-text)
+  #_(default-display-text)
   ;(add-object (move (make-floor 500 500) (vec3 0 (- boundary) 0)))
   (dotimes [_ @num-birds]
     (add-object (random-bird))))

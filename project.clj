@@ -1,4 +1,4 @@
-(defproject brevis "0.9.119"
+(defproject brevis "0.9.120"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "http://brevis.us"
   :license {:name "Apache License v2"
@@ -19,6 +19,7 @@
                  [leiningen "2.3.4"]
                  [clj-jgit "0.7.6"]; if UI gets factored out, this can go too
                  [me.raynes/conch "0.8.0"]
+                 ;[potemkin "0.4.1"]
                  
                  ;; Images and Physics packages      
                  [funimage "0.1.66"]
