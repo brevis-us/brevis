@@ -156,6 +156,16 @@
 	             (assoc (nth objs k)
 	                    :neighbors (doall (filter identity @(nbrhoods k)))))))))
 
+(defn set-kdtree-rebalance-steps
+  "Set the number of steps after which to rebalance the KDtree."
+  [num-steps]
+  (.setRebalanceKDTreeSteps @*java-engine* num-steps))
+
+(defn get-kdtree-rebalance-steps
+  "Get the number of steps after which to rebalance the KDtree."
+  []
+  (.getRebalanceKDTreeSteps @*java-engine*))
+
 (defn move
   "Move an object to the specified position."
   [obj v]

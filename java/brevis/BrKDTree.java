@@ -10,6 +10,9 @@ import duyn.algorithm.nearestneighbours.FastBinaryHeap;
 import duyn.algorithm.nearestneighbours.PrioNode;
 
 /**
+ * 
+ * THIS IS HARD CODED FOR K=3.
+ * 
  * A k-dimensional binary partitioning tree which splits space on the
  * mean of the dimension with the largest variance. Points are held in
  * buckets so we can pick a better split point than whatever comes first.
@@ -596,17 +599,27 @@ TREE_WALK:
 		return distanceSq;
 	}
 
-	private static double
+	/*private static double
 	distanceSqFrom(double[] p1, double[] p2) {
 		// Note: profiling shows this is called lots of times, so it pays
 		// to be well optimised
 		double dSq = 0;
-		for(int d = 0; d < p1.length; d++) {
+		//for(int d = 0; d < p1.length; d++) {
+		for(int d = 0; d < 3; d++) {// We know that we're always in 3D
 			final double dst = p1[d] - p2[d];
 			if (dst != 0)
 				dSq += dst*dst;
 		}
 		return dSq;
+	}*/
+	
+	private static double
+	distanceSqFrom(double[] p1, double[] p2) {
+		double dx = p1[0] - p2[0], 
+			   dy = p1[1] - p2[1], 
+			   dz = p1[2] - p2[2]; 
+		
+		return (dx*dx) + (dy*dy) + (dz*dz);
 	}
 	
 	private static double[] cross( double[] v1, double[] v2 ) {

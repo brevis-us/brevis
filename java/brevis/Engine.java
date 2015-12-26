@@ -929,6 +929,14 @@ public class Engine implements Serializable {
 		neighborhoodsEnabled = newNE;
 	}
 	
+	public void setRebalanceKDTreeSteps( long n ) {
+		rebalanceKDTreeSteps = n;
+	}
+	
+	public long getRebalanceKDTreeSteps( ) {
+		return rebalanceKDTreeSteps;
+	}
+	
 	public DWorld getWorld() {		
 		return physics.getWorld();
 	}
