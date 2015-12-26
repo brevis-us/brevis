@@ -49,6 +49,7 @@ import duyn.algorithm.nearestneighbours.PrioNode;
  *     http://www.autonlab.org/autonweb/14665
  *
  * @author duyn
+ * @author kephale
  */
 
 public final class BrKDTree<X extends BrKDNode> {

@@ -21,8 +21,10 @@
   (apply immigrate ns-names)) 
 
 (require-and-immigrate
-  'brevis.camera 'brevis.image 'brevis.math 'brevis.input 'brevis.parameters 'brevis.plot 'brevis.random 'brevis.utils 'brevis.vector 'brevis.video 'brevis.core
+  'brevis.camera 'brevis.image 'brevis.math 'brevis.input 'brevis.parameters 'brevis.plot 'brevis.random 'brevis.utils 'brevis.vector 'brevis.video 'brevis.core 'brevis.display
   'brevis.distributed-computing.dc-utils
   'brevis.graphics.multithread 'brevis.graphics.texture 'brevis.graphics.basic-3D
   'brevis.physics.collision 'brevis.physics.space 'brevis.physics.utils
   'brevis.shape.box 'brevis.shape.cone 'brevis.shape.core 'brevis.shape.cylinder 'brevis.shape.mesh 'brevis.shape.sphere)
+
+; Should change this to require into a conventional shorthand: v/vec3 etc..

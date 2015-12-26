@@ -152,6 +152,8 @@ public class Engine implements Serializable {
 	protected long simulationStart = -1;
 	protected long numSteps = 0;
 	
+	public long rebalanceKDTreeSteps = 1; // Rebalance the KDtree every N steps
+	
 	public double startWallTime = 0;
 	
 	// objects
@@ -570,6 +572,22 @@ public class Engine implements Serializable {
 		
 	}	
 	
+	public void reinitializeKDTree() {
+		spaceTree.clear(); // also lazy but a little better
+ 		
+ 		// Add everyone to the KD tree (need to do this if clear or creating a new tree)
+ 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
+ 			BrObject obj = entry.getValue();
+ 			//Vector3f pos = obj.getPosition();
+ 			Vector3f pos = new Vector3f();
+ 			pos = Vector3f.add( obj.getPosition(), obj.getShape().center, pos);
+ 			double[] arryloc = { pos.x, pos.y, pos.z };
+ 			BrKDNode n = new BrKDNode( arryloc, entry.getKey() );
+ 			obj.myKDnode = n;
+ 			spaceTree.add( n );
+ 		}
+	}
+	
 	/* updateNeighborhoods
 	 * Update the neighborhoods of all objects
 	 * KD tree implementation
@@ -582,10 +600,10 @@ public class Engine implements Serializable {
 	 		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();
 	 		
 	 		//spaceTree = new BrKDTree<BrKDNode>();//lazy
-	 		spaceTree.clear();
+	 		//spaceTree.clear(); // also lazy but a little better
 	 		
-	 		// Add everyone to the KD tree
-	 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
+	 		// Add everyone to the KD tree (need to do this if clear or creating a new tree)
+	 		/*for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
 	 			BrObject obj = entry.getValue();
 	 			//Vector3f pos = obj.getPosition();
 	 			Vector3f pos = new Vector3f();
@@ -593,7 +611,15 @@ public class Engine implements Serializable {
 	 			double[] arryloc = { pos.x, pos.y, pos.z };
 	 			BrKDNode n = new BrKDNode( arryloc, entry.getKey() );
 	 			spaceTree.add( n );
-	 		}		
+	 		}*/
+	 		
+	 		
+	 		//reinitializeKDTree();
+	 		
+	 		if( numSteps % rebalanceKDTreeSteps == 0 ) {
+	 			reinitializeKDTree();
+	 		}
+	 		
 	 		
 	 		// Loop over everyone and cache their neighborhood (this could be made lazy)
 	 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {

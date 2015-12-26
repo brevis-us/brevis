@@ -54,7 +54,7 @@ import org.lwjgl.opengl.*;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
-import com.sun.org.apache.xalan.internal.xsltc.runtime.Hashtable;
+//import com.sun.org.apache.xalan.internal.xsltc.runtime.Hashtable;
 
 import clojure.lang.*;
 import brevis.Utils;
@@ -97,6 +97,8 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 	
 	public boolean drawable = true;
 	public boolean hasShadow = true;
+	
+	public BrKDNode myKDnode  = null;
 	
 	// Physics
 	public DBody body;
@@ -243,6 +245,11 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 	
 	public void setPosition( Vector3f v ) {
 		//position = v;
+		if( myKDnode != null ) {
+			myKDnode.domain[0] = position.x;
+			myKDnode.domain[1] = position.y;
+			myKDnode.domain[2] = position.z;
+		}
 		body.setPosition( brevis.Utils.Vector3fToDVector3( v ) );
 	}
 	
@@ -290,6 +297,13 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 			shape.createMesh();
 		}*/
 		//shape.createVBOFromMesh();
+	}
+	
+	public void recreatePhysicsGeom( Engine e ) {
+		// need to remove old geom from body??
+		geom = shape.createGeom( e.physics.getSpace() );
+		geom.setBody( body );
+		geom.setOffsetWorldPosition( position.x, position.y, position.z );
 	}
 	
 	/*public void makeAbstract( Engine e ) {

@@ -6,7 +6,9 @@ import java.util.Arrays;
 public class BrKDNode {
 
 	//public final Vector3d loc;
-	public final double[] domain;
+	
+	//public final double[] domain;
+	public double[] domain;
 	
 	public final long UID;
 	

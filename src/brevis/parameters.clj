@@ -3,10 +3,15 @@
 
 (def params (atom {:close-on-terminate true}))
 
+; Consider making param functions :^dynamic
+
 (defn set-param
   "Set the value of a parameter."
-  [param val]
-  (swap! params assoc param val))
+  [param val & more]
+  (swap! params assoc param val)
+  (when-not (empty? more)
+    (apply (partial set-param (first more) (second more))
+           (drop 2 more))))
 
 (defn get-param
   "Get the value of a parameter."

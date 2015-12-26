@@ -39,6 +39,12 @@
     (end-with-graphics-thread)
     brobj))
 
+(defn recreate-physics-geom
+  "Recreate the physics geometry of this object."
+  [obj]
+  (.recreatePhysicsGeom obj @*java-engine*)
+  obj)
+
 (defn orient-object
   "Orient an object by changing its rotation such that its vertex points towards a target vector."
   [^BrObject obj ^org.lwjgl.util.vector.Vector3f obj-vec ^org.lwjgl.util.vector.Vector3f target-vec]
@@ -153,6 +159,7 @@
 (defn move
   "Move an object to the specified position."
   [obj v]
+  ; Update KDnode for obj
   (.setPosition obj v)
   obj)
 
