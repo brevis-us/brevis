@@ -17,7 +17,7 @@
 
 (defn shape-from-mesh
   "Create a mesh object."
-  [mesh]
+  [^brevis.graphics.BrMesh mesh]
   #_(println mesh)
   (BrShape/createMeshFromBrMesh mesh)
   #_(BrShape. filename)
@@ -25,37 +25,37 @@
 
 (defn num-vertices
   "Return the number of vertices in a mesh."
-  [mesh]
+  [^brevis.graphics.BrMesh mesh]
   (.numVertices ^BrMesh mesh))
 
 (defn get-vertex
   "Return a vertex on a mesh."
-  [mesh idx]
+  [^brevis.graphics.BrMesh mesh idx]
   (.getVertex ^BrMesh mesh ^int idx))
 
 (defn set-vertex
   "Return a vertex on a mesh."
-  [mesh idx v]
+  [^brevis.graphics.BrMesh mesh idx v]
   (.setVertex ^BrMesh mesh ^int idx ^floats v))
 
 (defn num-faces
   "Return the number of faces in a mesh."
-  [mesh]
+  [^brevis.graphics.BrMesh mesh]
   (.numFaces ^BrMesh mesh))
 
 (defn get-face
   "Return a face on a mesh."
-  [mesh idx]
+  [^brevis.graphics.BrMesh mesh idx]
   (.getFace ^BrMesh mesh ^int idx))
 
 (defn get-face-normal
   "Return the normal for a face."
-  [mesh idx]
+  [^brevis.graphics.BrMesh mesh idx]
   (apply vec3 (.getFaceNormal ^BrMesh mesh ^int idx)))
 
 (defn get-face-center
   "Return the center point of a face."
-  [mesh idx]
+  [^brevis.graphics.BrMesh mesh idx]
   (let [face (map dec (get-face mesh idx))
         verts (map (comp (partial apply vec3) (partial get-vertex mesh)) face)]
     (mul-vec3 (apply add-vec3 verts) (/ 3))))
@@ -70,6 +70,11 @@
 
 (defn bounding-box
   "Return the bounding box of a mesh as 2 corners."
-  [mesh]
+  [^brevis.graphics.BrMesh mesh]
   {:max (vec3 (.rightpoint mesh) (.toppoint mesh) (.nearpoint mesh))
    :min (vec3 (.leftpoint mesh) (.bottompoint mesh) (.farpoint mesh))})
+
+(defn rescale-mesh
+  "Rescale a mesh."
+  [^brevis.graphics.BrMesh mesh w h d]
+  (.rescaleMesh mesh w h d false))

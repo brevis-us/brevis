@@ -4,6 +4,7 @@ package brevis;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.AbstractMap;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -689,28 +690,21 @@ public class Engine implements Serializable {
 	 		//HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
 	 		final ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();
 	 		
-	 		//spaceTree = new BrKDTree<BrKDNode>();//lazy
-	 		spaceTree.clear();
-	 		
-	 		// Add everyone to the KD tree
-	 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
-	 			BrObject obj = entry.getValue();
-	 			//Vector3f pos = obj.getPosition();
-	 			Vector3f pos = new Vector3f();
-	 			pos = Vector3f.add( obj.getPosition(), obj.getShape().center, pos);
-	 			double[] arryloc = { pos.x, pos.y, pos.z };
-	 			BrKDNode n = new BrKDNode( arryloc, entry.getKey() );
-	 			spaceTree.add( n );
-	 		}		
+	 		if( numSteps % rebalanceKDTreeSteps == 0 ) {
+	 			reinitializeKDTree();
+	 		}
 	 		
 	 		// Loop over everyone and cache their neighborhood
 	 		int brevisNumThreads = 8;
 	 		ExecutorService exec = Executors.newFixedThreadPool( brevisNumThreads );
 	 		try {
-	 		    for( final Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
-	 		        exec.submit(new Runnable() {
+	 			//ArrayList<Future<BrObject>> alist  = new ArrayList<Future<BrObject>>();
+	 			ArrayList<Map.Entry<Long,Future<BrObject>>> alist  = new ArrayList<Map.Entry<Long,Future<BrObject>>>();
+	 			
+	 			for( final Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
+	 		    	Future<BrObject> future = exec.submit(new Callable() {
 	 		            @Override
-	 		            public void run() {
+	 		            public BrObject call() {
 	 		            	BrObject obj = entry.getValue();
 	 			 			Vector<Long> nbrs = new Vector<Long>();
 	 			 			
@@ -739,14 +733,7 @@ public class Engine implements Serializable {
 	 			 					closestUID = nbr.UID;
 	 			 					foundClosest = true;
 	 			 				}
-	 			 				
-	 				 			//System.out.println( nbr.UID + " : " + ldiff + " [ " + diff  + " ] { " + objects.get( nbr.UID ).getPosition() );
 	 			 			}
-	 			 			
-	 			 			//System.out.println( "Closest: " + closestDistance );
-	 			 			//System.out.println( "Closest: " + closestUID );
-	 			 			
-	 			 			//System.out.println( "---END " + obj.uid + "---" );
 	 			 			
 	 			 			if( foundClosest )
 	 			 				obj.closestNeighbor = closestUID;
@@ -755,11 +742,24 @@ public class Engine implements Serializable {
 	 			 			
 	 			 			//System.out.println( "Neighbors of " + obj + " " + nbrs.size() );
 	 			 			obj.nbrs = nbrs;
-	 			 			updatedObjects.put( entry.getKey(), obj );
+	 			 			//updatedObjects.put( entry.getKey(), obj );
+	 			 			return obj;
 	 		            }
+	 		            
 	 		        });
+	 		    	alist.add( new AbstractMap.SimpleEntry<Long,Future<BrObject>>(entry.getKey(), future)  );
+	 		       //updatedObjects.put( entry.getKey(), future.get() );
 	 		    }
-	 		} finally {
+	 		    
+	 			for( final Map.Entry<Long,Future<BrObject>> entry : alist ) {	 		   
+	 			   
+	 			  updatedObjects.put( entry.getKey(), entry.getValue().get() );
+	 		   }
+	 		} catch ( Exception ex) {
+	 			System.out.println("Exception in Parallel update neighborhoods.");
+	 			ex.printStackTrace();
+	 		}
+	 		finally {
 	 		    exec.shutdown();
 	 		}
 	 		objects = updatedObjects;
@@ -887,7 +887,7 @@ public class Engine implements Serializable {
 		synchronizeObjects();
 		
 		//System.out.println( " normal update " + globalUpdateHandlers.size() );
-		if( brevisParallel ) {
+		if( false ) {//brevisParallel ) {
 			parallelUpdateObjects( dt );
 		} else {
 			updateObjects( dt );
