@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.Math;
 
 //import javax.vecmath.Point3f;
 
@@ -59,6 +60,8 @@ public class BrMesh implements Serializable {
 	public float rightpoint = 0;	// x+
 	public float farpoint = 0;		// z-
 	public float nearpoint = 0;		// z+	
+	
+	public boolean redraw = false;
 	
 	public BrMesh clone()  {
 		/* Create a copy of this mesh */
@@ -649,5 +652,43 @@ public class BrMesh implements Serializable {
 			return -1;
 		else	
 			return dist;
+	}
+	
+	public int closestVertexIndex( float[] point ) {
+		double dist = Double.POSITIVE_INFINITY;
+		int closestVertex = -1;
+				
+		for( int k = 0; k < vertexsets.size(); k++ ) {
+			float[] kVertex = vertexsets.get(k);
+			float[] dVector = { ( point[0] - kVertex[0] ), ( point[1] - kVertex[1] ), ( point[2] - kVertex[2] ) };
+			double kDist = Math.sqrt( Math.pow( (double)dVector[0], 2.0 ) + Math.pow( (double)dVector[1], 2.0 ) + Math.pow( (double)dVector[2], 2.0 ) );
+			
+			if( kDist < dist ) {
+				dist = kDist;
+				closestVertex = k;
+			}
+			
+		}
+		
+		return closestVertex;
+	}
+	
+	public int closestVertexIndex( float[] point, float maximumDistance ) {
+		double dist = Double.POSITIVE_INFINITY;
+		int closestVertex = -1;
+				
+		for( int k = 0; k < vertexsets.size(); k++ ) {
+			float[] kVertex = vertexsets.get(k);
+			float[] dVector = { ( point[0] - kVertex[0] ), ( point[1] - kVertex[1] ), ( point[2] - kVertex[2] ) };
+			double kDist = Math.sqrt( Math.pow( (double)dVector[0], 2.0 ) + Math.pow( (double)dVector[1], 2.0 ) + Math.pow( (double)dVector[2], 2.0 ) );
+			
+			if( ( kDist < maximumDistance ) && ( kDist < dist ) ) {
+				dist = kDist;
+				closestVertex = k;
+			}
+			
+		}
+		
+		return closestVertex;
 	}
 }
