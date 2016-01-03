@@ -104,12 +104,12 @@
          ))
      #_(Basic3D/finishShadows)
      ; Second pass    
-     (doseq [obj (reverse objs)]
-     ;(doseq [obj (sort-by (partial z-val get-position) (reverse objs))]; should do something like this for z-ordering
-       (when (drawable? obj) ;; add a check to see if the object is in view
-        (draw-shape obj)
-        #_(draw-shape-shadow obj)
-        ))    
+     ;(doseq [obj (reverse objs)]
+     (doseq [obj (sort-by (comp z-val get-position) (reverse objs))]; should do something like this for z-ordering
+      (when (drawable? obj) ;; add a check to see if the object is in view
+       (draw-shape obj)
+       #_(draw-shape-shadow obj)
+       ))    
      ; Third pass
      #_(doseq [obj objs]
         (when (drawable? obj) ;; add a check to see if the object is in view

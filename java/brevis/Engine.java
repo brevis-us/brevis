@@ -423,7 +423,7 @@ public class Engine implements Serializable {
 	/* parallelUpdateObjects (not working properly yet)
 	 * Call individual update functions in parallel
 	 */
-	public void parallelUpdateObjects( final double dt ) {
+	/*public void parallelUpdateObjects( final double dt ) {
 		lock.lock();  // block until condition holds
 		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();
 		ExecutorService exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
@@ -484,7 +484,82 @@ public class Engine implements Serializable {
 	       lock.unlock();
 	     }	
 	     objects = updatedObjects;
-	}	
+	}	*/
+   
+   public void parallelUpdateObjects( final double dt ) {
+	   
+	   try {
+	    	 lock.lock();  // block until condition holds
+	 		//HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
+	 		final ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();
+	 		
+	 		if( numSteps % rebalanceKDTreeSteps == 0 ) {
+	 			reinitializeKDTree();
+	 		}
+	 		
+	 		// Loop over everyone and cache their neighborhood
+	 		int brevisNumThreads = 16;
+	 		ExecutorService exec = Executors.newFixedThreadPool( brevisNumThreads );
+	 		try {
+	 			//ArrayList<Future<BrObject>> alist  = new ArrayList<Future<BrObject>>();
+	 			ArrayList<Map.Entry<Long,Future<BrObject>>> alist  = new ArrayList<Map.Entry<Long,Future<BrObject>>>();
+	 			
+	 			for( final Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
+	 		    	Future<BrObject> future = exec.submit(new Callable() {
+	 		            @Override
+	 		            public BrObject call() {
+	 		            	
+	 		            	BrObject obj = entry.getValue();
+	 		            	
+	 		        	   UpdateHandler uh = updateHandlers.get( obj.type );
+	 		    			
+	 		        	   if( uh != null ) {
+	 		    				//System.out.println( "--" + getTime() + " updating object " + entry.getKey() );
+	 		        		   obj = uh.update( null, entry.getKey(), dt );				
+	 		        	   } 
+
+	 			 			return obj;
+	 		            }
+	 		            
+	 		        });
+	 		    	alist.add( new AbstractMap.SimpleEntry<Long,Future<BrObject>>(entry.getKey(), future)  );
+	 		       //updatedObjects.put( entry.getKey(), future.get() );
+	 		    }
+	 		    
+	 			for( final Map.Entry<Long,Future<BrObject>> entry : alist ) {
+	 				BrObject obj = entry.getValue().get();
+	                 if( !deletedObjects.contains( entry.getKey()) ) {// Can't update what isn't there (i.e. objects that self-delete)
+	     	 			//Boolean kh = updateKinematics.get( obj.obj.type );
+	                	 Boolean kh = updateKinematics.get( obj.type );
+	     	 			//System.out.println( obj.type + " " + kh );
+	     	 			if( kh != null && kh ) {
+	     	 				obj.updateObjectKinematics( dt );
+	     	 			}
+	     	 			
+	     	 			//updatedObjects.put( entry.getKey(), newObj ); //was here
+	     			} else {
+	     				// Delete the object
+	     				if( obj != null )
+	     					obj.destroy( null );
+	     			}
+	                 
+	                 updatedObjects.put( entry.getKey(), obj );	 			   
+	 			  //updatedObjects.put( entry.getKey(), entry.getValue().get() );
+	 		   }
+	 		} catch ( Exception ex) {
+	 			System.out.println("Exception in Parallel update objects.");
+	 			ex.printStackTrace();
+	 		}
+	 		finally {
+	 		    exec.shutdown();
+	 		}
+	 		objects = updatedObjects;
+	     } catch( Exception e) {
+	    	e.printStackTrace(); 
+	     } finally {
+	       lock.unlock();
+	     }	
+	}
 	
 	/* globalUpdateObjects
 	 * Call individual update functions
@@ -695,7 +770,7 @@ public class Engine implements Serializable {
 	 		}
 	 		
 	 		// Loop over everyone and cache their neighborhood
-	 		int brevisNumThreads = 8;
+	 		int brevisNumThreads = 16;
 	 		ExecutorService exec = Executors.newFixedThreadPool( brevisNumThreads );
 	 		try {
 	 			//ArrayList<Future<BrObject>> alist  = new ArrayList<Future<BrObject>>();
@@ -887,7 +962,7 @@ public class Engine implements Serializable {
 		synchronizeObjects();
 		
 		//System.out.println( " normal update " + globalUpdateHandlers.size() );
-		if( false ) {//brevisParallel ) {
+		if( false ) { //brevisParallel ) {
 			parallelUpdateObjects( dt );
 		} else {
 			updateObjects( dt );

@@ -726,6 +726,8 @@ public class Basic3D {
         		) {         		//( obj.getShape().getType() == "sphere" ) || 
         //if( obj.getShape().mesh == null ) {
         	//System.out.println( "NO MESH " + obj.type );
+        	
+        	
         	obj.getShape().opengldraw();
         	
 	        /*if( obj.getShape().getType() == "box" )
@@ -740,6 +742,9 @@ public class Basic3D {
 	        	//( (Sphere)obj.getShape().data ).draw( (float)dim.x, 25, 20);
         } else {
         	//GL11.glScaled( dim.x, dim.y, dim.z );
+        	if( obj.getShape().mesh.redraw ) {
+        		obj.getShape().mesh.opengldrawtolist();
+        	}
         	obj.getShape().mesh.opengldraw();
     	}        
         
