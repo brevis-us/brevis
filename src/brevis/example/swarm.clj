@@ -23,7 +23,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds (atom 500))
+(def num-birds (atom 2000))
 ;(def num-birds (atom 2000))
 
 (def avoidance-distance (atom 25))
@@ -193,6 +193,7 @@
   ;(.setParallel *java-engine* true)
   
   #_(disable-skybox)
+  (set-parallel true)
   
   (set-dt 1)
   (set-neighborhood-radius 50)

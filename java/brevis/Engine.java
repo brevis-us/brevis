@@ -42,11 +42,11 @@ import org.ode4j.ode.DJointGroup;
 import org.ode4j.ode.DSpace;
 import org.ode4j.ode.DWorld;
 import org.ode4j.ode.OdeHelper;
-import org.ojalgo.access.Access2D.Builder;
+//import org.ojalgo.access.Access2D.Builder;
 //import org.ojalgo.access.Access2D.Factory;
-import org.ojalgo.matrix.BasicMatrix;
-import org.ojalgo.matrix.BasicMatrix.Factory;
-import org.ojalgo.matrix.PrimitiveMatrix;
+//import org.ojalgo.matrix.BasicMatrix;
+//import org.ojalgo.matrix.BasicMatrix.Factory;
+//import org.ojalgo.matrix.PrimitiveMatrix;
 
 import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
 import clojure.lang.Keyword;
@@ -1136,7 +1136,7 @@ public class Engine implements Serializable {
 		return physics;
 	}	
 		
-	public BasicMatrix pairwiseObjectDistances() {				
+	/*public BasicMatrix pairwiseObjectDistances() {				
 		final Factory<PrimitiveMatrix> tmpFactory = PrimitiveMatrix.FACTORY;
 		
 		final Builder<PrimitiveMatrix> tmpBuilder = tmpFactory.getBuilder( objects.size(), objects.size() );
@@ -1158,7 +1158,7 @@ public class Engine implements Serializable {
         return tmpBuilder.build();
 		
 			
-	}
+	}*/
 	
 	/* EJML version
 	public DenseMatrix64F pairwiseObjectDistances() {

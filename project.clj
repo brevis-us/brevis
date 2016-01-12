@@ -39,7 +39,9 @@
                  
                  ;; Math packages
                  ;[org.ojalgo/ojalgo "37.1"]; 38 requries java8
-                 [org.ojalgo/ojalgo "38.2"]
+                 ;[org.ojalgo/ojalgo "38.2"]
+                 [net.mikera/core.matrix "0.48.0"]
+                 [net.mikera/vectorz-clj "0.39.0"]
                  [org.flatland/ordered "1.5.2"]; are we still using this?
                  
                  ;; UI packages (should we factor out the UI competely to make things lighter?)
