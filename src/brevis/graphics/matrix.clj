@@ -5,8 +5,8 @@
   (:import [org.lwjgl.util.vector Vector3f Vector4f Matrix4f]
            [java.nio FloatBuffer]
            [org.lwjgl BufferUtils]
-           [org.ojalgo.matrix BasicMatrix PrimitiveMatrix]
-           [brevis.math MatrixUtils]))
+           #_[org.ojalgo.matrix BasicMatrix PrimitiveMatrix]
+           #_[brevis.math MatrixUtils]))
 
 (defonce x-axis (vector/vec3 1 0 0))
 (defonce y-axis (vector/vec3 0 1 0))
