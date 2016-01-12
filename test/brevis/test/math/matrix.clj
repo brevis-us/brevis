@@ -1,8 +1,8 @@
 (ns brevis.test.math.matrix
     (:use [clojure.test]
-          [brevis.math matrix]))
+          [brevis.math matrix])
+    (:require [clojure.core.matrix :as mat]))
 
-(let [lhs (seq-to-matrix 2 2 [3 2  1 -1])
-     rhs (seq-to-matrix 2 1 [5 0])]
-  (.equals (seq-to-matrix 2 1 [1 2])
-    (linear-solve lhs rhs)))
+(deftest linear-solver
+  (is (mat/equals (linear-solve [[3 2] [ 7 1]] [16 19])
+                  [2 5])))
