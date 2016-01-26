@@ -1,6 +1,6 @@
 (ns brevis.example.swarm.neighborhood-line-swarm
   (:use [brevis.physics collision core space utils]
-        [brevis.shape cone]
+        [brevis.shape cone box]
         [brevis core osd vector camera utils random]
         [brevis.graphics core basic-3D visual-overlays]))
 
@@ -167,7 +167,7 @@ so we only modify bird1."
   (set-dt 1)
   (set-neighborhood-radius 100)
   (default-display-text)
-  (add-object (move (make-floor 500 500) (vec3 0 (- boundary) 0)))
+  #_(add-object (move (make-floor 500 500) (vec3 0 (- boundary) 0)))
   (dotimes [_ num-birds]
     (add-object (random-bird))))
 
