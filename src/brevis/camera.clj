@@ -1,6 +1,18 @@
 (ns brevis.camera
   (:use [brevis globals]))
 
+;; ## Camera
+
+(defn move-from-look
+  "Move a camera according to some dX, dY, dZ."
+  [cam dx dy dz]
+  (.moveFromLook cam dx dy dz))
+
+(defn rotate-from-look
+  "Rotate a camera according to some dR (roll), dP (pitch), dW (yaw)."
+  [cam dr dp dw]
+  (.rotateFromLook cam dr dp dw))
+
 (defn set-current-camera-position
   [position]
   (.setPosition (:camera @brevis.globals/*gui-state*) position))
