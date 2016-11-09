@@ -72,35 +72,22 @@ public class Natives {
         //System.out.println( "extractNativeLib " + fullname + " " + fullname.contains( "dylib" ) + " " + sysName + " " + sysName.equalsIgnoreCase("macosx") );
         if( sysName.equalsIgnoreCase("macosx") && fullname.contains( "dylib" )  )
         	fullname = fullname.replace( "dylib", "jnilib" );
-        //if( sysName.equalsIgnoreCase("macosx") && fullname.contains( "jnilib" )  )
-        	//fullname = fullname.replace( "jnilib", "dylib" );
-        //System.out.println( fullname + " " + fullname.contains( "dylib" ) );
-
-        //String path = "target/native/"+sysName+"/" + fullname;
-                
-        // This is about where the native lib should go
-        
+ 
         
         // This is about where to find the native lib in the classpath
         String path = "target/native/"+sysName+"/" + fullname;
-        //String path = getNativeBaseDirectory() +"/" + fullname;
-        //InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
         InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(fullname);
-        //InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(System.getProperty("user.dir") + "/" + path);
-        
-        //System.out.println( System.getProperty("user.dir") + "/" + path + " exists? " +  ( new File( System.getProperty("user.dir") + "/" + path )).exists() );
-        
-        //InputStream in = Natives.class.getResourceAsStream();
+       
         if (in == null) {
             logger.log(Level.WARNING, "Cannot locate native library: {0} {1} {2} {3}", 
                     new String[]{ sysName, fullname, path, System.getProperty("user.dir") } );
             return;
         }
         
-        String localname = null;
+        String localname = fullname;
         if( sysName.equalsIgnoreCase("macosx") && fullname.contains( "jnilib" )  )
         	localname = fullname.replace( "jnilib", "dylib" );
-        //String localPath = getNativeBaseDirectory() + fullname;
+
         String localPath = getNativeBaseDirectory() + localname;
         File targetFile = new File(localPath);
 		targetFile.getParentFile().mkdirs();// Make sure the directory exists
