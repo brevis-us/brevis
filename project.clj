@@ -11,7 +11,7 @@
   :plugins [[lein-marginalia "0.7.1"]]
   :java-source-paths ["java"]
   :dependencies [;; Essential
-                 [org.clojure/clojure "1.6.0"]                 
+                 [org.clojure/clojure "1.8.0"]                 
                  [org.clojure/math.numeric-tower "0.0.4"]
                  [clj-random "0.1.7"]         
                  
@@ -22,7 +22,7 @@
                  ;[potemkin "0.4.1"]
                  
                  ;; Images and Physics packages      
-                 [funimage "0.1.66"]
+                 [funimage/funimage "0.1.92-SNAPSHOT"]
                  [org.ode4j/core "0.2.8"]; 0.3.0 introduced threading issues that are causing problems
                  [org.ode4j/demo "0.2.8"]; 0.2.9 forces java7
                  [com.nitayjoffe.thirdparty.net.robowiki.knn/knn-benchmark "0.1"]; funimage can handle this, factor this out          
@@ -32,6 +32,11 @@
                  [kephale/lwjgl-natives "2.9.0"]
                  [kephale/slick-util "1.0.1"]; This can probably be factored out now
                  ;[org.l33tlabs.twl/pngdecoder "1.0"]          
+                 
+                 ;[net.clearvolume/scenery "1.0-SNAPSHOT"]
+                 ;[net.clearvolume/scenery "1.0-SNAPSHOT" :classifier "tests"]
+                 ;[net.clearvolume/cleargl "1.0-SNAPSHOT"]
+                 ;[scenery/openvr "0.1"]
                  
                  ;; Plotting 
                  [org.jfree/jcommon "1.0.21"]
@@ -62,4 +67,8 @@
              :brevis.example.swarm {:main brevis.example.swarm
                                     :aot :all
                                     :uberjar-name "brevis.example.swarm-STANDALONE.jar"}}
+  :repositories [["imagej" "http://maven.imagej.net/content/groups/hosted/"]
+                 ["imagej-releases" "http://maven.imagej.net/content/repositories/releases/"]
+                 ["ome maven" "http://artifacts.openmicroscopy.org/artifactory/maven/"]
+                 ["imagej-snapshots" "http://maven.imagej.net/content/repositories/snapshots/"]]
   )
