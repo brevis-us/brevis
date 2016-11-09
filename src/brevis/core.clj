@@ -16,22 +16,6 @@
            (java.util.concurrent TimeUnit)
            (javax.imageio ImageIO)))
 
-;; ## Todo:
-;;
-;; - Picking algorithm for choosing 3D objects with mouse
-
-;; ## Camera
-
-(defn move-from-look
-  "Move a camera according to some dX, dY, dZ."
-  [cam dx dy dz]
-  (.moveFromLook cam dx dy dz))
-
-(defn rotate-from-look
-  "Rotate a camera according to some dR (roll), dP (pitch), dW (yaw)."
-  [cam dr dp dw]
-  (.rotateFromLook cam dr dp dw))
-
 ;; ## Window and Graphical Environment
 
 (defn init-view
@@ -52,19 +36,10 @@
   ([initialize update input-handlers]
     (reset! *gui-message-board* (sorted-map))
     ;; Load graphics dependencies now
-    #_(import (org.lwjgl.opengl SharedDrawable)
-             (org.lwjgl.input Keyboard Mouse)
-             (org.lwjgl.opengl Display GL11 DisplayMode GLContext)
-             (org.lwjgl BufferUtils LWJGLException Sys))    
     (use 'brevis.graphics.core)
     ;;
-    #_(when (.contains (System/getProperty "os.name") "indows");; this was from the Penumbra days, can probably be removed
-       (reset! enable-display-text false))
 	  (reset! *app-thread*
-           (Thread. (fn [] (simulate initialize update input-handlers)))
-           #_(if (empty? input-handlers)             
-              (Thread. (fn [] (simulate initialize update)))
-              (Thread. (fn [] (simulate initialize update input-handlers)))))
+           (Thread. (fn [] (simulate initialize update input-handlers))))
    (.start @*app-thread*)))
 
 ;; ## Non-graphical simulation loop (may need updating) (comment may need updating)
@@ -79,11 +54,6 @@
            t 0
            twrite 0
            wallwrite (java.lang.System/nanoTime)]
-      #_(when (> t (+ twrite write-interval))
-         (let [fps (double (/ (- t twrite) (- (java.lang.System/nanoTime) wallwrite) 0.0000000001))]
-           (println "Walltime" (java.lang.System/nanoTime) 
-                    "Simulation time" t
-                    "FPS" fps)))
       (if (or (and (:terminated? state)
                    (:close-on-terminate @params))
               (:close-requested @*gui-state*));; shouldnt be using gui state for this
@@ -111,3 +81,4 @@
   (when (or (find-ns 'ccw.complete)
             #_(find-ns 'brevis.ui.core))
     (fn)))
+

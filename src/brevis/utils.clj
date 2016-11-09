@@ -241,4 +241,3 @@ otherwise it should be a function that returns true/false"
     (.setType brobj (str (name (:type obj))))    
     ;(.makeAbstract brobj @*java-engine*)
     brobj))
-
