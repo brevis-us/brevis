@@ -337,7 +337,7 @@ public class Natives {
                 }
 
                 if (needJOAL)
-                    throw new UnsupportedOperationException("JOAL not available on Mac OS 64 bit");
+                	throw new UnsupportedOperationException("JOAL not available on Mac OS 64 bit");
 
                 if (needGG)
                     extractNativeLib("macosx_universal", "gluegen-rt");
@@ -351,6 +351,10 @@ public class Natives {
                 
                 
                 break;
+		case Android:
+			throw new UnsupportedOperationException("Android not supported");
+		default:
+			break;
             
                 
         }
