@@ -63,17 +63,15 @@ public class Natives {
     }
     
     public static void setExtractionDir(String name){
-        //workingDir = new File(name).getAbsoluteFile();
     	workingDir = new File(getNativeBaseDirectory());
     }    
     
     protected static void extractNativeLib(String sysName, String name) throws IOException{
         String fullname = System.mapLibraryName(name);
-        //System.out.println( "extractNativeLib " + fullname + " " + fullname.contains( "dylib" ) + " " + sysName + " " + sysName.equalsIgnoreCase("macosx") );
+
         if( sysName.equalsIgnoreCase("macosx") && fullname.contains( "dylib" )  )
         	fullname = fullname.replace( "dylib", "jnilib" );
- 
-        
+         
         // This is about where to find the native lib in the classpath
         String path = "target/native/"+sysName+"/" + fullname;
         InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(fullname);
@@ -163,7 +161,6 @@ public class Natives {
             // it can load libraries from this path.
             // This is a fallback method in case the OS doesn't load
             // native libraries from the working directory (e.g Linux).
-            //System.setProperty("org.lwjgl.librarypath", workingDir.toString());
             System.setProperty( "org.lwjgl.librarypath", getNativeBaseDirectory() );
         }
 
@@ -273,9 +270,6 @@ public class Natives {
                 if (needGG)
                     extractNativeLib("macosx_ppc", "gluegen-rt");
 
-//                if (needOAL)
-//                    extractNativeLib("macosx", "openal");
-
                 if (needJInput)
                     extractNativeLib("macosx", "jinput-osx");
 
@@ -294,9 +288,6 @@ public class Natives {
 
                 if (needGG)
                     extractNativeLib("macosx_universal", "gluegen-rt");
-
-//                if (needOAL)
-//                    extractNativeLib("macosx", "openal");
 
                 if (needJInput)
                     extractNativeLib("macosx", "jinput-osx");
@@ -317,15 +308,11 @@ public class Natives {
                 if (needGG)
                     extractNativeLib("macosx_ppc", "gluegen-rt");
 
-//                if (needOAL)
-//                    extractNativeLib("macosx", "openal");
-
                 if (needJInput)
                     extractNativeLib("macosx", "jinput-osx");
 
                 break;
             case MacOSX64:
-            	//System.setProperty( "org.lwjgl.librarypath",  System.getProperty("user.dir") + "/target/native/macosx");
             	System.setProperty( "org.lwjgl.librarypath",  getNativeBaseDirectory() );
             	
                 if (needLWJGL){
@@ -342,13 +329,8 @@ public class Natives {
                 if (needGG)
                     extractNativeLib("macosx_universal", "gluegen-rt");
 
-//                if (needOAL)
-//                    extractNativeLib("macosx", "openal");
-
                 if (needJInput)
-                    extractNativeLib("macosx", "jinput-osx");
-
-                
+                    extractNativeLib("macosx", "jinput-osx");                
                 
                 break;
 		case Android:
