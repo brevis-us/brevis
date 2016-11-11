@@ -1,5 +1,14 @@
 language: clojure
 lein: lein2
 jdk:
-  - oraclejdk8	
-
+- oraclejdk8
+install: true
+script:
+- curl -O https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein
+- chmod a+x lein
+- lein test
+- lein deploy
+env:
+  global:
+  - secure: iob0/8eH9JJnVjplX8M6biBUBMc2lC4b2a/lVGc7Y6G8Mcg0jz4w8rmucm8TQCXTDVGnIN9l55w8aaPwVkHCFFbWDMpZ4XmBxZ5tl9OHmpncapWRhub/tUxJ8Pyr4/J92JSSZ+J74vVS+uArtkfpYlw0Dn395aEyZGQ19sJ1xXc=
+  - secure: VWzu7AmF5qS80FK0ooEoDhnbdt+RolvltObOhdvEeRUy6UlByTbCpmpP/vzLrh+NRGJmQdW+Ssr/O8xHgY5VCoS9zLiE6caCUcf0OAofJPz/LArcHq2DNbSH6B6Drzth7fyugusR1l6WgH54s8kDQagQNtzbP6ABN0nHcp/84qE=
