@@ -1,4 +1,4 @@
-(defproject brevis.us/brevis "0.10.2"
+(defproject brevis "0.10.3-SNAPSHOT"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "http://brevis.us"
   :license {:name "Apache License v2"
