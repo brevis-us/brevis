@@ -1,4 +1,4 @@
-(defproject brevis "0.10.2"
+(defproject brevis.us/brevis "0.10.2"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "http://brevis.us"
   :license {:name "Apache License v2"
@@ -70,5 +70,14 @@
   :repositories [["imagej" "http://maven.imagej.net/content/groups/hosted/"]
                  ["imagej-releases" "http://maven.imagej.net/content/repositories/releases/"]
                  ["ome maven" "http://artifacts.openmicroscopy.org/artifactory/maven/"]
-                 ["imagej-snapshots" "http://maven.imagej.net/content/repositories/snapshots/"]]
+                 ["imagej-snapshots" "http://maven.imagej.net/content/repositories/snapshots/"]
+                 ["snapshots" {:url "https://clojars.org/repo"
+                                      :username :env/CI_DEPLOY_USERNAME
+                                      :password :env/CI_DEPLOY_PASSWORD
+                                      :sign-releases false}]
+                 ["releases" {:url "https://clojars.org/repo"
+                                     :username :env/CI_DEPLOY_USERNAME
+                                     :password :env/CI_DEPLOY_PASSWORD
+                                     :sign-releases false}]
+                 ]
   )
