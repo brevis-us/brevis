@@ -2,8 +2,26 @@
 
 package brevis.graphics;
 
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Transparency;
+import java.awt.color.ColorSpace;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferInt;
+import java.awt.image.DataBufferShort;
+import java.awt.image.DataBufferUShort;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
@@ -15,19 +33,80 @@ import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
 
+import ij.IJ;
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.process.ColorProcessor;
+
 //import edu.fhooe.mtd360.watershader.render.Renderer;
 
 // some from http://code.google.com/p/lwjgl-water-shader/
 public class BrSky {
 
 	public Vector<Texture> textures;
+	public Vector<ImagePlus> textureImps;
+	public Vector<Integer> textureIDs;
 	
 	public BrSky() {
 		
 		textures = new Vector<Texture>();
+		textureImps = new Vector<ImagePlus>();
+		textureIDs = new Vector<Integer>();
 		
 		defaultSkybox();
 
+	}
+	
+	private ByteBuffer convertImageData(BufferedImage bufferedImage) {		
+	    ByteBuffer imageBuffer;
+	    WritableRaster raster;
+	    BufferedImage texImage;
+
+	    // Color model is 4 byte R G B A, where A is alpha/transparency
+	    ColorModel glAlphaColorModel = new ComponentColorModel(ColorSpace
+	            .getInstance(ColorSpace.CS_sRGB), new int[] { 8, 8, 8, 8 },
+	            true, false, Transparency.TRANSLUCENT, DataBuffer.TYPE_BYTE);
+
+	    // Raster is 1D interleaved byte array (4 byte strides)
+	    raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE,
+	            bufferedImage.getWidth(), bufferedImage.getHeight(), 4, null);
+	    texImage = new BufferedImage(glAlphaColorModel, raster, true,
+	            new Hashtable());
+
+	    // Allocate a direct ByteBuffer for the image
+	    ByteBuffer byteBuffer;
+	    DataBuffer dataBuffer = texImage.getRaster().getDataBuffer();
+
+	    if (dataBuffer instanceof DataBufferByte) {
+	        byte[] pixelData = ((DataBufferByte) dataBuffer).getData();
+	        //byteBuffer = ByteBuffer.wrap(pixelData);// Original
+	        byteBuffer = ByteBuffer.allocateDirect(pixelData.length * 4);
+	        byteBuffer.put(pixelData);
+	    }
+	    else if (dataBuffer instanceof DataBufferUShort) {
+	        short[] pixelData = ((DataBufferUShort) dataBuffer).getData();
+	        byteBuffer = ByteBuffer.allocate(pixelData.length * 2);
+	        byteBuffer.asShortBuffer().put(ShortBuffer.wrap(pixelData));
+	    }
+	    else if (dataBuffer instanceof DataBufferShort) {
+	        short[] pixelData = ((DataBufferShort) dataBuffer).getData();
+	        byteBuffer = ByteBuffer.allocate(pixelData.length * 2);
+	        byteBuffer.asShortBuffer().put(ShortBuffer.wrap(pixelData));
+	    }
+	    else if (dataBuffer instanceof DataBufferInt) {
+	        int[] pixelData = ((DataBufferInt) dataBuffer).getData();
+	        byteBuffer = ByteBuffer.allocate(pixelData.length * 4);
+	        byteBuffer.asIntBuffer().put(IntBuffer.wrap(pixelData));
+	    }
+	    else {
+	        throw new IllegalArgumentException("Not implemented for data buffer type: " + dataBuffer.getClass());
+	    }
+	    
+	    // We moved our pointer to the end of the image data, flip and we're at the start again.
+	    byteBuffer.flip();
+
+	    // ByteBuffers can be used within GL textures
+	    return byteBuffer;
 	}
 	
 	public void defaultSkybox() {
@@ -36,6 +115,46 @@ public class BrSky {
 		try {
 			//textures.add(TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("resources/img/skybox/front.jpg"),GL11.GL_LINEAR));
 
+			/*textureImps.add( IJ.openImage("img/skybox/front.jpg") );
+			textureImps.add( IJ.openImage("img/skybox/left.jpg") );
+			textureImps.add( IJ.openImage("img/skybox/back.jpg") );
+			textureImps.add( IJ.openImage("img/skybox/right.jpg") );
+			textureImps.add( IJ.openImage("img/skybox/up.jpg") );			
+			textureImps.add( IJ.openImage("img/skybox/down.jpg") );			
+			textureImps.add( IJ.openImage("img/skybox/down.jpg") );*/
+			
+			//textureImps.add( new ImagePlus( "tmp", new ImageStack( 1024, 1024, 1 ) ) ); 
+			
+			/* Make blank images
+			textureImps.add( new ImagePlus( "tmp", new ColorProcessor( 1024, 1024 ) ) ); 
+			textureImps.add( new ImagePlus( "tmp", new ColorProcessor( 1024, 1024 ) ) ); 
+			textureImps.add( new ImagePlus( "tmp", new ColorProcessor( 1024, 1024 ) ) ); 
+			textureImps.add( new ImagePlus( "tmp", new ColorProcessor( 1024, 1024 ) ) ); 
+			textureImps.add( new ImagePlus( "tmp", new ColorProcessor( 1024, 1024 ) ) ); 
+			textureImps.add( new ImagePlus( "tmp", new ColorProcessor( 1024, 1024 ) ) ); 
+			*/
+			
+			/* Load images */
+			textureImps.add( new ImagePlus( "tmp", new ColorProcessor( 1024, 1024 ) ) ); 
+			textureImps.add( new ImagePlus( "tmp", new ColorProcessor( 1024, 1024 ) ) ); 
+			textureImps.add( new ImagePlus( "tmp", new ColorProcessor( 1024, 1024 ) ) ); 
+			textureImps.add( new ImagePlus( "tmp", new ColorProcessor( 1024, 1024 ) ) ); 
+			textureImps.add( new ImagePlus( "tmp", new ColorProcessor( 1024, 1024 ) ) ); 
+			textureImps.add( new ImagePlus( "tmp", new ColorProcessor( 1024, 1024 ) ) ); 
+			
+			//for( ImagePlus imp : textureImps ) {
+			for( int k = 0; k < textureImps.size(); k++ ) {
+				ByteBuffer bb = convertImageData( textureImps.get(k).getBufferedImage() );
+				//bb.flip();
+				int textureID = GL11.glGenTextures();
+
+				textureIDs.add(textureID);
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureID);
+		        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, textureImps.get(k).getWidth(), textureImps.get(k).getHeight(), 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, bb);
+				//GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_GREEN, textureImps.get(k).getWidth(), textureImps.get(k).getHeight(), 0, GL11.GL_GREEN, GL11.GL_UNSIGNED_BYTE, bb);
+				//textures.add( AWTTextureIO.newTexture(imp.getBufferedImage(), false) );;
+			}
+			
 			textures.add(TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("img/skybox/front.jpg"),GL11.GL_LINEAR));
 			textures.add(TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("img/skybox/left.jpg"),GL11.GL_LINEAR));
 			textures.add(TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("img/skybox/back.jpg"),GL11.GL_LINEAR));
@@ -45,6 +164,12 @@ public class BrSky {
 			textures.add(TextureLoader.getTexture("JPG", ResourceLoader.getResourceAsStream("img/skybox/down.jpg"),GL11.GL_LINEAR));			
 		} catch (IOException e) {
 			throw new RuntimeException("skybox loading error");
+		}
+	}
+	
+	public void loadTextures() {
+		if( textureImps.size() >= 6 ) {
+			
 		}
 	}
 	
@@ -61,9 +186,9 @@ public class BrSky {
 		if( textures.size() < 6 ) {
 			System.out.println( "Insufficient number of skybox textures loaded." );
 		}
-	}
+	}	
 		
-	static float SkyboxUnit = 1500f;
+	static public float SkyboxUnit = 1500f;
 	
 	//public void draw() {
 	//public void draw( float x, float y, float z ) {
@@ -95,7 +220,8 @@ public class BrSky {
 	    
 	    // Render the front quad
 	    clampToEdge();
-	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(0).getTextureID());
+	    //GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(0).getTextureID());
+	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureIDs.get(0));
 	    GL11.glBegin(GL11.GL_QUADS);
 		    GL11.glNormal3f(0f, 0f, -1f);
 			GL11.glTexCoord2f(0.0f, 0.0f); GL11.glVertex3f(-SkyboxUnit, -SkyboxUnit,  SkyboxUnit);  // Bottom Left
@@ -106,7 +232,7 @@ public class BrSky {
 
 	    // Render the left quad
 	    clampToEdge();
-	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(1).getTextureID());
+	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureIDs.get(1));
 	    GL11.glBegin(GL11.GL_QUADS);
 		    GL11.glNormal3f(-1f, 0f, 0f);
 			GL11.glTexCoord2f(0.0f, 0.0f); GL11.glVertex3f(-SkyboxUnit, -SkyboxUnit, -SkyboxUnit);  // Bottom Left
@@ -117,7 +243,7 @@ public class BrSky {
 	    
 	    // Render the back quad
 	    clampToEdge();
-	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(2).getTextureID());
+	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureIDs.get(2));
 	    GL11.glBegin(GL11.GL_QUADS);
 		    GL11.glNormal3f(0f, 0f, 1f);
 			GL11.glTexCoord2f(1.0f, 0.0f); GL11.glVertex3f(-SkyboxUnit, -SkyboxUnit, -SkyboxUnit);  // Bottom Right
@@ -128,7 +254,7 @@ public class BrSky {
 	    
 	    // Render the right quad
 	    clampToEdge();	    
-	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(3).getTextureID());
+	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureIDs.get(3));
 	    GL11.glBegin(GL11.GL_QUADS);
 		    GL11.glNormal3f(1f, 0f, 0f);
 			GL11.glTexCoord2f(1.0f, 0.0f); GL11.glVertex3f( SkyboxUnit, -SkyboxUnit, -SkyboxUnit);  // Bottom Right
@@ -139,7 +265,7 @@ public class BrSky {
 	    
 	    // Render the top quad
 	    clampToEdge();
-	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(4).getTextureID());
+	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureIDs.get(4));
 	    GL11.glBegin(GL11.GL_QUADS);
 		    GL11.glNormal3f(0f, 1f, 0f);
 			GL11.glTexCoord2f(0.0f, 1.0f); GL11.glVertex3f(-SkyboxUnit,  SkyboxUnit, -SkyboxUnit);  // Top Left
@@ -150,7 +276,7 @@ public class BrSky {
 	    
 	    // Render the bottom quad
 	    clampToEdge();
-	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.get(5).getTextureID());
+	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureIDs.get(5));
 	    GL11.glBegin(GL11.GL_QUADS);
 		    GL11.glNormal3f(0f, -1f, 0f);
 			GL11.glTexCoord2f(1.0f, 1.0f); GL11.glVertex3f(-SkyboxUnit, -SkyboxUnit, -SkyboxUnit);  // Top Right
