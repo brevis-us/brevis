@@ -10,5 +10,5 @@ script:
 - lein deploy
 env:
   global:
-  - secure: iwG8tSQ6BVFbipjI8NmpgeZGgiOzFuNMPFqhS8txbqItxVDAN5ue3NBT2CQEnOsTtu61BhecXIEoWO6aO69qShTa4BbNIHNzcHc9Ag3GvB0DAJlxD9+bN8G+uv2QtF+k9nIEhafpgxVAUtOsJ8J5ccmG2lfLRb2WABILQ/vaQVM=
-  - secure: Ba96PsbQu61NVMGUDhyeSO2cdxjRVi60F2f3hQCsHldaGEZh78FrqU8R5GjNhnbkoJhH1KqUwks40nyG2/lscxJHKnlXSYf2AdUbK8qMYUaJ/PqHXxudolbPi8EGnh8BTgqmlYssXFRUmVhSo8cLBUyP7U77z1x7Nx39iyYoIIE=
+  - secure: iob0/8eH9JJnVjplX8M6biBUBMc2lC4b2a/lVGc7Y6G8Mcg0jz4w8rmucm8TQCXTDVGnIN9l55w8aaPwVkHCFFbWDMpZ4XmBxZ5tl9OHmpncapWRhub/tUxJ8Pyr4/J92JSSZ+J74vVS+uArtkfpYlw0Dn395aEyZGQ19sJ1xXc=
+  - secure: VWzu7AmF5qS80FK0ooEoDhnbdt+RolvltObOhdvEeRUy6UlByTbCpmpP/vzLrh+NRGJmQdW+Ssr/O8xHgY5VCoS9zLiE6caCUcf0OAofJPz/LArcHq2DNbSH6B6Drzth7fyugusR1l6WgH54s8kDQagQNtzbP6ABN0nHcp/84qE=
