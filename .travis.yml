@@ -7,7 +7,7 @@ script:
 - curl -O https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein
 - chmod a+x lein
 - lein test
-- sh brevis_deploy.sh
+- bash brevis_deploy.sh
 env:
   global:
   - secure: iob0/8eH9JJnVjplX8M6biBUBMc2lC4b2a/lVGc7Y6G8Mcg0jz4w8rmucm8TQCXTDVGnIN9l55w8aaPwVkHCFFbWDMpZ4XmBxZ5tl9OHmpncapWRhub/tUxJ8Pyr4/J92JSSZ+J74vVS+uArtkfpYlw0Dn395aEyZGQ19sJ1xXc=
