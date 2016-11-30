@@ -1,5 +1,6 @@
 (ns brevis.shape.cylinder
   (:import [brevis BrShape])
+  (:require [brevis.parameters :as parameters])
   (:use [brevis vector]        
         [brevis.graphics multithread]
         [brevis.shape.core])) 
@@ -12,6 +13,6 @@
     (create-cylinder length radius radius))
   ([length radius1 radius2]
     (begin-with-graphics-thread)
-    (let [result (BrShape/createCylinder length radius1 radius2 (:gui @brevis.globals/*gui-state*))]
+    (let [result (BrShape/createCylinder length radius1 radius2 (parameters/get-param :gui) )]
       (end-with-graphics-thread)
       result)))

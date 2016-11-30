@@ -1,4 +1,5 @@
 (ns brevis.shape.mesh
+  (:require [brevis.parameters :as parameters])
   (:import [brevis BrShape]
            [brevis.graphics BrMesh])
   (:use [brevis.vector]
@@ -11,7 +12,7 @@
     (create-mesh filename is-resource? (vec3 1 1 1)))
   ([filename is-resource? scale]
     (begin-with-graphics-thread)
-    (let [result (BrShape/createMeshFromFile filename is-resource? (:gui @brevis.globals/*gui-state*) scale)]
+    (let [result (BrShape/createMeshFromFile filename is-resource? (parameters/get-param :gui)  scale)]
       (end-with-graphics-thread)
       result)))
 

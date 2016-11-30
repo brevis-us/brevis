@@ -1,7 +1,8 @@
 (ns brevis.parameters
   (:use [brevis.random]))
 
-(def params (atom {:close-on-terminate true}))
+(def params (atom {:close-on-terminate true
+                   :gui true}))
 
 ; Consider making param functions :^dynamic
 

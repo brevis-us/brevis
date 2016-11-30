@@ -1,5 +1,6 @@
 (ns brevis.shape.box
   (:import [brevis BrShape])
+  (:require [brevis.parameters :as parameters])
   (:use ;[penumbra opengl compute]
         ;[penumbra.opengl core]
         [brevis vector]
@@ -12,8 +13,8 @@
      (create-box 1 1 1))
   ([width height depth]
     (begin-with-graphics-thread)
-    (let [box (BrShape/createBox width height depth (:gui @brevis.globals/*gui-state*))]
-      (.setDimension box (vec3 width height depth) (:gui @brevis.globals/*gui-state*))
+    (let [box (BrShape/createBox width height depth (parameters/get-param :gui) )]
+      (.setDimension box (vec3 width height depth) (parameters/get-param :gui) )
       ;(println "create-box" (.getDimension box))
       (end-with-graphics-thread)
       box)))
