@@ -112,15 +112,19 @@ public class BrShape implements Serializable {
 			//System.out.println( dim );
 		} else if( type == BrShapeType.SPHERE ) {
 			data = new Sphere();
-			opengldrawtolist();
+			if( withGraphics )
+				opengldrawtolist();
 		} else if( type == BrShapeType.CYLINDER ) {
 			data = new Cylinder();
-			opengldrawtolist();
+			if( withGraphics )
+				opengldrawtolist();
 		} else if( type == BrShapeType.CONE ) {
 			data = new Cylinder();
-			opengldrawtolist();
+			if( withGraphics )
+				opengldrawtolist();
 		} else if( type == BrShapeType.BOX ) {
-			opengldrawtolist();
+			if( withGraphics )
+				opengldrawtolist();
 		} else {
 			createMesh( withGraphics );
 			if( mesh != null ) {

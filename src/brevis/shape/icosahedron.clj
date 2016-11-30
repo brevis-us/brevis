@@ -1,5 +1,6 @@
 (ns brevis.shape.icosahedron
   (:import [brevis BrShape])
+  (:require [brevis.parameters :as parameters])
   (:use [brevis.shape.core]
         [brevis.graphics multithread]
         [brevis vector])) 
@@ -10,8 +11,8 @@
      (create-icosahedron 1))
   ([radius]
     (begin-with-graphics-thread)
-    (let [icos (BrShape/createIcosahedron radius (:gui @brevis.globals/*gui-state*))]
-      (.setDimension ^BrShape icos (vec3 radius radius radius) (:gui @brevis.globals/*gui-state*))
+    (let [icos (BrShape/createIcosahedron radius (parameters/get-param :gui) )]
+      (.setDimension ^BrShape icos (vec3 radius radius radius) (parameters/get-param :gui) )
       (end-with-graphics-thread)
       icos)))
 
