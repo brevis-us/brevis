@@ -30,14 +30,14 @@
                   #_" > "
                   ;expName "_" configFileName "_run$SGE_TASK_ID" ".log"
                   #_".log")]
-    (when debug (println "gen-config:" configFileName out-str))    
+    (when @debug-mode (println "gen-config:" configFileName out-str))    
     (spit configFileName out-str)))
 
 (defn launch-config
   ;; Launches an experiment from the configuration file numruns times.
   [username server expName configFile numruns optArgs]
-  (let [command (str "qsub " optArgs " -t 1-" (str numruns) " -N " expName " " configFile)]
-    (when debug (println "launch-config:" command))
+  (let [command (str "qsub " configFile " -t 1-" (str numruns) " -N " expName)];  used to include optArgs, removed because it returned {}
+    (when @debug-mode (println "launch-config:" command))
     (remote-command username server command)))
 
 (defn start-runs

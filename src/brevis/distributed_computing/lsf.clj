@@ -27,7 +27,7 @@ appropriate configuration file to be passed to the hpc."
                   #_" > "
                   ;expName "_" configFileName "_run$SGE_TASK_ID" ".log"
                   #_".log")]
-    (when debug (println "gen-config:" configFileName out-str))    
+    (when @debug-mode (println "gen-config:" configFileName out-str))    
     (spit configFileName out-str)))
 
 (defn gen-command
@@ -44,7 +44,7 @@ appropriate configuration file to be passed to the hpc."
                   #_expName
                   " "
                   (serialize-map argmap " "))]
-    (when debug (println "command:"  out-str))    
+    (when @debug-mode (println "command:"  out-str))    
     out-str))
 
 (defn launch-config
@@ -52,7 +52,7 @@ appropriate configuration file to be passed to the hpc."
   [username server expName configFile numruns duration]
   (let [command (str "bsub -W " duration " -J " expName "[1-" (str numruns) "] " configFile)]
         #_(str "bsub " optArgs " -t 1-" (str numruns) " -N " expName " " configFile)
-    (when debug (println "launch-config:" command))
+    (when @debug-mode (println "launch-config:" command))
     (remote-command username server command)))
 
 (defn start-runs
@@ -81,7 +81,7 @@ appropriate configuration file to be passed to the hpc."
   [username server expName jobFile numjobs duration enable-job-output]
   (let [command (str "source /etc/profile; bsub " (when-not enable-job-output "-o /dev/null ") "-W " duration " -J " expName "[1-" (str numjobs) "] sh " jobFile)]
         #_(str "bsub " optArgs " -t 1-" (str numruns) " -N " expName " " configFile)
-    (when debug (println "launch-config:" command))
+    (when @debug-mode (println "launch-config:" command))
     (remote-command username server command)))
 
 #_(defn start-run-array
