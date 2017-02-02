@@ -60,7 +60,7 @@
         (do (println "Halting.")
           state
           (doseq [dh @destroy-hooks] (dh))
-          (System/exit 0))
+          #_(System/exit 0))
         (recur ((:update state) [t (get-dt)] state)
                (+ t (get-dt))
                (if (> t (+ twrite write-interval)) t twrite)
