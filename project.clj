@@ -1,4 +1,4 @@
-(defproject brevis "0.10.3-SNAPSHOT"
+(defproject brevis "0.10.3"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "http://brevis.us"
   :license {:name "Apache License v2"
@@ -22,7 +22,7 @@
                  ;[potemkin "0.4.1"]
                  
                  ;; Images and Physics packages      
-                 [funimage/funimage "0.1.92-SNAPSHOT"]
+                 [funimage/funimage "0.1.97"]
                  [org.ode4j/core "0.2.8"]; 0.3.0 introduced threading issues that are causing problems
                  [org.ode4j/demo "0.2.8"]; 0.2.9 forces java7
                  [com.nitayjoffe.thirdparty.net.robowiki.knn/knn-benchmark "0.1"]; funimage can handle this, factor this out          
