@@ -16,7 +16,7 @@ by Kyle Harrington (kharrin3@bidmc.harvard.edu), 2011-2014.
       
 # Citing:
 
-Harrington, K. I. (2014). Brevis (version X.Y.Z). where X, Y, Z are the version numbers found in project.clj for the Brevis version that you are using. Other Brevis publications can be found on the Brevis website.  
+[![DOI](https://zenodo.org/badge/7870653.svg)](https://zenodo.org/badge/latestdoi/7870653)
 
 ## Getting started:
 
