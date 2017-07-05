@@ -14,7 +14,7 @@
                  [org.clojure/clojure "1.8.0"]                 
                  [org.clojure/math.numeric-tower "0.0.4"]
                  [clj-random "0.1.7"]         
-                 [brevis.us/brevis-utils "0.1.0-SNAPSHOT"]
+                 [brevis.us/brevis-utils "0.1.0"]
                  
                  ;; Project management & utils
                  [leiningen "2.3.4"]
