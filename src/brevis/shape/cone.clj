@@ -1,6 +1,6 @@
 (ns brevis.shape.cone
   (:import [brevis BrShape])
-  (:require [brevis.parameters :as parameters])
+  (:require [brevis-utils.parameters :as parameters])
   (:use ;[penumbra opengl compute]
         ;[penumbra.opengl core]
         [brevis vector]

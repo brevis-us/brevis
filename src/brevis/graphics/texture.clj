@@ -2,7 +2,8 @@
   (:import (org.lwjgl.util.vector Vector3f Vector4f))  
   (:import java.lang.Math)  
   (:import (brevis Engine BrPhysics BrObject))
-  (:use [brevis vector math utils]
+  (:require [brevis-utils.math.core :as math])
+  (:use [brevis vector utils]
         [brevis.shape core box]        
         [brevis.graphics multithread]
         [brevis.physics core])
@@ -55,7 +56,7 @@
  (let [^org.newdawn.slick.opengl.TextureImpl timp (org.newdawn.slick.opengl.TextureImpl. "NORESOURCE" org.lwjgl.opengl.GL11/GL_TEXTURE_2D texture-id)		
        ^org.newdawn.slick.opengl.ImageIOImageData iiid (org.newdawn.slick.opengl.ImageIOImageData.)				
        ^java.awt.image.BufferedImage buffered-image (.getBufferedImage imp)
-       ^ByteBuffer buffer (.imageToByteBuffer iiid buffered-image false false nil)        
+       ^java.nio.ByteBuffer buffer (.imageToByteBuffer iiid buffered-image false false nil)        
        width (.getWidth buffered-image)
        height (.getHeight buffered-image)       
        hasAlpha (.hasAlpha (.getColorModel buffered-image))

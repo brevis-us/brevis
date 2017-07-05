@@ -1,5 +1,5 @@
 (ns brevis.graphics.multithread
-  (:require [brevis.parameters :as parameters])
+  (:require [brevis-utils.parameters :as parameters])
   (:use [brevis globals])
   (:import (java.util.concurrent TimeUnit)
            (org.lwjgl.opengl SharedDrawable)

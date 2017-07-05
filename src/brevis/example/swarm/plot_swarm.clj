@@ -145,7 +145,7 @@ so we only modify bird1."
   (set-dt 1)
   (set-neighborhood-radius 100)
   (default-display-text)
-  (add-object (make-floor 500 500))
+  ;(add-object (make-floor 500 500))
   (dotimes [_ num-birds]
     (add-object (random-bird)))
   

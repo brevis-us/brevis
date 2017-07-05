@@ -4,25 +4,29 @@
   (:import (org.lwjgl.util.vector Vector3f Vector4f))
   (:import java.lang.Math)  
   (:import (brevis Engine BrPhysics BrObject))
-  (:use [brevis vector math utils]
-        [brevis.shape core box]        
-        [brevis.graphics multithread]
-        [brevis.physics core]))
+  (:require [brevis.vector :as v]
+            [brevis-utils.math.core :as math]
+            [brevis.physics.core :as physics]
+            [brevis.utils :as utils])
+  #_(:use [brevis vector math utils]
+         [brevis.shape core box]        
+         [brevis.graphics multithread]
+         [brevis.physics core]))
 
 (defn get-world
   "Return the current world"
   []
-  (.getWorld ^Engine @*java-engine*))
+  (.getWorld ^Engine @physics/*java-engine*))
 
 (defn get-space
   "Return the current physical space being simulated"
   []
-  (.getSpace ^Engine @*java-engine*))
+  (.getSpace ^Engine @physics/*java-engine*))
 
 (defn get-contact-group
   "Return the current joints being used by entities."
   []
-  (.getJoints ^Engine @*java-engine*))
+  (.getJoints ^Engine @physics/*java-engine*))
 
 (defn get-mass 
   "Return the mass object for an object."
@@ -58,7 +62,7 @@ pos-o1 is the location on the first object to connect to
 axis is the axis about which the joint rotates"
   [o1 o2 pos-o1 axis]
   #_(println (class o1) (class o2) (class pos-o1))
-  (.jointHinge (.getPhysics @*java-engine*)
+  (.jointHinge (.getPhysics @physics/*java-engine*)
     o1 o2 pos-o1 axis))
 
 (defn set-joint-vel
@@ -71,12 +75,12 @@ axis is the axis about which the joint rotates"
 (defn enable-kinematics-update
   "Enable automatic kinematics for this type."
   [type]
-  (.enableUpdateKinematics @*java-engine* (str (name type))))
+  (.enableUpdateKinematics @physics/*java-engine* (str (name type))))
             
 (defn odevec-to-vec3
   "Convert an ODE vector into a Cantor vector."
   [ov]
-  (vec3 (.get0 ov) (.get1 ov) (.get2 ov)))
+  (v/vec3 (.get0 ov) (.get1 ov) (.get2 ov)))
 
 (defn vec3-to-odevec
   "Convert a Cantor vector into an ODE vector."
@@ -132,14 +136,14 @@ axis is the axis about which the joint rotates"
   [obj]
   (let [dim (:dim (:shape obj))]
     (cond
-      (= (:type (:shape obj)) :cone) (OdeHelper/createSphere (:space @*physics*) (.x dim));; the cake is a lie
-      (= (:type (:shape obj)) :box) (OdeHelper/createBox (:space @*physics*) (.x dim) (.y dim) (.z dim))
-      (= (:type (:shape obj)) :sphere) (OdeHelper/createSphere (:space @*physics*) (.x dim)))))
+      (= (:type (:shape obj)) :cone) (OdeHelper/createSphere (:space @physics/*physics*) (.x dim));; the cake is a lie
+      (= (:type (:shape obj)) :box) (OdeHelper/createBox (:space @physics/*physics*) (.x dim) (.y dim) (.z dim))
+      (= (:type (:shape obj)) :sphere) (OdeHelper/createSphere (:space @physics/*physics*) (.x dim)))))
     
 (defn obj-to-nbr-geom
   [obj]
   (let [dim (:dim (:shape obj))]
-    (obj-to-geom (assoc-in obj [:shape :dim] (+ dim (* 2 (vec3 @*neighborhood-radius* @*neighborhood-radius* @*neighborhood-radius*)))))))
+    (obj-to-geom (assoc-in obj [:shape :dim] (+ dim (* 2 (v/vec3 @physics/*neighborhood-radius* @physics/*neighborhood-radius* @physics/*neighborhood-radius*)))))))
 
 (defn get-geom
   "Return an object's geometry structure."
@@ -157,9 +161,9 @@ axis is the axis about which the joint rotates"
    "Return the objects of a neighborhood."
    [^BrObject obj]
    (let [nbrs (.getNeighbors obj)
-         obj-uid (get-uid obj)]
+         obj-uid (utils/get-uid obj)]
      (when nbrs
-       (map #(get-object %)
+       (map #(utils/get-object %)
             (filter (partial not= obj-uid) nbrs)))))
 
 (defn get-closest-neighbor
@@ -167,17 +171,17 @@ axis is the axis about which the joint rotates"
    [^BrObject obj]
    (let [nbr-uid (.getClosestNeighbor obj)]
      (when-not (or (nil? nbr-uid) (zero? nbr-uid))
-       (get-object nbr-uid))))
+       (utils/get-object nbr-uid))))
 
 (defn set-neighborhood-radius
   "Set the neighborhood radius."
   [new-radius]
-  (.setNeighborhoodRadius ^Engine @*java-engine* (double new-radius)))
+  (.setNeighborhoodRadius ^Engine @physics/*java-engine* (double new-radius)))
 
 (defn get-neighborhood-radius
   "Get the neighborhood radius."
   []
-  (.getNeighborhoodRadius ^Engine @*java-engine*))
+  (.getNeighborhoodRadius ^Engine @physics/*java-engine*))
 
 
 #_(defn radians
@@ -232,7 +236,7 @@ axis is the axis about which the joint rotates"
 (defn get-closest-object
    "Return the closest object to a vector from a list of objects."
    [pos objs]
-   (let [dists (map #(length-vec3 (sub-vec3 (get-position %) pos)) objs)]         
+   (let [dists (map #(v/length-vec3 (v/sub-vec3 (get-position %) pos)) objs)]         
      (when-not (empty? objs)
        (nth objs
             (first (apply min-key second (map-indexed vector dists)))))))

@@ -1,5 +1,5 @@
 (ns brevis.shape.mesh
-  (:require [brevis.parameters :as parameters])
+  (:require [brevis-utils.parameters :as parameters])
   (:import [brevis BrShape]
            [brevis.graphics BrMesh])
   (:use [brevis.vector]

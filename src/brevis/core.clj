@@ -1,10 +1,11 @@
 (ns brevis.core
   (:use [brevis.init]; ew.....
-        [brevis globals utils input osd display vector parameters]
+        [brevis globals utils input osd display vector ]
         [brevis.graphics basic-3D multithread]
         [brevis.physics core space utils]
         [brevis.shape core box sphere cone])       
-  (:require [clojure.math.numeric-tower :as math])
+  (:require [clojure.math.numeric-tower :as math]
+            [brevis-utils.parameters :as params])
   (:import (brevis.graphics Basic3D) 
            (brevis BrInput SystemUtils Natives)
            (java.awt AWTException Robot Rectangle Toolkit)
@@ -55,7 +56,7 @@
            twrite 0
            wallwrite (java.lang.System/nanoTime)]
       (if (or (and (:terminated? state)
-                   (:close-on-terminate @params))
+                   (:close-on-terminate @params/params))
               (:close-requested @*gui-state*));; shouldnt be using gui state for this
         (do (println "Halting.")
           state

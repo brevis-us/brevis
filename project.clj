@@ -1,4 +1,4 @@
-(defproject brevis "0.10.4"
+(defproject brevis "0.10.5-SNAPSHOT"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "http://brevis.us"
   :license {:name "Apache License v2"
@@ -14,15 +14,16 @@
                  [org.clojure/clojure "1.8.0"]                 
                  [org.clojure/math.numeric-tower "0.0.4"]
                  [clj-random "0.1.7"]         
+                 [brevis.us/brevis-utils "0.1.0-SNAPSHOT"]
                  
                  ;; Project management & utils
                  [leiningen "2.3.4"]
-                 [clj-jgit "0.7.6"]; if UI gets factored out, this can go too
                  [me.raynes/conch "0.8.0"]
                  ;[potemkin "0.4.1"]
                  
                  ;; Images and Physics packages      
-                 [funimage/funimage "0.1.97"]
+                 ;[funimage/funimage "0.1.97"]
+                 [fun.imagej/fun.imagej "0.2.1"]
                  [org.ode4j/core "0.2.8"]; 0.3.0 introduced threading issues that are causing problems
                  [org.ode4j/demo "0.2.8"]; 0.2.9 forces java7
                  [com.nitayjoffe.thirdparty.net.robowiki.knn/knn-benchmark "0.1"]; funimage can handle this, factor this out          
@@ -51,7 +52,6 @@
                  
                  ;; UI packages (should we factor out the UI competely to make things lighter?)
                  [seesaw "1.4.4"]
-                 [com.fifesoft/rsyntaxtextarea "2.5.3"]
                  ]
   ;:javac-options ["-target" "1.6" "-source" "1.6" "-Xlint:-options"]
   ;:aot [#_clojure.main brevis.ui.core]; brevis.example.swarm]        

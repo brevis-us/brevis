@@ -1,6 +1,9 @@
 (ns brevis.example.swarm.swarm-floor-tracker
   (:gen-class)
-  (:use [funimage imp utils]
+  (:require [fun.imagej.core :as ij]
+            [brevis-utils.parameters :as params])
+  (:use [fun.imagej imp]
+        [fun.imagej.imp utils]
         [brevis.graphics basic-3D texture]
         [brevis.physics collision core space utils]
         [brevis.shape box sphere cone]
@@ -186,6 +189,7 @@
   "This is the function where you add everything to the world."
   []  
   ;(swap! brevis.globals/*gui-state* assoc :gui false)
+  (params/set-param :gui true)
   (init-world)
   (init-view)  
 
@@ -215,7 +219,8 @@
   (reset! floor 
           (make-floor (* 2 boundary)
                       (* 2 boundary)))
-  (start-imagej "/Applications/Fiji.app/plugins")
+  ;(start-imagej "/Applications/Fiji.app/plugins")
+  (ij/show-ui)
   (reset! floor-imp 
           (create-imp :width (* 2 boundary) 
                       :height (* 2 boundary)

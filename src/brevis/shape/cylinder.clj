@@ -1,6 +1,6 @@
 (ns brevis.shape.cylinder
   (:import [brevis BrShape])
-  (:require [brevis.parameters :as parameters])
+  (:require [brevis-utils.parameters :as parameters])
   (:use [brevis vector]        
         [brevis.graphics multithread]
         [brevis.shape.core])) 

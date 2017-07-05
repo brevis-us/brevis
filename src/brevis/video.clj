@@ -1,7 +1,7 @@
 (ns brevis.video
   #_(:require [me.raynes.conch :refer [programs with-programs let-programs]])
-  (:use [funimage imp]
-        [funimage.video ffmpeg]))
+  (:use [fun.imagej imp]
+        [fun.imagej.video ffmpeg]))
 
 #_(programs ffmpeg)
 

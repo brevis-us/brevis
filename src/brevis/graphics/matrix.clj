@@ -1,7 +1,7 @@
 (ns brevis.graphics.matrix
-  (:use [brevis math])
   (:require [brevis.vector :as vector]
-            [brevis.graphics.matrix :as m])
+            [brevis.graphics.matrix :as m]
+            [brevis-utils.math.core :as math])
   (:import [org.lwjgl.util.vector Vector3f Vector4f Matrix4f]
            [java.nio FloatBuffer]
            [org.lwjgl BufferUtils]
@@ -80,7 +80,7 @@
    "Returns a matrix which 3-D vectors about
 the specified axis."
    ([theta x y z]
-     (let [theta (radians theta)
+     (let [theta (math/radians theta)
            s (Math/sin theta)
            c (Math/cos theta)
            t (- 1 c)]       

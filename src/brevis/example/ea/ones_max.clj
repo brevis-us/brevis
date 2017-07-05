@@ -1,6 +1,7 @@
 (ns brevis.example.ea.ones-max
   (:gen-class)
-  (:use [brevis core vector utils parameters random plot]
+  (:require [brevis-utils.parameters :as params])
+  (:use [brevis core vector utils random plot]
         [brevis.evolution.ea simple-ea]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -21,7 +22,7 @@
         :mutate-genome-fn (fn [x] 
                             (for [el x] (if (zero? (lrand-int 100)) (not el) el))))
 
-(swap! params assoc
+(swap! params/params assoc
         :population-size 1000
         :fitness-function (fn [x] (apply + (map #(if % 1 0) x)))
         :mutation-probability 0.9
@@ -60,13 +61,13 @@
   
   (set-dt 1)
   
-  (if (get-param :initialize-population-fn)
-    ((get-param :initialize-population-fn))
+  (if (params/get-param :initialize-population-fn)
+    ((params/get-param :initialize-population-fn))
     (initialize-population))
   
-  (if (get-param :termination-fn)
-    (add-terminate-trigger (get-param :termination-fn))  
-    (add-terminate-trigger (get-param :max-generations))))
+  (if (params/get-param :termination-fn)
+    (add-terminate-trigger (params/get-param :termination-fn))  
+    (add-terminate-trigger (params/get-param :max-generations))))
 
 ;; Start zee macheen
 (defn -main [& args]

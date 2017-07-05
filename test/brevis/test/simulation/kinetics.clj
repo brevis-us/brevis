@@ -6,7 +6,7 @@
             [brevis.shape.cone :as cone]
             [brevis.physics.utils :as physics]
             [brevis.physics.space :as space]
-            [brevis.parameters :as parameters]))
+            [brevis-utils.parameters :as parameters]))
 #_(:use [brevis.physics collision core space utils]
         [brevis.shape box sphere cone]
         [brevis core osd vector camera utils display image])

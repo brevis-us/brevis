@@ -1,6 +1,6 @@
 (ns brevis.shape.icosahedron
   (:import [brevis BrShape])
-  (:require [brevis.parameters :as parameters])
+  (:require [brevis-utils.parameters :as parameters])
   (:use [brevis.shape.core]
         [brevis.graphics multithread]
         [brevis vector])) 
