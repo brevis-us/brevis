@@ -12,7 +12,7 @@
   [s br-obj]
   (let [cp (physics/get-position (utils/get-object br-obj))
         c [(.x cp) (.y cp) (.z cp)]]
-    (sciview/add-sphere (:sciview s) c (float 1))))
+    (sciview/add-sphere (:sciview s) c (float 5))))
 
 (defn init
   "Initialize a SciView, setup all current objects in scene for syncing."

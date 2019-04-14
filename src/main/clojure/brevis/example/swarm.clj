@@ -19,7 +19,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds (atom 10))
+(def num-birds (atom 100))
 ;(def num-birds (atom 2000))
 
 (def avoidance-distance (atom 25))
@@ -187,7 +187,7 @@
   #_(set-camera-information (vec3 -10.0 -50.0 -200.0) (vec4 1.0 0.0 0.0 0.0))
   (set-camera-information (vec3 -10.0 57.939613 -890.0) (vec4 1.0 0.0 0.0 0.0))
 
-  (set-dt 1)
+  (set-dt 0.05)
   (set-neighborhood-radius 50)
   (dotimes [_ @num-birds]
     (add-object (random-bird))))
