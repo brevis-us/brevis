@@ -24,7 +24,7 @@
                  ;; Images and Physics packages
 		             ;[fun.imagej/fun.imagej "0.3.4-SNAPSHOT"]
                  [com.github.kephale/fun.imagej "2196a37aefab176dca9778270f8096a64a5ee849"]
-                 [org.ode4j/core "0.2.8"]; 0.3.0 introduced threading issues that are causing problems
+                 [com.github.tzaeschke/ode4j "a08c3c8b5558a67a823f8ee36023b752d8ae8cc1"]; 0.3.0 introduced threading issues that are causing problems
                  ;[org.ode4j/demo "0.2.8"]; 0.2.9 forces java7
                  [com.nitayjoffe.thirdparty.net.robowiki.knn/knn-benchmark "0.1"]; funimage can handle this, factor this out
 
