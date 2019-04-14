@@ -120,23 +120,17 @@
 (defn mul
   "Multiply a Vector3f by a scalar."
   [v s]
-  (let [vr (if (vec3? v) ^Vector3f (Vector3f. v) ^Vector4f (Vector4f. v))]
-    (.mul vr (double s))
-    vr))
+  (.mul v (float s)))
 
 (defn mul-vec3
   "Multiply a Vector3f by a scalar."
   [v s]
-  (let [^Vector3f vr (Vector3f. v)]
-    (.mul vr ^double (double s))
-    vr))
+  (.mul v ^double (float s)))
 
 (defn mul-vec4
   "Multiply a Vector4f by a scalar."
   [v s]
-  (let [^Vector4f vr (Vector4f. v)]
-    (.mul vr ^double (double s))
-    vr))
+  (.mul v ^double (float s)))
 
 (defn elmul
   "Multiply a Vector3f by a scalar."

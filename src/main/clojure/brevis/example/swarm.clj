@@ -16,13 +16,10 @@
 ;;
 ;;   Reynolds, Craig W. "Flocks, herds and schools: A distributed behavioral model." ACM SIGGRAPH Computer Graphics. Vol. 21. No. 4. ACM, 1987.
 ;;
-;; Todo:
-;; - auto-centering of camera (and skybox?)
-;; 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds (atom 2000))
+(def num-birds (atom 10))
 ;(def num-birds (atom 2000))
 
 (def avoidance-distance (atom 25))
@@ -203,3 +200,5 @@
     (start-gui initialize-simulation)))
 
 (autostart-in-repl -main)
+
+(-main)

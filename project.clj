@@ -6,7 +6,7 @@
   ;:jvm-opts ^:replace ["-Xmx4g" "-splash:resources/brevis_splash.gif" "-XX:+UseParallelGC"]; "-Xdock:name=Brevis"
   ;:jvm-opts ^:replace ["-Xmx4g" #_"-XX:+UseParallelGC"]; "-Xdock:name=Brevis"
   ;:jvm-opts ^:replace ["-XX:+UseG1GC" "-Xmx4g" "-XX:-UseGCOverheadLimit"]
-  :resource-paths ["resources" "target/native"]
+  :resource-paths ["resources"]
   :plugins [[lein-marginalia "0.7.1"]]
   :java-source-paths ["src/main/java"]
   :source-paths ["src/main/clojure"]
@@ -17,16 +17,15 @@
                  [brevis.us/brevis-utils "0.1.2"]
 
                  ;; Project management & utils
-                 [leiningen "2.3.4"]
+                 ;[leiningen "2.3.4"]
                  [me.raynes/conch "0.8.0"]
                  ;[potemkin "0.4.1"]
 
                  ;; Images and Physics packages
-		             ;[fun.imagej/fun.imagej "0.3.4-SNAPSHOT"]
+                 ;[fun.imagej/fun.imagej "0.3.4-SNAPSHOT"]
                  [com.github.kephale/fun.imagej "2196a37aefab176dca9778270f8096a64a5ee849"]
                  [com.github.tzaeschke/ode4j "a08c3c8b5558a67a823f8ee36023b752d8ae8cc1"
-                  :exclusions [com.github.tzaeschke.ode4j/demo]]; 0.3.0 introduced threading issues that are causing problems
-                 ;[org.ode4j/demo "0.2.8"]; 0.2.9 forces java7
+                  :exclusions [com.github.tzaeschke.ode4j/demo]]
                  [com.nitayjoffe.thirdparty.net.robowiki.knn/knn-benchmark "0.1"]; funimage can handle this, factor this out
 
                  ;; Plotting
@@ -41,14 +40,14 @@
                  [org.flatland/ordered "1.5.2"]; are we still using this?
 
                  ;; UI packages (should we factor out the UI competely to make things lighter?)
-                 [seesaw "1.4.4"]
-                 ]
+                 [seesaw "1.4.4"]]
+  :jvm-opts ["-Dscenery.Renderer=OpenGLRenderer"]
   ;:javac-options ["-target" "1.6" "-source" "1.6" "-Xlint:-options"]
   ;:aot [#_clojure.main brevis.ui.core]; brevis.example.swarm]
   ;:manifest {"SplashScreen-Image" "brevis_splash.gif"}
   ;:warn-on-reflection true
-  :javadoc-opts {:package-names ["brevis" "brevis.graphics" "brevis.plot"]}
-  :javac-options ["-target" "1.8" "-source" "1.8" "-Xlint:-options"]
+  ;:javadoc-opts {:package-names ["brevis" "brevis.graphics" "brevis.plot"]}
+  ;:javac-options ["-target" "1.8" "-source" "1.8" "-Xlint:-options"]
   ;:profiles {:headless {:jvm-opts ["-DbrevisHeadless=true"]}
   :repositories [["imagej" "https://maven.imagej.net/content/groups/hosted/"]
                  ["imagej-releases" "https://maven.imagej.net/content/repositories/releases/"]
@@ -64,9 +63,9 @@
                  ["releases" {:url "https://clojars.org/repo"
                                      :username :env/CI_DEPLOY_USERNAME
                                      :password :env/CI_DEPLOY_PASSWORD
-                                     :sign-releases false}]
-                 ]
-  )
-  (require 'cemerick.pomegranate.aether)
-  (cemerick.pomegranate.aether/register-wagon-factory!
-   "http" #(org.apache.maven.wagon.providers.http.HttpWagon.))
+                                     :sign-releases false}]])
+
+
+(require 'cemerick.pomegranate.aether)
+(cemerick.pomegranate.aether/register-wagon-factory!
+  "http" #(org.apache.maven.wagon.providers.http.HttpWagon.))
