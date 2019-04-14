@@ -1,7 +1,7 @@
 
 package brevis;
 
-import org.lwjgl.util.vector.Vector3f;
+import org.joml.Vector3f;
 import org.ode4j.math.DVector3;
 import org.ode4j.math.DVector3C;
 
@@ -9,7 +9,7 @@ public class Utils {
 	/*public static Vector3d DVector3CToVector3d( DVector3C odev ) {
 		return new Vector3d( odev.get0(), odev.get1(), odev.get2() );
 	}*/
-	public static Vector3f DVector3CToVector3f( DVector3C odev ) {
+	public static Vector3f DVector3CToVector3f(DVector3C odev ) {
 		return new Vector3f( (float)odev.get0(), (float)odev.get1(), (float)odev.get2() );
 	}
 	

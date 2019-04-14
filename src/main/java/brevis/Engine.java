@@ -1,58 +1,16 @@
 
 package brevis;
 
-import java.io.IOException;
-import java.io.ObjectStreamException;
-import java.io.Serializable;
-import java.util.AbstractMap;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.PriorityQueue;
-import java.util.Set;
-import java.util.Vector;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.locks.ReentrantLock;
-
-
-
-
-
-
-
-
-//import org.ejml.data.DenseMatrix64F;
-import org.lwjgl.util.vector.Vector3f;
-import org.ode4j.ode.DGeom;
-import org.ode4j.ode.DJointGroup;
-import org.ode4j.ode.DSpace;
-import org.ode4j.ode.DWorld;
-import org.ode4j.ode.OdeHelper;
-//import org.ojalgo.access.Access2D.Builder;
-//import org.ojalgo.access.Access2D.Factory;
-//import org.ojalgo.matrix.BasicMatrix;
-//import org.ojalgo.matrix.BasicMatrix.Factory;
-//import org.ojalgo.matrix.PrimitiveMatrix;
-
-import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
-import clojure.lang.Keyword;
 import clojure.lang.PersistentVector;
-import duyn.algorithm.nearestneighbours.FastKdTree;
-import duyn.algorithm.nearestneighbours.PrioNode;
+import org.joml.Vector3f;
+import org.ode4j.ode.*;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.*;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.concurrent.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Engine implements Serializable {	
 	
@@ -656,7 +614,7 @@ public class Engine implements Serializable {
  			BrObject obj = entry.getValue();
  			//Vector3f pos = obj.getPosition();
  			Vector3f pos = new Vector3f();
- 			pos = Vector3f.add( obj.getPosition(), obj.getShape().center, pos);
+ 			pos = obj.getPosition().add( obj.getShape().center );
  			double[] arryloc = { pos.x, pos.y, pos.z };
  			BrKDNode n = new BrKDNode( arryloc, entry.getKey() );
  			obj.myKDnode = n;
@@ -720,7 +678,7 @@ public class Engine implements Serializable {
 	 			while( itr.hasNext() ) {
 	 				BrKDNode nbr = itr.next();
 	 				nbrs.add( nbr.UID );
-	 				diff = Vector3f.sub( objects.get( nbr.UID ).getPosition(), obj.getPosition(), diff );	 				
+	 				diff = objects.get( nbr.UID ).getPosition().sub( obj.getPosition() );
 	 				double ldiff = diff.length();
 	 				if ( ( ldiff < closestDistance ) && ( nbr.UID != obj.uid ) ) {
 	 					closestDistance = ldiff;
@@ -801,7 +759,7 @@ public class Engine implements Serializable {
 	 			 			while( itr.hasNext() ) {
 	 			 				BrKDNode nbr = itr.next();
 	 			 				nbrs.add( nbr.UID );
-	 			 				diff = Vector3f.sub( objects.get( nbr.UID ).getPosition(), obj.getPosition(), diff );	 				
+	 			 				diff = objects.get( nbr.UID ).getPosition().sub( obj.getPosition() );
 	 			 				double ldiff = diff.length();
 	 			 				if ( ( ldiff < closestDistance ) && ( nbr.UID != obj.uid ) ) {
 	 			 					closestDistance = ldiff;
@@ -850,8 +808,8 @@ public class Engine implements Serializable {
 	/*(defn distance-obj-to-line
 			  "Distance of an object to a line."*/
 	public double distanceToLine( Vector3f testPoint, Vector3f linePoint, Vector3f direction ) {
-		Vector3f diff = Vector3f.sub( testPoint, linePoint, null );
-		Vector3f diffXv = Vector3f.cross( diff, direction, null );
+		Vector3f diff = testPoint.sub( linePoint );
+		Vector3f diffXv = diff.cross( direction );
 		double ldiff = diff.length();
 		double sinTheta = diffXv.length() / ( ldiff * direction.length() );
 		return ( ldiff * sinTheta );

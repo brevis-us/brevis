@@ -1,49 +1,25 @@
 
 package brevis;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.color.ColorSpace;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.IntBuffer;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.Vector;
-
-// Shouldn't be any opengl stuff in here actually
-
-
-import java.awt.image.ComponentColorModel;
+import clojure.lang.IMapEntry;
+import clojure.lang.IPersistentCollection;
+import clojure.lang.ISeq;
+import clojure.lang.Keyword;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.ode4j.ode.DBody;
 import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DMass;
 import org.ode4j.ode.OdeHelper;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.*;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Vector;
+
+// Shouldn't be any opengl stuff in here actually
 //import com.sun.org.apache.xalan.internal.xsltc.runtime.Hashtable;
-
-import clojure.lang.*;
-import brevis.Utils;
-import brevis.BrShape.BrShapeType;
-import ij.*;
 
 //public class BrObject {
 //public class BrObject implements clojure.lang.IRecord {
@@ -149,12 +125,8 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 	}
 
 	public double distanceTo( BrObject other ) {
-		/*Vector3f delta = (Vector3f) position.clone();
-		delta.sub( other.position );
-		System.out.println( "distanceTo " + position + " " + other.position + " " + delta );*/
-		Vector3f delta = getPosition();
-		//delta.sub( other.getPosition() );
-		Vector3f.sub( other.getPosition(), getPosition(), delta );
+		Vector3f delta = new Vector3f();
+		delta.set( other.getPosition().sub(getPosition()));
 		return delta.length();
 	}
 
@@ -349,16 +321,16 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 	public void orient( Vector3f objVec, Vector3f targetVec ) {
 		if( objVec.length() != 0 && targetVec.length() != 0 ) {
 			Vector3f dir = new Vector3f();
-			Vector3f.cross( objVec, targetVec, dir );
+			dir.set(objVec.cross(targetVec));
 			//dir.cross( targetVec, objVec );
 			//System.out.println( "orient cross " + dir );
 			dir.set( ( objVec.y * targetVec.z - objVec.z * targetVec.y ),
 					 ( objVec.z * targetVec.x - objVec.x * targetVec.z ),
 					 ( objVec.x * targetVec.y - objVec.y * targetVec.x ) );
 			if( dir.length() != 0 )
-				dir.normalise();
+				dir.normalize();
 			//dir.scale( 1.0 / dir.length() );
-			double vdot = Vector3f.dot( targetVec, objVec );
+			double vdot = targetVec.dot(objVec);
 			vdot = Math.max( Math.min( vdot / ( objVec.length() * targetVec.length() ),
 									   1.0), -1.0 );
 			//double angle = ( Math.acos( vdot ) * ( Math.PI / 180.0 ) );
@@ -377,15 +349,14 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 	//		  "Update the kinematics of an object by applying acceleration and velocity for an infinitesimal amount of time."
 		//System.out.print( this );
 
-		Vector3f f = new Vector3f( acceleration );
-		f.scale( (float) getDoubleMass() );
+		Vector3f f = new Vector3f( acceleration ).mul( (float) getDoubleMass() );
 		getBody().addForce( f.x, f.y, f.z );
 		orient( new Vector3f(0,0,1), getVelocity() );
 		//orient( new Vector3f(0,1,0), getVelocity() );
 		//orient( new Vector3f(1,0,0), getForce() );
 		//System.out.println( "Object " + uid + " force " + f );
 	}
-	
+
 	@Override
 	public Iterator iterator() {
 		// TODO Auto-generated method stub

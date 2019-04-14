@@ -12,15 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.lang.Math;
 
-//import javax.vecmath.Point3f;
-
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.vector.Vector3f;
-
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL30.*;
+import org.joml.Vector3f;
 
 
 /**
@@ -99,19 +91,15 @@ public class BrMesh implements Serializable {
 		if (centerit) {
 			centerit();
 		}
-		if( withGraphics ) {
-			opengldrawtolist();
-		}		
 		numpolys = faces.size();
 		// We don't actually want to cleanup
 		//cleanup();
 	}
-	
+
 	public BrMesh() {
-		
 	}
 
-	public BrMesh(List<Vector3f> verts) {		
+	public BrMesh(List<Vector3f> verts) {
 		cleanup();
 
 		boolean firstpass = true;
@@ -161,9 +149,9 @@ public class BrMesh implements Serializable {
 			p2.set( verts.get(k+1).x, verts.get(k+1).y, verts.get(k+1).z );
 			//p3.set( verts.get(k+2).x, verts.get(k+2).y, verts.get(k+2).z );
 			p3.set( verts.get(k+2).x, verts.get(k+2).y, verts.get(k+2).z );
-			Vector3f.sub(p1, p2, edge1);
-			Vector3f.sub(p1, p3, edge2);			
-			Vector3f.cross( edge1, edge2, veccross );
+			edge1.set(p1.sub(p2));
+			edge2.set(p1.sub(p3));
+			veccross.set( edge1.cross(edge2));
 			//Vector3f.cross( edge2, edge1, veccross );
 			//normals.add( new Vector3f( veccross ) ); 
 			//normals.add( new Vector3f( veccross ) ); 
@@ -181,8 +169,7 @@ public class BrMesh implements Serializable {
 			int[] vt = new int[]{ 0, 0, 0 };
 			facestexs.add( vt );
 		}
-		centerit();	
-		opengldrawtolist();
+		centerit();
 		numpolys = faces.size();
 	}
 	
@@ -341,69 +328,6 @@ public class BrMesh implements Serializable {
 		return numpolys;
 	}
 	
-	public void opengldrawtolist() {
-		
-		this.objectlist = GL11.glGenLists(1);
-		
-		//GL11.glDisable(GL11.GL_TEXTURE_2D);
-		
-		GL11.glNewList(objectlist,GL11.GL_COMPILE);
-		for (int i=0;i<faces.size();i++) {
-			int[] tempfaces = (int[])(faces.get(i));
-			int[] tempfacesnorms = (int[])(facesnorms.get(i));
-			int[] tempfacestexs = (int[])(facestexs.get(i));
-			
-			//// Quad Begin Header ////
-			int polytype;
-			if (tempfaces.length == 3) {
-				polytype = GL11.GL_TRIANGLES;
-			} else if (tempfaces.length == 4) {
-				polytype = GL11.GL_QUADS;
-			} else {
-				polytype = GL11.GL_POLYGON;
-			}
-			GL11.glBegin(polytype);
-			////////////////////////////
-			
-			for (int w=0;w<tempfaces.length;w++) {
-				if (tempfacesnorms[w] != 0) {
-					float normtempx = ((float[])vertexsetsnorms.get(tempfacesnorms[w] - 1))[0];
-					float normtempy = ((float[])vertexsetsnorms.get(tempfacesnorms[w] - 1))[1];
-					float normtempz = ((float[])vertexsetsnorms.get(tempfacesnorms[w] - 1))[2];
-					//GL11.glNormal3f(normtempx, normtempy, normtempz);
-					GL11.glNormal3f(normtempx, normtempy, normtempz);
-				}
-				
-				if (tempfacestexs[w] != 0) {
-					float textempx = ((float[])vertexsetstexs.get(tempfacestexs[w] - 1))[0];
-					float textempy = ((float[])vertexsetstexs.get(tempfacestexs[w] - 1))[1];
-					float textempz = ((float[])vertexsetstexs.get(tempfacestexs[w] - 1))[2];
-					//GL11.glTexCoord3f(textempx,1f-textempy,textempz);
-					//System.out.println( "tx: " + textempx + " " + ( 1f-textempy ) + " " + textempz);
-					GL11.glTexCoord2f(textempx,1f-textempy);
-				}
-				
-				float tempx = ((float[])vertexsets.get(tempfaces[w] - 1))[0];
-				float tempy = ((float[])vertexsets.get(tempfaces[w] - 1))[1];
-				float tempz = ((float[])vertexsets.get(tempfaces[w] - 1))[2];
-				GL11.glVertex3f(tempx,tempy,tempz);
-				//System.out.println( "v: " + tempx + " " + tempy + " " + tempz );
-			}
-			
-			
-			//// Quad End Footer /////
-			GL11.glEnd();
-			///////////////////////////
-			
-			
-		}
-		GL11.glEndList();
-	}
-	
-	public void opengldraw() {
-		GL11.glCallList(objectlist);
-	}
-	
 	public float[] trimeshVertices( ) {
 		return trimeshVertices( new float[]{ 1.0f, 1.0f,1.0f } );
 	}
@@ -455,8 +379,6 @@ public class BrMesh implements Serializable {
 		farpoint *= d;		// z-
 		nearpoint *= d;		// z+
 		
-		if( withGraphics )
-			opengldrawtolist();
 		// Regen display list
 	}
 
@@ -568,91 +490,91 @@ public class BrMesh implements Serializable {
 		w.close();
 	}
 	
-	public double intersectRayMesh( float[] direction, float[] point, int sourceFace, double offsetR ) {
-		double dist = Double.POSITIVE_INFINITY;
-		/*direction[0] = -direction[0];
-		direction[1] = -direction[1];
-		direction[2] = -direction[2];*/
-		
-		Vector3f dir = new Vector3f( direction[0], direction[1], direction[2] );
-		//Vector3f w0 = new Vector3f( point[0], point[1], point[2] );
-		
-		Vector3f w0 = new Vector3f( (float) (point[0] + offsetR * direction[0]),
-									(float) (point[1] + offsetR * direction[1]),
-									(float) (point[2] + offsetR * direction[2]) );
-		
-		for( int k = 0; k < faces.size(); k++ ) {
-			if( k != sourceFace ) {
-			//if( k % ( faces.size() / 100 ) == 0 )
-			//	System.out.println( "." + k );
-			//Point3f I = new Point3f();
-	        Vector3f    u, v, n;
-	        Vector3f    w;
-	        float     r, a, b;
-	        
-	        float[] p1v = getVertex( faces.get(k)[0] - 1  );
-	        float[] p2v = getVertex( faces.get(k)[1] - 1 );
-	        float[] p3v = getVertex( faces.get(k)[2] - 1 );
-	        Vector3f p1 = new Vector3f( p1v[0], p1v[1], p1v[2] );
-	        u = new Vector3f( p2v[0], p2v[1], p2v[2] );
-	        v = new Vector3f( p3v[0], p3v[1], p3v[2] );
-	        
-	        Vector3f.sub( u, p1, u );
-	        Vector3f.sub( v, p1, v );
-	        n = new Vector3f(); // cross product
-	        Vector3f.cross(u, v, n);
-	        
-	        if (n.length() != 0) {
-
-		        //w0.sub(T.getPointOne());
-	        	
-	        	Vector3f rw0 = Vector3f.sub( w0, p1, null );
-		        //a = -(new Vector3f(n).dot(w0));
-	        	a = -( Vector3f.dot(n,rw0) );
-		        //b = new Vector3f(n).dot(dir);
-	        	b = ( Vector3f.dot( n, dir ) );
-		        
-		        if ((float)Math.abs(b) > 0.000001 ) {// small number check
-		        
-			        r = a / b;
-			        if (r >= 0.0) {
-				        
-			        	// intersection point
-				        //I = new Point3f(R.getStart());
-				        //I.x += r * dir.x;
-				        //I.y += r * dir.y;
-				        //I.z += r * dir.z;
-			        	
-		    	        float[] pc = new float[3];
-		    	        pc[0] = ( p1v[0] + p2v[0] + p3v[0] ) / 3;
-		    	        pc[1] = ( p1v[1] + p2v[1] + p3v[1] ) / 3;
-		    	        pc[2] = ( p1v[2] + p2v[2] + p3v[2] ) / 3;
-		    	        
-		        		float d = (float) Math.sqrt( Math.pow( pc[0] - point[0], 2 ) +
-		        							 Math.pow( pc[1] - point[1], 2 ) + 
-		        							 Math.pow( pc[2] - point[2], 2 ) );
-				        
-			        	if( d < dist ) {
-			        		//System.out.println( "Matching face for " + sourceFace + " is " + k );
-			        		//System.out.println( "Source direction " + dir );
-			        		//System.out.println( "source point " + w0 );
-			        		//System.out.println( "p1 " + p1 );
-			        		//System.out.println( "r " + r );
-
-
-			        		dist = d;
-			        		//System.out.println( "d " + d );
-			        	}
-			        }
-		        }
-	        }
-			}
-		}
-		if( dist == Double.POSITIVE_INFINITY )
-			return -1;
-		else	
-			return dist;
-	}
+//	public double intersectRayMesh( float[] direction, float[] point, int sourceFace, double offsetR ) {
+//		double dist = Double.POSITIVE_INFINITY;
+//		/*direction[0] = -direction[0];
+//		direction[1] = -direction[1];
+//		direction[2] = -direction[2];*/
+//
+//		Vector3f dir = new Vector3f( direction[0], direction[1], direction[2] );
+//		//Vector3f w0 = new Vector3f( point[0], point[1], point[2] );
+//
+//		Vector3f w0 = new Vector3f( (float) (point[0] + offsetR * direction[0]),
+//									(float) (point[1] + offsetR * direction[1]),
+//									(float) (point[2] + offsetR * direction[2]) );
+//
+//		for( int k = 0; k < faces.size(); k++ ) {
+//			if( k != sourceFace ) {
+//			//if( k % ( faces.size() / 100 ) == 0 )
+//			//	System.out.println( "." + k );
+//			//Point3f I = new Point3f();
+//	        Vector3f    u, v, n;
+//	        Vector3f    w;
+//	        float     r, a, b;
+//
+//	        float[] p1v = getVertex( faces.get(k)[0] - 1  );
+//	        float[] p2v = getVertex( faces.get(k)[1] - 1 );
+//	        float[] p3v = getVertex( faces.get(k)[2] - 1 );
+//	        Vector3f p1 = new Vector3f( p1v[0], p1v[1], p1v[2] );
+//	        u = new Vector3f( p2v[0], p2v[1], p2v[2] );
+//	        v = new Vector3f( p3v[0], p3v[1], p3v[2] );
+//
+//	        Vector3f.sub( u, p1, u );
+//	        Vector3f.sub( v, p1, v );
+//	        n = new Vector3f(); // cross product
+//	        Vector3f.cross(u, v, n);
+//
+//	        if (n.length() != 0) {
+//
+//		        //w0.sub(T.getPointOne());
+//
+//	        	Vector3f rw0 = Vector3f.sub( w0, p1, null );
+//		        //a = -(new Vector3f(n).dot(w0));
+//	        	a = -( Vector3f.dot(n,rw0) );
+//		        //b = new Vector3f(n).dot(dir);
+//	        	b = ( Vector3f.dot( n, dir ) );
+//
+//		        if ((float)Math.abs(b) > 0.000001 ) {// small number check
+//
+//			        r = a / b;
+//			        if (r >= 0.0) {
+//
+//			        	// intersection point
+//				        //I = new Point3f(R.getStart());
+//				        //I.x += r * dir.x;
+//				        //I.y += r * dir.y;
+//				        //I.z += r * dir.z;
+//
+//		    	        float[] pc = new float[3];
+//		    	        pc[0] = ( p1v[0] + p2v[0] + p3v[0] ) / 3;
+//		    	        pc[1] = ( p1v[1] + p2v[1] + p3v[1] ) / 3;
+//		    	        pc[2] = ( p1v[2] + p2v[2] + p3v[2] ) / 3;
+//
+//		        		float d = (float) Math.sqrt( Math.pow( pc[0] - point[0], 2 ) +
+//		        							 Math.pow( pc[1] - point[1], 2 ) +
+//		        							 Math.pow( pc[2] - point[2], 2 ) );
+//
+//			        	if( d < dist ) {
+//			        		//System.out.println( "Matching face for " + sourceFace + " is " + k );
+//			        		//System.out.println( "Source direction " + dir );
+//			        		//System.out.println( "source point " + w0 );
+//			        		//System.out.println( "p1 " + p1 );
+//			        		//System.out.println( "r " + r );
+//
+//
+//			        		dist = d;
+//			        		//System.out.println( "d " + d );
+//			        	}
+//			        }
+//		        }
+//	        }
+//			}
+//		}
+//		if( dist == Double.POSITIVE_INFINITY )
+//			return -1;
+//		else
+//			return dist;
+//	}
 	
 	public int closestVertexIndex( float[] point ) {
 		double dist = Double.POSITIVE_INFINITY;

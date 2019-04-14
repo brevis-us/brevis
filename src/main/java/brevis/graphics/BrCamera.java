@@ -9,23 +9,13 @@ import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 
-//import javax.vecmath.Vector3f;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import static java.lang.Math.*;
 
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GLContext;
-import org.lwjgl.opengl.GL14;
-import org.lwjgl.util.glu.GLU;
-
 import brevis.BrObject;
 import brevis.Engine;
-import static org.lwjgl.opengl.ARBDepthClamp.GL_DEPTH_CLAMP;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.EXTFramebufferObject.*;
 
 // was based on http://www.lloydgoodall.com/tutorials/first-person-camera-control-with-lwjgl/
 // now based on https://gist.github.com/DziNeIT/4206709
@@ -89,18 +79,6 @@ public class BrCamera {
 		this.width = width;
 		this.height = height;
 		this.aspectRatio = ( width/height > 1 ? width/height : height/width );
-		GL11.glViewport(0,0,(int)width,(int)height);                           // Reset The Current Viewport
-		
-		GL11.glMatrixMode(GL11.GL_PROJECTION);                            // Select The Projection Matrix
-        GL11.glLoadIdentity();                                       // Reset The Projection Matrix
-        
-        GLU.gluPerspective(45.0f,
-                (float) width / (float) height,
-                0.05f, 100.0f);
-		
-		/*GLU.gluPerspective(fov,
-                (float) width / (float) height,
-                nearClippingPlane, farClippingPlane);*/
 	}
 
 	public void processMouse( float dx, float dy, float mouseSpeed) {
@@ -245,31 +223,7 @@ public class BrCamera {
 		this.y += dy * (float) sin(toRadians(roll - 90)) + dz * sin(toRadians(roll));
 	}
 	
-	public void lookAt( Vector3f camVec, Vector3f targetVec ) {
-		if( camVec.length() != 0 && targetVec.length() != 0 ) {
-			Vector3f dir = new Vector3f();
-			Vector3f.cross( camVec, targetVec, dir );
-			//dir.cross( targetVec, objVec );
-			//System.out.println( "orient cross " + dir );
-			dir.set( ( camVec.y * targetVec.z - camVec.z * targetVec.y ), 
-					 ( camVec.z * targetVec.x - camVec.x * targetVec.z ), 
-					 ( camVec.x * targetVec.y - camVec.y * targetVec.x ) );
-			if( dir.length() != 0 )
-				dir.normalise();
-			//dir.scale( 1.0 / dir.length() );
-			double vdot = Vector3f.dot( targetVec, camVec );
-			vdot = Math.max( Math.min( vdot / ( camVec.length() * targetVec.length() ), 
-									   1.0), -1.0 );
-			//double angle = ( Math.acos( vdot ) * ( Math.PI / 180.0 ) );
-			double angle = ( Math.acos( vdot ) * ( 180.0 / Math.PI ) );
-			if( dir.length() == 0 ) 
-				rotation.set( camVec.x, camVec.y, camVec.z, (float)0.001 );
-			else
-				rotation.set( dir.x, dir.y, dir.z, (float)angle );
-			//System.out.println( "orient " + objVec + " " + targetVec + " " + dir + " " + vdot + " " + rotation );
-			
-		}
-	}
+
 
 	public void setPosition( Vector3f v ) {
 		x = v.x;
@@ -291,192 +245,5 @@ public class BrCamera {
 		pitch = v.y;
 		yaw = v.z;
 	}
-	
-	/**
-	 * Applies optimal states
-	 */
-	public void optimiseStates() {
-		if (GLContext.getCapabilities().GL_ARB_depth_clamp) {
-			glEnable(GL_DEPTH_CLAMP);
-		}
-	}
 
-	/**
-	 * Applies the orthographic matrix (GL11.glOrtho)
-	 */
-	public void orthographicMatrix() {
-		glPushAttrib(GL_TRANSFORM_BIT);
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glOrtho(-aspectRatio, aspectRatio, -1, 1, 0, farClippingPlane);
-		glPopAttrib();
-	}
-
-	/**
-	 * Applies the perspective matrix (GLU.gluPerspective)
-	 */
-	public void perspectiveMatrix() {
-		glPushAttrib(GL_TRANSFORM_BIT);
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		GLU.gluPerspective(fov, aspectRatio, nearClippingPlane, farClippingPlane);
-		glPopAttrib();
-	}
-	
-	public void setupFrame() {
-		GL11.glViewport(0,0,(int)width,(int)height);                           // Reset The Current Viewport		
-		//GLU.gluPerspective(fov, (float) width / (float) height, nearClippingPlane, farClippingPlane);
-		
-		GL11.glMatrixMode( GL11.GL_PROJECTION );
-		GL11.glLoadIdentity();
-		final float vnear = nearClippingPlane;
-		final float vfar = farClippingPlane;
-		//final float k = aspectRatio;     // view scale, 1 = +/- 45 degrees
-		final float k = 0.8f;     // view scale, 1 = +/- 45 degrees
-		if (width >= height) {
-			float k2 = (float)height/(float)width;
-			GL11.glFrustum (-vnear*k,vnear*k,-vnear*k*k2,vnear*k*k2,vnear,vfar);
-		}
-		else {
-			float k2 = (float)width/(float)height;
-			GL11.glFrustum (-vnear*k*k2,vnear*k*k2,-vnear*k,vnear*k,vnear,vfar);
-		}
-		//GLU.gluPerspective(fov, (float) width / (float) height, nearClippingPlane, farClippingPlane);
-		GL11.glMatrixMode( GL11.GL_MODELVIEW );
-		translate();		
-	}
-
-	/**
-	 * Translates camera position to OpenGL position
-	 */
-	public void translate() {
-		glPushAttrib(GL_TRANSFORM_BIT);
-		//glMatrixMode(GL_MODELVIEW);
-		//glRotatef (90, 0,0,1);
-		//glRotatef (90, 0,1,0);		
-		
-		glRotatef(roll, 1, 0, 0);
-		glRotatef(pitch, 0, 1, 0);
-		
-		// Future call, should be re-enabled
-		//GL11.glRotatef( (float)rotation.w, (float)rotation.x, (float)rotation.y, (float)rotation.z);
-		
-		
-		//glRotatef(yaw, 0, 0, 1);
-		//glTranslatef(-x, -y, -z);
-		glTranslatef(x, y, z);
-		glPopAttrib();
-	}
-	
-	public void makeFBO() {
-		if (!GLContext.getCapabilities().GL_EXT_framebuffer_object) {
-			System.out.println("FBO not supported!!!");
-			System.exit(0);
-		}
-		else {
-			
-			//System.out.println("FBO is supported!!!");
-			
-			// init our fbo
-				
-			framebufferID = glGenFramebuffersEXT();											// create a new framebuffer					
-			colorTextureID = glGenTextures();												// and a new texture used as a color buffer
-			depthRenderBufferID = glGenRenderbuffersEXT();									// And finally a new depthbuffer
-	
-			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, framebufferID); 						// switch to the new framebuffer
-	
-			// initialize color texture
-			glBindTexture(GL_TEXTURE_2D, colorTextureID);									// Bind the colorbuffer texture
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);				// make it linear filterd
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, (int)width, (int)height, 0,GL_RGBA, GL_INT, (java.nio.ByteBuffer) null);	// Create the texture data
-			//glTexImage2D(GL_TEXTURE_2D, 1, GL_RGBA8, (int)width, (int)height, 0,GL_RGBA, GL_INT, (java.nio.ByteBuffer) null);	// Create the texture data
-			glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D, colorTextureID, 0); // attach it to the framebuffer
-	
-	
-			// initialize depth renderbuffer
-			glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depthRenderBufferID);				// bind the depth renderbuffer
-			glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL14.GL_DEPTH_COMPONENT24, (int)width, (int)height);	// get the data space for it
-			glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,GL_DEPTH_ATTACHMENT_EXT,GL_RENDERBUFFER_EXT, depthRenderBufferID); // bind it to the renderbuffer
-	
-			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);									// Swithch back to normal framebuffer rendering
-			
-		}
-	}		
-	
-	public void initRenderToFBO() {
-		
-		// FBO render pass
-
-		//glViewport (0, 0, (int)width, (int)height);									// set The Current Viewport to the fbo size
-
-		setupFrame();
-		
-		glBindTexture(GL_TEXTURE_2D, 0);								// unlink textures because if we dont it all is gonna fail
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, framebufferID);		// switch to rendering on our FBO
-		
-		GL11.glShadeModel(GL11.GL_SMOOTH);                            // Enable Smooth Shading
-        GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.5f);               // Black Background
-        GL11.glClearDepth(1.0f);                                 // Depth Buffer Setup
-        GL11.glClearStencil(0);                                  // Stencil Buffer Setup
-        GL11.glEnable(GL11.GL_DEPTH_TEST);                            // Enables Depth Testing
-        GL11.glDepthFunc(GL11.GL_LEQUAL);                             // The Type Of Depth Testing To Do
-        //GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST);  // Really Nice Perspective Calculations
-        
-        GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_FASTEST);
-        GL11.glEnable(GL11.GL_LINE_SMOOTH);
-        GL11.glHint(GL11.GL_POLYGON_SMOOTH_HINT, GL11.GL_FASTEST);
-        GL11.glEnable(GL11.GL_POLYGON_SMOOTH);
-        
-		
-		//glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);					// switch to rendering on the display framebuffer
-
-		//glFlush ();		
-	}	
-	
-	public void finishRenderToFBO() {
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);					// switch to rendering on the display framebuffer
-
-		glFlush ();
-	}
-	
-	public void renderToFBO( Engine e ) {
-		
-		GL11.glClear( GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT );
-		
-		initRenderToFBO();
-		
-		ArrayList<BrObject> objects = new ArrayList<BrObject>( e.getObjects() );
-		
-		for( BrObject obj : objects ) {
-			Basic3D.drawShape( obj, obj.getShape().getDimension());
-		}
-		
-		finishRenderToFBO();		
-		
-	}
-	
-	public BufferedImage getImageFromFBO() {
-		BufferedImage img = new BufferedImage((int)width, (int)height, BufferedImage.TYPE_INT_ARGB);
-		// https://gist.github.com/mattdesl/5467849
-
-		ByteBuffer buffer = BufferUtils.createByteBuffer((int) (width * height * 4));
-		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-
-		int[] px = ((DataBufferInt)img.getRaster().getDataBuffer()).getData();
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				int i = (int)(x + (width * y)) * 4;
-				int r = buffer.get(i) & 0xff;
-				int g = buffer.get(i + 1) & 0xff;
-				int b = buffer.get(i + 2) & 0xff;
-				int a = buffer.get(i + 3) & 0xff;
-				int argb = (a<<24) | (r<<16) | (g<<8) | b;
-				int off = (int)(x + width * (height-y-1));
-				px[off] = argb;
-			}
-		}
-
-
-		return img;
-	}
 }

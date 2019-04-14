@@ -5,16 +5,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Vector;
 
-//import javax.vecmath.Vector3d;
-//import javax.vecmath.Vector3f;
-
-
-
-
-
-import org.lwjgl.util.vector.Vector3f;
+import org.joml.Vector3f;
 import org.ode4j.math.DVector3;
-import org.ode4j.ode.DHinge2Joint;
 import org.ode4j.ode.DHingeJoint;
 import org.ode4j.ode.DJoint;
 import org.ode4j.ode.DJointGroup;
@@ -69,7 +61,7 @@ public class BrPhysics implements Serializable {
 		time = 0;
 	}
 	
-	public BrJoint jointHinge( BrObject objA, BrObject objB, Vector3f locationOnA, Vector3f axis ) {
+	public BrJoint jointHinge(BrObject objA, BrObject objB, Vector3f locationOnA, Vector3f axis ) {
 		DHingeJoint joint = OdeHelper.createHingeJoint(world);
 		joint.attach( objA.getBody(), objB.getBody() );
 		joint.setAnchor( locationOnA.x, locationOnA.y, locationOnA.z );

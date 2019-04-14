@@ -1,10 +1,11 @@
 (ns brevis.core
   (:use [brevis globals utils vector]
         [brevis.physics core space utils]
-        [brevis.shape core box sphere cone])       
+        [brevis.shape core box sphere cone])
   (:require [clojure.math.numeric-tower :as math]
             [brevis-utils.parameters :as params]
-            [brevis.graphics.core :as graphics]))
+            [brevis.graphics.core :as graphics])
+  (:import (graphics.scenery SceneryBase)))
 
 ;; ## Window and Graphical Environment
 
@@ -18,6 +19,7 @@
   ([initialize]
    (start-gui initialize java-update-world))
   ([initialize update]
+   (SceneryBase/xinitThreads)
    (reset! *gui-message-board* (sorted-map))
     ;;
    (reset! *app-thread*
