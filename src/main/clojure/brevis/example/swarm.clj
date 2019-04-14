@@ -135,8 +135,8 @@
           new-acceleration
           #_(add (mul (get-acceleration bird) 0.5)
                (mul new-acceleration speed))))
-      (bound-velocity (get-velocity bird)))
-      ))
+      (bound-velocity (get-velocity bird)))))
+
 
 ;(add-global-update-handler 10 (fn [] (println (get-time) (System/nanoTime))))
 
@@ -189,16 +189,9 @@
   
   #_(set-camera-information (vec3 -10.0 -50.0 -200.0) (vec4 1.0 0.0 0.0 0.0))
   (set-camera-information (vec3 -10.0 57.939613 -890.0) (vec4 1.0 0.0 0.0 0.0))
-  
-  ;(.setParallel *java-engine* true)
-  
-  #_(disable-skybox)
-  (set-parallel true)
-  
+
   (set-dt 1)
   (set-neighborhood-radius 50)
-  #_(default-display-text)
-  ;(add-object (move (make-floor 500 500) (vec3 0 (- boundary) 0)))
   (dotimes [_ @num-birds]
     (add-object (random-bird))))
 

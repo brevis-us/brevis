@@ -4,17 +4,8 @@
         [brevis.physics core space utils]
         [brevis.shape core box sphere cone])       
   (:require [clojure.math.numeric-tower :as math]
-            [brevis-utils.parameters :as params])
-  (:import (brevis.graphics Basic3D) 
-           (brevis BrInput SystemUtils Natives)
-           (java.awt AWTException Robot Rectangle Toolkit)
-           (java.awt.geom AffineTransform)
-           (java.awt.image AffineTransformOp BufferedImage)
-           (java.nio ByteBuffer)
-           (java.io File IOException)
-           (java.util.concurrent.locks ReentrantLock)
-           (java.util.concurrent TimeUnit)
-           (javax.imageio ImageIO)))
+            [brevis-utils.parameters :as params]
+            [brevis.graphics.core :as graphics]))
 
 ;; ## Window and Graphical Environment
 
@@ -23,21 +14,15 @@
  []
  (reset! *gui-state* default-gui-state))
 
-;; ## Start a brevis instance
-
-;; TODO Yeesh... There must be a better way than this
-(declare simulate)
-(defn start-gui 
+(defn start-gui
   "Start the simulation with a GUI."
   ([initialize]
-    (start-gui initialize java-update-world))    
+   (start-gui initialize java-update-world))
   ([initialize update]
-    (reset! *gui-message-board* (sorted-map))
-    ;; Load graphics dependencies now
-    (use 'brevis.graphics.core)
+   (reset! *gui-message-board* (sorted-map))
     ;;
-	  (reset! *app-thread*
-           (Thread. (fn [] (simulate initialize update))))
+   (reset! *app-thread*
+            (Thread. (fn [] (graphics/simulate initialize update)))); TODO move graphics simulate here, the display functions can be inputs therefore dont need to be in a graphical env
    (.start @*app-thread*)))
 
 ;; ## Non-graphical simulation loop (may need updating) (comment may need updating)
@@ -58,8 +43,8 @@
         (do (println "Halting.")
           state
           (doseq [dh @destroy-hooks] (dh))
-            (when-not (params/get-param :gui)
-              (System/exit 0)))
+          (when-not (params/get-param :gui)
+            (System/exit 0)))
         (recur ((:update state) [t (get-dt)] state)
                (+ t (get-dt))
                (if (> t (+ twrite write-interval)) t twrite)
@@ -68,10 +53,10 @@
 (defn start-nogui 
   "Start the simulation with a GUI."
   ([initialize]
-    (start-nogui initialize java-update-world #_update-world))
+   (start-nogui initialize java-update-world #_update-world))
   ([initialize update]    
-	  (simulation-loop
-	   {:init initialize, :update update})))      
+   (simulation-loop
+     {:init initialize, :update update})))
 
 (defn autostart-in-repl
   "Autostart a function if we're in a REPL environment."

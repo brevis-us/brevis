@@ -1,10 +1,10 @@
-(ns brevis.graphics.core)
-(ns brevis.core;graphics.core;; was just brevis.core
+(ns brevis.graphics.core
   (:use [brevis.init]; ew.....
         [brevis globals utils vector]
         [brevis.physics core space utils]
         [brevis.shape core box sphere cone])       
-  (:require [clojure.math.numeric-tower :as math]))
+  (:require [clojure.math.numeric-tower :as math]
+            [brevis.graphics.sciview :as display]))
 
 (defn enable-video-recording
   "Turn on video recording."
@@ -42,32 +42,29 @@
   (initialize)
   (let [startTime (ref (java.lang.System/nanoTime))
         fps (ref 0)
-        display? true]
+        dstate (atom (display/init))]
     (loop [step 0]             
       (when-not (:close-requested @*gui-state*)
         #_(println "Closing application.")
-        (do
-          #_(when display?
-            (display/init))
-          (update [(* step (get-dt)) (get-dt)] {})
-          (dosync (ref-set fps (inc @fps)))
-          (when (and (:display-fps @*gui-state*)
-                     (> (java.lang.System/nanoTime) @startTime))
-            (println "Update" step "FPS:" (double (/ @fps (/ (- (+ 1000000000 (java.lang.System/nanoTime)) @startTime) 1000000000))))
-            (dosync 
-              (ref-set startTime (+ (java.lang.System/nanoTime) 1000000000))
-              (ref-set fps 0)))
-          #_(when display?
-            #_(when (Display/wasResized) (.setDimensions (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
-            #_(println "fullscreen" (:fullscreen @*gui-state*) (not (Display/isFullscreen)))
-            #_(when (and (:fullscreen @*gui-state*) (not (Display/isFullscreen))) (println "going fullscreen") (Display/setFullscreen true))
-            #_(when (and (not (:fullscreen @*gui-state*)) (Display/isFullscreen)) (println "disable fullscreen") (Display/setFullscreen false))
-            (display/sync))
-          (recur (inc step))))))
+        (update [(* step (get-dt)) (get-dt)] {})
+        (dosync (ref-set fps (inc @fps)))
+        (when (and (:display-fps @*gui-state*)
+                   (> (java.lang.System/nanoTime) @startTime))
+          (println "Update" step "FPS:" (double (/ @fps (/ (- (+ 1000000000 (java.lang.System/nanoTime)) @startTime) 1000000000))))
+          (dosync
+            (ref-set startTime (+ (java.lang.System/nanoTime) 1000000000))
+            (ref-set fps 0)))
+        (when @dstate
+         #_(when (Display/wasResized) (.setDimensions (:camera @*gui-state*) (float (Display/getWidth)) (float (Display/getHeight))))
+         #_(println "fullscreen" (:fullscreen @*gui-state*) (not (Display/isFullscreen)))
+         #_(when (and (:fullscreen @*gui-state*) (not (Display/isFullscreen))) (println "going fullscreen") (Display/setFullscreen true))
+         #_(when (and (not (:fullscreen @*gui-state*)) (Display/isFullscreen)) (println "disable fullscreen") (Display/setFullscreen false))
+         (swap! dstate display/display)
+         (recur (inc step))))))
   (doseq [dh @destroy-hooks] (dh))
   ;; Should call system/exit if not using UI
   (when-not 
     (or (find-ns 'ccw.complete)
         (find-ns 'brevis.ui.core));; if we're in CCW or the Brevis IDE, don't exit.
-    (System/exit 0));; exit only when not using a repl-mode
-  )
+    (System/exit 0)));; exit only when not using a repl-mode
+
