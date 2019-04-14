@@ -53,10 +53,6 @@ public class Basic3D {
     
 	//static BrLight light1 = new BrLight();// should probably have a light array
 	
-	static ArrayList<BrLight> lights = new ArrayList<BrLight>();
-	static { 
-		lights.add( new BrLight( 0 ) );
-	}
 
 	//static BrCamera displayCamera;// This is the BrCamera that gets the main GL context
 	
@@ -66,34 +62,7 @@ public class Basic3D {
 	private static int shadowFrameBuffer;
 	private static int shadowRenderBuffer;
 	
-	public static void addLight( ) {
-		lights.add( new BrLight( lights.size() ) );
-	}
-	
-	public static void lightMove( int lightNum, float[] position ) {
-		//light_position.put( position ).flip();
-		//light1.setPosition( position );
-		lights.get(lightNum).setPosition( position );
-	}	
-	
-	public static float[] lightPosition( int lightNum ) {
-		return lights.get(lightNum).getPosition();
-	}
-	
-	public static void lightDiffuse( int lightNum, float[] color) {
-		lights.get(lightNum).setDiffuse( color );
-	}
-	
-	public static void lightSpecular( int lightNum, float[] color) {
-		lights.get(lightNum).setSpecular( color );
-	}
-	
-	public static void lightAmbient( int lightNum, float[] color) {
-		lights.get(lightNum).setAmbient( color );
-	}
-	
 
-	
 	// nehe lesson 27
     private static void vMatMult(float[] minv, double[] lp) {
         double res[] = new double[4];                                     // Hold Calculated Results
