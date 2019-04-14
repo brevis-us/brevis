@@ -1,7 +1,6 @@
 (ns brevis.core
   (:use [brevis.init]; ew.....
-        [brevis globals utils input osd display vector ]
-        [brevis.graphics basic-3D multithread]
+        [brevis globals utils vector]
         [brevis.physics core space utils]
         [brevis.shape core box sphere cone])       
   (:require [clojure.math.numeric-tower :as math]
@@ -26,21 +25,19 @@
 
 ;; ## Start a brevis instance
 
-;; Yeesh... There must be a better way than this
+;; TODO Yeesh... There must be a better way than this
 (declare simulate)
 (defn start-gui 
   "Start the simulation with a GUI."
   ([initialize]
     (start-gui initialize java-update-world))    
   ([initialize update]
-    (start-gui initialize update default-input-handlers))
-  ([initialize update input-handlers]
     (reset! *gui-message-board* (sorted-map))
     ;; Load graphics dependencies now
     (use 'brevis.graphics.core)
     ;;
 	  (reset! *app-thread*
-           (Thread. (fn [] (simulate initialize update input-handlers))))
+           (Thread. (fn [] (simulate initialize update))))
    (.start @*app-thread*)))
 
 ;; ## Non-graphical simulation loop (may need updating) (comment may need updating)

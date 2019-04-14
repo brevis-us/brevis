@@ -3,17 +3,14 @@
   (:import [brevis BrShape]
            [brevis.graphics BrMesh])
   (:use [brevis.vector]
-        [brevis.shape.core]
-        [brevis.graphics multithread]))        
+        [brevis.shape.core]))
 
 (defn create-mesh
   "Create a mesh object."
   ([filename is-resource?]
     (create-mesh filename is-resource? (vec3 1 1 1)))
   ([filename is-resource? scale]
-    (begin-with-graphics-thread)
     (let [result (BrShape/createMeshFromFile filename is-resource? (parameters/get-param :gui)  scale)]
-      (end-with-graphics-thread)
       result)))
 
 (defn shape-from-mesh

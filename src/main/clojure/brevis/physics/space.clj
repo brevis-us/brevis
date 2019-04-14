@@ -1,12 +1,13 @@
 (ns brevis.physics.space
   (:gen-class)
-  (:import (org.ode4j.ode OdeHelper DSapSpace OdeConstants DContactBuffer DGeom DFixedJoint DContactJoint))  (:import (org.ode4j.math DVector3))  (:import java.lang.Math)  
+  (:import (org.ode4j.ode OdeHelper DSapSpace OdeConstants DContactBuffer DGeom DFixedJoint DContactJoint))
+  (:import (org.ode4j.math DVector3))
+  (:import java.lang.Math)  
   (:import (brevis Engine BrPhysics BrObject))
   (:import (org.lwjgl.opengl GL32))
   (:import (org.lwjgl.util.vector Vector4f Vector3f))
   (:use [brevis vector utils globals]
         [brevis.shape core box]
-        [brevis.graphics multithread]
         [brevis.physics core collision utils])
   (:require [clojure.java.io]))
 
@@ -15,8 +16,7 @@
 
 (defn make-real
   "Add Real attributes to an object map."
-  [obj]  
-  (begin-with-graphics-thread)
+  [obj]
   #_(GL32/glFenceSync GL32/GL_SYNC_GPU_COMMANDS_COMPLETE 0)  
   (let [uid (long (hash (gensym)))        ;; might not be safe
         uid (if (zero? uid) (inc uid) uid); 0 is used as a NIL UID
@@ -36,7 +36,6 @@
     (.setType brobj (str (name (:type obj))))
     (.setShape brobj (:shape obj))    
     (.makeReal brobj @*java-engine*)
-    (end-with-graphics-thread)
     brobj))
 
 (defn recreate-physics-geom
@@ -199,13 +198,21 @@
                 "img/checker_large.png"
                 #_(clojure.java.io/resource "img/checker_large.png")))
 
-(defn init-world  "Return a map of ODE physics for 1 world. (Now does some brevis in it too)"  []
+(defn init-world
+  "Return a map of ODE physics for 1 world. (Now does some brevis in it too)"
+  []
   (when @*java-engine*
-    (.clearSimulation ^Engine @*java-engine*))  (let [world (doto (OdeHelper/createWorld)     
+    (.clearSimulation ^Engine @*java-engine*))
+  (let [world (doto (OdeHelper/createWorld)     
 (.setGravity 0 0 0)                                                                                   
-#_(.setGravity 0 -9.81 0))        space (OdeHelper/createHashSpace)        contact-group (OdeHelper/createJointGroup)]
-    (reset! *physics* {:world world                             :space space                       :contact-group contact-group
-                       :time 0});      (let [[floor floor-joint] (make-floor 1000 1000)
+#_(.setGravity 0 -9.81 0))
+        space (OdeHelper/createHashSpace)
+        contact-group (OdeHelper/createJointGroup)]
+    (reset! *physics* {:world world      
+                       :space space
+                       :contact-group contact-group
+                       :time 0})
+;      (let [[floor floor-joint] (make-floor 1000 1000)
     #_(println "Collision handlers:" (keys @*collision-handlers*))
     #_(println "Update handlers:" (keys @*update-handlers*))    
     #_(let [floor (make-floor 500 500)          
@@ -215,14 +222,31 @@
                                  :environment environment))
         (add-object floor)        
         (:objects environment))))
-#_(defn reset-world  "Reset the *physics* global."  []  (loop []    (when (pos? (.getNumGeoms (:space @*physics*)))      (.remove (:space *physics*) (.getGeom (:space @*physics*) 0))      (recur)))  (let [[floor floor-joint] (make-floor)
+
+#_(defn reset-world
+  "Reset the *physics* global."
+  []
+  (loop []
+    (when (pos? (.getNumGeoms (:space @*physics*)))
+      (.remove (:space *physics*) (.getGeom (:space @*physics*) 0))
+      (recur)))
+  (let [[floor floor-joint] (make-floor)
          environment {:objects [floor]
-                      :joints [floor-joint]}]    (reset! *physics* (assoc @*physics*
+                      :joints [floor-joint]}]
+    (reset! *physics* (assoc @*physics*
                               :environment environment
                               :time 0))))
 
-(defn reset-world  "Reset the *physics* global."  []  (loop []    (when (pos? (.getNumGeoms (:space @*physics*)))      (.remove (:space *physics*) (.getGeom (:space @*physics*) 0))      (recur)))  (let [environment {:objects []
-                      :joints []}]    (reset! *physics* (assoc @*physics*
+(defn reset-world
+  "Reset the *physics* global."
+  []
+  (loop []
+    (when (pos? (.getNumGeoms (:space @*physics*)))
+      (.remove (:space *physics*) (.getGeom (:space @*physics*) 0))
+      (recur)))
+  (let [environment {:objects []
+                      :joints []}]
+    (reset! *physics* (assoc @*physics*
                               :environment environment
                               :time 0))))
 
