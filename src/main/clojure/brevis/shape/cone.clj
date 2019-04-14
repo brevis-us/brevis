@@ -9,6 +9,6 @@
   ([]
      (create-cone 1 1))
   ([length base]
-    (let [result (BrShape/createCone length base (parameters/get-param :gui) #_(:gui @brevis.globals/*gui-state*))]
+    (let [result (BrShape/createCone length base (parameters/get-param :gui))]
       result)))
       

@@ -1,10 +1,9 @@
 (ns brevis.example.swarm
   (:gen-class)
-  #_(:use [brevis.ns everything])
-  (:use [brevis.graphics.basic-3D]
-        [brevis.physics collision core space utils]
+  (:use [brevis.physics collision core space utils]
         [brevis.shape box sphere cone]
-        [brevis core osd vector camera utils display image]))
+        [brevis core vector camera utils image])
+  (:require [brevis-utils.parameters :as parameters]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Swarm
@@ -124,7 +123,7 @@
                                          (vec3 (rand 0.1) (rand 0.1) (rand 0.1)))))));; add a small random delta so we don't get into a loop                                    
         new-acceleration (if (zero? (length new-acceleration))
                            new-acceleration
-                           (mul new-acceleration (/ 1 (length new-acceleration))))]    
+                           (mul new-acceleration (/ 1 (length new-acceleration))))]
     (set-velocity
       (set-acceleration
         (if (or (> (java.lang.Math/abs (x-val bird-pos)) boundary) 
@@ -172,7 +171,8 @@
 (defn initialize-simulation
   "This is the function where you add everything to the world."
   []  
-  ;(swap! brevis.globals/*gui-state* assoc :gui false)
+  (parameters/set-param :gui false)
+
   (init-world)
   (init-view)  
   
