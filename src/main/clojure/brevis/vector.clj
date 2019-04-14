@@ -53,19 +53,19 @@
   "Divide a vector by a scalar."
   [v s]
   (let [vr (if (vec3? v) ^Vector3f (Vector3f. v) ^Vector4f (Vector4f. v))]             
-    (.mul vr (double (/ s)))))
+    (.mul vr (float (/ s)))))
 
 (defn div-vec3
   "Divide a Vector3f by a scalar."
   [v s]
   (let [^Vector3f vr (Vector3f. v)]
-    (.mul vr ^double (double (/ s)))))
+    (.mul vr ^float (float (/ s)))))
 
 (defn div-vec4
   "Divide a Vector4f by a scalar."
   [v s]
   (let [^Vector4f vr (Vector4f. v)]
-    (.mul vr ^double (double (/ s)))))
+    (.mul vr ^float (float (/ s)))))
     
 (defn add
   "Add Vector3f's"
