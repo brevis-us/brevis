@@ -1,17 +1,12 @@
 (ns brevis.physics.utils
-  (:import (org.ode4j.ode OdeHelper DSapSpace OdeConstants DContactBuffer DGeom DFixedJoint DContactJoint))
+  (:import (org.ode4j.ode OdeHelper))
   (:import (org.ode4j.math DVector3))
-  (:import (org.lwjgl.util.vector Vector3f Vector4f))
-  (:import java.lang.Math)  
-  (:import (brevis Engine BrPhysics BrObject))
+  (:import (brevis Engine BrPhysics BrObject)
+           (org.joml Vector3f Vector4f))
   (:require [brevis.vector :as v]
             [brevis-utils.math.core :as math]
             [brevis.physics.core :as physics]
-            [brevis.utils :as utils])
-  #_(:use [brevis vector math utils]
-         [brevis.shape core box]        
-         [brevis.graphics multithread]
-         [brevis.physics core]))
+            [brevis.utils :as utils]))
 
 (defn get-world
   "Return the current world"

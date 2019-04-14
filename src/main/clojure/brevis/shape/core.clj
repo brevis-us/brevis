@@ -1,8 +1,6 @@
 (ns brevis.shape.core
-  (:import [java.awt.image BufferedImage]
-           [java.awt Color])
   (:use [brevis vector])
-  (:import [org.lwjgl.util.vector Vector3f Vector4f]))  
+  (:import (org.joml Vector3f)))
 
 (defn compute-normal
   "Compute the normal for some vertices of an arbitrary polygon."
