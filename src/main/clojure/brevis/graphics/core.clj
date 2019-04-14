@@ -1,8 +1,7 @@
 (ns brevis.graphics.core
-  (:use [brevis.init]; ew.....
-        [brevis globals utils vector]
+  (:use [brevis globals utils vector]
         [brevis.physics core space utils]
-        [brevis.shape core box sphere cone])       
+        [brevis.shape core box sphere cone])
   (:require [clojure.math.numeric-tower :as math]
             [brevis.graphics.sciview :as display]))
 
