@@ -5,33 +5,10 @@
   (:require [clojure.math.numeric-tower :as math]
             [brevis.graphics.sciview :as display]))
 
-(defn enable-video-recording
-  "Turn on video recording."
-  [video-name]
-  (def video-counter (atom 0))
-  (swap! *gui-state* 
-         assoc :record-video true
-               :video-name video-name))
-
-(defn disable-video-recording
-  "Turn off video recording."
-  []
-  (swap! *gui-state* dissoc :record-video))
-
 (defn drawable?
   "Is an object drawable?"
   [obj]
   (.isDrawable ^brevis.BrObject obj))
-
-(defn init-display
-  "Initialize the display before we do updates."
-  []
-  nil)
-
-(defn display
-  "Render all objects."
-  []
-  (println :display))
 
 (defn simulate
   "Simulation loop."
