@@ -3,16 +3,28 @@
             [brevis.utils :as utils]
             [fun.imagej.sciview :as sciview]
             [brevis.physics.utils :as physics]
+            [brevis.shape.core :as shape]
             [brevis.utils :as utils])
   (:import (sc.iview.vector ClearGLVector3)
-           (cleargl GLVector)))
+           (cleargl GLVector)
+           (com.jogamp.opengl.math Quaternion)))
 
 (defn create-sv-object
   "Create a SciView object for a brevis object"
   [s br-obj]
-  (let [cp (physics/get-position (utils/get-object br-obj))
-        c [(.x cp) (.y cp) (.z cp)]]
-    (sciview/add-sphere (:sciview s) c (float 5))))
+  (let [obj (utils/get-object br-obj)
+        cp (physics/get-position obj)
+        c (sc.iview.vector.FloatVector3. (.x cp) (.y cp) (.z cp))
+        shp (shape/get-shape obj)
+        shp-type (.getType shp)]
+    (cond (= shp-type "sphere")
+          (sciview/add-sphere (:sciview s) [(.x cp) (.y cp) (.z cp)] (float 5))
+          (= shp-type "cone")
+          (sciview/add-cone (:sciview s) c (float 5) 10)
+          (= shp-type "cylinder")
+          (sciview/add-cylinder (:sciview s) c (float 5) 10)
+          (= shp-type "box")
+          (sciview/add-box (:sciview s) c (float 5)))))
 
 (defn init
   "Initialize a SciView, setup all current objects in scene for syncing."
@@ -47,8 +59,12 @@
       br-sv-map
       (let [br-obj (first br-objs)
             ^graphics.scenery.Node sv-obj (get (:br-sv-map s) br-obj)
+            br-rot (physics/get-rotation (utils/get-object br-obj))
             br-pos (physics/get-position (utils/get-object br-obj))]
         (.setPosition sv-obj (GLVector. (float-array [(.x br-pos) (.y br-pos) (.z br-pos)]))); TODO get brevis using sciview Vector3
+        (.setRotation sv-obj (Quaternion. (.x br-rot) (.y br-rot) (.z br-rot) java.lang.Math/PI)); TODO check the .w, but when i did it only reported 90, so i hard coded the radians value
+        ;(println :rotation (.x br-rot) (.y br-rot) (.z br-rot) (.w br-rot))
+        (.setNeedsUpdate sv-obj true)
         (recur (assoc br-sv-map br-obj sv-obj)
                (rest br-objs))))))
 

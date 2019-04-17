@@ -7,6 +7,7 @@
             [brevis.physics.utils :as physics]
             [brevis.utils :as utils]
             [brevis.shape.cone :as cone]
+            [brevis.shape.sphere :as sphere]
             [brevis.core :as core]
             [clj-random.core :as random])
   (:import (graphics.scenery Light)
@@ -57,6 +58,7 @@
   [position]  
   (physics/move (physics/make-real {:type :bird
                                     :color (vector/vec4 1 0 0 1)
+                                    ;:shape (sphere/create-sphere 10)})
                                     :shape (cone/create-cone 10.2 1.5)})
         position))
   

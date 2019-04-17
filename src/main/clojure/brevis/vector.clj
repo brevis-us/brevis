@@ -192,7 +192,7 @@
   "Return the length of a vector."
   [^Vector3f v] (.length v))
 
-(defn length-vec3
+(defn length-vec4
   "Return the length of a vector."
   [^Vector4f v] (.length v))  
 
