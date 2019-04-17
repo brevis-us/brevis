@@ -1,8 +1,5 @@
 (ns brevis.example.swarm
   (:gen-class)
-  #_(:use [brevis.physics collision core space utils]
-          [brevis.shape box sphere cone]
-          [brevis core vector camera utils image])
   (:require [brevis-utils.parameters :as parameters]
             [brevis.physics.collision :as collision]
             [brevis.vector :as vector]
@@ -13,7 +10,6 @@
             [brevis.core :as core]
             [clj-random.core :as random])
   (:import (graphics.scenery Light)
-           (cleargl GLVector)
            (java.util.function Predicate)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -35,7 +31,8 @@
 
 (def avoidance-distance (atom 25))
 ;(def boundary 1000)
-(def boundary 20)
+(def centering (atom 0.11))
+(def boundary 30)
 
 (def speed 1)
 (def max-acceleration 10)
@@ -142,9 +139,12 @@
                                     ;; If too close to neighbor, move away
                                     (vector/add (vector/mul dvec -1.0)
                                          (vector/vec3 (random/lrand 0.1) (random/lrand 0.1) (random/lrand 0.1)))))));; add a small random delta so we don't get into a loop
-        new-acceleration (if (zero? (vector/length new-acceleration))
-                           new-acceleration
-                           (vector/mul new-acceleration (/ 1 (vector/length new-acceleration))))]
+        new-acceleration (vector/add-vec3 new-acceleration
+                                          (vector/mul (vector/mul-vec3 (vector/normalize-vec3 bird-pos) -1)
+                                                      @centering))]
+        ;new-acceleration (if (zero? (vector/length new-acceleration))
+        ;                   new-acceleration
+        ;                   (vector/mul new-acceleration (/ 1 (vector/length new-acceleration))))]
     (physics/set-velocity
       (physics/set-acceleration
         (if (or (> (Math/abs (vector/x-val bird-pos)) boundary)
@@ -192,18 +192,6 @@
     (test [this arg]
       (instance? Light arg))))
 
-;; Global stuff
-
-(utils/add-global-update-handler 100
-                                 (fn []
-                                   (let [sv (fun.imagej.sciview/get-sciview)
-                                         lights (.getSceneNodes sv (light-predicate))]
-                                     (doseq [light lights](fn [n] (instance? Light n))
-                                       (let [pos (.getPosition light)
-                                             new-pos (apply periodic-boundary2
-                                                            (map #(+ % (random/lrand -5 5)) [(.x pos) (.y pos) (.z pos)]))]
-                                         (.setPosition light (GLVector. (float-array new-pos))))))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## brevis control code
 
@@ -214,24 +202,19 @@
 
   (physics/init-world)
   
-  #_(change-skybox
-     ["img/night_skybox/front.jpg"
-      "img/night_skybox/left.jpg"
-      "img/night_skybox/back.jpg"
-      "img/night_skybox/right.jpg"
-      "img/night_skybox/up.jpg"
-      "img/night_skybox/down.jpg"])
-  ;(swap! brevis.globals/*gui-state* assoc :gui false)
-  #_(.moveFromLook (:camera @brevis.globals/*gui-state*) 0 100 0)
-  #_(set-dt 0.1)
-  
   #_(set-camera-information (vec3 -10.0 -50.0 -200.0) (vec4 1.0 0.0 0.0 0.0))
-  (camera/set-camera-information (vector/vec3 -10.0 57.939613 -890.0) (vector/vec4 1.0 0.0 0.0 0.0))
+  ;(camera/set-camera-information (vector/vec3 -10.0 57.939613 -890.0) (vector/vec4 1.0 0.0 0.0 0.0))
 
   (utils/set-dt 0.05)
   (physics/set-neighborhood-radius 50)
   (dotimes [_ @num-birds]
-    (utils/add-object (random-bird))))
+    (utils/add-object (random-bird)))
+  (Thread/sleep 100)
+  (.setVisible (.getFloor (fun.imagej.sciview/get-sciview)) false)
+  (.surroundLighting (fun.imagej.sciview/get-sciview))
+  (.centerOnScene(fun.imagej.sciview/get-sciview)))
+
+
 
 ;; Start zee macheen
 (defn -main [& args]

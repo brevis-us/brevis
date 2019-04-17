@@ -1,6 +1,6 @@
 (ns brevis.core
   (:use [brevis globals utils vector]
-        [brevis.physics core space utils]
+        [brevis.physics core utils]
         [brevis.shape core box sphere cone])
   (:require [clojure.math.numeric-tower :as math]
             [brevis-utils.parameters :as params]
