@@ -3,7 +3,9 @@
             [fun.imagej.sciview :as sciview]
             [us.brevis.physics.utils :as physics]
             [us.brevis.shape.core :as shape]
-            [us.brevis.utils :as utils])
+            [us.brevis.utils :as utils]
+            [us.brevis.vector :as v]
+            [us.brevis.vector :as vector])
   (:import (sc.iview.vector ClearGLVector3)
            (cleargl GLVector)
            (com.jogamp.opengl.math Quaternion)))
@@ -50,7 +52,7 @@
                (rest br-objs))))))
 
 (defn sync-objects
-  "Sync all the br and sciview objects"
+  "Sync all the br and -sciview objects"
   [s br-objs]
   (loop [br-sv-map {}
          br-objs br-objs]
@@ -61,9 +63,27 @@
             br-rot (physics/get-rotation (utils/get-object br-obj))
             br-pos (physics/get-position (utils/get-object br-obj))
             br-vel (physics/get-velocity (utils/get-object br-obj))
+            target-rot (.setFromAxes (Quaternion.)
+                                     (float-array [0 1 0])
+                                     (float-array [0 0 1])
+                                     (float-array [1 0 0]))
+            ;target-rot (.setFromAxes (Quaternion.)
+            ;                         (float-array [0 0 1])
+            ;                         (float-array [1 0 0])
+            ;                         (float-array [0 1 0]))
+            ;target-rot (.setIdentity  (Quaternion.))
+            target (float-array 3)
+            _ (.rotateVector target-rot
+                             target
+                             0
+                             (float-array (vector/vec3-to-seq (vector/normalize br-vel)))
+                             0) ;(vector/add br-pos br-vel)
+            ;target (float-array (vector/vec3-to-seq (vector/normalize br-vel)))
             qrot (.setLookAt (Quaternion.)
-                             (float-array [(.x br-vel) (.y br-vel) (.z br-vel)])
-                             (float-array [0 0 1])
+                             ;(float-array [(.x target) (.y target) (.z target)])
+                             target
+                             (float-array [1 0 0])
+                             ;(float-array [0 0 1])
                              (float-array 3)
                              (float-array 3)
                              (float-array 3))];
@@ -71,7 +91,7 @@
         ;(.setRotation sv-obj (Quaternion. (.x br-rot) (.y br-rot) (.z br-rot) (.w br-rot))); TODO check the .w, but when i did it only reported 90, so i hard coded the radians value
         (.setRotation sv-obj qrot)
         ;(.setRotation sv-obj (Quaternion. (.x br-rot) (.y br-rot) (.z br-rot) (.w br-rot))); TODO check the .w, but when i did it only reported 90, so i hard coded the radians value
-        (println :rotation (.x br-rot) (.y br-rot) (.z br-rot) (.w br-rot) :qrot qrot)
+        ;(println :p br-pos :v br-vel :r qrot)
         (.setNeedsUpdate sv-obj true)
         (recur (assoc br-sv-map br-obj sv-obj)
                (rest br-objs))))))

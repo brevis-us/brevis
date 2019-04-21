@@ -261,7 +261,12 @@ axis is the axis about which the joint rotates"
     (.setType brobj (str (name (:type obj))))
     (.setShape brobj (:shape obj))
     (.makeReal brobj @physics/*java-engine*)
-    brobj))
+    (loop [brobj brobj
+           ks (keys obj)]
+      (if (empty? ks)
+        brobj
+        (recur (assoc brobj (first ks) (get obj (first ks)))
+               (rest ks))))))
 
 (defn recreate-physics-geom
   "Recreate the physics geometry of this object."

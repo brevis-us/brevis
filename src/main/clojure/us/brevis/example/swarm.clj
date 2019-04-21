@@ -70,6 +70,7 @@
     (physics/set-acceleration
       (physics/move (physics/make-real {:type :bird
                                         :color (vector/vec4 1 0 0 1)
+                                        :initial-acc (vector/vec3 0.001 0 0);(vector/normalize (random-bird-position))
                                         ;:shape (sphere/create-sphere 10)})
                                         :shape (cone/create-cone 10.2 1.5)})
             position)
@@ -156,28 +157,24 @@
                                          (vector/vec3 (random/lrand 0.1) (random/lrand 0.1) (random/lrand 0.1)))))));; add a small random delta so we don't get into a loop
         new-acceleration (vector/add-vec3 new-acceleration
                                           (vector/mul (vector/mul-vec3 (vector/normalize-vec3 bird-pos) -1)
-                                                      @centering))
-        new-acceleration (vector/mul (vector/mul-vec3 (vector/normalize-vec3 bird-pos) -1)
-                                     @centering)]
+                                                      @centering))]
 
         ;new-acceleration (if (zero? (vector/length new-acceleration))
         ;                   new-acceleration
         ;                   (vector/mul new-acceleration (/ 1 (vector/length new-acceleration))))]
-    (physics/orient-object (physics/set-velocity
-                             (physics/set-acceleration
-                               (if (or (> (Math/abs (vector/x-val bird-pos)) boundary)
-                                       (> (Math/abs (vector/y-val bird-pos)) boundary)
-                                       (> (Math/abs (vector/z-val bird-pos)) boundary))
-                                 (physics/move bird (periodic-boundary bird-pos) #_(vec3 0 25 0))
-                                 bird)
-                               (bound-acceleration
-                                 ;(physics/get-acceleration bird)
-                                 new-acceleration
-                                 #_(add (mul (get-acceleration bird) 0.5)
-                                      (mul new-acceleration speed))))
-                             (bound-velocity (physics/get-velocity bird)))
-                           (vector/vec3 0 0 1); This is the up-vector of the shape
-                           (physics/get-velocity bird))))
+    (physics/set-velocity
+      (physics/set-acceleration
+        (if (or (> (Math/abs (vector/x-val bird-pos)) boundary)
+                (> (Math/abs (vector/y-val bird-pos)) boundary)
+                (> (Math/abs (vector/z-val bird-pos)) boundary))
+          (physics/move bird (periodic-boundary bird-pos) #_(vec3 0 25 0))
+          bird)
+        (bound-acceleration
+          ;(physics/get-acceleration bird)
+          new-acceleration
+          #_(add (mul (get-acceleration bird) 0.5)
+               (mul new-acceleration speed))))
+      (bound-velocity (physics/get-velocity bird)))))
 
 
 ;(add-global-update-handler 10 (fn [] (println (get-time) (System/nanoTime))))
