@@ -56,7 +56,7 @@
                  ["imagej-snapshots" "https://maven.imagej.net/content/repositories/snapshots/"]
                  ["jitpack.io" "https://jitpack.io"]
                  ["saalfeld-lab-maven-repo" "https://saalfeldlab.github.io/maven"]
-                 ["boundless" "http://repo.boundlessgeo.com/main/"]
+                 ["boundless" "https://repo.boundlessgeo.com/main/"]
                  ["snapshots" {:url "https://clojars.org/repo"
                                       :username :env/CI_DEPLOY_USERNAME
                                       :password :env/CI_DEPLOY_PASSWORD
