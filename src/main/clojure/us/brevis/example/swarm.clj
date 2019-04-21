@@ -28,12 +28,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds (atom 20))
+(def num-birds (atom 10))
 ;(def num-birds (atom 2000))
 
-(def avoidance-distance (atom 25))
-;(def boundary 1000)
-(def centering (atom 0.11))
+(def clustering (atom 2))
+(def avoidance (atom 10))
+(def alignment (atom 0))
+
+(def centering (atom 0.001)); for origin of map
+
 (def boundary 30)
 
 (def speed 1)
@@ -71,8 +74,8 @@
       (physics/move (physics/make-real {:type :bird
                                         :color (vector/vec4 1 0 0 1)
                                         :initial-acc (vector/vec3 0.001 0 0);(vector/normalize (random-bird-position))
-                                        ;:shape (sphere/create-sphere 10)})
-                                        :shape (cone/create-cone 10.2 1.5)})
+                                        :shape (sphere/create-sphere 10)})
+                                        ;:shape (cone/create-cone 10.2 1.5)})
             position)
       new-acceleration)))
 
@@ -124,40 +127,90 @@
          (< z (- boundary)) (mod (- z) boundary)
          :else z)])
 
+#_(defn fly
+    "Change the acceleration of a bird."
+    [bird]
+    (let [;nbrs (filter bird? (get-neighbor-objects bird))
+          ;tmp (println (count nbrs))
+          ;tmp (do (doseq [nbr nbrs] (print (get-position nbr))) (println))
+          bird-pos (physics/get-position bird)
+
+          ;; Actual closest bird, a little slow
+          ;bird-dists (map #(length-vec3 (sub-vec3 (get-position %) bird-pos)) nbrs)
+          #_closest-bird #_(when-not (empty? nbrs)
+                            (nth nbrs
+                                 (reduce #(if (< (nth bird-dists %1) (nth bird-dists %2)) %1 %2) (range (count bird-dists)))))
+
+          ;closest-bird (first nbrs)
+
+          closest-bird (physics/get-closest-neighbor bird)
+
+          new-acceleration (if-not closest-bird
+                             ;; No neighbor, move randomly
+                             (vector/elmul (vector/vec3 (- (random/lrand) 0.5) (- (random/lrand) 0.5) (- (random/lrand) 0.5))
+                                    (vector/mul bird-pos -1.0))
+                             (let [dvec (vector/sub bird-pos (physics/get-position closest-bird))
+                                   len (vector/length dvec)]
+                               (vector/add (vector/sub (physics/get-velocity closest-bird) (physics/get-velocity bird)); velocity matching
+                                    (if (<= len @avoidance-distance)
+                                      ;; If far from neighbor, get closer
+                                      dvec
+                                      ;; If too close to neighbor, move away
+                                      (vector/add (vector/mul dvec -1.0)
+                                           (vector/vec3 (random/lrand 0.1) (random/lrand 0.1) (random/lrand 0.1)))))));; add a small random delta so we don't get into a loop
+          new-acceleration (vector/add-vec3 new-acceleration
+                                            (vector/mul (vector/mul-vec3 (vector/normalize-vec3 bird-pos) -1)
+                                                        @centering))]
+
+          ;new-acceleration (if (zero? (vector/length new-acceleration))
+          ;                   new-acceleration
+          ;                   (vector/mul new-acceleration (/ 1 (vector/length new-acceleration))))]
+      (physics/set-velocity
+        (physics/set-acceleration
+          (if (or (> (Math/abs (vector/x-val bird-pos)) boundary)
+                  (> (Math/abs (vector/y-val bird-pos)) boundary)
+                  (> (Math/abs (vector/z-val bird-pos)) boundary))
+            (physics/move bird (periodic-boundary bird-pos) #_(vec3 0 25 0))
+            bird)
+          (bound-acceleration
+            ;(physics/get-acceleration bird)
+            new-acceleration
+            #_(add (mul (get-acceleration bird) 0.5)
+                 (mul new-acceleration speed))))
+        (bound-velocity (physics/get-velocity bird)))))
+
 (defn fly
   "Change the acceleration of a bird."
   [bird]
-  (let [;nbrs (filter bird? (get-neighbor-objects bird))      
+  (let [nbrs (filter bird? (physics/get-neighbor-objects bird))
         ;tmp (println (count nbrs))
-        ;tmp (do (doseq [nbr nbrs] (print (get-position nbr))) (println)) 
+        ;tmp (do (doseq [nbr nbrs] (print (get-position nbr))) (println))
         bird-pos (physics/get-position bird)
-        
+
         ;; Actual closest bird, a little slow
         ;bird-dists (map #(length-vec3 (sub-vec3 (get-position %) bird-pos)) nbrs)
         #_closest-bird #_(when-not (empty? nbrs)
-                          (nth nbrs 
+                          (nth nbrs
                                (reduce #(if (< (nth bird-dists %1) (nth bird-dists %2)) %1 %2) (range (count bird-dists)))))
-        
+
         ;closest-bird (first nbrs)
-        
+
         closest-bird (physics/get-closest-neighbor bird)
-        
-        new-acceleration (if-not closest-bird
-                           ;; No neighbor, move randomly
-                           (vector/elmul (vector/vec3 (- (random/lrand) 0.5) (- (random/lrand) 0.5) (- (random/lrand) 0.5))
-                                  (vector/mul bird-pos -1.0))
-                           (let [dvec (vector/sub bird-pos (physics/get-position closest-bird))
-                                 len (vector/length dvec)]
-                             (vector/add (vector/sub (physics/get-velocity closest-bird) (physics/get-velocity bird)); velocity matching
-                                  (if (<= len @avoidance-distance)
-                                    ;; If far from neighbor, get closer
-                                    dvec
-                                    ;; If too close to neighbor, move away
-                                    (vector/add (vector/mul dvec -1.0)
-                                         (vector/vec3 (random/lrand 0.1) (random/lrand 0.1) (random/lrand 0.1)))))));; add a small random delta so we don't get into a loop
-        new-acceleration (vector/add-vec3 new-acceleration
-                                          (vector/mul (vector/mul-vec3 (vector/normalize-vec3 bird-pos) -1)
-                                                      @centering))]
+
+        center (if (empty? nbrs)
+                 (vector/vec3 0 0 0)
+                 (vector/mul (apply vector/add (map #(vector/sub (physics/get-position %) bird-pos) nbrs))
+                             (/ (count nbrs))))
+
+        new-acceleration (vector/add (if closest-bird
+                                       (vector/mul (vector/normalize (vector/sub (physics/get-position closest-bird) bird-pos)) (- @avoidance))
+                                       (vector/vec3 0 0 0))
+                                     (vector/mul (vector/normalize center) @clustering)
+                                     (if closest-bird
+                                       (vector/mul (vector/normalize (vector/sub (physics/get-velocity closest-bird) (physics/get-velocity bird))) @alignment)
+                                       (vector/vec3 0 0 0)))]
+
+
 
         ;new-acceleration (if (zero? (vector/length new-acceleration))
         ;                   new-acceleration
@@ -223,7 +276,7 @@
   #_(set-camera-information (vec3 -10.0 -50.0 -200.0) (vec4 1.0 0.0 0.0 0.0))
   ;(camera/set-camera-information (vector/vec3 -10.0 57.939613 -890.0) (vector/vec4 1.0 0.0 0.0 0.0))
 
-  (utils/set-dt 0.05)
+  (utils/set-dt 0.005)
   (physics/set-neighborhood-radius 50)
   (dotimes [_ @num-birds]
     (utils/add-object (random-bird)))
