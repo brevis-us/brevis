@@ -19,7 +19,7 @@
         shp (shape/get-shape obj)
         shp-type (.getType shp)]
     (cond (= shp-type "sphere")
-          (sciview/add-sphere (:sciview s) [(.x cp) (.y cp) (.z cp)] (float 5))
+          (sciview/add-sphere (:sciview s) (sc.iview.vector.ClearGLVector3. (.x cp) (.y cp) (.z cp)) (float 5))
           (= shp-type "cone")
           (sciview/add-cone (:sciview s) c (float 5) 10)
           (= shp-type "cylinder")
