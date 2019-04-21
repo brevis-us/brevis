@@ -24,7 +24,7 @@
                  ;; Images and Physics packages
                  ;[fun.imagej/fun.imagej "0.3.4-SNAPSHOT"]
                  [org.joml/joml "1.9.12"]
-                 [com.github.kephale/fun.imagej "3080a21eb23211ea84814cb0ca17180707b951b3"]
+                 [com.github.kephale/fun.imagej "2ac931a745574005ca2358327831e095e23cb050"]
                  [com.github.tzaeschke/ode4j "a08c3c8b5558a67a823f8ee36023b752d8ae8cc1"
                   :exclusions [com.github.tzaeschke.ode4j/demo]]
                  [com.nitayjoffe.thirdparty.net.robowiki.knn/knn-benchmark "0.1"]; funimage can handle this, factor this out
