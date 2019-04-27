@@ -1,4 +1,4 @@
-(defproject brevis "0.11.0-SNAPSHOT"
+(defproject us.brevis/brevis "0.11.0-SNAPSHOT"
   :description "A Functional Scientific and Artificial Life Simulator"
   :url "http://brevis.us"
   :license {:name "Apache License v2"
@@ -24,9 +24,8 @@
                  ;; Images and Physics packages
                  ;[fun.imagej/fun.imagej "0.3.4-SNAPSHOT"]
                  [org.joml/joml "1.9.12"]
-                 [com.github.kephale/fun.imagej "2ac931a745574005ca2358327831e095e23cb050"]
-                 [com.github.tzaeschke/ode4j "a08c3c8b5558a67a823f8ee36023b752d8ae8cc1"
-                  :exclusions [com.github.tzaeschke.ode4j/demo]]
+                 [fun.imagej/fun.imagej "fd2b37719e5242593fd716458f58990ff6d1741d"]
+                 [com.github.tzaeschke/ode4j "a08c3c8b5558a67a823f8ee36023b752d8ae8cc1" :exclusions [com.github.tzaeschke.ode4j/demo]]
                  [com.nitayjoffe.thirdparty.net.robowiki.knn/knn-benchmark "0.1"]; funimage can handle this, factor this out
 
                  ;; Plotting
