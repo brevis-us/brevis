@@ -13,7 +13,7 @@
   :dependencies [;; Essential
                  [org.clojure/clojure "1.8.0"]
                  [org.clojure/math.numeric-tower "0.0.4"]
-                 [clj-random "0.1.7"]
+                 [com.kephale/clj-random "21e3dd4168"]
                  [brevis.us/brevis-utils "0.1.2"]
 
                  ;; Project management & utils
@@ -24,8 +24,8 @@
                  ;; Images and Physics packages
                  ;[fun.imagej/fun.imagej "0.3.4-SNAPSHOT"]
                  [org.joml/joml "1.9.12"]
-                 [fun.imagej/fun.imagej "fd2b37719e5242593fd716458f58990ff6d1741d"]
-                 [com.github.tzaeschke/ode4j "a08c3c8b5558a67a823f8ee36023b752d8ae8cc1" :exclusions [com.github.tzaeschke.ode4j/demo]]
+                 [fun.imagej/fun.imagej "18cbc678f8"]
+                 [com.github.tzaeschke/ode4j "a08c3c8b55" :exclusions [com.github.tzaeschke.ode4j/demo]]
                  [com.nitayjoffe.thirdparty.net.robowiki.knn/knn-benchmark "0.1"]; funimage can handle this, factor this out
 
                  ;; Plotting
@@ -41,7 +41,7 @@
 
                  ;; UI packages (should we factor out the UI competely to make things lighter?)
                  [seesaw "1.4.4"]]
-  :jvm-opts ["-Dscenery.Renderer=OpenGLRenderer"]
+  ;:jvm-opts ["-Dscenery.Renderer=OpenGLRenderer"]
   ;:javac-options ["-target" "1.6" "-source" "1.6" "-Xlint:-options"]
   ;:aot [#_clojure.main brevis.ui.core]; brevis.example.swarm]
   ;:manifest {"SplashScreen-Image" "brevis_splash.gif"}
