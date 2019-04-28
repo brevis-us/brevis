@@ -1,6 +1,6 @@
 (ns us.brevis.evolution.ea.simple-ea
-  (:require [us,brevis-utils.parameters :as params])
-  (:use [us,brevis core vector utils random]
+  (:require [brevis-utils.parameters :as params])
+  (:use [us.brevis core vector utils random]
         [us.brevis.evolution selection]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
