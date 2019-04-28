@@ -11,7 +11,8 @@
            (com.jogamp.opengl.math Quaternion)
            (graphics.scenery Node Sphere Material)
            (sc.iview SciView)
-           (org.joml Vector4f)))
+           (org.joml Vector4f Vector3f)
+           (us.brevis BrShape)))
 
 (defn add-sphere
   "Add a sphere to a sciview instance"
@@ -25,13 +26,13 @@
   "Create a SciView object for a brevis object"
   [s br-obj]
   (let [obj (utils/get-object br-obj)
-        cp (physics/get-position obj)
+        cp ^Vector3f (physics/get-position obj)
         c (FloatVector3. (.x cp) (.y cp) (.z cp))
-        shp (shape/get-shape obj)
-        shape-size (.getDimension shp); TODO finish this
+        shp ^BrShape (shape/get-shape obj)
+        shape-size ^Vector3f (.getDimension shp); TODO finish this
         shp-type (.getType shp)]
     (cond (= shp-type "sphere")
-          (add-sphere (:sciview s) (ClearGLVector3. (.x cp) (.y cp) (.z cp)) (float 5))
+          (add-sphere (:sciview s) (ClearGLVector3. (.x cp) (.y cp) (.z cp)) (float (.x shape-size)))
           ;(sciview/add-sphere (:sciview s) (ClearGLVector3. (.x cp) (.y cp) (.z cp)) (float 5))
           (= shp-type "cone")
           (sciview/add-cone (:sciview s) c (float (.x shape-size)) (.y shape-size))
@@ -75,7 +76,7 @@
       (let [br-obj (first br-objs)
             ^Node sv-obj (get (:br-sv-map s) br-obj)
             ;br-rot (physics/get-rotation (utils/get-object br-obj))
-            br-pos (physics/get-position (utils/get-object br-obj))
+            br-pos ^Vector3f (physics/get-position (utils/get-object br-obj))
             ;br-vel (physics/get-velocity (utils/get-object br-obj))
             col ^Vector4f (physics/get-color (utils/get-object br-obj))
             col ^GLVector (GLVector. (float-array [(.x col) (.y col) (.z col)]))]

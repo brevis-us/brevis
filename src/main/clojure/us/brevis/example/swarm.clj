@@ -217,9 +217,9 @@
         ;                   (vector/mul new-acceleration (/ 1 (vector/length new-acceleration))))]
     (physics/set-velocity
       (physics/set-acceleration
-        (if (or (> (Math/abs (vector/x-val-vec3 bird-pos)) boundary)
-                (> (Math/abs (vector/y-val-vec3 bird-pos)) boundary)
-                (> (Math/abs (vector/z-val-vec3 bird-pos)) boundary))
+        (if (or (> (Math/abs ^float (vector/x-val-vec3 bird-pos)) boundary)
+                (> (Math/abs ^float (vector/y-val-vec3 bird-pos)) boundary)
+                (> (Math/abs ^float (vector/z-val-vec3 bird-pos)) boundary))
           (physics/move bird (periodic-boundary bird-pos) #_(vec3 0 25 0))
           bird)
         (bound-acceleration
@@ -296,4 +296,4 @@
 
 (core/autostart-in-repl -main)
 
-;(-main)
+(-main)
