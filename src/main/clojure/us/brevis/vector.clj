@@ -124,13 +124,13 @@
 
 (defn mul-vec3
   "Multiply a Vector3f by a scalar."
-  [v s]
-  (.mul v ^double (float s)))
+  [^Vector3f v s]
+  (.mul v ^float (float s)))
 
 (defn mul-vec4
   "Multiply a Vector4f by a scalar."
-  [v s]
-  (.mul v ^double (float s)))
+  [^Vector4f v s]
+  (.mul v ^float (float s)))
 
 (defn elmul
   "Multiply a Vector3f by a scalar."
@@ -213,7 +213,7 @@
   "Normalize a vector."
   [^Vector3f v]
   (let [nv (Vector3f. v)]          
-    (if-not (zero? (length v))
+    (if-not (zero? (length-vec3 v))
       (.normalize nv)
       nv)))
 
@@ -221,7 +221,7 @@
   "Normalize a vector."
   [^Vector4f v]
   (let [nv (Vector4f. v)]          
-    (if-not (zero? (length v))
+    (if-not (zero? (length-vec4 v))
       (.normalize nv)
       nv)))
 

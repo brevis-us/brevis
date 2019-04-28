@@ -28,7 +28,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds (atom 10))
+(def num-birds (atom 1000))
 ;(def num-birds (atom 2000))
 
 (def clustering (atom 2))
@@ -37,7 +37,7 @@
 
 (def centering (atom 0.001)); for origin of map
 
-(def boundary 30)
+(def boundary 300)
 
 (def speed 1)
 (def max-acceleration 10)
@@ -87,23 +87,23 @@
 (defn bound-acceleration
   "Keeps the acceleration within a reasonable range."
   [v]  
-  (if (> (vector/length v) max-acceleration)
-    (vector/mul (vector/div v (vector/length v)) max-acceleration)
+  (if (> (vector/length-vec3 v) max-acceleration)
+    (vector/mul-vec3 (vector/div-vec3 v (vector/length-vec3 v)) max-acceleration)
     v))
 
 (defn bound-velocity
   "Keeps the acceleration within a reasonable range."
   [v]  
-  (if (> (vector/length v) speed)
-    (vector/mul (vector/div v (vector/length v)) speed)
+  (if (> (vector/length-vec3 v) speed)
+    (vector/mul-vec3 (vector/div-vec3 v (vector/length-vec3 v)) speed)
     v))
 
 (defn periodic-boundary
   "Change a position according to periodic boundary conditions."
   [pos]
-  (let [x (vector/x-val pos)
-        y (vector/y-val pos)
-        z (vector/z-val pos)]
+  (let [x (vector/x-val-vec3 pos)
+        y (vector/y-val-vec3 pos)
+        z (vector/z-val-vec3 pos)]
     (vector/vec3 (cond (> x boundary) (- (mod x boundary) boundary)
                        (< x (- boundary)) (mod (- x) boundary)
                        :else x)
@@ -199,15 +199,15 @@
 
         center (if (empty? nbrs)
                  (vector/vec3 0 0 0)
-                 (vector/mul (apply vector/add (map #(vector/sub (physics/get-position %) bird-pos) nbrs))
+                 (vector/mul-vec3 (apply vector/add-vec3 (map #(vector/sub-vec3 (physics/get-position %) bird-pos) nbrs))
                              (/ (count nbrs))))
 
-        new-acceleration (vector/add (if closest-bird
-                                       (vector/mul (vector/normalize (vector/sub (physics/get-position closest-bird) bird-pos)) (- @avoidance))
-                                       (vector/vec3 0 0 0))
-                                     (vector/mul (vector/normalize center) @clustering)
+        new-acceleration (vector/add-vec3 (if closest-bird
+                                            (vector/mul-vec3 (vector/normalize-vec3 (vector/sub-vec3 (physics/get-position closest-bird) bird-pos)) (- @avoidance))
+                                            (vector/vec3 0 0 0))
+                                     (vector/mul-vec3 (vector/normalize-vec3 center) @clustering)
                                      (if closest-bird
-                                       (vector/mul (vector/normalize (vector/sub (physics/get-velocity closest-bird) (physics/get-velocity bird))) @alignment)
+                                       (vector/mul-vec3 (vector/normalize-vec3 (vector/sub-vec3 (physics/get-velocity closest-bird) (physics/get-velocity bird))) @alignment)
                                        (vector/vec3 0 0 0)))]
 
 
@@ -217,9 +217,9 @@
         ;                   (vector/mul new-acceleration (/ 1 (vector/length new-acceleration))))]
     (physics/set-velocity
       (physics/set-acceleration
-        (if (or (> (Math/abs (vector/x-val bird-pos)) boundary)
-                (> (Math/abs (vector/y-val bird-pos)) boundary)
-                (> (Math/abs (vector/z-val bird-pos)) boundary))
+        (if (or (> (Math/abs (vector/x-val-vec3 bird-pos)) boundary)
+                (> (Math/abs (vector/y-val-vec3 bird-pos)) boundary)
+                (> (Math/abs (vector/z-val-vec3 bird-pos)) boundary))
           (physics/move bird (periodic-boundary bird-pos) #_(vec3 0 25 0))
           bird)
         (bound-acceleration

@@ -93,17 +93,17 @@ axis is the axis about which the joint rotates"
 (defn get-position
   "Return the position of an object"
   [^BrObject obj]
-  (.getPosition obj))
+  ^Vector3f (.getPosition obj))
 
 (defn get-velocity
   "Return the velocity of an object"
   [^BrObject obj]
-  (.getVelocity obj))
+  ^Vector3f (.getVelocity obj))
 
 (defn get-acceleration
   "Return the acceleration of an object."
   [^BrObject obj]
-  (.getAcceleration obj))
+  ^Vector3f (.getAcceleration obj))
 
 (defn set-acceleration
   "Set the acceleration of an object."
