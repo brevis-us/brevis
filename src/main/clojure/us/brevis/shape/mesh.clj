@@ -61,9 +61,7 @@
 (defn create-mesh-from-triangles
   "Create a mesh from a list of triangles, sequences of 3 vertices describing each triangle."
   [triangles]
-  (begin-with-graphics-thread)
   (let [result (us.brevis.BrShape/createMeshFromTriangles triangles)]
-    (end-with-graphics-thread)
     result))
 
 (defn bounding-box
