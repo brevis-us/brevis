@@ -1,9 +1,8 @@
 (ns us.brevis.example.mesh.mesh-morph
   (:gen-class)
-  (:use [us.brevis.graphics.basic-3D]
-        [us.brevis.physics collision core space utils]
+  (:use [us.brevis.physics collision core utils]
         [us.brevis.shape box mesh core]
-        [us.brevis core osd vector camera utils display]))
+        [us.brevis core vector camera utils]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Mesh demo
@@ -38,7 +37,7 @@
           (when (pos? (aget vert 0))
             (aset vert 0 (float (* (aget vert 0) smoosh-factor)))
             (set-vertex mesh i vert))))
-      (regen-mesh mesh))))
+      #_(regen-mesh mesh))))
 
 (add-global-update-handler 90 smoosh-mesh)
 
@@ -57,7 +56,7 @@
   
   (set-dt 1)
   (set-neighborhood-radius 250)
-  (default-display-text)
+
   #_(add-object (move (make-floor 500 500) (vec3 0 -10 0)))
   (let [obj (make-real-mesh (vec3 0 25 0))]
     (reset! mesh-obj-uuid (get-uid obj))

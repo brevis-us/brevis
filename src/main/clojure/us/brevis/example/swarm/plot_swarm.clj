@@ -1,8 +1,7 @@
 (ns us.brevis.example.swarm.plot-swarm
-  (:use [us.brevis.graphics.basic-3D]
-        [us.brevis.physics collision core space utils]
+  (:use [us.brevis.physics collision core utils]
         [us.brevis.shape box sphere cone]
-        [us.brevis core osd vector plot random utils]))
+        [us.brevis core vector plot random utils]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Swarm
@@ -140,11 +139,10 @@ so we only modify bird1."
   (init-world)
   (init-view)  
   ;(swap! brevis.globals/*gui-state* assoc :gui false)
-  (.moveFromLook (:camera @brevis.globals/*gui-state*) 0 100 0)
+  (.moveFromLook (:camera @us.brevis.globals/*gui-state*) 0 100 0)
   #_(set-dt 0.1)
   (set-dt 1)
   (set-neighborhood-radius 100)
-  (default-display-text)
   ;(add-object (make-floor 500 500))
   (dotimes [_ num-birds]
     (add-object (random-bird)))

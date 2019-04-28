@@ -1,9 +1,8 @@
 (ns us.brevis.example.mesh.mesh
   (:gen-class)
-  (:use [us.brevis.graphics.basic-3D]
-        [us.brevis.physics collision core space utils]
+  (:use [us.brevis.physics collision core utils]
         [us.brevis.shape box mesh]
-        [us.brevis core osd vector camera utils random]))
+        [us.brevis core vector camera utils random]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Mesh demo
@@ -38,7 +37,7 @@
   
   (set-dt 1)
   (set-neighborhood-radius 250)
-  (default-display-text)
+
   #_(add-object (move (make-floor 500 500) (vec3 0 -10 0)))
   (add-object (make-real-mesh (vec3 0 25 0))))
 

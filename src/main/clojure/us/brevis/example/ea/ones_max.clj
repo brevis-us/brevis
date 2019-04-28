@@ -2,7 +2,7 @@
   (:gen-class)
   (:require [brevis-utils.parameters :as params])
   (:use [us.brevis core vector utils random plot]
-        [usbrevis.evolution.ea simple-ea]))
+        [us.brevis.evolution.ea simple-ea]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Example for simple ea. 

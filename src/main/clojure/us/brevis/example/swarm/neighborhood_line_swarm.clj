@@ -1,8 +1,8 @@
 (ns us.brevis.example.swarm.neighborhood-line-swarm
-  (:use [us.brevis.physics collision core space utils]
+  (:use [us.brevis.physics collision core utils]
         [us.brevis.shape cone box]
-        [us.brevis core osd vector camera utils random]
-        [us.brevis.graphics core basic-3D visual-overlays]))
+        [us.brevis core vector camera utils random]
+        [us.brevis.graphics core]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
@@ -112,13 +112,13 @@
 (add-update-handler :bird fly); This tells the simulator how to update these objects
 ;(add-parallel-update-handler :bird fly); This tells the simulator how to update these objects (in parallel)
 
-(add-global-update-handler 10
-                           (fn []
-                             (reset! visual-overlays [])
-                             ;(let [rand-bird (lrand-nth (filter bird? (all-objects)))]
-                             (doseq [rand-bird (filter bird? (all-objects))]
-                               (doseq [nbr (get-neighbor-objects rand-bird)]
-                                 (add-line (get-uid rand-bird) (get-uid nbr))))))
+;(add-global-update-handler 10
+;                           (fn []
+;                             (reset! visual-overlays [])
+;                             ;(let [rand-bird (lrand-nth (filter bird? (all-objects)))]
+;                             (doseq [rand-bird (filter bird? (all-objects))]
+;                               (doseq [nbr (get-neighbor-objects rand-bird)]
+;                                 (add-line (get-uid rand-bird) (get-uid nbr))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Collision handling
@@ -166,7 +166,6 @@ so we only modify bird1."
   
   (set-dt 1)
   (set-neighborhood-radius 100)
-  (default-display-text)
   #_(add-object (move (make-floor 500 500) (vec3 0 (- boundary) 0)))
   (dotimes [_ num-birds]
     (add-object (random-bird))))
