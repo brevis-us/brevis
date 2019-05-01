@@ -17,6 +17,7 @@
 (defn start-gui
   "Start the simulation with a GUI."
   ([initialize]
+   (SceneryBase/xinitThreads)
    (start-gui initialize java-update-world))
   ([initialize update]
    (SceneryBase/xinitThreads)

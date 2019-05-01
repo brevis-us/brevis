@@ -75,11 +75,19 @@
       br-sv-map
       (let [br-obj (first br-objs)
             ^Node sv-obj (get (:br-sv-map s) br-obj)
-            ;br-rot (physics/get-rotation (utils/get-object br-obj))
             br-pos ^Vector3f (physics/get-position (utils/get-object br-obj))
-            ;br-vel (physics/get-velocity (utils/get-object br-obj))
+            vel ^Vector3f (physics/get-velocity (utils/get-object br-obj))
             col ^Vector4f (physics/get-color (utils/get-object br-obj))
-            col ^GLVector (GLVector. (float-array [(.x col) (.y col) (.z col)]))]
+            col ^GLVector (GLVector. (float-array [(.x col) (.y col) (.z col)]))
+            target-rot  (.rotateByAngleX
+                          ^Quaternion (.normalize
+                                        ^Quaternion (.setLookAt ^Quaternion (Quaternion.)
+                                                                (float-array [(.x vel) (.y vel) (.z vel)])
+                                                                (float-array [0 1 0])
+                                                                (float-array 3)
+                                                                (float-array 3)
+                                                                (float-array 3)))
+                          (float (* 0.5 Math/PI)))]
             ;target-rot (.setFromAxes ^Quaternion (Quaternion.)
             ;                         (float-array [0 1 0])
             ;                         (float-array [0 0 1])
@@ -107,7 +115,7 @@
             ;
         (.setPosition sv-obj ^GLVector (GLVector. (float-array [(.x br-pos) (.y br-pos) (.z br-pos)]))); TODO get brevis using sciview Vector3
         ;(.setRotation sv-obj (Quaternion. (.x br-rot) (.y br-rot) (.z br-rot) (.w br-rot))); TODO check the .w, but when i did it only reported 90, so i hard coded the radians value
-        ;(.setRotation sv-obj qrot)
+        (.setRotation sv-obj target-rot)
         (.setDiffuse ^Material (.getMaterial sv-obj) col)
         (.setAmbient ^Material (.getMaterial sv-obj) col)
         (.setSpecular ^Material (.getMaterial sv-obj) col)
