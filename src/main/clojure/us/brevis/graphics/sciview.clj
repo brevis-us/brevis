@@ -9,7 +9,7 @@
   (:import (sc.iview.vector ClearGLVector3 FloatVector3 Vector3)
            (cleargl GLVector)
            (com.jogamp.opengl.math Quaternion)
-           (graphics.scenery Node Sphere Material)
+           (graphics.scenery Node Sphere Material Cone)
            (sc.iview SciView)
            (org.joml Vector4f Vector3f)
            (us.brevis BrShape)))
@@ -17,10 +17,16 @@
 (defn add-sphere
   "Add a sphere to a sciview instance"
   [^SciView sv ^Vector3 position radius]
-  (let [^Node sphere (Sphere. radius 15)]
+  (let [^Node sphere (Sphere. radius 25)]
     (.setPosition sphere (ClearGLVector3/convert position))
     (.addNode sv sphere false)))
-;(.addSphere sv position radius)))
+
+(defn add-cone
+  "Add a cone to the sciview instance"
+  [^SciView sv ^Vector3 position length radius]
+  (let [^Node cone (Cone. length radius 25)]
+    (.setPosition cone (ClearGLVector3/convert position))
+    (.addNode sv cone false)))
 
 (defn create-sv-object
   "Create a SciView object for a brevis object"
@@ -35,7 +41,7 @@
           (add-sphere (:sciview s) (ClearGLVector3. (.x cp) (.y cp) (.z cp)) (float (.x shape-size)))
           ;(sciview/add-sphere (:sciview s) (ClearGLVector3. (.x cp) (.y cp) (.z cp)) (float 5))
           (= shp-type "cone")
-          (sciview/add-cone (:sciview s) c (float (.x shape-size)) (.y shape-size))
+          (add-cone (:sciview s) c (float (.x shape-size)) (float (.y shape-size)))
           (= shp-type "cylinder")
           (sciview/add-cylinder (:sciview s) c (float (.x shape-size)) (.y shape-size))
           (= shp-type "box")
