@@ -459,7 +459,6 @@ public final class BrKDTree<X extends BrKDNode> {
 	private <X extends BrKDNode> void
 	searchLeafByDistance(double[] query, BrKDTree<X> leaf, LinkedList<X> results, double distance) {
 		double exD = Double.NaN;
-		double sqDistance = distance * distance;
 		int pointPairCode;
 		for(X ex : leaf.data) {
 			exD = Double.NaN;
@@ -474,7 +473,7 @@ public final class BrKDTree<X extends BrKDNode> {
 				}
 			}
 
-			if ( exD < sqDistance ) {
+			if ( exD < distance ) {
 				//System.out.println( "Within distance " + distance + " " + exD );
 				results.add(ex);
 			}
