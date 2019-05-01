@@ -486,7 +486,7 @@ public class BrShape implements Serializable {
 	public static BrShape createCone( double length, double base, boolean withGraphics ) {
 		//return ( new BrShape( BrShapeType.CONE, new Vector3d( length, base, 25 )));	// last element of vector is # of sides or stacks (depending on renderer)
 		//return ( new BrShape( BrShapeType.UNIT_CONE, new Vector3f( (float)length, (float)base, (float)25 )));	// last element of vector is # of sides or stacks (depending on renderer)
-		return ( new BrShape( BrShapeType.CONE, new Vector3f( (float)length, (float)base, (float)25 ), withGraphics ));	// last element of vector is # of sides or stacks (depending on renderer)
+		return ( new BrShape( BrShapeType.CONE, new Vector3f( (float)base, (float)length, (float)25 ), withGraphics ));	// last element of vector is # of sides or stacks (depending on renderer)
 	}
 	
 	public static BrShape createCylinder( double length, double radius, boolean withGraphics ) {

@@ -20,7 +20,6 @@ public class Engine implements Serializable {
 	 */
 	private static final long serialVersionUID = 5209150139378668298L;
 
-
 	/*
 	 * Variables:
 	 */
@@ -536,7 +535,7 @@ public class Engine implements Serializable {
 	
 	public void reinitializeKDTree() {
 		spaceTree.clear(); // also lazy but a little better
- 		
+
  		// Add everyone to the KD tree (need to do this if clear or creating a new tree)
  		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
  			BrObject obj = entry.getValue();
@@ -581,7 +580,8 @@ public class Engine implements Serializable {
 	 		if( numSteps % rebalanceKDTreeSteps == 0 ) {
 	 			reinitializeKDTree();
 	 		}
-	 		
+
+	 		spaceTree.resetDistanceMemoization();
 	 		
 	 		// Loop over everyone and cache their neighborhood (this could be made lazy)
 	 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {

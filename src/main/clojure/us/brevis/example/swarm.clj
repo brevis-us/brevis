@@ -28,18 +28,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds (atom 1000))
+(def num-birds (atom 100))
 ;(def num-birds (atom 2000))
 
-(def clustering (atom 2))
+(def clustering (atom 11))
 (def avoidance (atom 10))
-(def alignment (atom 0))
+(def alignment (atom 1))
 
 (def centering (atom 0.001)); for origin of map
 
-(def boundary 300)
+(def boundary 150)
 
-(def speed 1)
+(def speed 10)
 (def max-acceleration 10)
 
 (defn lrand-vec3
@@ -74,8 +74,8 @@
       (physics/move (physics/make-real {:type :bird
                                         :color (vector/vec4 1 0 0 1)
                                         :initial-acc (vector/vec3 0.001 0 0);(vector/normalize (random-bird-position))
-                                        :shape (sphere/create-sphere 10)})
-                                        ;:shape (cone/create-cone 10.2 1.5)})
+                                        ;:shape (sphere/create-sphere 10)
+                                        :shape (cone/create-cone 10.2 1.5)})
             position)
       new-acceleration)))
 

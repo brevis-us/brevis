@@ -403,7 +403,7 @@ public final class BrKDTree<X extends BrKDNode> {
 
 	// ---------------   Search by distance
 	//private static <X extends BrKDNode> Iterable<PrioNode<X>>
-	private static <X extends BrKDNode> List<X>
+	private <X extends BrKDNode> List<X>
 	searchByDistance(BrKDTree<X> tree, double[] query, double distance) {
 		int nResults = tree.bucketSize * 2;
 		//final SearchState<X> state = new SearchState<X>(nResults);
@@ -449,15 +449,28 @@ public final class BrKDTree<X extends BrKDNode> {
 		//return (ArrayList<X>) results.subList( 0, position );
 	}
 	
-	// Extends array list	
-	private static <X extends BrKDNode> void
+	// Extends array list
+	private HashMap<Integer,Double> distanceMemo;
+
+	public void resetDistanceMemoization() {
+		distanceMemo = new HashMap<>();
+	}
+
+	private <X extends BrKDNode> void
 	searchLeafByDistance(double[] query, BrKDTree<X> leaf, LinkedList<X> results, double distance) {
 		double exD = Double.NaN;
+		int pointPairCode;
 		for(X ex : leaf.data) {
 			exD = Double.NaN;
 			if (!leaf.singularity || Double.isNaN(exD)) {
-				exD = distanceSqFrom(query, ex.domain);
-				
+				pointPairCode = Arrays.hashCode( query ) + Arrays.hashCode( ex.domain );
+				// Memoization
+				if( distanceMemo.containsKey(pointPairCode) ) {
+					exD = distanceMemo.get(pointPairCode);
+				} else {
+					exD = distanceSqFrom(query, ex.domain);
+					distanceMemo.put(pointPairCode, exD);
+				}
 			}
 
 			if ( exD < distance ) {
@@ -465,7 +478,27 @@ public final class BrKDTree<X extends BrKDNode> {
 				results.add(ex);
 			}
 		}
-	}	
+	}
+
+//	private <X extends BrKDNode> void
+//	searchLeafByDistance(double[] query, BrKDTree<X> leaf, LinkedList<X> results, double distance) {
+//		double exD = Double.NaN;
+//		double sqDistance = distance * distance;
+//		int pointPairCode;
+//		for(X ex : leaf.data) {
+//			exD = Double.NaN;
+//			if (!leaf.singularity || Double.isNaN(exD)) {
+//				pointPairCode = Arrays.hashCode( query ) + Arrays.hashCode( ex.domain );
+//				exD = distanceSqFrom(query, ex.domain);
+//
+//			}
+//
+//			if ( exD < sqDistance ) {
+//				//System.out.println( "Within distance " + distance + " " + exD );
+//				results.add(ex);
+//			}
+//		}
+//	}
 	
 	private static <X extends BrKDNode> void
 	searchTreeDistance(double[] query, BrKDTree<X> tree,
@@ -621,7 +654,10 @@ TREE_WALK:
 		
 		return (dx*dx) + (dy*dy) + (dz*dz);
 	}
-	
+
+	// Memoize distanceSqFrom()
+
+
 	private static double[] cross( double[] v1, double[] v2 ) {
 		return ( new double[]{ ( v1[1]*v2[2] - v1[2]*v2[1] ), ( v1[2]*v2[0] - v1[0]*v2[2] ), ( v1[0]*v2[1] - v1[1]*v2[0] ) } );
 	}

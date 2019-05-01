@@ -305,41 +305,6 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
         return ret;
     }
 
-
-	/*
-	 * Update the orientation of an object
-	 */
-	public void orient( Vector3f objVec, Vector3f targetVec ) {
-		if( objVec.length() != 0 && targetVec.length() != 0 ) {
-			Vector3f dir = new Vector3f();
-			dir.set(objVec.cross(targetVec));
-			//dir.cross( targetVec, objVec );
-			//System.out.println( "orient cross " + dir );
-			dir.set( ( objVec.y * targetVec.z - objVec.z * targetVec.y ),
-					 ( objVec.z * targetVec.x - objVec.x * targetVec.z ),
-					 ( objVec.x * targetVec.y - objVec.y * targetVec.x ) );
-			if( dir.length() != 0 )
-				dir.normalize();
-			//dir.scale( 1.0 / dir.length() );
-			double vdot = targetVec.dot(objVec);
-//			vdot = Math.max( Math.min( vdot / ( objVec.length() * targetVec.length() ),
-//									   1.0), -1.0 );
-			//double angle = ( Math.acos( vdot ) * ( Math.PI / 180.0 ) );
-
-			// Return in degrees
-			//double angle = ( Math.acos( vdot ) * ( 180.0 / Math.PI ) );
-
-			// Return in radians
-			double angle = ( Math.acos( vdot ) );
-			if( dir.length() == 0 )
-				rotation.set( objVec.x, objVec.y, objVec.z, (float)0.000001 );
-			else
-				rotation.set( dir.x, dir.y, dir.z, (float)angle );
-			//System.out.println( "orient " + objVec + " " + targetVec + " " + dir + " " + vdot + " " + rotation );
-
-		}
-	}
-
 	public void updateObjectKinematics( double dt ) {
 	//(defn update-object-kinematics
 	//		  "Update the kinematics of an object by applying acceleration and velocity for an infinitesimal amount of time."
@@ -347,7 +312,7 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 
 		Vector3f f = new Vector3f( acceleration ).mul( (float) getDoubleMass() );
 		getBody().addForce( f.x, f.y, f.z );
-		orient( new Vector3f(0,0,1), getVelocity() );
+		//orient( new Vector3f(0,0,1), getVelocity() );
 		//orient( new Vector3f(0,1,0), getVelocity() );
 		//orient( new Vector3f(1,0,0), getForce() );
 		//System.out.println( "Object " + uid + " force " + f );
