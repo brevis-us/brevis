@@ -449,13 +449,6 @@ public final class BrKDTree<X extends BrKDNode> {
 		//return (ArrayList<X>) results.subList( 0, position );
 	}
 	
-	// Extends array list
-	private HashMap<Integer,Double> distanceMemo;
-
-	public void resetDistanceMemoization() {
-		distanceMemo = new HashMap<>();
-	}
-
 	private <X extends BrKDNode> void
 	searchLeafByDistance(double[] query, BrKDTree<X> leaf, LinkedList<X> results, double distance) {
 		double exD = Double.NaN;
@@ -463,42 +456,14 @@ public final class BrKDTree<X extends BrKDNode> {
 		for(X ex : leaf.data) {
 			exD = Double.NaN;
 			if (!leaf.singularity || Double.isNaN(exD)) {
-				pointPairCode = Arrays.hashCode( query ) + Arrays.hashCode( ex.domain );
-				// Memoization
-				if( distanceMemo.containsKey(pointPairCode) ) {
-					exD = distanceMemo.get(pointPairCode);
-				} else {
-					exD = distanceSqFrom(query, ex.domain);
-					distanceMemo.put(pointPairCode, exD);
-				}
+			    exD = distanceSqFrom(query, ex.domain);
 			}
 
 			if ( exD < distance ) {
-				//System.out.println( "Within distance " + distance + " " + exD );
 				results.add(ex);
 			}
 		}
 	}
-
-//	private <X extends BrKDNode> void
-//	searchLeafByDistance(double[] query, BrKDTree<X> leaf, LinkedList<X> results, double distance) {
-//		double exD = Double.NaN;
-//		double sqDistance = distance * distance;
-//		int pointPairCode;
-//		for(X ex : leaf.data) {
-//			exD = Double.NaN;
-//			if (!leaf.singularity || Double.isNaN(exD)) {
-//				pointPairCode = Arrays.hashCode( query ) + Arrays.hashCode( ex.domain );
-//				exD = distanceSqFrom(query, ex.domain);
-//
-//			}
-//
-//			if ( exD < sqDistance ) {
-//				//System.out.println( "Within distance " + distance + " " + exD );
-//				results.add(ex);
-//			}
-//		}
-//	}
 	
 	private static <X extends BrKDNode> void
 	searchTreeDistance(double[] query, BrKDTree<X> tree,

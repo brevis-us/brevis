@@ -580,8 +580,6 @@ public class Engine implements Serializable {
 	 		if( numSteps % rebalanceKDTreeSteps == 0 ) {
 	 			reinitializeKDTree();
 	 		}
-
-	 		spaceTree.resetDistanceMemoization();
 	 		
 	 		// Loop over everyone and cache their neighborhood (this could be made lazy)
 	 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
