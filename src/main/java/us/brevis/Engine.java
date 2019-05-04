@@ -5,7 +5,6 @@ import clojure.lang.PersistentVector;
 import net.imglib2.KDTree;
 import net.imglib2.KDTreeNode;
 import net.imglib2.RealLocalizable;
-import org.joml.Vector3f;
 import org.ode4j.ode.*;
 import sc.iview.vector.Vector3;
 
@@ -590,30 +589,10 @@ public class Engine implements Serializable {
 		
 	     try {
 	    	 lock.lock();  // block until condition holds
-	 		//HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
 	 		ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();
-	 		
-	 		//spaceTree = new BrKDTree<BrKDNode>();//lazy
-	 		//spaceTree.clear(); // also lazy but a little better
-	 		
-	 		// Add everyone to the KD tree (need to do this if clear or creating a new tree)
-	 		/*for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
-	 			BrObject obj = entry.getValue();
-	 			//Vector3f pos = obj.getPosition();
-	 			Vector3f pos = new Vector3f();
-	 			pos = Vector3f.add( obj.getPosition(), obj.getShape().center, pos);
-	 			double[] arryloc = { pos.x, pos.y, pos.z };
-	 			BrKDNode n = new BrKDNode( arryloc, entry.getKey() );
-	 			spaceTree.add( n );
-	 		}*/
-	 		
-	 		
-	 		//reinitializeKDTree();
-	 		
-	 		if( numSteps % rebalanceKDTreeSteps == 0 ) {
-	 			reinitializeKDTree();
-	 		}
-	 		
+
+	 		reinitializeKDTree();
+
 	 		// Loop over everyone and cache their neighborhood (this could be made lazy)
 	 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
 	 			BrObject obj = entry.getValue();
@@ -662,11 +641,11 @@ public class Engine implements Serializable {
 	
 	/*(defn distance-obj-to-line
 			  "Distance of an object to a line."*/
-	public double distanceToLine( Vector3f testPoint, Vector3f linePoint, Vector3f direction ) {
-		Vector3f diff = testPoint.sub( linePoint );
-		Vector3f diffXv = diff.cross( direction );
-		double ldiff = diff.length();
-		double sinTheta = diffXv.length() / ( ldiff * direction.length() );
+	public double distanceToLine( Vector3 testPoint, Vector3 linePoint, Vector3 direction ) {
+		Vector3 diff = testPoint.minus( linePoint );
+		Vector3 diffXv = diff.cross( direction );
+		double ldiff = diff.getLength();
+		double sinTheta = diffXv.getLength() / ( ldiff * direction.getLength() );
 		return ( ldiff * sinTheta );
 	}
 	
@@ -890,57 +869,6 @@ public class Engine implements Serializable {
 	
 	public BrPhysics getPhysics() {
 		return physics;
-	}	
-		
-	/*public BasicMatrix pairwiseObjectDistances() {				
-		final Factory<PrimitiveMatrix> tmpFactory = PrimitiveMatrix.FACTORY;
-		
-		final Builder<PrimitiveMatrix> tmpBuilder = tmpFactory.getBuilder( objects.size(), objects.size() );
-
-        ArrayList<Long> objKeys = new ArrayList<Long>( objects.keySet() );
-		for( int k = 0; k < objects.size(); k++ ) {
-			BrObject thisObj = objects.get( objKeys.get( k ) );
-			for( int j = 0; j < objects.size(); j++ ) {
-				double val = 0;
-				if( k == j ) val = 0;
-				else {
-					val = thisObj.distanceTo( objects.get( objKeys.get( j ) ) );
-				}
-				tmpBuilder.set(k,j,val);
-				tmpBuilder.set(j,k,val);
-			}
-		}
-        
-        return tmpBuilder.build();
-		
-			
-	}*/
-	
-	/* EJML version
-	public DenseMatrix64F pairwiseObjectDistances() {
-		DenseMatrix64F dists = new DenseMatrix64F( objects.size(), objects.size() );
-		ArrayList<Long> objKeys = new ArrayList<Long>( objects.keySet() );
-		for( int k = 0; k < objects.size(); k++ ) {
-			BrObject thisObj = objects.get( objKeys.get( k ) );
-			for( int j = 0; j < objects.size(); j++ ) {
-				double val = 0;
-				if( k == j ) val = 0;
-				else {
-					val = thisObj.distanceTo( objects.get( objKeys.get( j ) ) );
-				}
-				dists.set(k,j,val);
-				dists.set(j,k,val);
-			}
-		}
-		return dists;		
-	}*/
-	
-	public void setParallel( java.lang.Boolean newParallel ) {
-		brevisParallel = newParallel;
-	}
-	
-	public boolean getParallel() {
-		return brevisParallel;
 	}
 	
 	/* Serialization stuff */
@@ -954,8 +882,4 @@ public class Engine implements Serializable {
  		in.defaultReadObject();
  	} 	 	
 		 
- 	/* private void readObjectNoData() throws ObjectStreamException {
- 		
- 	}*/
-		     
 }

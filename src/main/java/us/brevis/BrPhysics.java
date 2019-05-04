@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Vector;
 
-import org.joml.Vector3f;
 import org.ode4j.math.DVector3;
 import org.ode4j.ode.DHingeJoint;
 import org.ode4j.ode.DJoint;
@@ -13,6 +12,7 @@ import org.ode4j.ode.DJointGroup;
 import org.ode4j.ode.DSpace;
 import org.ode4j.ode.DWorld;
 import org.ode4j.ode.OdeHelper;
+import sc.iview.vector.Vector3;
 
 public class BrPhysics implements Serializable {
 	/**
@@ -61,11 +61,11 @@ public class BrPhysics implements Serializable {
 		time = 0;
 	}
 	
-	public BrJoint jointHinge(BrObject objA, BrObject objB, Vector3f locationOnA, Vector3f axis ) {
+	public BrJoint jointHinge(BrObject objA, BrObject objB, Vector3 locationOnA, Vector3 axis ) {
 		DHingeJoint joint = OdeHelper.createHingeJoint(world);
 		joint.attach( objA.getBody(), objB.getBody() );
-		joint.setAnchor( locationOnA.x, locationOnA.y, locationOnA.z );
-		joint.setAxis( (double)axis.x, (double)axis.y, (double)axis.z );
+		joint.setAnchor( locationOnA.xf(), locationOnA.yf(), locationOnA.zf() );
+		joint.setAxis(axis.xd(), axis.yd(), axis.zd());
 		joint.setParamHiStop( Math.PI/ 2 );
         joint.setParamLoStop( Math.PI / 2 ); 
 		joint.enable();

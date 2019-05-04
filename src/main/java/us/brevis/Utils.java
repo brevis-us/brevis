@@ -1,7 +1,6 @@
 
 package us.brevis;
 
-import org.joml.Vector3f;
 import org.ode4j.math.DVector3;
 import org.ode4j.math.DVector3C;
 import sc.iview.vector.JOMLVector3;
