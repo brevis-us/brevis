@@ -3,11 +3,9 @@
   (:require [brevis-utils.parameters :as parameters]
             [us.brevis.physics.collision :as collision]
             [us.brevis.vector :as vector]
-            [us.brevis.camera :as camera]
             [us.brevis.physics.utils :as physics]
             [us.brevis.utils :as utils]
             [us.brevis.shape.cone :as cone]
-            [us.brevis.shape.sphere :as sphere]
             [us.brevis.core :as core]
             [clj-random.core :as random])
 
@@ -28,7 +26,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds (atom 100))
+(def num-birds (atom 1000))
 ;(def num-birds (atom 2000))
 
 (def clustering (atom 11))
@@ -277,7 +275,7 @@
   ;(camera/set-camera-information (vector/vec3 -10.0 57.939613 -890.0) (vector/vec4 1.0 0.0 0.0 0.0))
 
   (utils/set-dt 0.005)
-  (physics/set-neighborhood-radius 50)
+  (physics/set-neighborhood-radius 100)
   (dotimes [_ @num-birds]
     (utils/add-object (random-bird)))
   (Thread/sleep 100)

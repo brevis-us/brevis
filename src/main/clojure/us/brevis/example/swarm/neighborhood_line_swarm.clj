@@ -1,7 +1,7 @@
 (ns us.brevis.example.swarm.neighborhood-line-swarm
   (:use [us.brevis.physics collision core utils]
         [us.brevis.shape cone box]
-        [us.brevis core vector camera utils random]
+        [us.brevis core vector utils random]
         [us.brevis.graphics core]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -161,8 +161,7 @@ so we only modify bird1."
   "This is the function where you add everything to the world."
   []  
   (init-world)
-  (init-view)  
-  (set-camera-information (vec3 -10.0 60 -890.0) (vec4 1.0 0.0 0.0 0.0))
+  (init-view)
   
   (set-dt 1)
   (set-neighborhood-radius 100)

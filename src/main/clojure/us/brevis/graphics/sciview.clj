@@ -3,15 +3,13 @@
             [fun.imagej.sciview :as sciview]
             [us.brevis.physics.utils :as physics]
             [us.brevis.shape.core :as shape]
-            [us.brevis.utils :as utils]
-            [us.brevis.vector :as v]
-            [us.brevis.vector :as vector])
-  (:import (sc.iview.vector ClearGLVector3 FloatVector3 Vector3)
+            [us.brevis.utils :as utils])
+  (:import (sc.iview.vector ClearGLVector3 Vector3)
            (cleargl GLVector)
            (com.jogamp.opengl.math Quaternion)
            (graphics.scenery Node Sphere Material Cone)
            (sc.iview SciView)
-           (org.joml Vector4f Vector3f)
+           (org.joml Vector4f)
            (us.brevis BrShape)))
 
 (defn add-sphere
@@ -32,20 +30,19 @@
   "Create a SciView object for a brevis object"
   [s br-obj]
   (let [obj (utils/get-object br-obj)
-        cp ^Vector3f (physics/get-position obj)
-        c (FloatVector3. (.x cp) (.y cp) (.z cp))
+        c ^Vector3 (physics/get-position obj)
         shp ^BrShape (shape/get-shape obj)
-        shape-size ^Vector3f (.getDimension shp); TODO finish this
+        shape-size ^Vector3 (.getDimension shp); TODO finish this
         shp-type (.getType shp)]
     (cond (= shp-type "sphere")
-          (add-sphere (:sciview s) (ClearGLVector3. (.x cp) (.y cp) (.z cp)) (float (.x shape-size)))
+          (add-sphere (:sciview s) (ClearGLVector3. c) (float (.xf shape-size)))
           ;(sciview/add-sphere (:sciview s) (ClearGLVector3. (.x cp) (.y cp) (.z cp)) (float 5))
           (= shp-type "cone")
-          (add-cone (:sciview s) c (float (.x shape-size)) (float (.y shape-size)))
+          (add-cone (:sciview s) c (float (.xf shape-size)) (float (.yf shape-size)))
           (= shp-type "cylinder")
-          (sciview/add-cylinder (:sciview s) c (float (.x shape-size)) (.y shape-size))
+          (sciview/add-cylinder (:sciview s) c (float (.xf shape-size)) (.yf shape-size))
           (= shp-type "box")
-          (sciview/add-box (:sciview s) c (float (.x shape-size))))))
+          (sciview/add-box (:sciview s) c (float (.xf shape-size))))))
 
 (defn init
   "Initialize a SciView, setup all current objects in scene for syncing."
@@ -81,45 +78,20 @@
       br-sv-map
       (let [br-obj (first br-objs)
             ^Node sv-obj (get (:br-sv-map s) br-obj)
-            br-pos ^Vector3f (physics/get-position (utils/get-object br-obj))
-            vel ^Vector3f (physics/get-velocity (utils/get-object br-obj))
+            br-pos ^Vector3 (physics/get-position (utils/get-object br-obj))
+            vel ^Vector3 (physics/get-velocity (utils/get-object br-obj))
             col ^Vector4f (physics/get-color (utils/get-object br-obj))
             col ^GLVector (GLVector. (float-array [(.x col) (.y col) (.z col)]))
             target-rot  (.rotateByAngleX
                           ^Quaternion (.normalize
                                         ^Quaternion (.setLookAt ^Quaternion (Quaternion.)
-                                                                (float-array [(.x vel) (.y vel) (.z vel)])
+                                                                (.asFloatArray vel)
                                                                 (float-array [0 1 0])
                                                                 (float-array 3)
                                                                 (float-array 3)
                                                                 (float-array 3)))
                           (float (* 0.5 Math/PI)))]
-            ;target-rot (.setFromAxes ^Quaternion (Quaternion.)
-            ;                         (float-array [0 1 0])
-            ;                         (float-array [0 0 1])
-            ;                         (float-array [1 0 0]))]
-            ;target-rot (.setFromAxes (Quaternion.)
-            ;                         (float-array [0 0 1])
-            ;                         (float-array [1 0 0])
-            ;                         (float-array [0 1 0]))
-            ;target-rot (.setIdentity  (Quaternion.))
-            ;target (float-array 3)
-            ;_ (.rotateVector target-rot
-            ;                 target
-            ;                 0
-            ;                 (float-array (vector/vec3-to-seq (vector/normalize-vec3 br-vel)))
-            ;                 0)] ;(vector/add br-pos br-vel)
-            ;target (float-array (vector/vec3-to-seq (vector/normalize-vec3 br-vel)))]
-            ;qrot (.setLookAt (Quaternion.)
-            ;                 ;(float-array [(.x target) (.y target) (.z target)])
-            ;                 target
-            ;                 (float-array [0 0 1])
-            ;                 ;(float-array [0 0 1])
-            ;                 (float-array 3)
-            ;                 (float-array 3)
-            ;                 (float-array 3))]
-            ;
-        (.setPosition sv-obj ^GLVector (GLVector. (float-array [(.x br-pos) (.y br-pos) (.z br-pos)]))); TODO get brevis using sciview Vector3
+        (.setPosition sv-obj ^GLVector (GLVector. (.asFloatArray br-pos)))
         ;(.setRotation sv-obj (Quaternion. (.x br-rot) (.y br-rot) (.z br-rot) (.w br-rot))); TODO check the .w, but when i did it only reported 90, so i hard coded the radians value
         (.setRotation sv-obj target-rot)
         (.setDiffuse ^Material (.getMaterial sv-obj) col)

@@ -2,7 +2,8 @@
   (:import (org.ode4j.ode OdeHelper))
   (:import (org.ode4j.math DVector3))
   (:import (us.brevis Engine BrPhysics BrObject)
-           (org.joml Vector3f Vector4f))
+           (org.joml Vector4f)
+           (sc.iview.vector Vector3))
   (:require [us.brevis.vector :as v]
             [brevis-utils.math.core :as math]
             [us.brevis.physics.core :as physics]
@@ -29,26 +30,6 @@
   "Return the mass object for an object."
   [^BrObject obj]
   (.getMass obj))
-
-
-
-#_(defn param-label
-  "Convert a string into an ODE param label."
-  [s]
-  (cond
-    (= s "dParamVel2") dParamVel2
-    (= s "dParamVel") dParamVel
-    (= s "dParamFMax2") dParamFMax2
-    (= s "dParamFMax") dParamFMax
-    (= s "dParamLoStop") dParamLoStop
-    (= s "dParamHiStop") dParamHiStop
-    (= s "dParamFudgeFactor") dParamFudgeFactor))
-
-#_(defn set-joint-param
-  "Set a joint parameter."
-  [joint param-name value]
-  (let [param-fn (cond (= :hinge2 (:joint-type joint)) .dJointSetHinge2Param)]
-    (param-fn (param-label param-name) value)))
 
 ;; # Joints
 
@@ -86,28 +67,28 @@ axis is the axis about which the joint rotates"
 
 (defn set-velocity
   "Set the velocity of an object"
-  [^BrObject obj ^Vector3f v]
+  [^BrObject obj ^Vector3 v]
   (.setVelocity obj v)
   obj)
 
 (defn get-position
   "Return the position of an object"
   [^BrObject obj]
-  ^Vector3f (.getPosition obj))
+  ^Vector3 (.getPosition obj))
 
 (defn get-velocity
   "Return the velocity of an object"
   [^BrObject obj]
-  ^Vector3f (.getVelocity obj))
+  ^Vector3 (.getVelocity obj))
 
 (defn get-acceleration
   "Return the acceleration of an object."
   [^BrObject obj]
-  ^Vector3f (.getAcceleration obj))
+  ^Vector3 (.getAcceleration obj))
 
 (defn set-acceleration
   "Set the acceleration of an object."
-  [^BrObject obj ^Vector3f v]
+  [^BrObject obj ^Vector3 v]
   (.setAcceleration obj v)  
   obj)
 
@@ -277,7 +258,7 @@ axis is the axis about which the joint rotates"
 (defn orient-object
   "Orient an object by changing its rotation such that its vertex points towards a target vector.
   Takes the object's up vector and a target direction vector"
-  [^BrObject obj ^Vector3f up-vec ^Vector3f target-vec]
+  [^BrObject obj ^Vector3 up-vec ^Vector3 target-vec]
   (if (or (zero? (v/length up-vec))
           (zero? (v/length target-vec)))
     obj
@@ -578,7 +559,7 @@ axis is the axis about which the joint rotates"
   [obj start-point direction]
   (let [p (get-position obj)
         a (v/sub p start-point)
-        aXv (v/cross a direction)
+        aXv (v/cross-vec3 a direction)
         la (v/length a)
         sin-theta (/ (v/length aXv) (* la (v/length direction)))]
     (* la sin-theta)))

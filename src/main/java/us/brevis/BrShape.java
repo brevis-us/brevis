@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.List;
 
-import org.joml.Vector3f;
 import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DMass;
 import org.ode4j.ode.DSpace;
@@ -105,7 +104,7 @@ public class BrShape implements Serializable {
 		} else {
 			createMesh( withGraphics );
 			if( mesh != null ) {
-				mesh.rescaleMesh( (float)dim.xf(), (float)dim.yf(), (float)dim.zf(), withGraphics );
+				mesh.rescaleMesh( (float)dim.xf(), (float)dim.yf(), (float)dim.zf() );
 			}
 			dim = new JOMLVector3( 1, 1, 1 );
 		}
@@ -118,7 +117,7 @@ public class BrShape implements Serializable {
 		//createMesh( withGraphics );
 		loadMesh( filename, isResource, withGraphics );
 		if( mesh != null ) {
-			mesh.rescaleMesh( (float)dim.xf(), (float)dim.yf(), (float)dim.zf(), withGraphics );
+			mesh.rescaleMesh( (float)dim.xf(), (float)dim.yf(), (float)dim.zf() );
 		}
 		computeCenter();
 		//loadMesh( filename, isResource, withGraphics );
@@ -130,7 +129,7 @@ public class BrShape implements Serializable {
 		//createMesh( withGraphics );
 		loadMesh( filename, isResource, withGraphics );
 		if( mesh != null ) {
-			mesh.rescaleMesh( (float)dim.xf(), (float)dim.yf(), (float)dim.zf(), withGraphics );
+			mesh.rescaleMesh( (float)dim.xf(), (float)dim.yf(), (float)dim.zf() );
 		}
 		computeCenter();
 		//loadMesh( filename, isResource, withGraphics );
@@ -157,7 +156,7 @@ public class BrShape implements Serializable {
 	
 		try {		
 			BufferedReader br = new BufferedReader( new InputStreamReader( ClassLoader.getSystemResource( filename ).openStream() ) );
-			unitCone = new BrMesh( br, true, withGraphics );
+			unitCone = new BrMesh( br, true );
 		} catch( Exception e ) {
 			e.printStackTrace();
 		}	
@@ -168,7 +167,7 @@ public class BrShape implements Serializable {
 	
 		try {		
 			BufferedReader br = new BufferedReader( new InputStreamReader( ClassLoader.getSystemResource( filename ).openStream() ) );
-			unitSphere = new BrMesh( br, true, withGraphics );
+			unitSphere = new BrMesh( br, true );
 		} catch( Exception e ) {
 			e.printStackTrace();
 		}	
@@ -273,10 +272,10 @@ public class BrShape implements Serializable {
 			if( isResource ) {			
 				BufferedReader br = new BufferedReader( new InputStreamReader( Thread.currentThread().getContextClassLoader().getResourceAsStream(filename) ) );
 				
-				mesh = new BrMesh( br, true, withGraphics );
+				mesh = new BrMesh( br, true );
 			} else {				
 				BufferedReader br = new BufferedReader( new FileReader( filename ) );
-				mesh = new BrMesh( br, true, withGraphics );
+				mesh = new BrMesh( br, true );
 			}
 					
 			if( mesh.numpolygons() == 0 ) {
@@ -318,7 +317,7 @@ public class BrShape implements Serializable {
 	public void setDimension( Vector3 newd, boolean withGraphics ) {
 		dim = newd;
 		if( mesh != null ) {
-			mesh.rescaleMesh(newd.xf(), newd.yf(), newd.zf(), withGraphics );
+			mesh.rescaleMesh(newd.xf(), newd.yf(), newd.zf() );
 		}
 	}
 	

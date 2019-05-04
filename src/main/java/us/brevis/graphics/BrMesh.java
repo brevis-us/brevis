@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.lang.Math;
 
-import org.joml.Vector3f;
-import sc.iview.vector.JOMLVector3;
 import sc.iview.vector.Vector3;
 
 
