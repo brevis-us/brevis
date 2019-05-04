@@ -11,6 +11,8 @@ import org.ode4j.ode.DBody;
 import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DMass;
 import org.ode4j.ode.OdeHelper;
+import sc.iview.vector.JOMLVector3;
+import sc.iview.vector.Vector3;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -32,9 +34,9 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 	public Long uid;
 	//public String type;
 	public clojure.lang.Keyword type;
-	public Vector3f acceleration;
-	public Vector3f velocity;
-	public Vector3f position;
+	public Vector3 acceleration;
+	public Vector3 velocity;
+	public Vector3 position;
 	public double density = 1;
 	public BrShape shape;
 	public DMass mass;
@@ -53,8 +55,6 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 	protected int texId = -1;
 
 	public boolean drawable = true;
-
-	public BrKDNode myKDnode  = null;
 
 	// Physics
 	public DBody body;
@@ -81,9 +81,9 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 		uid = (long)-1;
 		//type = "Unassigned";
 		type = clojure.lang.Keyword.intern( clojure.lang.Symbol.create( "Unassigned" ) );
-		acceleration = new Vector3f( 0, 0, 0 );
-		velocity = new Vector3f( 0, 0, 0 );
-		position = new Vector3f( 0, 0, 0 );
+		acceleration = new JOMLVector3( 0, 0, 0 );
+		velocity = new JOMLVector3( 0, 0, 0 );
+		position = new JOMLVector3( 0, 0, 0 );
 		shape = null;//BrShape.createSphere( 1 ); too expensive
 		color = new Vector4f( 1, 1, 1, 1 );
 		rotation = new Vector4f( 1, 0, 0, 0 );
@@ -116,9 +116,8 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 	}
 
 	public double distanceTo( BrObject other ) {
-		Vector3f delta = new Vector3f();
-		delta.set( other.getPosition().sub(getPosition()));
-		return delta.length();
+		Vector3 delta = other.getPosition().minus(getPosition());
+		return delta.getLength();
 	}
 
 	public void setUID( Long UID ) {
@@ -158,42 +157,33 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 		nbrs.add( UID );
 	}
 
-	public Vector3f getPosition() {
+	public Vector3 getPosition() {
 		//return position;
-		return Utils.DVector3CToVector3f( body.getPosition() );
+		return Utils.DVector3CToVector3( body.getPosition() );
 	}
 
-	public Vector3f getVelocity() {
-		return Utils.DVector3CToVector3f( body.getLinearVel() );
-		//return velocity;
+	public Vector3 getVelocity() {
+		return Utils.DVector3CToVector3( body.getLinearVel() );
 	}
 
-	public Vector3f getForce() {
-		return Utils.DVector3CToVector3f( body.getForce() );
-		//return velocity;
+	public Vector3 getForce() {
+		return Utils.DVector3CToVector3( body.getForce() );
 	}
 
-	public Vector3f getAcceleration() {
+	public Vector3 getAcceleration() {
 		return acceleration;
 	}
 
-	public void setAcceleration( Vector3f v ) {
+	public void setAcceleration( Vector3 v ) {
 		acceleration = v;
 	}
 
-	public void setVelocity( Vector3f v ) {
-		//velocity = v;
-		body.setLinearVel( Utils.Vector3fToDVector3( v ) );
+	public void setVelocity( Vector3 v ) {
+		body.setLinearVel( Utils.Vector3ToDVector3( v ) );
 	}
 
-	public void setPosition( Vector3f v ) {
-		//position = v;
-		if( myKDnode != null ) {
-			myKDnode.domain[0] = position.x;
-			myKDnode.domain[1] = position.y;
-			myKDnode.domain[2] = position.z;
-		}
-		body.setPosition( Utils.Vector3fToDVector3( v ) );
+	public void setPosition( Vector3 v ) {
+		body.setPosition( Utils.Vector3ToDVector3( v ) );
 	}
 
 	public DBody getBody( ) {
@@ -234,7 +224,7 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 
 		geom = shape.createGeom( e.physics.getSpace() );
 		geom.setBody( body );
-		geom.setOffsetWorldPosition( position.x, position.y, position.z );
+		geom.setOffsetWorldPosition( position.xf(), position.yf(), position.zf() );
 
 		/*if( shape.type != BrShapeType.MESH ) {
 			shape.createMesh();
@@ -246,7 +236,7 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 		// need to remove old geom from body??
 		geom = shape.createGeom( e.physics.getSpace() );
 		geom.setBody( body );
-		geom.setOffsetWorldPosition( position.x, position.y, position.z );
+		geom.setOffsetWorldPosition( position.xf(), position.yf(), position.zf() );
 	}
 
 	/*public void makeAbstract( Engine e ) {
@@ -306,28 +296,17 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
     }
 
 	public void updateObjectKinematics( double dt ) {
-	//(defn update-object-kinematics
-	//		  "Update the kinematics of an object by applying acceleration and velocity for an infinitesimal amount of time."
-		//System.out.print( this );
-
-		Vector3f f = new Vector3f( acceleration ).mul( (float) getDoubleMass() );
-		getBody().addForce( f.x, f.y, f.z );
-		//orient( new Vector3f(0,0,1), getVelocity() );
-		//orient( new Vector3f(0,1,0), getVelocity() );
-		//orient( new Vector3f(1,0,0), getForce() );
-		//System.out.println( "Object " + uid + " force " + f );
+        Vector3 f = acceleration.copy().multiply( (float) getDoubleMass() );
+		getBody().addForce( f.xf(), f.yf(), f.zf() );
 	}
 
 	@Override
 	public Iterator iterator() {
-		// TODO Auto-generated method stub
 		return myMap.keySet().iterator();
-		//return null;
 	}
 
 	@Override
 	public boolean containsKey(Object arg0) {
-		// TODO Auto-generated method stub
 		return myMap.containsKey(arg0);
 	}
 
@@ -346,13 +325,11 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 
 	@Override
 	public int count() {
-		// TODO Auto-generated method stub
 		return myMap.size();
 	}
 
 	@Override
 	public IPersistentCollection empty() {
-		// TODO Auto-generated method stub
 		myMap.clear();
 		return this;
 	}
@@ -389,10 +366,8 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 
 	public void destroy( Engine e ) {
 		shape.destroy();
-		//System.out.println( "[A]Number of objects in collision space : " + e.physics.space.getNumGeoms() );
 		e.physics.space.remove( geom );
-		//System.out.println( "[B]Number of objects in collision space : " + e.physics.space.getNumGeoms() );
-		//body.destroy();
+
 		geom.destroy();
 	}
 

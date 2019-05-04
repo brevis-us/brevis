@@ -2,8 +2,12 @@
 package us.brevis;
 
 import clojure.lang.PersistentVector;
+import net.imglib2.KDTree;
+import net.imglib2.KDTreeNode;
+import net.imglib2.RealLocalizable;
 import org.joml.Vector3f;
 import org.ode4j.ode.*;
+import sc.iview.vector.Vector3;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -68,7 +72,7 @@ public class Engine implements Serializable {
 	//public boolean brevisParallel = false;
 	public boolean brevisParallel = false;
 	
-	public transient BrKDTree<BrKDNode> spaceTree = null;
+	public transient KDTree<Long> spaceTree = null;
 	
 	public transient ReentrantLock lock = new ReentrantLock();
 	
@@ -113,7 +117,7 @@ public class Engine implements Serializable {
 		
 		simulationStart = System.nanoTime();
 		
-		spaceTree = new BrKDTree<BrKDNode>(10);
+		//spaceTree = new BrKDTree<BrKDNode>(10);
 	}
 	
 	public static class BrevisCollision implements DGeom.DNearCallback {
@@ -534,19 +538,48 @@ public class Engine implements Serializable {
 	}	
 	
 	public void reinitializeKDTree() {
-		spaceTree.clear(); // also lazy but a little better
+        Collection<BrObject> currentObjs = allObjects();
 
- 		// Add everyone to the KD tree (need to do this if clear or creating a new tree)
- 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
- 			BrObject obj = entry.getValue();
- 			//Vector3f pos = obj.getPosition();
- 			Vector3f pos = new Vector3f();
- 			pos = obj.getPosition().add( obj.getShape().center );
- 			double[] arryloc = { pos.x, pos.y, pos.z };
- 			BrKDNode n = new BrKDNode( arryloc, entry.getKey() );
- 			obj.myKDnode = n;
- 			spaceTree.add( n );
- 		}
+	    List<Long> nodeIDs = new ArrayList<>(currentObjs.size());
+	    List<Vector3> nodePositions = new ArrayList<>(currentObjs.size());
+
+	    for( BrObject obj : currentObjs ) {
+	        nodeIDs.add(obj.getUID());
+	        nodePositions.add(obj.getPosition());
+        }
+
+	    spaceTree = new KDTree<Long>(nodeIDs,nodePositions);
+	}
+
+	static public List<KDTreeNode<Long>> searchByDistance( KDTree<Long> kdtree, RealLocalizable pos, double radius ) {
+		final LinkedList<KDTreeNode<Long>> list = new LinkedList<>();
+		final Stack< KDTreeNode< Long > > toDo = new Stack< KDTreeNode< Long > >();
+
+		double d;
+		double squRadius = radius * radius;
+
+		toDo.push( kdtree.getRoot() );
+		while ( toDo.size() > 0 )
+		{
+			final KDTreeNode< Long > node = toDo.pop();
+			final int k = node.getSplitDimension();
+
+		 	d = node.squDistanceTo(pos);
+
+			if( d < squRadius ) {
+				// Leaf
+				if( ( node.left == null ) && ( node.right == null ) ) {
+					list.add(node);
+				} else {
+					if( node.left != null )
+						toDo.push(node.left);
+					if( node.right != null )
+						toDo.push(node.right);
+				}
+			}
+		}
+
+		return list;
 	}
 	
 	/* updateNeighborhoods
@@ -586,40 +619,29 @@ public class Engine implements Serializable {
 	 			BrObject obj = entry.getValue();
 	 			Vector<Long> nbrs = new Vector<Long>();
 	 			
-	 			Vector3f pos = obj.getPosition();
-	 			double[] arryloc = { pos.x, pos.y, pos.z };
+	 			Vector3 pos = obj.getPosition();
+
+				List<KDTreeNode<Long>> searchNbrs = searchByDistance(spaceTree, pos, neighborhoodRadius);
+
+	 			Iterator<KDTreeNode<Long>> itr = searchNbrs.iterator();
 	 			
-	 			//Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.search( arryloc, nResults);
-	 			//Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.searchByDistance( arryloc, neighborhoodRadius );
-	 			List<BrKDNode> searchNbrs = spaceTree.searchByDistance( arryloc, neighborhoodRadius );
-	 			Iterator<BrKDNode> itr = searchNbrs.iterator();
-	 			
-	 			double closestDistance = 99999999;//maybe dangerous?
+	 			double closestDistance = Double.MAX_VALUE;
 	 			long closestUID = 0;
-	 			boolean foundClosest = false;	 				 		
+	 			boolean foundClosest = false;
 	 			
-	 			//System.out.println( "---" + obj.uid + "---" );
-	 			
-	 			Vector3f diff = new Vector3f();
+	 			Vector3 diff;
 	 			while( itr.hasNext() ) {
-	 				BrKDNode nbr = itr.next();
-	 				nbrs.add( nbr.UID );
-	 				diff = objects.get( nbr.UID ).getPosition().sub( obj.getPosition() );
-	 				double ldiff = diff.length();
-	 				if ( ( ldiff < closestDistance ) && ( nbr.UID != obj.uid ) ) {
+					KDTreeNode<Long> nbr = itr.next();
+	 				nbrs.add( nbr.get() );
+	 				diff = objects.get( nbr.get() ).getPosition().minus( obj.getPosition() );
+	 				double ldiff = diff.getLength();
+	 				if ( ( ldiff < closestDistance ) && ( nbr.get() != obj.uid ) ) {
 	 					closestDistance = ldiff;
-	 					closestUID = nbr.UID;
+	 					closestUID = nbr.get();
 	 					foundClosest = true;
 	 				}
-	 				
-		 			//System.out.println( nbr.UID + " : " + ldiff + " [ " + diff  + " ] { " + objects.get( nbr.UID ).getPosition() );
 	 			}
-	 			
-	 			//System.out.println( "Closest: " + closestDistance );
-	 			//System.out.println( "Closest: " + closestUID );
-	 			
-	 			//System.out.println( "---END " + obj.uid + "---" );
-	 			
+
 	 			if( foundClosest )
 	 				obj.closestNeighbor = closestUID;
 	 			else
@@ -638,99 +660,6 @@ public class Engine implements Serializable {
 
 	}
 	
-	/* updateNeighborhoods
-	 * Update the neighborhoods of all objects
-	 * KD tree implementation
-	 */
-	public void parallelUpdateNeighborhoods() {
-		
-	     try {
-	    	 lock.lock();  // block until condition holds
-	 		//HashMap<Long,BrObject> updatedObjects = new HashMap<Long,BrObject>();
-	 		final ConcurrentHashMap<Long,BrObject> updatedObjects = new ConcurrentHashMap<Long,BrObject>();
-	 		
-	 		if( numSteps % rebalanceKDTreeSteps == 0 ) {
-	 			reinitializeKDTree();
-	 		}
-	 		
-	 		// Loop over everyone and cache their neighborhood
-	 		int brevisNumThreads = 16;
-	 		ExecutorService exec = Executors.newFixedThreadPool( brevisNumThreads );
-	 		try {
-	 			//ArrayList<Future<BrObject>> alist  = new ArrayList<Future<BrObject>>();
-	 			ArrayList<Map.Entry<Long,Future<BrObject>>> alist  = new ArrayList<Map.Entry<Long,Future<BrObject>>>();
-	 			
-	 			for( final Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
-	 		    	Future<BrObject> future = exec.submit(new Callable() {
-	 		            @Override
-	 		            public BrObject call() {
-	 		            	BrObject obj = entry.getValue();
-	 			 			Vector<Long> nbrs = new Vector<Long>();
-	 			 			
-	 			 			Vector3f pos = obj.getPosition();
-	 			 			double[] arryloc = { pos.x, pos.y, pos.z };
-	 			 			
-	 			 			//Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.search( arryloc, nResults);
-	 			 			//Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.searchByDistance( arryloc, neighborhoodRadius );
-	 			 			List<BrKDNode> searchNbrs = spaceTree.searchByDistance( arryloc, neighborhoodRadius );
-	 			 			Iterator<BrKDNode> itr = searchNbrs.iterator();
-	 			 			
-	 			 			double closestDistance = 99999999;//maybe dangerous?
-	 			 			long closestUID = 0;
-	 			 			boolean foundClosest = false;	 				 		
-	 			 			
-	 			 			//System.out.println( "---" + obj.uid + "---" );
-	 			 			
-	 			 			Vector3f diff = new Vector3f();
-	 			 			while( itr.hasNext() ) {
-	 			 				BrKDNode nbr = itr.next();
-	 			 				nbrs.add( nbr.UID );
-	 			 				diff = objects.get( nbr.UID ).getPosition().sub( obj.getPosition() );
-	 			 				double ldiff = diff.length();
-	 			 				if ( ( ldiff < closestDistance ) && ( nbr.UID != obj.uid ) ) {
-	 			 					closestDistance = ldiff;
-	 			 					closestUID = nbr.UID;
-	 			 					foundClosest = true;
-	 			 				}
-	 			 			}
-	 			 			
-	 			 			if( foundClosest )
-	 			 				obj.closestNeighbor = closestUID;
-	 			 			else
-	 			 				obj.closestNeighbor = (long) 0;
-	 			 			
-	 			 			//System.out.println( "Neighbors of " + obj + " " + nbrs.size() );
-	 			 			obj.nbrs = nbrs;
-	 			 			//updatedObjects.put( entry.getKey(), obj );
-	 			 			return obj;
-	 		            }
-	 		            
-	 		        });
-	 		    	alist.add( new AbstractMap.SimpleEntry<Long,Future<BrObject>>(entry.getKey(), future)  );
-	 		       //updatedObjects.put( entry.getKey(), future.get() );
-	 		    }
-	 		    
-	 			for( final Map.Entry<Long,Future<BrObject>> entry : alist ) {	 		   
-	 			   
-	 			  updatedObjects.put( entry.getKey(), entry.getValue().get() );
-	 		   }
-	 		} catch ( Exception ex) {
-	 			System.out.println("Exception in Parallel update neighborhoods.");
-	 			ex.printStackTrace();
-	 		}
-	 		finally {
-	 		    exec.shutdown();
-	 		}
-	 		objects = updatedObjects;
-	     } catch( Exception e) {
-	    	e.printStackTrace(); 
-	     } finally {
-	       lock.unlock();
-	     }	
-
-	}
-	
-	
 	/*(defn distance-obj-to-line
 			  "Distance of an object to a line."*/
 	public double distanceToLine( Vector3f testPoint, Vector3f linePoint, Vector3f direction ) {
@@ -741,72 +670,19 @@ public class Engine implements Serializable {
 		return ( ldiff * sinTheta );
 	}
 	
-	/* 
-	 * Return all objects along a line with start point, start, and direction vector, direction
-	 * within distance, radius 
-	 * NOTE: currently only centers of objects are considered, so radius should account for the largest dimension of the largest object to be considered
-	 */
-	public ArrayList<BrObject> objectsAlongLine( double[] start, double[] direction, double radius ) {
-		ArrayList<BrObject> objs = null;
-		Vector3f linePoint = new Vector3f( (float)start[0], (float)start[1], (float)start[2] );
-		Vector3f dirVec= new Vector3f( (float)direction[0], (float)direction[1], (float)direction[2] );
-		lock.lock();  // block until condition holds
-	     try {	 		
-	    	 objs = new ArrayList<BrObject>();
-	 		
-	 		spaceTree.clear();
-	 		
-	 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
-	 			BrObject obj = entry.getValue();
-	 			Vector3f pos = obj.getPosition();
-	 			double[] arryloc = { pos.x, pos.y, pos.z };
-	 			BrKDNode n = new BrKDNode( arryloc, entry.getKey() );
-	 			spaceTree.add( n );
-	 		}				
-	 		
-	 		for( Map.Entry<Long,BrObject> entry : objects.entrySet() ) {
-	 			BrObject obj = entry.getValue();
-	 			Vector<Long> nbrs = new Vector<Long>();
-	 			
-	 			Vector3f pos = obj.getPosition();
-	 			double[] arryloc = { pos.x, pos.y, pos.z };
-	 			
-	 			//Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.search( arryloc, nResults);
-	 			//Iterable<PrioNode<BrKDNode>> itNbrs = spaceTree.searchByDistance( arryloc, neighborhoodRadius );
-	 			ArrayList<BrKDNode> searchNbrs = spaceTree.searchAlongLine( start, direction, radius);
-	 			Iterator<BrKDNode> itr = searchNbrs.iterator();
-	 			
-	 			while( itr.hasNext() ) {
-	 				BrKDNode nbr = itr.next();
-	 				nbrs.add( nbr.UID );
-	 			}
-	 			
-	 			//System.out.println( "Neighbors of " + obj + " " + nbrs.size() );
-	 			//obj.nbrs = nbrs;
-	 			if( distanceToLine( pos, linePoint, dirVec ) < radius )
-	 				objs.add( obj );
-	 		}	 
-	 		
-	     } finally {
-	       lock.unlock();
-	     }	
-	     return objs;
-	}
-	
 	/* initWorld
 	 * Initialization functions
 	 */
 	public void initWorld( ) {
 		lock.lock();  // block until condition holds
 	     try {	 		
-	    	 physics.time = 0;		
+	     	physics.time = 0;
 	 		startWallTime = System.nanoTime();
 	 		objects.clear();
 	 		addedObjects.clear();
 	 		deletedObjects.clear();
 	 		collisions.clear();
 	 		globalCollisions.clear();
-	 		spaceTree.clear();
 	 		synchronizeObjects(); 		
 	     } finally {
 	       lock.unlock();
@@ -832,11 +708,7 @@ public class Engine implements Serializable {
 		}
 		
 		if( neighborhoodsEnabled ) {
-			if( brevisParallel ) {
-				parallelUpdateNeighborhoods();
-			} else {
-				updateNeighborhoods();
-			}
+			updateNeighborhoods();
 			synchronizeObjects();
 		}
 		
