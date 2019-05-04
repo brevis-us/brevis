@@ -5,7 +5,6 @@ import clojure.lang.IMapEntry;
 import clojure.lang.IPersistentCollection;
 import clojure.lang.ISeq;
 import clojure.lang.Keyword;
-import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.ode4j.ode.DBody;
 import org.ode4j.ode.DGeom;
@@ -20,11 +19,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
 
-// Shouldn't be any opengl stuff in here actually
-//import com.sun.org.apache.xalan.internal.xsltc.runtime.Hashtable;
-
-//public class BrObject {
-//public class BrObject implements clojure.lang.IRecord {
 public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 	/**
 	 *
@@ -213,8 +207,6 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 	public void makeReal( Engine e ) {
 		mass = shape.createMass( density );
 
-		//System.out.println( "makeReal " + shape.getDimension() + " " + density + " " + mass );
-
 		body = OdeHelper.createBody( e.getWorld() );
 		body.setMass( mass );
 		HashMap<String,Object> bodymap = new HashMap<String,Object>();
@@ -225,11 +217,6 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 		geom = shape.createGeom( e.physics.getSpace() );
 		geom.setBody( body );
 		geom.setOffsetWorldPosition( position.xf(), position.yf(), position.zf() );
-
-		/*if( shape.type != BrShapeType.MESH ) {
-			shape.createMesh();
-		}*/
-		//shape.createVBOFromMesh();
 	}
 
 	public void recreatePhysicsGeom( Engine e ) {
@@ -239,10 +226,6 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 		geom.setOffsetWorldPosition( position.xf(), position.yf(), position.zf() );
 	}
 
-	/*public void makeAbstract( Engine e ) {
-
-	}*/
-
 	public void setColor( Vector4f c ) {
 		color = c;
 	}
@@ -251,11 +234,11 @@ public class BrObject implements clojure.lang.IPersistentMap, Serializable {
 		return color;
 	}
 
-	public void setDimension( Vector3f newDim, boolean withGraphics ) {
+	public void setDimension( Vector3 newDim, boolean withGraphics ) {
 		shape.setDimension( newDim, withGraphics );
 	}
 
-	public Vector3f getDimension() {
+	public Vector3 getDimension() {
 		return shape.getDimension();
 	}
 
