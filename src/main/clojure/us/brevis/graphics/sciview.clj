@@ -22,7 +22,7 @@
 (defn add-cone
   "Add a cone to the sciview instance"
   [^SciView sv ^Vector3 position length radius]
-  (let [^Node cone (Cone. length radius 25)]
+  (let [^Node cone (Cone. length radius 25 ^GLVector (GLVector. (float-array [0 0 1])))]
     (.setPosition cone (ClearGLVector3/convert position))
     (.addNode sv cone false)))
 
@@ -35,14 +35,16 @@
         shape-size ^Vector3 (.getDimension shp); TODO finish this
         shp-type (.getType shp)]
     (cond (= shp-type "sphere")
-          (add-sphere (:sciview s) (ClearGLVector3. c) (float (.xf shape-size)))
+          (add-sphere (:sciview s) (ClearGLVector3. (.xf c) (.yf c) (.zf c)) (float (.xf shape-size)))
           ;(sciview/add-sphere (:sciview s) (ClearGLVector3. (.x cp) (.y cp) (.z cp)) (float 5))
           (= shp-type "cone")
           (add-cone (:sciview s) c (float (.xf shape-size)) (float (.yf shape-size)))
           (= shp-type "cylinder")
           (sciview/add-cylinder (:sciview s) c (float (.xf shape-size)) (.yf shape-size))
           (= shp-type "box")
-          (sciview/add-box (:sciview s) c (float (.xf shape-size))))))
+          (sciview/add-box (:sciview s) c (float (.xf shape-size)))
+          (= shp-type "line")
+          (sciview/add-node (:sciview s) (.getNode shp) false))))
 
 (defn init
   "Initialize a SciView, setup all current objects in scene for syncing."
@@ -82,15 +84,13 @@
             vel ^Vector3 (physics/get-velocity (utils/get-object br-obj))
             col ^Vector4f (physics/get-color (utils/get-object br-obj))
             col ^GLVector (GLVector. (float-array [(.x col) (.y col) (.z col)]))
-            target-rot  (.rotateByAngleX
-                          ^Quaternion (.normalize
-                                        ^Quaternion (.setLookAt ^Quaternion (Quaternion.)
-                                                                (.asFloatArray vel)
-                                                                (float-array [0 1 0])
-                                                                (float-array 3)
-                                                                (float-array 3)
-                                                                (float-array 3)))
-                          (float (* 0.5 Math/PI)))]
+            target-rot  ^Quaternion (.normalize
+                                      ^Quaternion (.setLookAt ^Quaternion (Quaternion.)
+                                                              (.asFloatArray vel)
+                                                              (float-array [0 1 0])
+                                                              (float-array 3)
+                                                              (float-array 3)
+                                                              (float-array 3)))]
         (.setPosition sv-obj ^GLVector (GLVector. (.asFloatArray br-pos)))
         ;(.setRotation sv-obj (Quaternion. (.x br-rot) (.y br-rot) (.z br-rot) (.w br-rot))); TODO check the .w, but when i did it only reported 90, so i hard coded the radians value
         (.setRotation sv-obj target-rot)
