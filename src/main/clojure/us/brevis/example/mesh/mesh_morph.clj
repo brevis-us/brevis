@@ -2,7 +2,7 @@
   (:gen-class)
   (:use [us.brevis.physics collision core utils]
         [us.brevis.shape box mesh core]
-        [us.brevis core vector camera utils]))
+        [us.brevis core vector utils]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Mesh demo
@@ -51,7 +51,7 @@
   (init-view)  
   
   #_(set-camera-information (vec3 -10.0 57.939613 -890.0) (vec4 1.0 0.0 0.0 0.0))
-  (set-camera-information (vec3 0.0 -27.036232 -30.0) (vec4 1.0 0.0 0.0 0.0))
+  ;(set-camera-information (vec3 0.0 -27.036232 -30.0) (vec4 1.0 0.0 0.0 0.0))
   (disable-collisions)
   
   (set-dt 1)

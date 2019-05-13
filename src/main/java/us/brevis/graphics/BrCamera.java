@@ -1,9 +1,8 @@
-
-
 package us.brevis.graphics;
 
-import org.joml.Vector3f;
 import org.joml.Vector4f;
+import sc.iview.vector.JOMLVector3;
+import sc.iview.vector.Vector3;
 
 import static java.lang.Math.*;
 
@@ -215,14 +214,14 @@ public class BrCamera {
 	
 
 
-	public void setPosition( Vector3f v ) {
-		x = v.x;
-		y = v.y;
-		z = v.z;
+	public void setPosition( Vector3 v ) {
+		x = v.xf();
+		y = v.yf();
+		z = v.zf();
 	}
 	
-	public Vector3f getPosition() {
-		return ( new Vector3f( x, y, z ) ); 		
+	public Vector3 getPosition() {
+		return ( new JOMLVector3( x, y, z ) );
 	}
 	
 	public Vector4f getRotation() {

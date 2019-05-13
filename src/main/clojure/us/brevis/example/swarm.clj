@@ -3,16 +3,15 @@
   (:require [brevis-utils.parameters :as parameters]
             [us.brevis.physics.collision :as collision]
             [us.brevis.vector :as vector]
-            [us.brevis.camera :as camera]
             [us.brevis.physics.utils :as physics]
             [us.brevis.utils :as utils]
             [us.brevis.shape.cone :as cone]
-            [us.brevis.shape.sphere :as sphere]
             [us.brevis.core :as core]
             [clj-random.core :as random])
 
   (:import (graphics.scenery Light)
-           (java.util.function Predicate)))
+           (java.util.function Predicate)
+           (sc.iview SciView)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Swarm
@@ -28,16 +27,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## Globals
 
-(def num-birds (atom 100))
-;(def num-birds (atom 2000))
+(def num-birds (atom 200))
 
-(def clustering (atom 11))
-(def avoidance (atom 10))
+(def clustering (atom 2))
+(def avoidance (atom 2.1))
 (def alignment (atom 1))
 
-(def centering (atom 0.001)); for origin of map
-
-(def boundary 150)
+(def boundary 30)
 
 (def speed 10)
 (def max-acceleration 10)
@@ -114,86 +110,11 @@
                        (< z (- boundary)) (mod (- z) boundary)
                        :else z))))
 
-(defn periodic-boundary2
-  "Change a position according to periodic boundary conditions."
-  [x y z]
-  [(cond (> x boundary) (- (mod x boundary) boundary)
-         (< x (- boundary)) (mod (- x) boundary)
-         :else x)
-   (cond (> y boundary) (- (mod y boundary) boundary)
-         (< y (- boundary)) (mod (- y) boundary)
-         :else y)
-   (cond (> z boundary) (- (mod z boundary) boundary)
-         (< z (- boundary)) (mod (- z) boundary)
-         :else z)])
-
-#_(defn fly
-    "Change the acceleration of a bird."
-    [bird]
-    (let [;nbrs (filter bird? (get-neighbor-objects bird))
-          ;tmp (println (count nbrs))
-          ;tmp (do (doseq [nbr nbrs] (print (get-position nbr))) (println))
-          bird-pos (physics/get-position bird)
-
-          ;; Actual closest bird, a little slow
-          ;bird-dists (map #(length-vec3 (sub-vec3 (get-position %) bird-pos)) nbrs)
-          #_closest-bird #_(when-not (empty? nbrs)
-                            (nth nbrs
-                                 (reduce #(if (< (nth bird-dists %1) (nth bird-dists %2)) %1 %2) (range (count bird-dists)))))
-
-          ;closest-bird (first nbrs)
-
-          closest-bird (physics/get-closest-neighbor bird)
-
-          new-acceleration (if-not closest-bird
-                             ;; No neighbor, move randomly
-                             (vector/elmul (vector/vec3 (- (random/lrand) 0.5) (- (random/lrand) 0.5) (- (random/lrand) 0.5))
-                                    (vector/mul bird-pos -1.0))
-                             (let [dvec (vector/sub bird-pos (physics/get-position closest-bird))
-                                   len (vector/length dvec)]
-                               (vector/add (vector/sub (physics/get-velocity closest-bird) (physics/get-velocity bird)); velocity matching
-                                    (if (<= len @avoidance-distance)
-                                      ;; If far from neighbor, get closer
-                                      dvec
-                                      ;; If too close to neighbor, move away
-                                      (vector/add (vector/mul dvec -1.0)
-                                           (vector/vec3 (random/lrand 0.1) (random/lrand 0.1) (random/lrand 0.1)))))));; add a small random delta so we don't get into a loop
-          new-acceleration (vector/add-vec3 new-acceleration
-                                            (vector/mul (vector/mul-vec3 (vector/normalize-vec3 bird-pos) -1)
-                                                        @centering))]
-
-          ;new-acceleration (if (zero? (vector/length new-acceleration))
-          ;                   new-acceleration
-          ;                   (vector/mul new-acceleration (/ 1 (vector/length new-acceleration))))]
-      (physics/set-velocity
-        (physics/set-acceleration
-          (if (or (> (Math/abs (vector/x-val bird-pos)) boundary)
-                  (> (Math/abs (vector/y-val bird-pos)) boundary)
-                  (> (Math/abs (vector/z-val bird-pos)) boundary))
-            (physics/move bird (periodic-boundary bird-pos) #_(vec3 0 25 0))
-            bird)
-          (bound-acceleration
-            ;(physics/get-acceleration bird)
-            new-acceleration
-            #_(add (mul (get-acceleration bird) 0.5)
-                 (mul new-acceleration speed))))
-        (bound-velocity (physics/get-velocity bird)))))
-
 (defn fly
   "Change the acceleration of a bird."
   [bird]
   (let [nbrs (filter bird? (physics/get-neighbor-objects bird))
-        ;tmp (println (count nbrs))
-        ;tmp (do (doseq [nbr nbrs] (print (get-position nbr))) (println))
         bird-pos (physics/get-position bird)
-
-        ;; Actual closest bird, a little slow
-        ;bird-dists (map #(length-vec3 (sub-vec3 (get-position %) bird-pos)) nbrs)
-        #_closest-bird #_(when-not (empty? nbrs)
-                          (nth nbrs
-                               (reduce #(if (< (nth bird-dists %1) (nth bird-dists %2)) %1 %2) (range (count bird-dists)))))
-
-        ;closest-bird (first nbrs)
 
         closest-bird (physics/get-closest-neighbor bird)
 
@@ -210,11 +131,6 @@
                                        (vector/mul-vec3 (vector/normalize-vec3 (vector/sub-vec3 (physics/get-velocity closest-bird) (physics/get-velocity bird))) @alignment)
                                        (vector/vec3 0 0 0)))]
 
-
-
-        ;new-acceleration (if (zero? (vector/length new-acceleration))
-        ;                   new-acceleration
-        ;                   (vector/mul new-acceleration (/ 1 (vector/length new-acceleration))))]
     (physics/set-velocity
       (physics/set-acceleration
         (if (or (> (Math/abs ^float (vector/x-val-vec3 bird-pos)) boundary)
@@ -222,15 +138,8 @@
                 (> (Math/abs ^float (vector/z-val-vec3 bird-pos)) boundary))
           (physics/move bird (periodic-boundary bird-pos) #_(vec3 0 25 0))
           bird)
-        (bound-acceleration
-          ;(physics/get-acceleration bird)
-          new-acceleration
-          #_(add (mul (get-acceleration bird) 0.5)
-               (mul new-acceleration speed))))
+        (bound-acceleration new-acceleration))
       (bound-velocity (physics/get-velocity bird)))))
-
-
-;(add-global-update-handler 10 (fn [] (println (get-time) (System/nanoTime))))
 
 (physics/enable-kinematics-update :bird); This tells the simulator to move our objects
 (utils/add-update-handler :bird fly); This tells the simulator how to update these objects
@@ -257,12 +166,6 @@
 (collision/add-collision-handler :bird :bird bump)
 (collision/add-collision-handler :bird :floor land)
 
-(defn light-predicate[]
-  (reify
-    Predicate
-    (test [this arg]
-      (instance? Light arg))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ## brevis control code
 
@@ -276,20 +179,17 @@
   #_(set-camera-information (vec3 -10.0 -50.0 -200.0) (vec4 1.0 0.0 0.0 0.0))
   ;(camera/set-camera-information (vector/vec3 -10.0 57.939613 -890.0) (vector/vec4 1.0 0.0 0.0 0.0))
 
-  (utils/set-dt 0.005)
+  (utils/set-dt 0.05)
   (physics/set-neighborhood-radius 50)
   (dotimes [_ @num-birds]
     (utils/add-object (random-bird)))
   (Thread/sleep 100)
-  (.setVisible (.getFloor (fun.imagej.sciview/get-sciview)) false)
+  (.setVisible (.getFloor ^SciView (fun.imagej.sciview/get-sciview)) false)
   (.surroundLighting (fun.imagej.sciview/get-sciview))
   (.centerOnScene(fun.imagej.sciview/get-sciview)))
 
-
-
 ;; Start zee macheen
 (defn -main [& args]
-  #_(start-nogui initialize-simulation)
   (if-not (empty? args)
     (core/start-nogui initialize-simulation)
     (core/start-gui initialize-simulation)))

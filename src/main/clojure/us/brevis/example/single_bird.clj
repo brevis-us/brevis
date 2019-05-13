@@ -1,17 +1,12 @@
 (ns us.brevis.example.single-bird
   (:gen-class)
   (:require [brevis-utils.parameters :as parameters]
-            [us.brevis.physics.collision :as collision]
             [us.brevis.vector :as vector]
-            [us.brevis.camera :as camera]
             [us.brevis.physics.utils :as physics]
             [us.brevis.utils :as utils]
             [us.brevis.shape.cone :as cone]
-            [us.brevis.shape.sphere :as sphere]
             [us.brevis.core :as core]
-            [clj-random.core :as random])
-  (:import (graphics.scenery Light)
-           (java.util.function Predicate)))
+            [clj-random.core :as random]))
 
 (def this-bird (atom nil))
 

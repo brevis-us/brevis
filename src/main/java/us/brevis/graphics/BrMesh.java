@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.lang.Math;
 
-import org.joml.Vector3f;
+import sc.iview.vector.Vector3;
 
 
 /**
@@ -34,14 +34,13 @@ public class BrMesh implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -7412159215339192242L;
-	public ArrayList<float[]> vertexsets = new ArrayList<float[]>(); // Vertex Coordinates
-	public ArrayList<float[]> vertexsetsnorms = new ArrayList<float[]>(); // Vertex Coordinates Normals
-	public ArrayList<float[]> vertexsetstexs = new ArrayList<float[]>(); // Vertex Coordinates Textures
-	public ArrayList<int[]> faces = new ArrayList<int[]>(); // Array of Faces (vertex sets)
-	public ArrayList<int[]> facestexs = new ArrayList<int[]>(); // Array of of Faces textures
-	public ArrayList<int[]> facesnorms = new ArrayList<int[]>(); // Array of Faces normals
-	
-	private int objectlist;
+	public ArrayList<float[]> vertexsets = new ArrayList<>(); // Vertex Coordinates
+	public ArrayList<float[]> vertexsetsnorms = new ArrayList<>(); // Vertex Coordinates Normals
+	public ArrayList<float[]> vertexsetstexs = new ArrayList<>(); // Vertex Coordinates Textures
+	public ArrayList<int[]> faces = new ArrayList<>(); // Array of Faces (vertex sets)
+	public ArrayList<int[]> facestexs = new ArrayList<>(); // Array of of Faces textures
+	public ArrayList<int[]> facesnorms = new ArrayList<>(); // Array of Faces normals
+
 	private int numpolys = 0;
 	
 	//// Statisitcs for drawing ////
@@ -50,9 +49,7 @@ public class BrMesh implements Serializable {
 	public float leftpoint = 0;		// x-
 	public float rightpoint = 0;	// x+
 	public float farpoint = 0;		// z-
-	public float nearpoint = 0;		// z+	
-	
-	public boolean redraw = false;
+	public float nearpoint = 0;		// z+
 	
 	public BrMesh clone()  {
 		/* Create a copy of this mesh */
@@ -85,29 +82,27 @@ public class BrMesh implements Serializable {
 		return s;
 	}
 	
-	public BrMesh(BufferedReader ref, boolean centerit, boolean withGraphics ) {
+	public BrMesh(BufferedReader ref, boolean centerit ) {
 		loadobject(ref);
 		if (centerit) {
 			centerit();
 		}
 		numpolys = faces.size();
-		// We don't actually want to cleanup
-		//cleanup();
 	}
 
 	public BrMesh() {
 	}
 
-	public BrMesh(List<Vector3f> verts) {
+	public BrMesh(List<Vector3> verts) {
 		cleanup();
 
 		boolean firstpass = true;
 
-		for( Vector3f v : verts ) {
+		for( Vector3 v : verts ) {
 			float[] coords = new float[3];
-			coords[0] = v.x;
-			coords[1] = v.y;
-			coords[2] = v.z;
+			coords[0] = v.xf();
+			coords[1] = v.yf();
+			coords[2] = v.zf();
 			//// check for farpoints ////
 			if (firstpass) {
 				rightpoint = coords[0];
@@ -139,25 +134,21 @@ public class BrMesh implements Serializable {
 			/////////////////////////////
 			vertexsets.add(coords);
 		}		
-		List<Vector3f> normals = new ArrayList<Vector3f>();
-		Vector3f p1 = new Vector3f(), p2 = new Vector3f(), p3  = new Vector3f();
-		Vector3f edge1 = new Vector3f(), edge2 = new Vector3f();
-		Vector3f veccross = new Vector3f();
+		List<Vector3> normals = new ArrayList<>();
+		Vector3 p1, p2, p3, edge1, edge2, veccross;
 		for( int k = 0; k < verts.size(); k+=3 ) {
-			p1.set( verts.get(k).x, verts.get(k).y, verts.get(k).z );
-			p2.set( verts.get(k+1).x, verts.get(k+1).y, verts.get(k+1).z );
-			//p3.set( verts.get(k+2).x, verts.get(k+2).y, verts.get(k+2).z );
-			p3.set( verts.get(k+2).x, verts.get(k+2).y, verts.get(k+2).z );
-			edge1.set(p1.sub(p2));
-			edge2.set(p1.sub(p3));
-			veccross.set( edge1.cross(edge2));
-			//Vector3f.cross( edge2, edge1, veccross );
-			//normals.add( new Vector3f( veccross ) ); 
-			//normals.add( new Vector3f( veccross ) ); 
-			//normals.add( new Vector3f( veccross ) );
-			vertexsetsnorms.add( new float[]{ veccross.x, veccross.y, veccross.z } );
-			vertexsetsnorms.add( new float[]{ veccross.x, veccross.y, veccross.z } );
-			vertexsetsnorms.add( new float[]{ veccross.x, veccross.y, veccross.z } );
+			p1 = verts.get(k).copy();
+			p2 = verts.get(k+1).copy();
+			p3 = verts.get(k+2).copy();
+
+			edge1 = p1.minus(p2);
+			edge2 = p1.minus(p3);
+
+			veccross = edge1.cross(edge2);
+
+			vertexsetsnorms.add( veccross.asFloatArray() );
+			vertexsetsnorms.add( veccross.asFloatArray() );
+			vertexsetsnorms.add( veccross.asFloatArray() );
 		}
 		for( int k = 0; k < vertexsets.size(); k+=3 ) {
 			int[] v = new int[]{ k+1, k+2, k+3 };
@@ -360,8 +351,7 @@ public class BrMesh implements Serializable {
 		return Indices;
 	}
 	
-	public void rescaleMesh( float w, float h, float d, boolean withGraphics ) {		
-		
+	public void rescaleMesh( float w, float h, float d ) {
 		for( int k = 0; k < vertexsets.size(); k++ ) {
 			float[] v = vertexsets.get(k);
 			v[ 0 ] = w * v[0];
@@ -369,7 +359,6 @@ public class BrMesh implements Serializable {
 			v[ 2 ] = d * v[2];
 			vertexsets.set(k, v);
 		}
-		//System.out.println( "trimeshVertices " + Vertices.length );
 		
 		toppoint *= h;		// y+
 		bottompoint *= h;	// y-
@@ -377,12 +366,9 @@ public class BrMesh implements Serializable {
 		rightpoint *= w;	// x+
 		farpoint *= d;		// z-
 		nearpoint *= d;		// z+
-		
-		// Regen display list
 	}
 
 	public void destroy() {
-		//GL11.glDeleteLists(objectlist,1);
 		vertexsets.clear();		
 		vertexsetsnorms.clear();
 		vertexsetstexs.clear();
@@ -488,93 +474,7 @@ public class BrMesh implements Serializable {
 		bw.close();
 		w.close();
 	}
-	
-//	public double intersectRayMesh( float[] direction, float[] point, int sourceFace, double offsetR ) {
-//		double dist = Double.POSITIVE_INFINITY;
-//		/*direction[0] = -direction[0];
-//		direction[1] = -direction[1];
-//		direction[2] = -direction[2];*/
-//
-//		Vector3f dir = new Vector3f( direction[0], direction[1], direction[2] );
-//		//Vector3f w0 = new Vector3f( point[0], point[1], point[2] );
-//
-//		Vector3f w0 = new Vector3f( (float) (point[0] + offsetR * direction[0]),
-//									(float) (point[1] + offsetR * direction[1]),
-//									(float) (point[2] + offsetR * direction[2]) );
-//
-//		for( int k = 0; k < faces.size(); k++ ) {
-//			if( k != sourceFace ) {
-//			//if( k % ( faces.size() / 100 ) == 0 )
-//			//	System.out.println( "." + k );
-//			//Point3f I = new Point3f();
-//	        Vector3f    u, v, n;
-//	        Vector3f    w;
-//	        float     r, a, b;
-//
-//	        float[] p1v = getVertex( faces.get(k)[0] - 1  );
-//	        float[] p2v = getVertex( faces.get(k)[1] - 1 );
-//	        float[] p3v = getVertex( faces.get(k)[2] - 1 );
-//	        Vector3f p1 = new Vector3f( p1v[0], p1v[1], p1v[2] );
-//	        u = new Vector3f( p2v[0], p2v[1], p2v[2] );
-//	        v = new Vector3f( p3v[0], p3v[1], p3v[2] );
-//
-//	        Vector3f.sub( u, p1, u );
-//	        Vector3f.sub( v, p1, v );
-//	        n = new Vector3f(); // cross product
-//	        Vector3f.cross(u, v, n);
-//
-//	        if (n.length() != 0) {
-//
-//		        //w0.sub(T.getPointOne());
-//
-//	        	Vector3f rw0 = Vector3f.sub( w0, p1, null );
-//		        //a = -(new Vector3f(n).dot(w0));
-//	        	a = -( Vector3f.dot(n,rw0) );
-//		        //b = new Vector3f(n).dot(dir);
-//	        	b = ( Vector3f.dot( n, dir ) );
-//
-//		        if ((float)Math.abs(b) > 0.000001 ) {// small number check
-//
-//			        r = a / b;
-//			        if (r >= 0.0) {
-//
-//			        	// intersection point
-//				        //I = new Point3f(R.getStart());
-//				        //I.x += r * dir.x;
-//				        //I.y += r * dir.y;
-//				        //I.z += r * dir.z;
-//
-//		    	        float[] pc = new float[3];
-//		    	        pc[0] = ( p1v[0] + p2v[0] + p3v[0] ) / 3;
-//		    	        pc[1] = ( p1v[1] + p2v[1] + p3v[1] ) / 3;
-//		    	        pc[2] = ( p1v[2] + p2v[2] + p3v[2] ) / 3;
-//
-//		        		float d = (float) Math.sqrt( Math.pow( pc[0] - point[0], 2 ) +
-//		        							 Math.pow( pc[1] - point[1], 2 ) +
-//		        							 Math.pow( pc[2] - point[2], 2 ) );
-//
-//			        	if( d < dist ) {
-//			        		//System.out.println( "Matching face for " + sourceFace + " is " + k );
-//			        		//System.out.println( "Source direction " + dir );
-//			        		//System.out.println( "source point " + w0 );
-//			        		//System.out.println( "p1 " + p1 );
-//			        		//System.out.println( "r " + r );
-//
-//
-//			        		dist = d;
-//			        		//System.out.println( "d " + d );
-//			        	}
-//			        }
-//		        }
-//	        }
-//			}
-//		}
-//		if( dist == Double.POSITIVE_INFINITY )
-//			return -1;
-//		else
-//			return dist;
-//	}
-	
+
 	public int closestVertexIndex( float[] point ) {
 		double dist = Double.POSITIVE_INFINITY;
 		int closestVertex = -1;
