@@ -185,8 +185,8 @@
     (utils/add-object (random-bird)))
   (Thread/sleep 100)
   (.setVisible (.getFloor ^SciView (fun.imagej.sciview/get-sciview)) false)
-  (.surroundLighting (fun.imagej.sciview/get-sciview))
-  (.centerOnScene(fun.imagej.sciview/get-sciview)))
+  #_(.surroundLighting (fun.imagej.sciview/get-sciview))
+  #_(.centerOnScene(fun.imagej.sciview/get-sciview)))
 
 ;; Start zee macheen
 (defn -main [& args]

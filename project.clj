@@ -18,7 +18,7 @@
 
                  ;; Images and Physics packages
                  [org.joml/joml "1.9.12"]
-                 [fun.imagej/fun.imagej "b0975a0"]
+                 [fun.imagej/fun.imagej "dff7759"]
                  [com.github.tzaeschke/ode4j "a08c3c8b55" :exclusions [com.github.tzaeschke.ode4j/demo]]
 
                  ;; Plotting
