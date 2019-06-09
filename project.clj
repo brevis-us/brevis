@@ -36,10 +36,7 @@
                  [seesaw "1.4.4"]]
   :jvm-opts ["-Dscenery.Renderer=OpenGLRenderer"]
   ;:javadoc-opts {:package-names ["brevis" "brevis.graphics" "brevis.plot"]}
-  :repositories [["imagej" "https://maven.imagej.net/content/groups/hosted/"]
-                 ["imagej-releases" "https://maven.imagej.net/content/repositories/releases/"]
-                 ["ome maven" "https://artifacts.openmicroscopy.org/artifactory/maven/"]
-                 ["imagej-snapshots" "https://maven.imagej.net/content/repositories/snapshots/"]
+  :repositories [["scijava.public" "https://maven.scijava.org/content/groups/public"]
                  ["jitpack.io" "https://jitpack.io"]
                  ["saalfeld-lab-maven-repo" "https://saalfeldlab.github.io/maven"]
                  ["boundless" "https://repo.boundlessgeo.com/main/"]
