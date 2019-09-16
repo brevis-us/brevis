@@ -1,7 +1,7 @@
 (ns us.brevis.vector
   (:use [brevis-utils.math.core])
   (:import (org.joml Vector4f)
-           (sc.iview.vector JOMLVector3 Vector3)))
+           (sc.iview.vector JOMLVector3 Vector3 ClearGLVector3 DoubleVector3 FloatVector3)))
 
 ; Perhaps these could be multimethods
 
@@ -13,7 +13,7 @@
 (defn vec3?
   "Test if this is a vec3."
   [v]
-  (= (class v) Vector3))
+  (instance? Vector3 v))
 
 (defn vec4
   "Make a Vector4f"
@@ -23,7 +23,7 @@
 (defn vec4?
   "Test if this is a vec4."
   [v]
-  (= (class v) Vector4f))
+  (instance? Vector4 v))
 
 (defn vec4-to-vec3
   "convert a vec4 to a vec3"
